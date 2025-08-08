@@ -1,0 +1,57 @@
+$body-color: #445;
+$primary: #57c;
+
+@import "~bootstrap/scss/bootstrap";
+
+body {
+  background: radial-gradient(circle, #f8f8f8, #e6f2ff);
+  --bs-body-font-family: var(--larpit-default-font), sans-serif;
+}
+
+.link-subtle {
+  color: $primary;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link-xsubtle {
+  color: $primary;
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.link-xxsubtle {
+  color: $body-color;
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.link-subtle.text-muted,
+.text-muted .link-subtle,
+.link-subtle .text-muted {
+  color: color-mix(in srgb, var(--bs-primary) 25%, var(--bs-secondary) 75%);
+}
+
+.bullet-none {
+  list-style: none;
+  padding-left: 0;
+}
+
+.h-float {
+  color: #67a;
+}
+
+h4.h-float {
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.btn-primary:not(:disabled) {
+  color: white;
+}
