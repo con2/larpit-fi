@@ -3,6 +3,7 @@ export const privacyPolicyUrl = "https://tracon.fi/tietosuoja/larpit-fi";
 
 export const kompassiBaseUrl =
   process.env.NEXT_PUBLIC_KOMPASSI_BASE_URL || "https://dev.kompassi.eu";
+export const kompassiProfileUrl = `${kompassiBaseUrl}/profile`;
 export const kompassiOidc = {
   wellKnown: `${kompassiBaseUrl}/oidc/.well-known/openid-configuration/`,
   clientId:

@@ -1,9 +1,10 @@
+import { auth } from "@/auth";
+import { LoginLink, LogoutLink } from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
 import MaybeExternalLink from "@/components/MaybeExternalLink";
 import SubmitButton from "@/components/SubmitButton";
-import { privacyPolicyUrl } from "@/config";
+import { kompassiProfileUrl, privacyPolicyUrl } from "@/config";
 import { getTranslations } from "@/translations";
-import Link from "next/link";
 import { ReactNode } from "react";
 import { FormCheck, FormSelect, FormText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
@@ -20,13 +21,17 @@ interface Props {
   }>;
 }
 
-function LoginLink({ children }: { children: ReactNode }) {
-  return <Link href="/login">{children}</Link>;
-}
-
 function PrivacyPolicyLink({ children }: { children: ReactNode }) {
   return (
     <MaybeExternalLink href={privacyPolicyUrl}>{children}</MaybeExternalLink>
+  );
+}
+
+function ProfileLink({ children }: { children: ReactNode }) {
+  return (
+    <a href={kompassiProfileUrl} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
   );
 }
 
@@ -37,6 +42,9 @@ export default async function NewLarpPage({ params }: Props) {
   const t = translations.NewLarpPage;
   const larpT = translations.Larp;
 
+  const session = await auth();
+  const user = session?.user;
+
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
@@ -45,36 +53,62 @@ export default async function NewLarpPage({ params }: Props) {
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.contact.title}</CardTitle>
-            <div className="mb-4">{t.sections.contact.message(LoginLink)}</div>
+            <div className="mb-4">
+              {user
+                ? t.sections.contact.loggedIn(LogoutLink, ProfileLink)
+                : t.sections.contact.notLoggedIn(LoginLink)}
+            </div>
             <div className="row">
               <div className="form-group col-md-6 mb-3">
-                <FormLabel htmlFor="NewLarpPage-submitterName">
-                  {t.sections.contact.attributes.submitterName.label}*
-                </FormLabel>
-                <FormControl
-                  type="text"
-                  name="submitterName"
-                  id="NewLarpPage-submitterName"
-                  required
-                />
-                <FormText>
-                  {t.sections.contact.attributes.submitterName.helpText}
-                </FormText>
+                {user ? (
+                  <>
+                    <div className="form-label">
+                      {t.sections.contact.attributes.submitterName.label}
+                    </div>
+                    <div>{user.name}</div>
+                  </>
+                ) : (
+                  <>
+                    <FormLabel htmlFor="NewLarpPage-submitterName">
+                      {t.sections.contact.attributes.submitterName.label}*
+                    </FormLabel>
+                    <FormControl
+                      type="text"
+                      name="submitterName"
+                      id="NewLarpPage-submitterName"
+                      required
+                    />
+                    <FormText>
+                      {t.sections.contact.attributes.submitterName.helpText}
+                    </FormText>
+                  </>
+                )}
               </div>
 
               <div className="form-group col-md-6 mb-3">
-                <FormLabel htmlFor="NewLarpPage-submitterEmail">
-                  {t.sections.contact.attributes.submitterEmail.label}*
-                </FormLabel>
-                <FormControl
-                  type="email"
-                  name="submitterEmail"
-                  id="NewLarpPage-submitterEmail"
-                  required
-                />
-                <FormText>
-                  {t.sections.contact.attributes.submitterEmail.helpText}
-                </FormText>
+                {user ? (
+                  <>
+                    <div className="form-label">
+                      {t.sections.contact.attributes.submitterEmail.label}
+                    </div>
+                    <div>{user.email}</div>
+                  </>
+                ) : (
+                  <>
+                    <FormLabel htmlFor="NewLarpPage-submitterEmail">
+                      {t.sections.contact.attributes.submitterEmail.label}*
+                    </FormLabel>
+                    <FormControl
+                      type="email"
+                      name="submitterEmail"
+                      id="NewLarpPage-submitterEmail"
+                      required
+                    />
+                    <FormText>
+                      {t.sections.contact.attributes.submitterEmail.helpText}
+                    </FormText>
+                  </>
+                )}
               </div>
             </div>
 
@@ -198,6 +232,32 @@ export default async function NewLarpPage({ params }: Props) {
               </div>
             </div>
 
+            <div className="row">
+              <div className="form-group col-md-6 mb-3">
+                <FormLabel htmlFor="NewLarpPage-signupStartsAt">
+                  {larpT.attributes.signupStartsAt.label}
+                </FormLabel>
+                <FormControl
+                  type="date"
+                  id="NewLarpPage-signupStartsAt"
+                  name="signupStartsAt"
+                />
+                <FormText>{larpT.attributes.signupStartsAt.helpText}</FormText>
+              </div>
+
+              <div className="form-group col-md-6 mb-3">
+                <FormLabel htmlFor="NewLarpPage-signupEndsAt">
+                  {larpT.attributes.signupEndsAt.label}
+                </FormLabel>
+                <FormControl
+                  type="date"
+                  id="NewLarpPage-signupEndsAt"
+                  name="signupEndsAt"
+                />
+                <FormText>{larpT.attributes.signupEndsAt.helpText}</FormText>
+              </div>
+            </div>
+
             <div className="form-group mb-3">
               <FormLabel htmlFor="NewLarpPage-fluffText">
                 {larpT.attributes.fluffText.label}
@@ -228,7 +288,10 @@ export default async function NewLarpPage({ params }: Props) {
         <Card className="mb-5">
           <CardBody>
             <CardTitle>{t.sections.submit.title}</CardTitle>
-            <div className="mb-4">{t.sections.submit.message}</div>
+            <div className="mb-4">
+              {t.sections.submit.message}
+              {user ? null : t.sections.submit.notLoggedIn}
+            </div>
 
             <div className="form-group mb-3">
               <FormLabel htmlFor="NewLarpPage-submit-message">
@@ -245,13 +308,15 @@ export default async function NewLarpPage({ params }: Props) {
               </FormText>
             </div>
 
-            <div className="form-group mb-5">
-              <FormLabel htmlFor="NewLarpPage-submit-cat">
-                {t.sections.submit.attributes.cat.label}*
-              </FormLabel>
-              <FormControl id="NewLarpPage-submit-cat" name="cat" required />
-              <FormText>{t.sections.submit.attributes.cat.helpText}</FormText>
-            </div>
+            {user ? null : (
+              <div className="form-group mb-5">
+                <FormLabel htmlFor="NewLarpPage-submit-cat">
+                  {t.sections.submit.attributes.cat.label}*
+                </FormLabel>
+                <FormControl id="NewLarpPage-submit-cat" name="cat" required />
+                <FormText>{t.sections.submit.attributes.cat.helpText}</FormText>
+              </div>
+            )}
 
             <div className="d-flex mb-2">
               <SubmitButton className="btn btn-primary btn-lg flex-grow-1">

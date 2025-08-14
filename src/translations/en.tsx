@@ -92,6 +92,13 @@ const translations = {
           To add a new larp, please fill out the following form with all the
           relevant details. Fields marked with an asterisk (*) are required.
         </p>
+        <p className="form-text">
+          You can also use this form to create events that are related to
+          larping but are not larps themselves, including (but not limited to)
+          meetups, workshops, larp festivals and conventions. In this case,
+          please excuse the use of the word &quot;larp&quot; on this form; it
+          shall larp whatever the type of the event you are adding.
+        </p>
       </>
     ),
     actions: {
@@ -100,7 +107,19 @@ const translations = {
     sections: {
       contact: {
         title: "Who are you?",
-        message: (
+        loggedIn: (
+          LogoutLink: ({ children }: { children: ReactNode }) => JSX.Element,
+          ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element
+        ) => (
+          <p>
+            You are logged in as the user displayed below. If you are not this
+            person, please <LogoutLink>log out</LogoutLink>. If there are errors
+            in the information displayed, please correct them in your{" "}
+            <ProfileLink>Kompassi profile</ProfileLink>. Then log out and back
+            in again.
+          </p>
+        ),
+        notLoggedIn: (
           LoginLink: ({ children }: { children: ReactNode }) => JSX.Element
         ) => (
           <>
@@ -199,14 +218,6 @@ const translations = {
               please take a moment to consider what can be shared and what
               cannot.
             </p>
-            <p>
-              You can also use this form to create events that are related to
-              larping but are not larps themselves, including (but not limited
-              to) meetups, workshops, larp festivals and conventions. In this
-              case, please excuse the use of the word &quot;larp&quot; on this
-              form form; it shall larp whatever the type of the event you are
-              adding.
-            </p>
           </>
         ),
       },
@@ -216,26 +227,26 @@ const translations = {
           <>
             <p>
               You&apos;re almost good to go! Before you submit, please review
-              the provided information carefully. Since you are not logged in,
-              your submission may need to be approved by a site administrator
-              before it is published. Depending on your relation to the larp,
-              your future edits may have to be approved by the GM or site
-              administration.
+              the provided information carefully. Your submission may need to be
+              approved by a moderator before it is published. Depending on your
+              relation to the larp, your future edits may have to be approved by
+              the GM or a moderator.
             </p>
             <p>
               If you feel there is further context you need to add or something
               else you want to tell the person processing your request, you can
               use the field below to do so. Note that the person processing your
-              request may be a site administrator, a community moderator or the
-              GM.
-            </p>
-            <p>
-              Oh, one more thing! Since you are not logged in, we need to make
-              sure you are, in fact, a human person and not a sinister agent of
-              our future machine overlords. We shall carry this out in the
-              cheapest, stupidest way possible.
+              request may be a moderator or the GM.
             </p>
           </>
+        ),
+        notLoggedIn: (
+          <p>
+            Oh, one more thing! Since you are not logged in, we need to make
+            sure you are, in fact, a human person and not a sinister agent of
+            our future machine overlords. We shall carry this out in the
+            cheapest, stupidest way possible.
+          </p>
         ),
         attributes: {
           message: {
@@ -250,13 +261,6 @@ const translations = {
           },
         },
       },
-    },
-  },
-  SearchPage: {
-    title: "Search for larps",
-    searchTerm: {
-      title: "Search term",
-      placeholder: "Enter a search term and press Enter",
     },
   },
   ClaimLarpPage: {
@@ -340,6 +344,26 @@ const translations = {
           <>
             For single-day events, you can leave this blank. For multi-day
             events, please provide the date the <em>event</em> ends.
+          </>
+        ),
+      },
+      signupStartsAt: {
+        title: "Signup start date",
+        label: "When does the signup start?",
+        helpText: (
+          <>
+            Larps whose signup is in progress or starting soon will be
+            highlighted on the front page.
+          </>
+        ),
+      },
+      signupEndsAt: {
+        title: "Signup end date",
+        label: "When does the signup end?",
+        helpText: (
+          <>
+            If the signup start date is set but the signup end date is not set,
+            the signup will appear open until the start date of the larp.
           </>
         ),
       },
@@ -430,6 +454,13 @@ const translations = {
           <>Signup opening at {formattedDate}</>
         ),
       },
+    },
+  },
+  SearchPage: {
+    title: "Search for larps",
+    searchTerm: {
+      title: "Search term",
+      placeholder: "Enter a search term and press Enter",
     },
   },
   Navigation: {
