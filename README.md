@@ -17,7 +17,7 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
     - [ ] Override how GMs are displayed
 - [ ] Adding a larp
   - [x] Larp form skellington
-  - [ ] Add signup starts/ends dates to larp form
+  - [x] Add signup starts/ends dates to larp form
   - [ ] Encap larp form into a component
   - [ ] Non logged in user makes a request
     - [ ] Email confirmation required
