@@ -17,63 +17,73 @@ CREATE TYPE "larpit"."LarpLinkType" AS ENUM ('HOMEPAGE', 'PHOTOS', 'SOCIAL_MEDIA
 CREATE TYPE "larpit"."SubmitterRole" AS ENUM ('NONE', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER');
 
 -- CreateEnum
-CREATE TYPE "larpit"."EditStatus" AS ENUM ('NEW', 'ACCEPTED', 'REJECTED', 'WITHDRAWN');
+CREATE TYPE "larpit"."EditStatus" AS ENUM ('PENDING_VERIFICATION', 'VERIFIED', 'ACCEPTED', 'REJECTED', 'WITHDRAWN');
 
 -- CreateEnum
 CREATE TYPE "larpit"."EditType" AS ENUM ('CREATE', 'UPDATE');
 
 -- CreateTable
-CREATE TABLE "larpit"."account" (
-    "id" UUID NOT NULL,
-    "user_id" UUID NOT NULL,
-    "provider_type" TEXT NOT NULL,
-    "provider_id" TEXT NOT NULL,
-    "provider_account_id" TEXT NOT NULL,
-    "refresh_token" TEXT,
-    "access_token" TEXT,
-    "access_token_expires" TIMESTAMP(3),
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "account_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "larpit"."session" (
-    "id" UUID NOT NULL,
-    "user_id" UUID NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL,
-    "session_token" TEXT NOT NULL,
-    "access_token" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "session_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "larpit"."user" (
+CREATE TABLE "larpit"."User" (
     "id" UUID NOT NULL,
     "name" TEXT,
-    "email" TEXT,
-    "email_verified" TIMESTAMP(3),
+    "email" TEXT NOT NULL,
+    "emailVerified" TIMESTAMP(3),
     "image" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "user_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "larpit"."verification_request" (
-    "id" UUID NOT NULL,
+CREATE TABLE "larpit"."Account" (
+    "userId" UUID NOT NULL,
+    "type" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "providerAccountId" TEXT NOT NULL,
+    "refresh_token" TEXT,
+    "access_token" TEXT,
+    "expires_at" INTEGER,
+    "token_type" TEXT,
+    "scope" TEXT,
+    "id_token" TEXT,
+    "session_state" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Account_pkey" PRIMARY KEY ("provider","providerAccountId")
+);
+
+-- CreateTable
+CREATE TABLE "larpit"."Session" (
+    "sessionToken" TEXT NOT NULL,
+    "userId" UUID NOT NULL,
+    "expires" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "larpit"."VerificationToken" (
     "identifier" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "expires" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "verification_request_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "VerificationToken_pkey" PRIMARY KEY ("identifier","token")
+);
+
+-- CreateTable
+CREATE TABLE "larpit"."Authenticator" (
+    "credentialID" TEXT NOT NULL,
+    "userId" UUID NOT NULL,
+    "providerAccountId" TEXT NOT NULL,
+    "credentialPublicKey" TEXT NOT NULL,
+    "counter" INTEGER NOT NULL,
+    "credentialDeviceType" TEXT NOT NULL,
+    "credentialBackedUp" BOOLEAN NOT NULL,
+    "transports" TEXT,
+
+    CONSTRAINT "Authenticator_pkey" PRIMARY KEY ("userId","credentialID")
 );
 
 -- CreateTable
@@ -138,6 +148,8 @@ CREATE TABLE "larpit"."EditLarpRequest" (
     "submitter_email" TEXT NOT NULL,
     "submitter_id" UUID,
     "submitter_role" "larpit"."SubmitterRole" NOT NULL DEFAULT 'NONE',
+    "verificationCode" UUID,
+    "verifiedAt" TIMESTAMP(3),
     "name" TEXT NOT NULL,
     "tagline" TEXT NOT NULL,
     "starts_at" TIMESTAMP(3),
@@ -152,31 +164,28 @@ CREATE TABLE "larpit"."EditLarpRequest" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "account_provider_id_provider_account_id_key" ON "larpit"."account"("provider_id", "provider_account_id");
+CREATE UNIQUE INDEX "User_email_key" ON "larpit"."User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "session_session_token_key" ON "larpit"."session"("session_token");
+CREATE UNIQUE INDEX "Session_sessionToken_key" ON "larpit"."Session"("sessionToken");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "session_access_token_key" ON "larpit"."session"("access_token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "user_email_key" ON "larpit"."user"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "verification_request_token_key" ON "larpit"."verification_request"("token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "verification_request_identifier_token_key" ON "larpit"."verification_request"("identifier", "token");
+CREATE UNIQUE INDEX "Authenticator_credentialID_key" ON "larpit"."Authenticator"("credentialID");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "larp_alias_key" ON "larpit"."larp"("alias");
 
--- AddForeignKey
-ALTER TABLE "larpit"."account" ADD CONSTRAINT "account_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- CreateIndex
+CREATE UNIQUE INDEX "EditLarpRequest_verificationCode_key" ON "larpit"."EditLarpRequest"("verificationCode");
 
 -- AddForeignKey
-ALTER TABLE "larpit"."session" ADD CONSTRAINT "session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "larpit"."Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "larpit"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larpit"."Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "larpit"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larpit"."Authenticator" ADD CONSTRAINT "Authenticator_userId_fkey" FOREIGN KEY ("userId") REFERENCES "larpit"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "larpit"."RelatedLarp" ADD CONSTRAINT "RelatedLarp_left_id_fkey" FOREIGN KEY ("left_id") REFERENCES "larpit"."larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -188,7 +197,7 @@ ALTER TABLE "larpit"."RelatedLarp" ADD CONSTRAINT "RelatedLarp_right_id_fkey" FO
 ALTER TABLE "larpit"."RelatedUser" ADD CONSTRAINT "RelatedUser_larp_id_fkey" FOREIGN KEY ("larp_id") REFERENCES "larpit"."larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "larpit"."RelatedUser" ADD CONSTRAINT "RelatedUser_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "larpit"."RelatedUser" ADD CONSTRAINT "RelatedUser_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "larpit"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "larpit"."larp_link" ADD CONSTRAINT "larp_link_larp_id_fkey" FOREIGN KEY ("larp_id") REFERENCES "larpit"."larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;

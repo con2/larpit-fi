@@ -179,6 +179,12 @@ const translations: Translations = {
       search: "Etsi larppeja",
     },
   },
+  UserMenu: {
+    ownLarps: "Omat larpit",
+    signIn: "Kirjaudu sisään",
+    signOut: "Kirjaudu ulos",
+    usernameMissing: "Kirjautunut sisään",
+  },
   LanguageSwitcher: {
     supportedLanguages: {
       fi: "suomi",

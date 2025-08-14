@@ -10,6 +10,7 @@ import {
   NavLink,
 } from "react-bootstrap";
 import LanguageSwitcher from "./LanguageSwitcher";
+import UserMenu from "./UserMenu";
 
 interface Props {
   locale: string;
@@ -39,6 +40,7 @@ export function Navigation({ locale }: Props) {
               locale={locale}
               messages={translations.LanguageSwitcher}
             />
+            <UserMenu messages={translations.UserMenu} />
           </Nav>
         </NavbarCollapse>
       </Container>

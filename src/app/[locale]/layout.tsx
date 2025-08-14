@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { Navigation } from "@/components/Navigation";
+import type { Metadata } from "next";
 import { ReactNode } from "react";
 
 import { Geist } from "next/font/google";
@@ -9,8 +9,9 @@ const geist = Geist({
   variable: "--larpit-default-font",
 });
 
-import "./globals.scss";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import { getTranslations } from "@/translations";
+import "./globals.scss";
 
 interface Props {
   children: ReactNode;
@@ -31,11 +32,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
   return (
-    <html lang={locale} className={geist.variable}>
-      <body>
-        <Navigation locale={locale} />
-        <main>{children}</main>
-      </body>
-    </html>
+    <SessionProviderWrapper>
+      <html lang={locale} className={geist.variable}>
+        <body>
+          <Navigation locale={locale} />
+          <main>{children}</main>
+        </body>
+      </html>
+    </SessionProviderWrapper>
   );
 }

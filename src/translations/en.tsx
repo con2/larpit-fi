@@ -438,6 +438,12 @@ const translations = {
       search: "Search larps",
     },
   },
+  UserMenu: {
+    ownLarps: "Own larps",
+    signIn: "Sign in",
+    signOut: "Sign out",
+    usernameMissing: "Logged in",
+  },
   LanguageSwitcher: {
     supportedLanguages: {
       fi: "Finnish",

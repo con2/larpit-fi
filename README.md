@@ -77,10 +77,11 @@ Install deps:
 npm install
 ```
 
-Create an `.env` file with `DATABASE_URL` like the following:
+Create an `.env` file not unlike the following:
 
 ```ini
 DATABASE_URL="postgres://japsu@localhost/larpit?schema=larpit"
+NEXTAUTH_URL="http://localhost:3158"
 ```
 
 Start the development environment with
@@ -94,3 +95,5 @@ You can add some larps to the database with
 ```
 npm run db:seed
 ```
+
+Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
