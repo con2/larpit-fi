@@ -55,3 +55,15 @@ h4.h-float {
 .btn-primary:not(:disabled) {
   color: white;
 }
+
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.card-body p {
+  margin-bottom: 0.5rem;
+}

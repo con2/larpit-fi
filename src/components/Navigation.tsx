@@ -9,6 +9,7 @@ import {
   NavbarToggle,
   NavLink,
 } from "react-bootstrap";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface Props {
   locale: string;
@@ -23,12 +24,21 @@ export function Navigation({ locale }: Props) {
         <NavbarBrand as={Link} href="/">
           {translations.brand}
         </NavbarBrand>
-        <NavbarToggle aria-controls="basic-navbar-nav" />
-        <NavbarCollapse id="basic-navbar-nav">
-          <Nav className="ms-auto">
+        <NavbarToggle aria-controls="navbar-collapse" />
+        <NavbarCollapse id="navbar-collapse">
+          <Nav>
             <NavLink as={Link} href="/larp/new">
-              {t.actions.addLarp}…
+              {t.actions.addLarp}
             </NavLink>
+            <NavLink as={Link} href="/search">
+              {t.actions.search}
+            </NavLink>
+          </Nav>
+          <Nav className="ms-auto">
+            <LanguageSwitcher
+              locale={locale}
+              messages={translations.LanguageSwitcher}
+            />
           </Nav>
         </NavbarCollapse>
       </Container>

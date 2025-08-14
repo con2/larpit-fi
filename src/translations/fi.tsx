@@ -3,7 +3,7 @@ import type { Translations } from "./en";
 
 const translations: Translations = {
   brand: "Larpit.fi",
-  Home: {
+  HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     introduction: (
       AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element
@@ -25,8 +25,8 @@ const translations: Translations = {
             LARP-kalenterista
           </a>{" "}
           siten, että kuka tahansa voi{" "}
-          <AddLarpLink>lisätä larpin sivustolle</AddLarpLink>. Sinun ei tarvitse
-          olla larpin pelinjohtaja tai järjestäjä voidaksesi lisätä pelin!
+          <AddLarpLink>lisätä larpin sivustolle</AddLarpLink> tai ehdottaa
+          muutosta larpin tietoihin – sen ei tarvitse olla pelinjohtaja!
           Ensimmäistä larppiaan lisäävän käyttäjän lisäykset ennakkotarkistetaan
           ja muut muutokset jälkitarkistetaan. Pelinjohtaja voi ottaa oman
           larppinsa sivun hallintaansa.
@@ -81,38 +81,113 @@ const translations: Translations = {
     },
   },
   LarpPage: {
-    links: {
-      HOMEPAGE: "Pelin kotisivu",
-      PHOTOS: "Kuvia pelistä",
-      SOCIAL_MEDIA: "Sosiaalinen media",
-    },
     actions: {
-      claim: {
-        title: "Oletko pelinjohtaja tai järjestäjä? Ota sivu hallintaasi!",
-        label: "Ota hallintaan",
-        message: (
-          <>
-            <p>
-              Tämän larpin pelinjohtaja tai järjestäjä ei ole vielä ottanut
-              sivua hallintaansa. Sivulla näytetään pelistä vain perustiedot.
-            </p>
-            <p>
-              Ottamalla sivun hallintaasi voit muokata pelin tietoja, lisätä
-              linkkejä sosiaaliseen mediaan ja kuviin jne.
-            </p>
-            <p>
-              Tarkistamme pelien hallintaanottopyynnöt verkostostamme
-              varmistuaksemme siitä, että hallintaa pyytävä on oikeasti pelin
-              pelinjohtaja tai järjestäjä.
-            </p>
-          </>
+      claim: (
+        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element
+      ) => (
+        <>
+          Oletko tämän larpin pelinjohtaja tai tapahtuman järjestäjä?{" "}
+          <ClaimLink>Ota sivu hallintaasi</ClaimLink> muokataksesi tietoja!
+        </>
+      ),
+      suggestEdit: (
+        EditLink: ({ children }: { children: ReactNode }) => JSX.Element
+      ) => (
+        <>
+          Onko tällä sivulla jotain pielessä? Puuttuuko julkisia tietoja?{" "}
+          <EditLink>Ehdota muutosta</EditLink>!
+        </>
+      ),
+    },
+  },
+  ClaimLarpPage: {
+    title: "Oletko pelinjohtaja tai järjestäjä? Ota sivu hallintaasi!",
+    message: (
+      <>
+        <p>
+          Tämän larpin pelinjohtaja tai järjestäjä ei ole vielä ottanut sivua
+          hallintaansa. Sivulla näytetään pelistä vain perustiedot.
+        </p>
+        <p>
+          Ottamalla sivun hallintaasi voit muokata pelin tietoja, lisätä
+          linkkejä sosiaaliseen mediaan ja kuviin jne.
+        </p>
+        <p>
+          Tarkistamme pelien hallintaanottopyynnöt verkostostamme
+          varmistuaksemme siitä, että hallintaa pyytävä on oikeasti pelin
+          pelinjohtaja tai järjestäjä.
+        </p>
+      </>
+    ),
+  },
+  Larp: {
+    attributes: {
+      links: {
+        title: "Links",
+        types: {
+          HOMEPAGE: "Pelin kotisivu",
+          PHOTOS: "Kuvia pelistä",
+          SOCIAL_MEDIA: "Sosiaalinen media",
+          PLAYER_GUIDE: "Pelaajan käsikirja",
+        },
+      },
+      leftRelatedLarps: {
+        title: "Tähän larppiin liittyvät larpit",
+        types: {
+          SEQUEL: "Jatko-osa larpille",
+          SPINOFF: "Spinoff larpista",
+          IN_CAMPAIGN: "Larppi kampanjassa",
+          IN_SERIES: "Tapahtuma sarjassa",
+          RUN_OF: "Pelautus larpista",
+          RERUN_OF: "Uudelleenpelautus larpista",
+          PLAYED_AT: "Pelattu tapahtumassa",
+        },
+      },
+      rightRelatedLarps: {
+        title: "Related larps (right side of the relation)",
+        types: {
+          SEQUEL: "on jatko-osa tälle larpille",
+          SPINOFF: "on tämän larpin spinoff",
+          IN_CAMPAIGN: "on larppi tässä kampanjassa",
+          IN_SERIES: "on tapahtuma tässä sarjassa",
+          RUN_OF: "on pelautus tästä larpista",
+          RERUN_OF: "on uudelleenpelautus tästä larpista",
+          PLAYED_AT: "pelattiin tässä tapahtumassa",
+        },
+      },
+      signupOpen: {
+        openIndefinitely: <>Ilmoittautuminen auki</>,
+        openUntil: (formattedDate: ReactNode) => (
+          <>Ilmoittautuminen auki {formattedDate} asti</>
+        ),
+        opensAt: (formattedDate: ReactNode) => (
+          <>Ilmoittautuminen avautuu {formattedDate}</>
         ),
       },
+    },
+  },
+  SearchPage: {
+    title: "Etsi larppeja",
+    searchTerm: {
+      title: "Hakusana",
+      placeholder: "Syötä hakusana ja paina rivinvaihtoa",
     },
   },
   Navigation: {
     actions: {
       addLarp: "Lisää larppi",
+      search: "Etsi larppeja",
+    },
+  },
+  LanguageSwitcher: {
+    supportedLanguages: {
+      fi: "suomi",
+      en: "englanti",
+    },
+    // NOTE: value always in target language
+    switchTo: {
+      fi: "suomeksi",
+      en: "In English",
     },
   },
 };

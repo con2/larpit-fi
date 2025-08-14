@@ -1,24 +1,53 @@
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import { LarpLink, PrismaClient } from "@/generated/prisma";
+import getLarpHref from "@/helpers/getLarpHref";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, CardBody, CardTitle } from "react-bootstrap";
+import { Card, CardBody, CardTitle, FormText } from "react-bootstrap";
+import Markdown from "./Markdown";
+import { ReactNode } from "react";
+import Paragraphs from "./Paragraphs";
 
 const prisma = new PrismaClient();
 
-interface Props {
-  locale: string;
-  larpId: string;
+const relatedLarpInclude = {
+  select: {
+    id: true,
+    alias: true,
+    name: true,
+  },
+} as const;
+
+const include = {
+  links: true,
+  relatedLarpsLeft: {
+    include: { right: relatedLarpInclude },
+    orderBy: { right: { startsAt: "asc" } },
+  },
+  relatedLarpsRight: {
+    include: { left: relatedLarpInclude },
+    orderBy: { left: { startsAt: "asc" } },
+  },
+} as const;
+
+export async function getLarpPageData(
+  where: { id: string } | { alias: string }
+) {
+  return prisma.larp.findUnique({ where, include });
 }
+
+type LarpPageLarp = NonNullable<Awaited<ReturnType<typeof getLarpPageData>>>;
+type RelatedLarpLeft = LarpPageLarp["relatedLarpsLeft"][number];
+type RelatedLarpRight = LarpPageLarp["relatedLarpsRight"][number];
 
 function LarpLinkComponent({
   link,
-  messages,
+  messages: t,
 }: {
   link: LarpLink;
-  messages: Translations["LarpPage"];
+  messages: Translations["Larp"];
 }) {
   return (
     <div className="mb-1">
@@ -28,22 +57,82 @@ function LarpLinkComponent({
         rel="noopener noreferrer"
         target="_blank"
       >
-        {link.title || messages.links[link.type] || link.type}
+        {link.title || t.attributes.links.types[link.type] || link.type}
       </a>
     </div>
   );
 }
 
-export default async function LarpPage({ larpId, locale }: Props) {
-  const translations = getTranslations(locale);
-  const t = translations.LarpPage;
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    include: { links: true },
-  });
+function LeftRelatedLarpComponent({
+  relatedLarp,
+  messages: t,
+}: {
+  relatedLarp: RelatedLarpLeft;
+  messages: Translations["Larp"];
+}) {
+  return (
+    <div className="mb-1">
+      <span className="text-muted">
+        {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
+          relatedLarp.type}
+      </span>{" "}
+      <Link href={getLarpHref(relatedLarp.right)} className="link-subtle">
+        {relatedLarp.right?.name}
+      </Link>
+    </div>
+  );
+}
+
+function RightRelatedLarpComponent({
+  relatedLarp,
+  messages: t,
+}: {
+  relatedLarp: RelatedLarpRight;
+  messages: Translations["Larp"];
+}) {
+  return (
+    <div className="mb-1">
+      <Link href={getLarpHref(relatedLarp.left)} className="link-subtle">
+        {relatedLarp.left?.name}
+      </Link>{" "}
+      <span className="text-muted">
+        {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
+          relatedLarp.type}
+      </span>
+    </div>
+  );
+}
+
+interface Props {
+  locale: string;
+  larpPromise: ReturnType<typeof getLarpPageData>;
+}
+
+export default async function LarpPage({ larpPromise, locale }: Props) {
+  const larp = await larpPromise;
   if (!larp) {
     notFound();
   }
+
+  const translations = getTranslations(locale);
+  const t = translations.LarpPage;
+
+  function ClaimLink({ children }: { children: ReactNode }) {
+    return (
+      <Link href={`/larp/${larp!.id}/claim`} className="link-subtle">
+        {children}
+      </Link>
+    );
+  }
+
+  function EditLink({ children }: { children: ReactNode }) {
+    return (
+      <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
+        {children}
+      </Link>
+    );
+  }
+
   return (
     <>
       <div className="container">
@@ -60,21 +149,44 @@ export default async function LarpPage({ larpId, locale }: Props) {
             />{" "}
             {larp.locationText}
           </p>
+          {larp.relatedLarpsLeft.map((relatedLarp) => (
+            <LeftRelatedLarpComponent
+              key={relatedLarp.rightId}
+              relatedLarp={relatedLarp}
+              messages={translations.Larp}
+            />
+          ))}
+          {larp.relatedLarpsRight.map((relatedLarp) => (
+            <RightRelatedLarpComponent
+              key={relatedLarp.leftId}
+              relatedLarp={relatedLarp}
+              messages={translations.Larp}
+            />
+          ))}
           {larp.links.map((link) => (
-            <LarpLinkComponent key={link.id} link={link} messages={t} />
+            <LarpLinkComponent
+              key={link.id}
+              link={link}
+              messages={translations.Larp}
+            />
           ))}
         </div>
       </div>
-      <div className="container" style={{ maxWidth: "800px" }}>
-        <Card className="mt-5 mb-5">
-          <CardBody>
-            <CardTitle>{t.actions.claim.title}</CardTitle>
-            {t.actions.claim.message}
-            <Link href={`/larp/${larp.id}/claim`} className="btn btn-primary">
-              {t.actions.claim.label}…
-            </Link>
-          </CardBody>
-        </Card>
+      <div className="container mt-5 mb-5" style={{ maxWidth: "800px" }}>
+        {larp.fluffText && (
+          <div className="mb-5 fst-italic">
+            <Paragraphs text={larp.fluffText} />
+          </div>
+        )}
+        {larp.description && (
+          <div className="mb-5">
+            <Markdown input={larp.description} />
+          </div>
+        )}
+        <div className="mb-2 form-text">⚠️ {t.actions.claim(ClaimLink)}</div>
+        <div className="mb-2 form-text">
+          ⚠️ {t.actions.suggestEdit(EditLink)}
+        </div>
       </div>
     </>
   );

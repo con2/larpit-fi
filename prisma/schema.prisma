@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -10,8 +11,8 @@ datasource db {
 
 // next-auth
 model Account {
-  id                 String    @id @default(cuid())
-  userId             String    @map("user_id")
+  id                 String    @id @default(uuid(4)) @db.Uuid
+  userId             String    @map("user_id") @db.Uuid
   providerType       String    @map("provider_type")
   providerId         String    @map("provider_id")
   providerAccountId  String    @map("provider_account_id")
@@ -28,8 +29,8 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  userId       String   @map("user_id")
+  id           String   @id @default(uuid(4)) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
   expires      DateTime
   sessionToken String   @unique @map("session_token")
   accessToken  String   @unique @map("access_token")
@@ -42,7 +43,7 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid(4)) @db.Uuid
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
@@ -50,14 +51,15 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  accounts Account[]
-  sessions Session[]
+  accounts    Account[]
+  sessions    Session[]
+  RelatedUser RelatedUser[]
 
   @@map("user")
 }
 
 model VerificationRequest {
-  id         String   @id @default(cuid())
+  id         String   @id @default(uuid(4)) @db.Uuid
   identifier String
   token      String   @unique
   expires    DateTime
@@ -69,34 +71,108 @@ model VerificationRequest {
 }
 
 // larpit.fi
+enum LarpType {
+  ONE_SHOT
+  CAMPAIGN_LARP
+
+  CAMPAIGN // of CAMPAIGN_LARPs
+  MULTIPLE_RUNS // of ONE_SHOTs (or, in rare occasions, CAMPAIGNs)
+
+  OTHER_EVENT_SERIES
+  OTHER_EVENT
+}
+
+enum Language {
+  fi
+  en
+  sv
+  OTHER
+}
+
 model Larp {
-  id           String   @id @default(cuid())
+  id           String   @id @default(uuid(7)) @db.Uuid
   name         String
-  language     String
+  type         LarpType @default(ONE_SHOT)
+  language     Language
   tagline      String?
   alias        String?  @unique
   locationText String?  @map("location_text")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  createdById  String?  @map("created_by")
 
-  startsAt DateTime? @map("starts_at")
-  endsAt   DateTime? @map("ends_at")
+  fluffText   String? @map("fluff_text")
+  description String? @map("description")
 
-  links LarpLink[]
+  // createdAt from id (UUIDv7)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  startsAt       DateTime? @map("starts_at")
+  endsAt         DateTime? @map("ends_at")
+  signupStartsAt DateTime? @map("signup_starts_at")
+  signupEndsAt   DateTime? @map("signup_ends_at")
+
+  links             LarpLink[]
+  relatedLarpsLeft  RelatedLarp[] @relation("RelatedLarpsLeft")
+  relatedLarpsRight RelatedLarp[] @relation("RelatedLarpsRight")
+  relatedUsers      RelatedUser[]
 
   @@map("larp")
+}
+
+enum RelatedLarpType {
+  SEQUEL
+  SPINOFF
+
+  // CAMPAIGN_LARP INSTANCE_OF CAMPAIGN
+  // ONE_SHOT INSTANCE_OF MULTIPLE_RUNS
+  // etc.
+  IN_CAMPAIGN
+  IN_SERIES
+  RUN_OF
+  RERUN_OF
+
+  PLAYED_AT
+}
+
+model RelatedLarp {
+  leftId  String          @map("left_id") @db.Uuid
+  rightId String          @map("right_id") @db.Uuid
+  type    RelatedLarpType
+
+  left  Larp @relation("RelatedLarpsLeft", fields: [leftId], references: [id], onDelete: Cascade)
+  right Larp @relation("RelatedLarpsRight", fields: [rightId], references: [id], onDelete: Cascade)
+
+  @@id([leftId, rightId])
+}
+
+enum RelatedUserRole {
+  EDITOR
+  CREATED_BY
+  GAME_MASTER
+  ORGANIZER
+  VOLUNTEER
+  PLAYER
+  FAVORITE
+}
+
+model RelatedUser {
+  id     String          @id @default(uuid(7)) @db.Uuid
+  larpId String          @map("larp_id") @db.Uuid
+  userId String          @map("user_id") @db.Uuid
+  role   RelatedUserRole
+
+  larp Larp @relation(fields: [larpId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum LarpLinkType {
   HOMEPAGE
   PHOTOS
   SOCIAL_MEDIA
+  PLAYER_GUIDE
 }
 
 model LarpLink {
-  id     String       @id @default(cuid())
-  larpId String       @map("larp_id")
+  id     String       @id @default(uuid(7)) @db.Uuid
+  larpId String       @map("larp_id") @db.Uuid
   type   LarpLinkType @default(HOMEPAGE)
   href   String
   title  String?
@@ -104,4 +180,49 @@ model LarpLink {
   larp Larp @relation(fields: [larpId], references: [id], onDelete: Cascade)
 
   @@map("larp_link")
+}
+
+enum SubmitterRole {
+  NONE
+  GAME_MASTER
+  VOLUNTEER
+  PLAYER
+}
+
+enum EditStatus {
+  NEW
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum EditType {
+  CREATE
+  UPDATE
+}
+
+model EditLarpRequest {
+  id     String     @id @default(uuid(7)) @db.Uuid
+  larpId String?    @map("larp_id") @db.Uuid
+  type   EditType
+  status EditStatus
+
+  resolvedById String?   @map("resolved_by_id") @db.Uuid
+  resolvedAt   DateTime? @map("resolved_at")
+
+  submitterName  String        @map("submitter_name")
+  submitterEmail String        @map("submitter_email")
+  submitterId    String?       @map("submitter_id") @db.Uuid
+  submitterRole  SubmitterRole @default(NONE) @map("submitter_role")
+
+  name         String
+  tagline      String
+  startsAt     DateTime? @map("starts_at")
+  endsAt       DateTime? @map("ends_at")
+  locationText String?   @map("location_text")
+  language     Language
+  fluffText    String?   @map("fluff_text")
+  description  String?
+
+  message String?
 }

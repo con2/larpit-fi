@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translations = getTranslations(locale);
 
   return {
-    title: `${translations.brand} – ${translations.Home.tagline}`,
+    title: `${translations.brand} – ${translations.HomePage.tagline}`,
   };
 }
 

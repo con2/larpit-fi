@@ -1,12 +1,9 @@
-import { FormattedDateRange } from "@/components/FormattedDateRange";
-import LarpPage from "@/components/LarpPage";
-import { LarpLink, PrismaClient } from "@/generated/prisma";
+import LarpPage, { getLarpPageData } from "@/components/LarpPage";
+import { PrismaClient } from "@/generated/prisma";
 import { getTranslations } from "@/translations";
-import { Translations } from "@/translations/en";
 import { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, CardBody, CardTitle } from "react-bootstrap";
+import { validate as uuidValidate } from "uuid";
 
 const prisma = new PrismaClient();
 
@@ -19,13 +16,21 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { larpId, locale } = await params;
-  const translations = getTranslations(locale);
+
+  // avoid 500 on invalid UUID
+  if (!uuidValidate(larpId)) {
+    notFound();
+  }
+
   const larp = await prisma.larp.findUnique({
     where: { id: larpId },
   });
   if (!larp) {
     notFound();
   }
+
+  const translations = getTranslations(locale);
+
   return {
     title: `${larp.name} – ${translations.brand}`,
     description: larp.tagline,
@@ -34,5 +39,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function LarpByIdPage({ params }: Props) {
   const { larpId, locale } = await params;
-  return <LarpPage larpId={larpId} locale={locale} />;
+
+  // avoid 500 on invalid UUID
+  if (!uuidValidate(larpId)) {
+    notFound();
+  }
+
+  return (
+    <LarpPage larpPromise={getLarpPageData({ id: larpId })} locale={locale} />
+  );
 }

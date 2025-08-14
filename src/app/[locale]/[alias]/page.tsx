@@ -1,4 +1,4 @@
-import LarpPage from "@/components/LarpPage";
+import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
@@ -16,6 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translations = getTranslations(locale);
   const larp = await prisma.larp.findUnique({
     where: { alias: alias },
+    select: {
+      name: true,
+      tagline: true,
+    },
   });
   if (!larp) {
     notFound();
@@ -28,11 +32,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function LarpByAliasPage({ params }: Props) {
   const { alias, locale } = await params;
-  const larp = await prisma.larp.findUnique({
-    where: { alias: alias },
-  });
-  if (!larp) {
-    notFound();
-  }
-  return <LarpPage larpId={larp.id} locale={locale} />;
+  return <LarpPage larpPromise={getLarpPageData({ alias })} locale={locale} />;
 }
