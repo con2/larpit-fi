@@ -33,6 +33,7 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
   - [ ] Moderator processes suggested edits for non claimed larp pages
   - [ ] GM (or admin) processes suggested edits for claimed larp pages
 - [ ] Subscribeable calendar resource (ICS)
+- [ ] Public data API (REST/JSON)
 - [ ] Own larps
   - [ ] Own larps list in profile
   - [ ] "I played this larp" button on larp page for logged in users
@@ -50,6 +51,9 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
 - [ ] Launch in X-con
   - [ ] Scream test concept with pilot group before X-con
   - [ ] Powerpoint presentation
+- [ ] Deployment on QB
+  - [ ] Staging environment
+  - [ ] Production environment
 
 ## Getting started
 
