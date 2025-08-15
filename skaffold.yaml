@@ -1,0 +1,15 @@
+apiVersion: skaffold/v2beta9
+kind: Config
+metadata:
+  name: larpit-fi
+build:
+  local:
+    useBuildkit: true
+  artifacts:
+    - image: larpit-fi
+      context: .
+deploy:
+  statusCheckDeadlineSeconds: 300
+  kubectl:
+    manifests:
+      - kubernetes/*.json
