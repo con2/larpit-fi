@@ -1,4 +1,5 @@
 import LarpCard from "@/components/LarpCard";
+import { PrivacyPolicyLink } from "@/components/LoginLink";
 import { LarpType } from "@/generated/prisma";
 import { isSignupOpenOrOpeningSoon } from "@/helpers/isSignupOpen";
 import prisma from "@/prisma";
@@ -117,7 +118,9 @@ export default async function HomePage({ params }: Props) {
             {translations.brand}{" "}
             <span className="fs-5 text-muted">{t.tagline}</span>
           </CardTitle>
-          <div className="card-text">{t.introduction(AddLarpLink)}</div>
+          <div className="card-text">
+            {t.introduction(AddLarpLink, PrivacyPolicyLink)}
+          </div>
         </CardBody>
       </Card>
 

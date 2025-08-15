@@ -1,11 +1,13 @@
 import { auth } from "@/auth";
-import { LoginLink, LogoutLink } from "@/components/LoginLink";
+import {
+  LoginLink,
+  LogoutLink,
+  PrivacyPolicyLink,
+  ProfileLink,
+} from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
-import MaybeExternalLink from "@/components/MaybeExternalLink";
 import SubmitButton from "@/components/SubmitButton";
-import { kompassiProfileUrl, privacyPolicyUrl } from "@/config";
 import { getTranslations } from "@/translations";
-import { ReactNode } from "react";
 import { FormCheck, FormSelect, FormText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import CardBody from "react-bootstrap/CardBody";
@@ -19,20 +21,6 @@ interface Props {
   params: Promise<{
     locale: string;
   }>;
-}
-
-function PrivacyPolicyLink({ children }: { children: ReactNode }) {
-  return (
-    <MaybeExternalLink href={privacyPolicyUrl}>{children}</MaybeExternalLink>
-  );
-}
-
-function ProfileLink({ children }: { children: ReactNode }) {
-  return (
-    <a href={kompassiProfileUrl} target="_blank" rel="noopener noreferrer">
-      {children}
-    </a>
-  );
 }
 
 export default async function NewLarpPage({ params }: Props) {

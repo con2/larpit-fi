@@ -6,7 +6,8 @@ const translations: Translations = {
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     introduction: (
-      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element
+      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element,
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
     ) => (
       <>
         <p>
@@ -28,13 +29,14 @@ const translations: Translations = {
           <AddLarpLink>lisätä larpin sivustolle</AddLarpLink> tai ehdottaa
           muutosta larpin tietoihin – sen ei tarvitse olla pelinjohtaja!
           Ensimmäistä larppiaan lisäävän käyttäjän lisäykset ennakkotarkistetaan
-          ja muut muutokset jälkitarkistetaan. Pelinjohtaja voi ottaa oman
+          ja myöhemmät lisäykset jälkitarkistetaan. Pelinjohtaja voi ottaa oman
           larppinsa sivun hallintaansa.
         </p>
         <p>
-          Larpit.fi pyörii Tampereen Nekalassa Tracon ry:n, Säätöyhteisö B2 ry:n
-          ja Tietotunkki oy:n tarjoamalla infrastruktuurilla, ja sitä ylläpitää{" "}
-          <strong>Santtu ”Japsu” Pajukanta</strong>. Palvelun avoimeen
+          Larpit.fi on Tracon ry:n tarjoama maksuton palvelu, joka pyörii
+          Tampereen Nekalassa Säätöyhteisö B2 ry:n ja Tietotunkki oy:n
+          tarjoamalla infrastruktuurilla. Palvelua ylläpitää{" "}
+          <strong>Santtu ”Japsu” Pajukanta</strong>. Larpit.fi:n avoimeen
           lähdekoodiin voit tutustua{" "}
           <a
             href="https://github.com/con2/larpit-fi"
@@ -44,14 +46,7 @@ const translations: Translations = {
             GitHubissa
           </a>
           . Tutustu myös{" "}
-          <a
-            rel="noopener noreferer"
-            target="_blank"
-            href="https://tracon.fi/tietosuoja/larpit-fi"
-          >
-            tietosuojaselosteeseen
-          </a>
-          .
+          <PrivacyPolicyLink>tietosuojaselosteeseen</PrivacyPolicyLink>.
         </p>
         <h5>Katso myös</h5>
         <ul className="bullet-none">

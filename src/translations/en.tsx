@@ -5,7 +5,8 @@ const translations = {
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
     introduction: (
-      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element
+      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element,
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
     ) => (
       <>
         <p>
@@ -20,9 +21,10 @@ const translations = {
           page.
         </p>
         <p>
-          Larpit.fi is generously hosted on infrastructure provided Tracon ry,
-          Säätöyhteisö B2 ry and Tietotunkki oy, and maintained by Japsu. The
-          service is open source and the source code can be found on{" "}
+          Larpit.fi is a service of Tracon ry, running on the infrastructure
+          generously provided by Säätöyhteisö B2 ry and Tietotunkki oy, and
+          maintained by <strong>Santtu ”Japsu” Pajukanta</strong>. The service
+          is open source and the source code can be found on{" "}
           <a
             href="https://github.com/con2/larpit-fi"
             rel="noopener noreferer"
@@ -30,7 +32,8 @@ const translations = {
           >
             GitHub
           </a>
-          .
+          . You can also view our{" "}
+          <PrivacyPolicyLink>privacy policy</PrivacyPolicyLink>.
         </p>
         <h5>See also</h5>
         <ul className="bullet-none">
