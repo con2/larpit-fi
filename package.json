@@ -7,8 +7,9 @@
     "build": "prisma generate --no-hints && next build",
     "start": "next start",
     "lint": "prisma generate --no-hints && next lint",
-    "db:seed": "prisma generate --no-hints && prisma db seed",
+    "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
+    "db:migrate": "prisma migrate deploy",
     "k8s:generate": "tsx src/bin/manifest.ts",
     "k8s:dev": "npm run k8s:generate && skaffold dev"
   },

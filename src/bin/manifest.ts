@@ -129,6 +129,11 @@ const volumeMounts = [
   },
 ];
 
+const securityContext = {
+  readOnlyRootFilesystem: false,
+  allowPrivilegeEscalation: false,
+};
+
 const deployment = {
   apiVersion: "apps/v1",
   kind: "Deployment",
@@ -152,17 +157,23 @@ const deployment = {
           fsGroup: 1000,
         },
         volumes,
-        initContainers: [],
+        initContainers: [
+          {
+            name: "migrate",
+            image,
+            command: ["npm", "run", "db:migrate"],
+            env,
+            securityContext,
+            volumeMounts,
+          },
+        ],
         containers: [
           {
             name: nodeServiceName,
             image,
             env,
             ports: [{ containerPort: port }],
-            securityContext: {
-              readOnlyRootFilesystem: false,
-              allowPrivilegeEscalation: false,
-            },
+            securityContext,
             startupProbe: probe,
             livenessProbe: livenessProbeEnabled ? probe : undefined,
             volumeMounts,
