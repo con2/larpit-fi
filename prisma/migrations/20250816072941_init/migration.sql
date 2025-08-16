@@ -150,14 +150,8 @@ CREATE TABLE "larpit"."EditLarpRequest" (
     "submitter_role" "larpit"."SubmitterRole" NOT NULL DEFAULT 'NONE',
     "verificationCode" UUID,
     "verifiedAt" TIMESTAMP(3),
-    "name" TEXT NOT NULL,
-    "tagline" TEXT NOT NULL,
-    "starts_at" TIMESTAMP(3),
-    "ends_at" TIMESTAMP(3),
-    "location_text" TEXT,
-    "language" "larpit"."Language" NOT NULL,
-    "fluff_text" TEXT,
-    "description" TEXT,
+    "oldContent" JSONB NOT NULL DEFAULT '{}',
+    "newContent" JSONB NOT NULL DEFAULT '{}',
     "message" TEXT,
 
     CONSTRAINT "EditLarpRequest_pkey" PRIMARY KEY ("id")

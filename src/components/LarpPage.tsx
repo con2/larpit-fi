@@ -5,9 +5,8 @@ import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, CardBody, CardTitle, FormText } from "react-bootstrap";
-import Markdown from "./Markdown";
 import { ReactNode } from "react";
+import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
 
 const prisma = new PrismaClient();

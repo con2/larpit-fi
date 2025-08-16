@@ -220,6 +220,19 @@ Rakas viholliseni -larppi on nyt tarjolla muiden uudelleenpelautettavaksi! Pelin
     },
   });
 
+  await prisma.larpLink.createManyAndReturn({
+    data: rvSuperRuns.map((i, ind) => ({
+      larpId: i.id,
+      type: LarpLinkType.PHOTOS,
+      href: `https://larppikuvat.fi/rakas-viholliseni-superpelautus/pelautus-${
+        ind + 2
+      }-santtu-pajukanta`,
+    })),
+    select: {
+      id: true,
+    },
+  });
+
   await prisma.larpLink.createMany({
     data: [rv, rvSuper, ...rvSuperRuns].map((run) => ({
       larpId: run.id,

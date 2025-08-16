@@ -1,6 +1,64 @@
 # Larpit.fi
 
-Larpit.fi is a crowd-sourced archive of past and future larps organized in Finland, by Finns, or having a significant Finnvasion.
+[Larpit.fi](https://larpit.fi) is a crowd-sourced archive of past and future larps organized in Finland, by Finns, or having a significant Finnvasion.
+
+## Technologies used
+
+* PostgreSQL
+* Node.js
+* TypeScript
+* Next.js
+* React
+* Prisma.io
+
+## Getting started
+
+Have PostgreSQL, Node.js (22+) and VS Code.
+
+Install deps:
+
+```
+npm install
+```
+
+Create an `.env` file not unlike the following:
+
+```ini
+DATABASE_URL="postgres://japsu@localhost/larpit?schema=larpit"
+NEXTAUTH_URL="http://localhost:3158"
+```
+
+Note that `?schema=larpit` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely. See `src/config.ts` for available environment variables.
+
+You may want to create the database beforehand with the `createdb` command
+
+```bash
+createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi_FI --template template0
+```
+or via `psql`
+```sql
+create database larpit
+locale_provider icu
+icu_locale 'fi-FI'
+locale 'fi_FI.UTF-8'
+template template0
+```
+
+to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO).
+
+Start the development environment with
+
+```
+npm run dev
+```
+
+You can add some larps to the database with
+
+```
+npm run db:seed
+```
+
+Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
 
 ## Features/TODO list
 
@@ -12,6 +70,10 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
   - [x] Display links to home page, player guide, social media etc. external resources
   - [x] Display relations between larps (eg. rerun, sequel)
   - [x] Links to claim the larp page or suggest an edit
+  - [ ] Number of players
+  - [ ] Author (as opposed to organizer)
+  - [ ] Age limits
+  - [ ] Intended audience? (-> tagging/categories?)
   - [ ] Should related users be shown somehow?
     - [ ] GM preference
     - [ ] Override how GMs are displayed
@@ -25,7 +87,7 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
   - [ ] Requests from logged in users having created larps previously automatically approved
   - [ ] Moderator approval for requests from non logged in users
   - [ ] Create re-run of a larp, or run of multi-run larp, prefilling details
-- [ ] Logging in with Kompassi
+- [x] Logging in with Kompassi
 - [ ] Admin menu
   - [ ] Show pending edit requests as notification balloon
 - [ ] User management
@@ -66,34 +128,16 @@ Larpit.fi is a crowd-sourced archive of past and future larps organized in Finla
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?
   - [ ] GM preference
+- [ ] Write proper privacy policy (Tracon.fi Wordpress)
 
-## Getting started
+### Ideas/unsorted items from Illusia evening 15 August 2025
 
-Have PostgreSQL, Node.js (22+) and VS Code.
-
-Install deps:
-
-```
-npm install
-```
-
-Create an `.env` file not unlike the following:
-
-```ini
-DATABASE_URL="postgres://japsu@localhost/larpit?schema=larpit"
-NEXTAUTH_URL="http://localhost:3158"
-```
-
-Start the development environment with
-
-```
-npm run dev
-```
-
-You can add some larps to the database with
-
-```
-npm run db:seed
-```
-
-Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
+- [ ] Larp list view
+  - [ ] Sort and filter
+- [ ] Tagging, hierarchy of categories
+  - [ ] Freeform tags
+  - [ ] Promoting freeform tags into a curated hierarchy
+- [ ] Email notifications
+- [ ] Organizations (that organize larps)
+- [ ] Venues
+- [ ] Statistics! (total larps, larp per year etc.)

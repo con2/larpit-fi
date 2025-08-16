@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "prisma generate --no-hints && next lint",
     "db:seed": "prisma generate --no-hints && prisma db seed",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "k8s:generate": "tsx src/bin/manifest.ts",
+    "k8s:dev": "npm run k8s:generate && skaffold dev"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",

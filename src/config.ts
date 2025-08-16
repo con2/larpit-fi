@@ -1,6 +1,8 @@
 export const timezone = "Europe/Helsinki";
 export const privacyPolicyUrl = "https://tracon.fi/tietosuoja/larpit-fi";
 
+export const databaseUrl = process.env.DATABASE_URL || "postgres:///";
+
 export const kompassiBaseUrl =
   process.env.NEXT_PUBLIC_KOMPASSI_BASE_URL || "https://dev.kompassi.eu";
 export const kompassiProfileUrl = `${kompassiBaseUrl}/profile`;
@@ -14,4 +16,7 @@ export const kompassiOidc = {
     "kompassi_dev_insecure_client_secret_larpit_fi",
 };
 
+// User-visible public base URL of the service
 export const publicUrl = process.env.NEXTAUTH_URL || "http://localhost:3158";
+export const nextauthSecret =
+  process.env.NEXTAUTH_SECRET || "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

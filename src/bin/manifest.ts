@@ -1,7 +1,7 @@
 // Generate Kubernetes manifests based on environment variables.
 // See https://github.com/japsu/depleten for philosophy.
 
-import { kompassiOidc, nextauthSecret } from "@/config";
+import { databaseUrl, kompassiOidc, nextauthSecret } from "@/config";
 import { writeFileSync, unlinkSync, existsSync, mkdirSync } from "fs";
 import path from "path";
 
@@ -10,7 +10,6 @@ interface Environment {
   secretManaged: boolean;
   kompassiBaseUrl: string;
   tlsEnabled: boolean;
-  livenessProbeEnabled: boolean;
 }
 
 const manifestsDir = path.resolve(path.join(__dirname, "../../kubernetes"));
@@ -24,21 +23,18 @@ const environmentConfigurations: Record<EnvironmentName, Environment> = {
     secretManaged: true,
     kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: false,
-    livenessProbeEnabled: true,
   },
   staging: {
     hostname: "dev.larpit.fi",
     secretManaged: false,
-    kompassiBaseUrl: "https://dev.larpit.fi",
+    kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: true,
-    livenessProbeEnabled: true,
   },
   production: {
     hostname: "larpit.fi",
     secretManaged: false,
     kompassiBaseUrl: "https://kompassi.eu",
     tlsEnabled: true,
-    livenessProbeEnabled: true,
   },
 };
 
@@ -60,14 +56,10 @@ const clusterIssuer = "letsencrypt-prod";
 const tlsSecretName = "ingress-letsencrypt";
 const port = 3000;
 const ingressClassName = "nginx";
+const livenessProbeEnabled = true;
 
-const {
-  hostname,
-  secretManaged,
-  kompassiBaseUrl,
-  tlsEnabled,
-  livenessProbeEnabled,
-} = environmentConfiguration;
+const { hostname, secretManaged, kompassiBaseUrl, tlsEnabled } =
+  environmentConfiguration;
 
 const ingressProtocol = tlsEnabled ? "https" : "http";
 const publicUrl = `${ingressProtocol}://${hostname}`;
@@ -75,7 +67,7 @@ const publicUrl = `${ingressProtocol}://${hostname}`;
 // Startup and liveness probe
 const probe = {
   httpGet: {
-    path: "/healthz",
+    path: "/api/healthz",
     port,
     httpHeaders: [
       {
@@ -267,6 +259,7 @@ const secret = {
     KOMPASSI_OIDC_CLIENT_SECRET: b64(kompassiOidc.clientId),
     KOMPASSI_OIDC_CLIENT_ID: b64(kompassiOidc.clientSecret),
     NEXTAUTH_SECRET: b64(nextauthSecret),
+    DATABASE_URL: b64(databaseUrl),
   },
 };
 

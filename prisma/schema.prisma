@@ -229,14 +229,8 @@ model EditLarpRequest {
   verificationCode String?   @unique @default(uuid(4)) @db.Uuid
   verifiedAt       DateTime?
 
-  name         String
-  tagline      String
-  startsAt     DateTime? @map("starts_at")
-  endsAt       DateTime? @map("ends_at")
-  locationText String?   @map("location_text")
-  language     Language
-  fluffText    String?   @map("fluff_text")
-  description  String?
+  oldContent Json @default("{}")
+  newContent Json @default("{}")
 
   message String?
 }
