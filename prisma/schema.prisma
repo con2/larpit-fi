@@ -14,22 +14,24 @@ model User {
   id            String    @id @default(uuid(4)) @db.Uuid
   name          String?
   email         String    @unique
-  emailVerified DateTime?
+  emailVerified DateTime? @map("email_verified")
   image         String?
   accounts      Account[]
   sessions      Session[]
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
   RelatedUser   RelatedUser[]
   Authenticator Authenticator[]
+
+  @@map("user")
 }
 
 model Account {
-  userId            String  @db.Uuid
+  userId            String  @map("user_id") @db.Uuid
   type              String
   provider          String
-  providerAccountId String
+  providerAccountId String  @map("provider_account_id")
   refresh_token     String?
   access_token      String?
   expires_at        Int?
@@ -38,22 +40,25 @@ model Account {
   id_token          String?
   session_state     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+  @@map("account")
 }
 
 model Session {
-  sessionToken String   @unique
-  userId       String   @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("session")
 }
 
 model VerificationToken {
@@ -62,22 +67,24 @@ model VerificationToken {
   expires    DateTime
 
   @@id([identifier, token])
+  @@map("verification_token")
 }
 
 // Optional for WebAuthn support
 model Authenticator {
-  credentialID         String  @unique
-  userId               String  @db.Uuid
-  providerAccountId    String
-  credentialPublicKey  String
-  counter              Int
-  credentialDeviceType String
-  credentialBackedUp   Boolean
-  transports           String?
+  credentialID         String  @unique @map("credential_id")
+  userId               String  @map("user_id") @db.Uuid
+  providerAccountId    String  @map("provider_account_id")
+  credentialPublicKey  String  @map("credential_public_key")
+  counter              Int     @map("counter")
+  credentialDeviceType String  @map("credential_device_type")
+  credentialBackedUp   Boolean @map("credential_backed_up")
+  transports           String? @map("transports")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+  @@map("authenticator")
 }
 
 // larpit.fi
@@ -151,6 +158,7 @@ model RelatedLarp {
   right Larp @relation("RelatedLarpsRight", fields: [rightId], references: [id], onDelete: Cascade)
 
   @@id([leftId, rightId])
+  @@map("related_larp")
 }
 
 enum RelatedUserRole {
@@ -171,6 +179,8 @@ model RelatedUser {
 
   larp Larp @relation(fields: [larpId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("related_user")
 }
 
 enum LarpLinkType {
@@ -226,11 +236,13 @@ model EditLarpRequest {
   submitterId    String?       @map("submitter_id") @db.Uuid
   submitterRole  SubmitterRole @default(NONE) @map("submitter_role")
 
-  verificationCode String?   @unique @default(uuid(4)) @db.Uuid
-  verifiedAt       DateTime?
+  verificationCode String?   @unique @default(uuid(4)) @map("verification_code") @db.Uuid
+  verifiedAt       DateTime? @map("verified_at")
 
-  oldContent Json @default("{}")
-  newContent Json @default("{}")
+  oldContent Json @default("{}") @map("old_content")
+  newContent Json @default("{}") @map("new_content")
 
   message String?
+
+  @@map("edit_larp_request")
 }

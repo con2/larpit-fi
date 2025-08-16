@@ -123,7 +123,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Scream test concept with pilot group before X-con
   - [ ] Powerpoint presentation
 - [ ] Deployment on QB
-  - [ ] Staging environment
+  - [x] Staging environment
   - [ ] Production environment
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?

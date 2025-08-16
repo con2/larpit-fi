@@ -16,6 +16,7 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import FormLabel from "react-bootstrap/FormLabel";
+import { createLarp } from "./actions";
 
 interface Props {
   params: Promise<{
@@ -37,7 +38,7 @@ export default async function NewLarpPage({ params }: Props) {
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-5">{t.message}</div>
-      <Form>
+      <Form action={createLarp}>
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.contact.title}</CardTitle>
@@ -146,7 +147,12 @@ export default async function NewLarpPage({ params }: Props) {
               <FormLabel htmlFor="NewLarpPage-name">
                 {larpT.attributes.name.label}*
               </FormLabel>
-              <FormControl type="text" id="NewLarpPage-name" required />
+              <FormControl
+                type="text"
+                id="NewLarpPage-name"
+                name="name"
+                required
+              />
               <FormText>{larpT.attributes.name.helpText}</FormText>
             </div>
 
@@ -154,7 +160,11 @@ export default async function NewLarpPage({ params }: Props) {
               <FormLabel htmlFor="NewLarpPage-tagline">
                 {larpT.attributes.tagline.label}
               </FormLabel>
-              <FormControl type="text" id="NewLarpPage-tagline" />
+              <FormControl
+                type="text"
+                id="NewLarpPage-tagline"
+                name="tagline"
+              />
               <FormText>{larpT.attributes.tagline.helpText}</FormText>
             </div>
 
