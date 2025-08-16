@@ -164,7 +164,7 @@ const deployment = {
         initContainers: [
           {
             name: "migrate",
-            migrateImage,
+            image: migrateImage,
             command: ["npm", "run", "db:migrate"],
             env,
             securityContext,
