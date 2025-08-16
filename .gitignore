@@ -40,5 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# generated files
 /src/generated/prisma
 /kubernetes
+
+# build pipeline
+build.json
