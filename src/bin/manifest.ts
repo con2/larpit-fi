@@ -1,7 +1,7 @@
 // Generate Kubernetes manifests based on environment variables.
 // See https://github.com/japsu/depleten for philosophy.
 
-import { databaseUrl, kompassiOidc, nextauthSecret } from "@/config";
+import { databaseUrl, kompassiOidc, authSecret } from "@/config";
 import { writeFileSync, unlinkSync, existsSync, mkdirSync } from "fs";
 import path from "path";
 
@@ -96,7 +96,8 @@ function secretKeyRef(key: string) {
 
 const env = Object.entries({
   PORT: port,
-  NEXTAUTH_SECRET: secretKeyRef("NEXTAUTH_SECRET"),
+  DATABASE_URL: secretKeyRef("DATABASE_URL"),
+  AUTH_SECRET: secretKeyRef("AUTH_SECRET"),
   NEXTAUTH_URL: publicUrl,
   NEXT_PUBLIC_KOMPASSI_BASE_URL: kompassiBaseUrl,
   KOMPASSI_OIDC_CLIENT_ID: secretKeyRef("KOMPASSI_OIDC_CLIENT_ID"),
@@ -269,7 +270,7 @@ const secret = {
   data: {
     KOMPASSI_OIDC_CLIENT_SECRET: b64(kompassiOidc.clientId),
     KOMPASSI_OIDC_CLIENT_ID: b64(kompassiOidc.clientSecret),
-    NEXTAUTH_SECRET: b64(nextauthSecret),
+    AUTH_SECRET: b64(authSecret),
     DATABASE_URL: b64(databaseUrl),
   },
 };
