@@ -50,7 +50,7 @@ const environmentConfiguration =
   environmentConfigurations[getEnvironmentName()];
 
 export const stack = "larpit";
-const image = "larpit";
+const image = "larpit-fi";
 const nodeServiceName = "node";
 const clusterIssuer = "letsencrypt-prod";
 const tlsSecretName = "ingress-letsencrypt";
