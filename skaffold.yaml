@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2beta9
+apiVersion: skaffold/v2beta29
 kind: Config
 metadata:
   name: larpit-fi
@@ -6,8 +6,16 @@ build:
   local:
     useBuildkit: true
   artifacts:
+    # required to run the migrations
+    - image: larpit-fi-builder
+      context: .
+      platforms: ["linux/amd64"]
+      docker:
+        target: builder
+    # this runs the actual service
     - image: larpit-fi
       context: .
+      platforms: ["linux/amd64"]
 deploy:
   statusCheckDeadlineSeconds: 300
   kubectl:

@@ -49,8 +49,11 @@ function getEnvironmentName(): EnvironmentName {
 const environmentConfiguration =
   environmentConfigurations[getEnvironmentName()];
 
-export const stack = "larpit";
+// image name will be replaced by skaffold
 const image = "larpit-fi";
+const migrateImage = "larpit-fi-builder";
+
+export const stack = "larpit";
 const nodeServiceName = "node";
 const clusterIssuer = "letsencrypt-prod";
 const tlsSecretName = "ingress-letsencrypt";
@@ -161,7 +164,7 @@ const deployment = {
         initContainers: [
           {
             name: "migrate",
-            image,
+            migrateImage,
             command: ["npm", "run", "db:migrate"],
             env,
             securityContext,
