@@ -70,7 +70,7 @@ const publicUrl = `${ingressProtocol}://${hostname}`;
 // Startup and liveness probe
 const probe = {
   httpGet: {
-    path: "/api/healthz",
+    path: "/api/health",
     port,
     httpHeaders: [
       {
