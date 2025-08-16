@@ -1,7 +1,9 @@
 import { JSX, ReactNode } from "react";
 
 const translations = {
-  brand: "Larpit.fi",
+  title: "Larpit.fi",
+  stagingTitle: "Larpit.fi (STAGING)",
+
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
     introduction: (
@@ -60,6 +62,15 @@ const translations = {
           </li>
         </ul>
       </>
+    ),
+    stagingIntroduction: (
+      <p>
+        This is the staging environment. You might want to go to the{" "}
+        <a href="https://larpit.fi" target="_blank" rel="noopener noreferrer">
+          production site
+        </a>
+        .
+      </p>
     ),
     sections: {
       ongoingSignup: "Sign-up in progress or opening soon",

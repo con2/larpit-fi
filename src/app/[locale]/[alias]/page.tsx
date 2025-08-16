@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
   return {
-    title: `${larp.name} – ${translations.brand}`,
+    title: `${larp.name} – ${translations.title}`,
     description: larp.tagline,
   };
 }

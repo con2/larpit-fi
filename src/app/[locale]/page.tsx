@@ -1,5 +1,6 @@
 import LarpCard from "@/components/LarpCard";
 import { PrivacyPolicyLink } from "@/components/LoginLink";
+import { isStaging } from "@/config";
 import { LarpType } from "@/generated/prisma";
 import { isSignupOpenOrOpeningSoon } from "@/helpers/isSignupOpen";
 import prisma from "@/prisma";
@@ -110,17 +111,19 @@ export default async function HomePage({ params }: Props) {
   );
   pastLarps.reverse();
 
+  const introduction = isStaging
+    ? t.stagingIntroduction
+    : t.introduction(AddLarpLink, PrivacyPolicyLink);
+
   return (
     <div className="container">
       <Card className="mt-3 mb-5">
         <CardBody>
           <CardTitle as={"h3"}>
-            {translations.brand}{" "}
+            {translations.title}{" "}
             <span className="fs-5 text-muted">{t.tagline}</span>
           </CardTitle>
-          <div className="card-text">
-            {t.introduction(AddLarpLink, PrivacyPolicyLink)}
-          </div>
+          <div className="card-text">{introduction}</div>
         </CardBody>
       </Card>
 

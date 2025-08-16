@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const translations = getTranslations(locale);
 
   return {
-    title: `${larp.name} – ${translations.brand}`,
+    title: `${larp.name} – ${translations.title}`,
     description: larp.tagline,
   };
 }

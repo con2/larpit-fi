@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import LanguageSwitcher from "./LanguageSwitcher";
 import UserMenu from "./UserMenu";
+import { isStaging } from "@/config";
 
 interface Props {
   locale: string;
@@ -23,7 +24,7 @@ export function Navigation({ locale }: Props) {
     <Navbar expand="md">
       <Container>
         <NavbarBrand as={Link} href="/">
-          {translations.brand}
+          {isStaging ? translations.stagingTitle : translations.title}
         </NavbarBrand>
         <NavbarToggle aria-controls="navbar-collapse" />
         <NavbarCollapse id="navbar-collapse">

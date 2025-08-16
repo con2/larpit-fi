@@ -19,6 +19,7 @@ export const kompassiOidc = {
 
 // User-visible public base URL of the service
 export const publicUrl = process.env.NEXTAUTH_URL || "http://localhost:3158";
+export const isStaging = publicUrl.includes("dev.larpit.fi");
 
 // next-auth aka auth.js
 export const authSecret =

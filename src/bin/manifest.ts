@@ -271,8 +271,8 @@ const secret = {
     labels: labels(),
   },
   data: {
-    KOMPASSI_OIDC_CLIENT_SECRET: b64(kompassiOidc.clientId),
-    KOMPASSI_OIDC_CLIENT_ID: b64(kompassiOidc.clientSecret),
+    KOMPASSI_OIDC_CLIENT_SECRET: b64(kompassiOidc.clientSecret),
+    KOMPASSI_OIDC_CLIENT_ID: b64(kompassiOidc.clientId),
     AUTH_SECRET: b64(authSecret),
     DATABASE_URL: b64(databaseUrl),
   },

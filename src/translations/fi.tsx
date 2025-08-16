@@ -2,7 +2,9 @@ import { JSX, ReactNode } from "react";
 import type { Translations } from "./en";
 
 const translations: Translations = {
-  brand: "Larpit.fi",
+  title: "Larpit.fi",
+  stagingTitle: "Larpit.fi (STAGING)",
+
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     introduction: (
@@ -68,6 +70,15 @@ const translations: Translations = {
           </li>
         </ul>
       </>
+    ),
+    stagingIntroduction: (
+      <p>
+        Tämä on kehitysversio. Halunnet siirtyä{" "}
+        <a href="https://larpit.fi" target="_blank" rel="noopener noreferrer">
+          tuotantoversioon
+        </a>
+        .
+      </p>
     ),
     sections: {
       ongoingSignup: "Ilmoittautuminen käynnissä tai avautumassa pian",
