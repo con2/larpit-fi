@@ -73,7 +73,7 @@ export async function createLarp(data: FormData) {
       submitterRole,
       message,
       newContent: Object.fromEntries(
-        Object.entries(newContent).filter(([_, v]) => ![null, ""].includes(v))
+        Object.entries(newContent).filter(([_, v]) => v !== null && v !== "")
       ),
     },
   });
