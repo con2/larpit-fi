@@ -85,7 +85,7 @@ jobs:
       - run: npx tsx src/bin/manifest.ts
         env:
           ENV: staging
-      - run: skaffold deploy -n larpit-dev -a build.json
+      - run: skaffold deploy -n larpit-staging -a build.json
 
   deploy_production:
     runs-on: self-hosted
