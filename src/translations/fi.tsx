@@ -765,6 +765,44 @@ const translations: Translations = {
       },
     },
   },
+  OwnLarpsPage: {
+    title: "Omat larpit",
+    attributes: {
+      role: {
+        label: "Oma rooli tässä larpissa",
+      },
+    },
+  },
+  RelatedUser: {
+    title: "Liitetyt käyttäjät",
+    message: "Tämä on lista käyttäjistä, jotka on liitetty tähän larppiin.",
+    attributes: {
+      role: {
+        title: "Rooli",
+        label: "Käyttäjän rooli tässä larpissa",
+        choices: {
+          EDITOR: {
+            title: "Muokkausoikeutettu",
+          },
+          CREATED_BY: {
+            title: "Luonut larppisivun",
+          },
+          GAME_MASTER: {
+            title: "Pelinjohtaja",
+          },
+          VOLUNTEER: {
+            title: "Vapaaehtoinen",
+          },
+          PLAYER: {
+            title: "Pelaaja",
+          },
+          FAVORITE: {
+            title: "Merkinnyt suosikiksi",
+          },
+        },
+      },
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",

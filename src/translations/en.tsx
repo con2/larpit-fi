@@ -738,6 +738,44 @@ const translations = {
       },
     },
   },
+  OwnLarpsPage: {
+    title: "Own larps",
+    attributes: {
+      role: {
+        label: "Own role in this larp",
+      },
+    },
+  },
+  RelatedUser: {
+    title: "Related users",
+    message: "This is a list of users who are associated with this larp.",
+    attributes: {
+      role: {
+        title: "Role",
+        label: "Role of user in this larp",
+        choices: {
+          EDITOR: {
+            title: "Has editing rights",
+          },
+          CREATED_BY: {
+            title: "Created larp page",
+          },
+          GAME_MASTER: {
+            title: "Game Master",
+          },
+          VOLUNTEER: {
+            title: "Volunteer",
+          },
+          PLAYER: {
+            title: "Player",
+          },
+          FAVORITE: {
+            title: "Marked as favorite",
+          },
+        },
+      },
+    },
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",
