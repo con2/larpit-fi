@@ -1,46 +1,26 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditStatus, EditType, SubmitterRole } from "@/generated/prisma";
+import { EditAction, EditStatus, UserRole } from "@/generated/prisma";
+import compactObject from "@/helpers/compactObject";
+import { CreateLarpForm, approveRequest } from "@/models/ModerationRequest";
 import prisma from "@/prisma";
-import { Temporal } from "@js-temporal/polyfill";
-import z from "zod";
+import { redirect } from "next/navigation";
+import fi from "@/translations/fi";
 
-const zPlainDateNull = z
-  .string()
-  .nullable()
-  .transform((val) => {
-    if (!val) return null;
-    return Temporal.PlainDate.from(val);
-  });
+const acceptableFelines = ["cat", "kissa", "katt"] as const;
 
-const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
-
-const CreateLarpForm = z.object({
-  submitterName: z.string().min(1).max(100).optional(),
-  submitterEmail: z.email().optional(),
-  submitterRole: zSubmitterRole,
-
-  name: z.string().min(1).max(200),
-  tagline: z.string().max(500).optional(),
-  locationText: z.string().max(200).optional(),
-  fluffText: z.string().max(2000).optional(),
-  description: z.string().max(2000).optional(),
-  message: z.string().max(2000).optional(),
-
-  startsAt: zPlainDateNull,
-  endsAt: zPlainDateNull,
-  signupStartsAt: zPlainDateNull,
-  signupEndsAt: zPlainDateNull,
-
-  cat: z.coerce.string().lowercase().optional(),
-});
-
-const acceptableFelines = ["cat", "kissa", "katt"];
-
-export async function createLarp(data: FormData) {
+export async function createLarp(
+  _locale: string,
+  data: FormData
+): Promise<void> {
   const session = await auth();
-  const user = session?.user;
+  const user = session?.user?.email
+    ? await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true, name: true, email: true, role: true },
+      })
+    : null;
 
   const parsed = CreateLarpForm.parse(Object.fromEntries(data.entries()));
 
@@ -64,17 +44,55 @@ export async function createLarp(data: FormData) {
     throw new Error("You might be a robot");
   }
 
-  await prisma.editLarpRequest.create({
+  let status: EditStatus = EditStatus.PENDING_VERIFICATION;
+  if (user) {
+    if (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR) {
+      // They have the right to accept their own edits, so take a shortcut
+      status = EditStatus.APPROVED;
+    } else if (user.role === UserRole.VERIFIED) {
+      // Accept but flag for check
+      status = EditStatus.AUTO_APPROVED;
+    }
+  }
+
+  const moderationRequest = await prisma.moderationRequest.create({
     data: {
-      type: EditType.CREATE,
-      status: EditStatus.PENDING_VERIFICATION,
+      action: EditAction.CREATE,
+      status,
+      submitterId: user?.id,
       submitterName,
       submitterEmail,
       submitterRole,
       message,
-      newContent: Object.fromEntries(
-        Object.entries(newContent).filter(([_, v]) => v !== null && v !== "")
-      ),
+      newContent: compactObject(newContent),
     },
   });
+
+  let larpId: string | null = null;
+  if (
+    moderationRequest.status === EditStatus.APPROVED ||
+    moderationRequest.status === EditStatus.AUTO_APPROVED
+  ) {
+    if (!user) {
+      throw new Error("This shouldn't happen (appease typechecker)");
+    }
+    const larp = await approveRequest(
+      moderationRequest,
+      user,
+      moderationRequest.status === EditStatus.APPROVED
+        ? fi.ModerationRequest.messages.autoApproved(user.role)
+        : null
+    );
+    larpId = larp.id;
+  }
+
+  switch (moderationRequest.status) {
+    case EditStatus.APPROVED:
+    case EditStatus.AUTO_APPROVED:
+      return void redirect(`/larp/${larpId}`);
+    case EditStatus.PENDING_VERIFICATION:
+      return void redirect("/larp/new/verify");
+    default:
+      return void redirect("/larp/new/thanks");
+  }
 }

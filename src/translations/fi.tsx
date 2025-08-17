@@ -1,5 +1,6 @@
 import { JSX, ReactNode } from "react";
 import type { Translations } from "./en";
+import { UserRole } from "@/generated/prisma";
 
 const translations: Translations = {
   title: "Larpit.fi",
@@ -156,43 +157,6 @@ const translations: Translations = {
             </p>
           </>
         ),
-        attributes: {
-          submitterName: {
-            title: "Nimi",
-            label: "Nimesi",
-            helpText:
-              "Ei tarvitse olla passinimesi, kunhan suomalaiset larppaajat tuntevat sinut tällä nimellä.",
-          },
-          submitterEmail: {
-            title: "Sähköposti",
-            label: "Sähköpostiosoitteesi",
-            helpText: "Vahvistusviesti lähetetään tähän osoitteeseen.",
-          },
-          submitterRole: {
-            title: "Rooli",
-            label: "Mikä on roolisi tässä larpissa?",
-            choices: {
-              GAME_MASTER: {
-                title: "Pelinjohtaja",
-                label:
-                  "Olen tämän larpin pelinjohtaja tai pelinjohtotiimin jäsen",
-              },
-              VOLUNTEER: {
-                title: "Vapaaehtoinen",
-                label: "Olen vapaaehtoinen, apulainen tai NPC tässä larpissa",
-              },
-              PLAYER: {
-                title: "Pelaaja",
-                label:
-                  "Pelasin pelaajahahmoa tässä larpissa tai minut on valittu pelaamaan siinä",
-              },
-              NONE: {
-                title: "Muu tai ei suhdetta",
-                label: "Ei mikään edellä mainituista",
-              },
-            },
-          },
-        },
       },
       privacy: {
         title: "Yksityisyydensuojasi on meille tärkeää",
@@ -278,12 +242,6 @@ const translations: Translations = {
           </p>
         ),
         attributes: {
-          message: {
-            title: "Viesti",
-            label: "Viesti pyynnön käsittelijälle",
-            helpText:
-              "On täysin okei jättää tämä kenttä tyhjäksi, jos sinulla ei ole lisättävää.",
-          },
           cat: {
             title: "Kissa",
             label: "Mikä eläin sanoo miau?",
@@ -292,6 +250,30 @@ const translations: Translations = {
         },
       },
     },
+    subpages: {
+      verificationRequired: {
+        title: "Tarkista sähköpostisi!",
+        message: (
+          <>
+            Vahvistusviesti on lähetetty antamaasi sähköpostiosoitteeseen.
+            Napsauta vahvistusviestissä olevaa linkkiä vahvistaaksesi pyyntösi.
+          </>
+        ),
+      },
+      thanks: {
+        title: "Kiitos!",
+        message: (
+          <>
+            Kiitos panoksestasi! Moderaattorimme tarkistavat ehdottamasi
+            muutoksen pikimmiten.
+          </>
+        ),
+        backToFrontPage: "Takaisin etusivulle",
+      },
+    },
+  },
+  EditLarpPage: {
+    title: "Muokkaa larppia",
   },
   ClaimLarpPage: {
     title: "Oletko pelinjohtaja tai järjestäjä? Ota sivu hallintaasi!",
@@ -315,6 +297,7 @@ const translations: Translations = {
   },
   Larp: {
     attributes: {
+      emptyAttribute: "Tyhjä",
       name: {
         title: "Nimi",
         label: "Larpin nimi",
@@ -337,7 +320,7 @@ const translations: Translations = {
           fi: "suomi",
           en: "englanti",
           sv: "ruotsi",
-          other: "muu",
+          OTHER: "muu",
         },
       },
       tagline: {
@@ -487,6 +470,194 @@ const translations: Translations = {
       },
     },
   },
+  ModerationRequest: {
+    listTitle: "Moderointipyynnöt",
+    singleTitle: "Moderointipyyntö",
+    attributes: {
+      createdAt: {
+        title: "Pyynnön ajankohta",
+      },
+      action: {
+        title: "Pyydetty muokkaus",
+        choices: {
+          CREATE: {
+            title: "Uuden larppisivun luominen",
+          },
+          UPDATE: {
+            title: "Ehdotettu muokkaus",
+          },
+          CLAIM: {
+            title: "Pyyntö ottaa sivu hallintaan",
+          },
+        },
+      },
+      name: {
+        title: "Larpin nimi",
+      },
+      submitterName: {
+        title: "Lähettäjän nimi",
+        label: "Nimesi",
+        helpText:
+          "Ei tarvitse olla passinimesi, kunhan suomalaiset larppaajat tuntevat sinut tällä nimellä.",
+      },
+      submitterEmail: {
+        title: "Lähettäjän sähköpostiosoite",
+        label: "Sähköpostiosoitteesi",
+        helpText: "Vahvistusviesti lähetetään tähän osoitteeseen.",
+      },
+      submitterRole: {
+        title: "Lähettäjän ilmoittama rooli pelissä",
+        label: "Mikä on roolisi tässä larpissa?",
+        choices: {
+          GAME_MASTER: {
+            title: "Pelinjohtaja",
+            label: "Olen tämän larpin pelinjohtaja tai pelinjohtotiimin jäsen",
+          },
+          VOLUNTEER: {
+            title: "Vapaaehtoinen",
+            label: "Olen vapaaehtoinen, apulainen tai NPC tässä larpissa",
+          },
+          PLAYER: {
+            title: "Pelaaja",
+            label:
+              "Pelasin pelaajahahmoa tässä larpissa tai minut on valittu pelaamaan siinä",
+          },
+          NONE: {
+            title: "Muu tai ei roolia",
+            label: "Ei mikään edellä mainituista",
+          },
+        },
+      },
+      status: {
+        title: "Pyynnön tila",
+        choices: {
+          PENDING_VERIFICATION: {
+            title: "Odottaa sähköpostivahvistusta",
+          },
+          VERIFIED: {
+            title: "Odottaa moderaattorin hyväksyntää",
+          },
+          AUTO_APPROVED: {
+            title: "Julkaistu (odottaa moderaattorin tarkistusta)",
+          },
+          APPROVED: {
+            title: "Hyväksytty",
+          },
+          REJECTED: {
+            title: "Hylätty",
+          },
+          WITHDRAWN: {
+            title: "Peruttu",
+          },
+        },
+      },
+      resolvedBy: {
+        title: "Pyynnön käsittelijä",
+        notResolved: "Ei vielä käsitelty",
+      },
+      isResolved: {
+        title: "Pyynnön tila",
+        choices: {
+          true: {
+            label: "Käsitelty moderointipyyntö",
+          },
+          false: {
+            label: "Käsittelyä odottava moderointipyyntö",
+          },
+        },
+      },
+      message: {
+        title: "Lähettäjän viesti",
+        label: "Viesti pyynnön käsittelijälle",
+        helpText:
+          "On täysin okei jättää tämä kenttä tyhjäksi, jos sinulla ei ole lisättävää.",
+      },
+      resolvedMessage: {
+        title: "Käsittelijän viesti",
+        label: "Perustelu",
+        helpText: (
+          <>
+            Tässä voit halutessasi perustella ratkaisusi. Perustelu näkyy muille
+            moderaattoreille ja pelinjohtajalle. Ole kohtelias perusteluissasi:
+            jos lähettäjä pyytää omia tietojaan, perustelu sisällytetään
+            toimitettaviin tietoihin.
+          </>
+        ),
+      },
+      larp: {
+        title: "Larppi jota pyyntö koskee",
+      },
+    },
+    actions: {
+      showAll: {
+        title: "Näytä myös käsitellyt pyynnöt",
+        active: "Näytetään myös käsitellyt pyynnöt.",
+      },
+      resolve: {
+        title: "Käsittele pyyntö",
+        submit: "Käsittele pyyntö",
+        attributes: {
+          resolution: {
+            title: "Ratkaisu",
+            choices: {
+              APPROVED: {
+                title: "Hyväksy pyyntö",
+                description: "Pyydetty muutos toteutetaan.",
+                already: "Tämä pyyntö on jo hyväksytty.",
+              },
+              REJECTED: {
+                title: "Hylkää pyyntö",
+                description: "Pyydettyä muutosta ei toteuteta.",
+                already: "Tämä pyyntö on jo hylätty.",
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: {
+      insufficientPrivileges: {
+        title: "Ei käyttöoikeutta",
+        message: "Tämä näkymä edellyttää moderaattorin oikeuksia.",
+      },
+    },
+    messages: {
+      autoApproved: (role: UserRole) => {
+        let roleName: string = role;
+        if (role === UserRole.ADMIN) {
+          roleName = "ylläpitäjä";
+        } else if (role === UserRole.MODERATOR) {
+          roleName = "moderaattori";
+        } else {
+          throw new Error(`Not implemented: ${role}`);
+        }
+        return `Hyväksytty automaattisesti, koska lähettäjä on ${roleName}.`;
+      },
+    },
+  },
+  VerificationCodePage: {
+    title: "Pyynnön vahvistaminen",
+    message: "Napsauta alla olevaa painiketta vahvistaaksesi pyyntösi.",
+    actions: {
+      verify: "Vahvista pyyntöni",
+    },
+    errors: {
+      notPendingVerification: {
+        title: "Pyyntö ei edellytä vahvistusta",
+        message: (
+          <>
+            <p>
+              Tämä pyyntö ei edellytä sähköpostivahvistusta. Se on voitu jo
+              vahvistaa tai käsitellä ilman vahvistusta.
+            </p>
+            <p>
+              Jos uskot tämän olevan virhe, ota yhteyttä sivuston ylläpitäjään.
+            </p>
+          </>
+        ),
+      },
+    },
+  },
   SearchPage: {
     title: "Etsi larppeja",
     searchTerm: {
@@ -494,10 +665,19 @@ const translations: Translations = {
       placeholder: "Syötä hakusana ja paina rivinvaihtoa",
     },
   },
+  LoginRequired: {
+    title: "Kirjautuminen vaaditaan",
+    message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
+    actions: {
+      login: "Kirjaudu sisään",
+    },
+  },
   Navigation: {
     actions: {
       addLarp: "Lisää larppi",
       search: "Etsi larppeja",
+      moderate: "Moderoi",
+      manageUsers: "Käyttäjät",
     },
   },
   UserMenu: {

@@ -1,15 +1,17 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
+import { User } from "@/generated/prisma";
 import type { Translations } from "@/translations/en";
 
 interface Props {
   messages: Translations["UserMenu"];
+  user: Pick<User, "name" | "role"> | null;
 }
 
 interface ProfileLink {
@@ -17,9 +19,7 @@ interface ProfileLink {
   href: string;
 }
 
-export default function UserMenu({ messages: t }: Props) {
-  const session = useSession();
-
+export default function UserMenu({ messages: t, user }: Props) {
   const links: ProfileLink[] = [
     {
       title: t.ownLarps,
@@ -27,9 +27,7 @@ export default function UserMenu({ messages: t }: Props) {
     },
   ];
 
-  if (session.status === "authenticated") {
-    const { user } = session.data;
-
+  if (user) {
     return (
       <NavDropdown
         title={user?.name ? <>{user.name}</> : <em>{t.usernameMissing}</em>}

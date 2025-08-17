@@ -1,6 +1,7 @@
 import { getTranslations } from "@/translations";
 import Link from "next/link";
 import {
+  Badge,
   Container,
   Nav,
   Navbar,
@@ -12,14 +13,36 @@ import {
 import LanguageSwitcher from "./LanguageSwitcher";
 import UserMenu from "./UserMenu";
 import { isStaging } from "@/config";
+import { auth } from "@/auth";
+import prisma from "@/prisma";
+import { EditStatus } from "@/generated/prisma";
+import { canManageUsers, canModerate } from "@/helpers/roles";
 
 interface Props {
   locale: string;
 }
 
-export function Navigation({ locale }: Props) {
+export async function Navigation({ locale }: Props) {
   const translations = getTranslations(locale);
   const t = translations.Navigation;
+
+  // TODO Forces dynamic rendering for all pages.
+  // Learn how to put custom fields on session.user and use useSession.
+  const session = await auth();
+  const [user, numPendingModerationRequests] = await Promise.all([
+    session?.user?.email
+      ? prisma.user.findUnique({
+          where: { email: session.user.email },
+          select: { id: true, name: true, email: true, role: true },
+        })
+      : null,
+    prisma.moderationRequest.count({
+      where: {
+        status: { in: [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED] },
+      },
+    }),
+  ]);
+
   return (
     <Navbar expand="md">
       <Container>
@@ -35,13 +58,28 @@ export function Navigation({ locale }: Props) {
             <NavLink as={Link} href="/search">
               {t.actions.search}
             </NavLink>
+            {canModerate(user) && (
+              <NavLink as={Link} href="/moderate">
+                {t.actions.moderate}{" "}
+                {!!numPendingModerationRequests && (
+                  <Badge pill bg="primary">
+                    {numPendingModerationRequests}
+                  </Badge>
+                )}
+              </NavLink>
+            )}
+            {canManageUsers(user) && (
+              <NavLink as={Link} href="/users">
+                {t.actions.manageUsers}
+              </NavLink>
+            )}
           </Nav>
           <Nav className="ms-auto">
             <LanguageSwitcher
               locale={locale}
               messages={translations.LanguageSwitcher}
             />
-            <UserMenu messages={translations.UserMenu} />
+            <UserMenu messages={translations.UserMenu} user={user} />
           </Nav>
         </NavbarCollapse>
       </Container>

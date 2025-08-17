@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "larpit"."UserRole" AS ENUM ('NOT_VERIFIED', 'VERIFIED', 'MODERATOR', 'ADMIN');
+
+-- CreateEnum
 CREATE TYPE "larpit"."LarpType" AS ENUM ('ONE_SHOT', 'CAMPAIGN_LARP', 'CAMPAIGN', 'MULTIPLE_RUNS', 'OTHER_EVENT_SERIES', 'OTHER_EVENT');
 
 -- CreateEnum
@@ -8,7 +11,7 @@ CREATE TYPE "larpit"."Language" AS ENUM ('fi', 'en', 'sv', 'OTHER');
 CREATE TYPE "larpit"."RelatedLarpType" AS ENUM ('SEQUEL', 'SPINOFF', 'IN_CAMPAIGN', 'IN_SERIES', 'RUN_OF', 'RERUN_OF', 'PLAYED_AT');
 
 -- CreateEnum
-CREATE TYPE "larpit"."RelatedUserRole" AS ENUM ('EDITOR', 'CREATED_BY', 'GAME_MASTER', 'ORGANIZER', 'VOLUNTEER', 'PLAYER', 'FAVORITE');
+CREATE TYPE "larpit"."RelatedUserRole" AS ENUM ('EDITOR', 'CREATED_BY', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER', 'FAVORITE');
 
 -- CreateEnum
 CREATE TYPE "larpit"."LarpLinkType" AS ENUM ('HOMEPAGE', 'PHOTOS', 'SOCIAL_MEDIA', 'PLAYER_GUIDE');
@@ -17,10 +20,10 @@ CREATE TYPE "larpit"."LarpLinkType" AS ENUM ('HOMEPAGE', 'PHOTOS', 'SOCIAL_MEDIA
 CREATE TYPE "larpit"."SubmitterRole" AS ENUM ('NONE', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER');
 
 -- CreateEnum
-CREATE TYPE "larpit"."EditStatus" AS ENUM ('PENDING_VERIFICATION', 'VERIFIED', 'ACCEPTED', 'REJECTED', 'WITHDRAWN');
+CREATE TYPE "larpit"."EditStatus" AS ENUM ('PENDING_VERIFICATION', 'VERIFIED', 'AUTO_APPROVED', 'APPROVED', 'REJECTED', 'WITHDRAWN');
 
 -- CreateEnum
-CREATE TYPE "larpit"."EditType" AS ENUM ('CREATE', 'UPDATE');
+CREATE TYPE "larpit"."EditAction" AS ENUM ('CREATE', 'UPDATE', 'CLAIM');
 
 -- CreateTable
 CREATE TABLE "larpit"."user" (
@@ -31,6 +34,7 @@ CREATE TABLE "larpit"."user" (
     "image" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "role" "larpit"."UserRole" NOT NULL DEFAULT 'NOT_VERIFIED',
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
@@ -137,13 +141,14 @@ CREATE TABLE "larpit"."larp_link" (
 );
 
 -- CreateTable
-CREATE TABLE "larpit"."edit_larp_request" (
+CREATE TABLE "larpit"."moderation_request" (
     "id" UUID NOT NULL,
     "larp_id" UUID,
-    "type" "larpit"."EditType" NOT NULL,
+    "action" "larpit"."EditAction" NOT NULL,
     "status" "larpit"."EditStatus" NOT NULL,
     "resolved_by_id" UUID,
     "resolved_at" TIMESTAMP(3),
+    "resolvedMessage" TEXT,
     "submitter_name" TEXT NOT NULL,
     "submitter_email" TEXT NOT NULL,
     "submitter_id" UUID,
@@ -154,7 +159,7 @@ CREATE TABLE "larpit"."edit_larp_request" (
     "new_content" JSONB NOT NULL DEFAULT '{}',
     "message" TEXT,
 
-    CONSTRAINT "edit_larp_request_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "moderation_request_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -170,7 +175,7 @@ CREATE UNIQUE INDEX "authenticator_credential_id_key" ON "larpit"."authenticator
 CREATE UNIQUE INDEX "larp_alias_key" ON "larpit"."larp"("alias");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "edit_larp_request_verification_code_key" ON "larpit"."edit_larp_request"("verification_code");
+CREATE UNIQUE INDEX "moderation_request_verification_code_key" ON "larpit"."moderation_request"("verification_code");
 
 -- AddForeignKey
 ALTER TABLE "larpit"."account" ADD CONSTRAINT "account_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -195,3 +200,12 @@ ALTER TABLE "larpit"."related_user" ADD CONSTRAINT "related_user_user_id_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "larpit"."larp_link" ADD CONSTRAINT "larp_link_larp_id_fkey" FOREIGN KEY ("larp_id") REFERENCES "larpit"."larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larpit"."moderation_request" ADD CONSTRAINT "moderation_request_larp_id_fkey" FOREIGN KEY ("larp_id") REFERENCES "larpit"."larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larpit"."moderation_request" ADD CONSTRAINT "moderation_request_resolved_by_id_fkey" FOREIGN KEY ("resolved_by_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larpit"."moderation_request" ADD CONSTRAINT "moderation_request_submitter_id_fkey" FOREIGN KEY ("submitter_id") REFERENCES "larpit"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

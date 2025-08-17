@@ -1,10 +1,19 @@
 import { timezone } from "@/config";
 import { Temporal } from "@js-temporal/polyfill";
 
-export function toZonedDateTime(datetime: Date): Temporal.ZonedDateTime {
-  return Temporal.Instant.fromEpochMilliseconds(
-    datetime.getTime()
-  ).toZonedDateTimeISO(timezone);
+export function toZonedDateTime(
+  value: Temporal.ZonedDateTime | Temporal.Instant | Date | string
+): Temporal.ZonedDateTime {
+  if (value instanceof Temporal.ZonedDateTime) {
+    return value;
+  }
+  if (value instanceof Date) {
+    value = Temporal.Instant.fromEpochMilliseconds(value.getTime());
+  }
+  if (typeof value === "string") {
+    value = Temporal.Instant.from(value);
+  }
+  return value.toZonedDateTimeISO(timezone);
 }
 
 export function toPlainDate(date: Date): Temporal.PlainDate {
@@ -64,8 +73,10 @@ export function fromMorning(date: Temporal.PlainDate): Date {
   );
 }
 
-export function fromMorningNull(date: Temporal.PlainDate | null): Date | null {
-  if (date === null) return null;
+export function fromMorningNull(
+  date: Temporal.PlainDate | null | undefined
+): Date | null {
+  if (!date) return null;
   return fromMorning(date);
 }
 
@@ -86,7 +97,44 @@ export function fromEvening(date: Temporal.PlainDate): Date {
   );
 }
 
-export function fromEveningNull(date: Temporal.PlainDate | null): Date | null {
-  if (date === null) return null;
+export function fromEveningNull(
+  date: Temporal.PlainDate | null | undefined
+): Date | null {
+  if (!date) return null;
   return fromEvening(date);
+}
+
+export const justBeforeMidnight: Temporal.PlainTime = Temporal.PlainTime.from({
+  hour: 23,
+  minute: 59,
+  second: 59,
+});
+
+export function fromJustBeforeMidnight(date: Temporal.PlainDate): Date {
+  return new Date(
+    date
+      .toZonedDateTime({
+        timeZone: timezone,
+        plainTime: justBeforeMidnight,
+      })
+      .toInstant().epochMilliseconds
+  );
+}
+
+export function fromJustBeforeMidnightNull(
+  date: Temporal.PlainDate | null | undefined
+): Date | null {
+  if (!date) return null;
+  return fromJustBeforeMidnight(date);
+}
+
+export function uuid7ToInstant(uuid: string): Temporal.Instant {
+  const parts = uuid.split("-");
+  const highBitsHex = parts[0] + parts[1].slice(0, 4);
+  const timestampInMilliseconds = parseInt(highBitsHex, 16);
+  return Temporal.Instant.fromEpochMilliseconds(timestampInMilliseconds);
+}
+
+export function uuid7ToZonedDateTime(uuid: string): Temporal.ZonedDateTime {
+  return uuid7ToInstant(uuid).toZonedDateTimeISO(timezone);
 }

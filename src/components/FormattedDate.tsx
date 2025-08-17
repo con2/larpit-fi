@@ -2,29 +2,29 @@ import { timezone } from "@/config";
 import { toSupportedLanguage } from "@/translations";
 import { Temporal } from "@js-temporal/polyfill";
 
-function formatDate(date: Date, locale: string): string {
-  const dateTime = Temporal.Instant.fromEpochMilliseconds(date.getTime())
-    .toZonedDateTimeISO(timezone)
-    .toPlainDate();
-  return dateTime.toLocaleString(toSupportedLanguage(locale), {
+function formatDate(date: Temporal.PlainDate, locale: string): string {
+  return date.toLocaleString(toSupportedLanguage(locale), {
     year: "numeric",
     month: "numeric",
     day: "numeric",
   });
 }
 
-function isoDate(date: Date): string {
-  return Temporal.Instant.fromEpochMilliseconds(date.getTime())
-    .toZonedDateTimeISO(timezone)
-    .toPlainDate()
-    .toString();
-}
-
 interface Props {
   locale: string;
-  date: Date;
+  date: Date | Temporal.PlainDate | string | null | undefined;
 }
 
 export function FormattedDate({ locale, date }: Props) {
-  return <time dateTime={isoDate(date)}>{formatDate(date, locale)}</time>;
+  if (!date) return null;
+
+  if (typeof date === "string") {
+    date = Temporal.PlainDate.from(date);
+  } else if (date instanceof Date) {
+    date = Temporal.Instant.fromEpochMilliseconds(date.getTime())
+      .toZonedDateTimeISO(timezone)
+      .toPlainDate();
+  }
+
+  return <time dateTime={date.toString()}>{formatDate(date, locale)}</time>;
 }

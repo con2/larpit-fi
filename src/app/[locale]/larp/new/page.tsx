@@ -7,7 +7,7 @@ import {
 } from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
-import { getTranslations } from "@/translations";
+import { getTranslations, toSupportedLanguage } from "@/translations";
 import { FormCheck, FormSelect, FormText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import CardBody from "react-bootstrap/CardBody";
@@ -17,6 +17,7 @@ import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import FormLabel from "react-bootstrap/FormLabel";
 import { createLarp } from "./actions";
+import prisma from "@/prisma";
 
 interface Props {
   params: Promise<{
@@ -25,20 +26,27 @@ interface Props {
 }
 
 export default async function NewLarpPage({ params }: Props) {
-  const { locale } = await params;
+  const resolvedParams = await params;
+  const locale = toSupportedLanguage(resolvedParams.locale);
 
   const translations = getTranslations(locale);
   const t = translations.NewLarpPage;
   const larpT = translations.Larp;
+  const requesT = translations.ModerationRequest;
 
   const session = await auth();
-  const user = session?.user;
+  const user = session?.user?.email
+    ? await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { name: true, role: true, email: true },
+      })
+    : null;
 
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-5">{t.message}</div>
-      <Form action={createLarp}>
+      <Form action={createLarp.bind(null, locale)}>
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.contact.title}</CardTitle>
@@ -52,14 +60,14 @@ export default async function NewLarpPage({ params }: Props) {
                 {user ? (
                   <>
                     <div className="form-label">
-                      {t.sections.contact.attributes.submitterName.label}
+                      {requesT.attributes.submitterName.label}
                     </div>
                     <div>{user.name}</div>
                   </>
                 ) : (
                   <>
                     <FormLabel htmlFor="NewLarpPage-submitterName">
-                      {t.sections.contact.attributes.submitterName.label}*
+                      {requesT.attributes.submitterName.label}*
                     </FormLabel>
                     <FormControl
                       type="text"
@@ -68,7 +76,7 @@ export default async function NewLarpPage({ params }: Props) {
                       required
                     />
                     <FormText>
-                      {t.sections.contact.attributes.submitterName.helpText}
+                      {requesT.attributes.submitterName.helpText}
                     </FormText>
                   </>
                 )}
@@ -78,14 +86,14 @@ export default async function NewLarpPage({ params }: Props) {
                 {user ? (
                   <>
                     <div className="form-label">
-                      {t.sections.contact.attributes.submitterEmail.label}
+                      {requesT.attributes.submitterEmail.label}
                     </div>
                     <div>{user.email}</div>
                   </>
                 ) : (
                   <>
                     <FormLabel htmlFor="NewLarpPage-submitterEmail">
-                      {t.sections.contact.attributes.submitterEmail.label}*
+                      {requesT.attributes.submitterEmail.label}*
                     </FormLabel>
                     <FormControl
                       type="email"
@@ -94,7 +102,7 @@ export default async function NewLarpPage({ params }: Props) {
                       required
                     />
                     <FormText>
-                      {t.sections.contact.attributes.submitterEmail.helpText}
+                      {requesT.attributes.submitterEmail.helpText}
                     </FormText>
                   </>
                 )}
@@ -103,7 +111,7 @@ export default async function NewLarpPage({ params }: Props) {
 
             <div className="form-group mb-1">
               <FormLabel htmlFor="NewLarpPage-submitterRole">
-                {t.sections.contact.attributes.submitterRole.label}*
+                {requesT.attributes.submitterRole.label}*
               </FormLabel>
               <FormSelect
                 id="NewLarpPage-submitterRole"
@@ -111,13 +119,13 @@ export default async function NewLarpPage({ params }: Props) {
                 required
               >
                 <option value=""></option>
-                {Object.entries(
-                  t.sections.contact.attributes.submitterRole.choices
-                ).map(([key, { label }]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                ))}
+                {Object.entries(requesT.attributes.submitterRole.choices).map(
+                  ([key, { label }]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  )
+                )}
               </FormSelect>
             </div>
           </CardBody>
@@ -293,7 +301,7 @@ export default async function NewLarpPage({ params }: Props) {
 
             <div className="form-group mb-3">
               <FormLabel htmlFor="NewLarpPage-submit-message">
-                {t.sections.submit.attributes.message.label}
+                {requesT.attributes.message.label}
               </FormLabel>
               <FormControl
                 as="textarea"
@@ -301,9 +309,7 @@ export default async function NewLarpPage({ params }: Props) {
                 name="message"
                 rows={5}
               />
-              <FormText>
-                {t.sections.submit.attributes.message.helpText}
-              </FormText>
+              <FormText>{requesT.attributes.message.helpText}</FormText>
             </div>
 
             {user ? null : (

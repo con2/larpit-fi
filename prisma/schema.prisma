@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  NOT_VERIFIED
+  VERIFIED
+  MODERATOR
+  ADMIN
+}
+
 // next-auth
 model User {
   id            String    @id @default(uuid(4)) @db.Uuid
@@ -19,10 +26,15 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  createdAt     DateTime        @default(now()) @map("created_at")
-  updatedAt     DateTime        @updatedAt @map("updated_at")
-  RelatedUser   RelatedUser[]
-  Authenticator Authenticator[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  role UserRole @default(NOT_VERIFIED)
+
+  RelatedUser             RelatedUser[]
+  Authenticator           Authenticator[]
+  RequestsResolvedByUser  ModerationRequest[] @relation("RequestsResolvedByUser")
+  RequestsSubmittedByUser ModerationRequest[] @relation("RequestsSubmittedByUser")
 
   @@map("user")
 }
@@ -127,9 +139,10 @@ model Larp {
   signupEndsAt   DateTime? @map("signup_ends_at")
 
   links             LarpLink[]
-  relatedLarpsLeft  RelatedLarp[] @relation("RelatedLarpsLeft")
-  relatedLarpsRight RelatedLarp[] @relation("RelatedLarpsRight")
+  relatedLarpsLeft  RelatedLarp[]       @relation("RelatedLarpsLeft")
+  relatedLarpsRight RelatedLarp[]       @relation("RelatedLarpsRight")
   relatedUsers      RelatedUser[]
+  requests          ModerationRequest[]
 
   @@map("larp")
 }
@@ -165,7 +178,6 @@ enum RelatedUserRole {
   EDITOR
   CREATED_BY
   GAME_MASTER
-  ORGANIZER
   VOLUNTEER
   PLAYER
   FAVORITE
@@ -212,24 +224,27 @@ enum SubmitterRole {
 enum EditStatus {
   PENDING_VERIFICATION
   VERIFIED
-  ACCEPTED
+  AUTO_APPROVED
+  APPROVED
   REJECTED
   WITHDRAWN
 }
 
-enum EditType {
+enum EditAction {
   CREATE
   UPDATE
+  CLAIM
 }
 
-model EditLarpRequest {
+model ModerationRequest {
   id     String     @id @default(uuid(7)) @db.Uuid
   larpId String?    @map("larp_id") @db.Uuid
-  type   EditType
+  action EditAction
   status EditStatus
 
-  resolvedById String?   @map("resolved_by_id") @db.Uuid
-  resolvedAt   DateTime? @map("resolved_at")
+  resolvedById    String?   @map("resolved_by_id") @db.Uuid
+  resolvedAt      DateTime? @map("resolved_at")
+  resolvedMessage String?
 
   submitterName  String        @map("submitter_name")
   submitterEmail String        @map("submitter_email")
@@ -244,5 +259,9 @@ model EditLarpRequest {
 
   message String?
 
-  @@map("edit_larp_request")
+  larp       Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)
+  resolvedBy User? @relation("RequestsResolvedByUser", fields: [resolvedById], references: [id], onDelete: Cascade)
+  submitter  User? @relation("RequestsSubmittedByUser", fields: [submitterId], references: [id], onDelete: Cascade)
+
+  @@map("moderation_request")
 }

@@ -1,3 +1,4 @@
+import { UserRole } from "@/generated/prisma";
 import { JSX, ReactNode } from "react";
 
 const translations = {
@@ -146,43 +147,6 @@ const translations = {
             </p>
           </>
         ),
-        attributes: {
-          submitterName: {
-            title: "Name",
-            label: "Your name",
-            helpText:
-              "Need not be the name in your passport as long as this is what larpers in Finland know you by.",
-          },
-          submitterEmail: {
-            title: "Email",
-            label: "Your email address",
-            helpText: "A verification email will be sent to this address.",
-          },
-          submitterRole: {
-            title: "Role of submitter",
-            label: "What is your relation to this larp?",
-            choices: {
-              GAME_MASTER: {
-                title: "Game Master",
-                label:
-                  "I am a Game Master of this larp or organizer of this event",
-              },
-              VOLUNTEER: {
-                title: "Volunteer",
-                label: "I am a volunteer, helper or NPC at this larp or event",
-              },
-              PLAYER: {
-                title: "Player",
-                label:
-                  "I played a character in this larp or have been selected to play in it",
-              },
-              NONE: {
-                title: "Other or no relation",
-                label: "None of the above",
-              },
-            },
-          },
-        },
       },
       privacy: {
         title: "We take your privacy seriously",
@@ -263,11 +227,6 @@ const translations = {
           </p>
         ),
         attributes: {
-          message: {
-            title: "Message",
-            label: "Message to the person processing this request",
-            helpText: "It's okay to leave this blank if you've nothing to add.",
-          },
           cat: {
             title: "Cat",
             label: "Which animal says meow?",
@@ -276,6 +235,31 @@ const translations = {
         },
       },
     },
+    subpages: {
+      verificationRequired: {
+        title: "Check your inbox!",
+        message: (
+          <p>
+            A verification email has been sent to the email address you
+            provided. To complete the request, please click the link in the
+            email.
+          </p>
+        ),
+      },
+      thanks: {
+        title: "Thank you!",
+        message: (
+          <p>
+            Thank you for your contribution! It will be reviewed soon by our
+            moderators.
+          </p>
+        ),
+        backToFrontPage: "Back to front page",
+      },
+    },
+  },
+  EditLarpPage: {
+    title: "Edit this page",
   },
   ClaimLarpPage: {
     title: "Claim this page",
@@ -298,6 +282,7 @@ const translations = {
   },
   Larp: {
     attributes: {
+      emptyAttribute: "Empty",
       name: {
         title: "Name",
         label: "Name of the larp",
@@ -321,7 +306,7 @@ const translations = {
           fi: "Finnish",
           en: "English",
           sv: "Swedish",
-          other: "Other",
+          OTHER: "Other",
         },
       },
       tagline: {
@@ -470,6 +455,186 @@ const translations = {
       },
     },
   },
+  ModerationRequest: {
+    listTitle: "Moderation requests",
+    singleTitle: "Moderation request",
+    attributes: {
+      createdAt: {
+        title: "Request date",
+      },
+      action: {
+        title: "Request action",
+        choices: {
+          CREATE: {
+            title: "Create a new larp page",
+          },
+          UPDATE: {
+            title: "Suggest changes to a larp page",
+          },
+          CLAIM: {
+            title: "Claim a larp page",
+          },
+        },
+      },
+      name: {
+        title: "Name of the larp",
+      },
+      submitterName: {
+        title: "Submitter name",
+        label: "Your name",
+        helpText:
+          "Need not be the name in your passport as long as this is what larpers in Finland know you by.",
+      },
+      submitterEmail: {
+        title: "Submitter email",
+        label: "Your email address",
+        helpText: "A verification email will be sent to this address.",
+      },
+      submitterRole: {
+        title: "Role of submitter",
+        label: "What is your relation to this larp?",
+        choices: {
+          GAME_MASTER: {
+            title: "Game Master",
+            label: "I am a Game Master of this larp or organizer of this event",
+          },
+          VOLUNTEER: {
+            title: "Volunteer",
+            label: "I am a volunteer, helper or NPC at this larp or event",
+          },
+          PLAYER: {
+            title: "Player",
+            label:
+              "I played a character in this larp or have been selected to play in it",
+          },
+          NONE: {
+            title: "Other or no relation",
+            label: "None of the above",
+          },
+        },
+      },
+      status: {
+        title: "Status of the request",
+        choices: {
+          PENDING_VERIFICATION: {
+            title: "Pending email verification",
+          },
+          VERIFIED: {
+            title: "Pending moderator approval",
+          },
+          AUTO_APPROVED: {
+            title: "Published (pending moderator check)",
+          },
+          APPROVED: {
+            title: "Published",
+          },
+          REJECTED: {
+            title: "Rejected",
+          },
+          WITHDRAWN: {
+            title: "Withdrawn",
+          },
+        },
+      },
+      isResolved: {
+        title: "Resolved",
+        choices: {
+          true: {
+            label: "Resolved moderation request",
+          },
+          false: {
+            label: "Pending moderation request",
+          },
+        },
+      },
+      resolvedBy: {
+        title: "Resolved by",
+        notResolved: "Not resolved",
+      },
+      message: {
+        title: "Message from submitter",
+        label: "Message to the person processing this request",
+        helpText: "It's okay to leave this blank if you've nothing to add.",
+      },
+      resolvedMessage: {
+        title: "Message from resolver",
+        label: "Reason",
+        helpText: (
+          <>
+            Here you can provide a reason for the resolution you took. The
+            provided reason will be displayed to other moderators and the GM.
+            Please be civil; if the submitter makes a subject data request, the
+            contents will be included in the data provided.
+          </>
+        ),
+      },
+      larp: {
+        title: "Larp subject to the request",
+      },
+    },
+    actions: {
+      showAll: {
+        title: "Also show resolved requests",
+        active: "Showing all requests (including resolved ones)",
+      },
+      resolve: {
+        title: "Resolve this request",
+        submit: "Resolve request",
+        attributes: {
+          resolution: {
+            title: "Resolution",
+            choices: {
+              APPROVED: {
+                title: "Approve the request",
+                description: "The requested edit will be applied.",
+                already: "This request has already been approved.",
+              },
+              REJECTED: {
+                title: "Reject the request",
+                description: "The requested edit will not be applied.",
+                already: "This request has already been rejected.",
+              },
+            },
+          },
+        },
+      },
+    },
+    errors: {
+      insufficientPrivileges: {
+        title: "Moderator rights required",
+        message: "You need moderator rights to see this page.",
+      },
+    },
+    messages: {
+      autoApproved: (_role: UserRole): string => {
+        throw new Error("This message should not be used in English.");
+      },
+    },
+  },
+  VerificationCodePage: {
+    title: "Verify your request",
+    message: "In order to verify your request, please tap the button below.",
+    actions: {
+      verify: "Verify my request",
+    },
+    errors: {
+      notPendingVerification: {
+        title: "Request not pending verification",
+        message: (
+          <>
+            <p>
+              This request is not pending email verification. It may have
+              already been verified or processed without verification.
+            </p>
+            <p>
+              If you believe this is in error, please contact the site
+              administrator.
+            </p>
+          </>
+        ),
+      },
+    },
+  },
   SearchPage: {
     title: "Search for larps",
     searchTerm: {
@@ -477,10 +642,19 @@ const translations = {
       placeholder: "Enter a search term and press Enter",
     },
   },
+  LoginRequired: {
+    title: "Login required",
+    message: "You need to be logged in to see this page.",
+    actions: {
+      login: "Log in",
+    },
+  },
   Navigation: {
     actions: {
       addLarp: "Add a larp",
       search: "Search larps",
+      moderate: "Moderate",
+      manageUsers: "Users",
     },
   },
   UserMenu: {
