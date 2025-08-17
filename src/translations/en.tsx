@@ -281,6 +281,8 @@ const translations = {
     ),
   },
   Larp: {
+    title: "Larp",
+    listTitle: "All larps",
     attributes: {
       emptyAttribute: "Empty",
       name: {
@@ -309,6 +311,30 @@ const translations = {
           OTHER: "Other",
         },
       },
+      type: {
+        title: "Type",
+        label: "What type of larp is this?",
+        choices: {
+          ONE_SHOT: {
+            title: "One-shot",
+          },
+          CAMPAIGN_LARP: {
+            title: "Campaign larp",
+          },
+          CAMPAIGN: {
+            title: "Campaign",
+          },
+          MULTIPLE_RUNS: {
+            title: "A larp with multiple runs",
+          },
+          OTHER_EVENT_SERIES: {
+            title: "A series of other events",
+          },
+          OTHER_EVENT: {
+            title: "Other event",
+          },
+        },
+      },
       tagline: {
         title: "Tagline",
         label: "Tagline of the larp",
@@ -323,6 +349,9 @@ const translations = {
             &quot;.
           </>
         ),
+      },
+      dateRange: {
+        title: "Dates",
       },
       startsAt: {
         title: "Starting date",
@@ -452,6 +481,14 @@ const translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Signup opening at {formattedDate}</>
         ),
+      },
+    },
+    actions: {
+      showAll: {
+        title: "Show everything",
+        active:
+          "Showing everything (including campaign pages, meetups, etc. non-larps)",
+        inactive: "Showing only actual larps.",
       },
     },
   },

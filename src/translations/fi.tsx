@@ -296,6 +296,8 @@ const translations: Translations = {
     ),
   },
   Larp: {
+    title: "Larppi",
+    listTitle: "Kaikki larpit",
     attributes: {
       emptyAttribute: "Tyhjä",
       name: {
@@ -323,6 +325,30 @@ const translations: Translations = {
           OTHER: "muu",
         },
       },
+      type: {
+        title: "Tyyppi",
+        label: "Minkä tyyppinen larppi on kyseessä?",
+        choices: {
+          ONE_SHOT: {
+            title: "One-shot",
+          },
+          CAMPAIGN_LARP: {
+            title: "Kampanjapeli",
+          },
+          CAMPAIGN: {
+            title: "Kampanja",
+          },
+          MULTIPLE_RUNS: {
+            title: "Useita pelautuksia",
+          },
+          OTHER_EVENT_SERIES: {
+            title: "Muiden tapahtumien sarja",
+          },
+          OTHER_EVENT: {
+            title: "Muu tapahtuma",
+          },
+        },
+      },
       tagline: {
         title: "Tagline",
         label: "Larpin tagline",
@@ -336,6 +362,9 @@ const translations: Translations = {
             esimerkiksi &quot;<em>Jännittävä larppi aikamatkasta</em>&quot;.
           </>
         ),
+      },
+      dateRange: {
+        title: "Ajankohta",
       },
       startsAt: {
         title: "Alkamispäivä",
@@ -467,6 +496,15 @@ const translations: Translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Ilmoittautuminen avautuu {formattedDate}</>
         ),
+      },
+    },
+    actions: {
+      showAll: {
+        title: "Näytä ihan kaikki",
+        active:
+          "Näytetään ihan kaikki (ml. kampanjasivut, miitit ym. ei-larpit).",
+        inactive:
+          "Näytetään vain varsinaiset pelautukset (ei kampanjasivuja, miittejä ym. ei-larppeja).",
       },
     },
   },
