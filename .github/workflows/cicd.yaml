@@ -119,4 +119,4 @@ jobs:
       - run: npx tsx src/bin/manifest.ts
         env:
           ENV: production
-      - run: skaffold deploy -n larpit -a build.json
+      - run: skaffold deploy -n larpit-production -a build.json
