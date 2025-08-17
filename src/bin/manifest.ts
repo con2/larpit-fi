@@ -61,6 +61,7 @@ const port = 3000;
 const ingressClassName = "nginx";
 const livenessProbeEnabled = true;
 const smtpHostname = "sr1.pahaip.fi";
+const smtpPort = 25;
 
 const { hostname, secretManaged, kompassiBaseUrl, tlsEnabled } =
   environmentConfiguration;
@@ -107,6 +108,7 @@ const env = Object.entries({
   KOMPASSI_OIDC_CLIENT_ID: secretKeyRef("KOMPASSI_OIDC_CLIENT_ID"),
   KOMPASSI_OIDC_CLIENT_SECRET: secretKeyRef("KOMPASSI_OIDC_CLIENT_SECRET"),
   SMTP_HOSTNAME: smtpHostname,
+  SMTP_PORT: smtpPort,
 }).map(([key, value]) => {
   if (value instanceof Object) {
     return {

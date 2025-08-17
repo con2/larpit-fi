@@ -32,7 +32,7 @@ export const authSecret =
 
 export const nodemailerConfig: SMTPTransport.Options = {
   host: process.env.SMTP_HOSTNAME || "",
-  port: 587,
+  port: process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT, 10) : 587,
   auth: {
     user: process.env.SMTP_USERNAME || "",
     pass: process.env.SMTP_PASSWORD || "",
