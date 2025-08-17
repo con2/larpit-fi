@@ -90,15 +90,6 @@ export async function approveRequest(
     throw new Error(`Not implemented yet: ${request.action}`);
   }
 
-  switch (request.status) {
-    case EditStatus.VERIFIED:
-      break;
-    default:
-      throw new Error(
-        `A larp can only be created from a verified request (got ${request.status}).`
-      );
-  }
-
   if (request.larpId) {
     throw new Error("A larp has already been created from this request.");
   }
