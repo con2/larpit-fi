@@ -15,10 +15,14 @@ export async function verifyRequest(locale: string, verificationCode: string) {
     where: {
       verificationCode,
     },
-    select: {
-      id: true,
-      status: true,
-      action: true,
+    include: {
+      submitter: {
+        select: {
+          id: true,
+          email: true,
+          emailVerified: true,
+        },
+      },
     },
   });
 
@@ -42,6 +46,21 @@ export async function verifyRequest(locale: string, verificationCode: string) {
       verifiedAt: new Date(),
     },
   });
+
+  if (
+    request.submitter &&
+    request.submitter.email === request.submitterEmail &&
+    !request.submitter.emailVerified
+  ) {
+    await prisma.user.update({
+      where: {
+        id: request.submitter.id,
+      },
+      data: {
+        emailVerified: new Date(),
+      },
+    });
+  }
 
   revalidatePath(`/${locale}/verify/${verificationCode}`);
   return void redirect(`/larp/new/thanks`);

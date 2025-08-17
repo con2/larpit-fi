@@ -526,7 +526,7 @@ const translations = {
             title: "Published (pending moderator check)",
           },
           APPROVED: {
-            title: "Published",
+            title: "Approved",
           },
           REJECTED: {
             title: "Rejected",
@@ -599,12 +599,6 @@ const translations = {
         },
       },
     },
-    errors: {
-      insufficientPrivileges: {
-        title: "Moderator rights required",
-        message: "You need moderator rights to see this page.",
-      },
-    },
     messages: {
       autoApproved: (_role: UserRole): string => {
         throw new Error("This message should not be used in English.");
@@ -642,12 +636,61 @@ const translations = {
       placeholder: "Enter a search term and press Enter",
     },
   },
+  User: {
+    singleTitle: "User",
+    listTitle: "Users",
+    privacyWarning: (
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
+    ) => (
+      <>
+        <strong>NOTE:</strong> The personal data displayed below may be used{" "}
+        <em>solely</em> for the purposes described in the{" "}
+        <PrivacyPolicyLink>privacy policy</PrivacyPolicyLink>.
+      </>
+    ),
+    attributes: {
+      email: {
+        title: "Email",
+      },
+      name: {
+        title: "Name",
+      },
+      emailVerified: {
+        title: "Email verified",
+      },
+      role: {
+        title: "Role",
+        choices: {
+          NOT_VERIFIED: {
+            title: "Not verified",
+          },
+          VERIFIED: {
+            title: "Verified",
+          },
+          MODERATOR: {
+            title: "Moderator",
+          },
+          ADMIN: {
+            title: "Admin",
+          },
+        },
+      },
+    },
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",
     actions: {
       login: "Log in",
     },
+  },
+  ModeratorRequired: {
+    title: "Insufficient privileges",
+    message: "You need moderator rights to see this page.",
+  },
+  AdminRequired: {
+    title: "Insufficient privileges",
+    message: "You need admin rights to see this page.",
   },
   Navigation: {
     actions: {

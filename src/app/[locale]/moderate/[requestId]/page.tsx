@@ -29,6 +29,7 @@ import { resolveRequest } from "./actions";
 import { EditStatus } from "@/generated/prisma";
 import Link from "next/link";
 import getLarpHref from "@/models/Larp";
+import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
@@ -82,17 +83,7 @@ export default async function ModerationRequestPage({ params }: Props) {
       : null,
   ]);
   if (!canModerate(user)) {
-    return (
-      <Container>
-        <MainHeading>{t.listTitle}</MainHeading>
-        <Card className="mb-4">
-          <CardBody>
-            <CardTitle>{t.errors.insufficientPrivileges.title}</CardTitle>
-            <CardText>{t.errors.insufficientPrivileges.message}</CardText>
-          </CardBody>
-        </Card>
-      </Container>
-    );
+    return <InsufficientPrivileges messages={translations.ModeratorRequired} />;
   }
   if (!request) {
     return notFound();

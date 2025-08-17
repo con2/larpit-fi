@@ -615,12 +615,6 @@ const translations: Translations = {
         },
       },
     },
-    errors: {
-      insufficientPrivileges: {
-        title: "Ei käyttöoikeutta",
-        message: "Tämä näkymä edellyttää moderaattorin oikeuksia.",
-      },
-    },
     messages: {
       autoApproved: (role: UserRole) => {
         let roleName: string = role;
@@ -665,12 +659,62 @@ const translations: Translations = {
       placeholder: "Syötä hakusana ja paina rivinvaihtoa",
     },
   },
+  User: {
+    singleTitle: "Käyttäjä",
+    listTitle: "Käyttäjät",
+    privacyWarning: (
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
+    ) => (
+      <>
+        <strong>HUOM:</strong> Alla olevia tietoja saa käyttää{" "}
+        <em>ainoastaan</em>{" "}
+        <PrivacyPolicyLink>tietosuojakäytännön</PrivacyPolicyLink>
+        mukaisiin tarkoituksiin.
+      </>
+    ),
+    attributes: {
+      email: {
+        title: "Sähköposti",
+      },
+      name: {
+        title: "Nimi",
+      },
+      emailVerified: {
+        title: "Sähköposti vahvistettu",
+      },
+      role: {
+        title: "Rooli",
+        choices: {
+          NOT_VERIFIED: {
+            title: "Ei vahvistettu",
+          },
+          VERIFIED: {
+            title: "Vahvistettu",
+          },
+          MODERATOR: {
+            title: "Moderaattori",
+          },
+          ADMIN: {
+            title: "Ylläpitäjä",
+          },
+        },
+      },
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
     actions: {
       login: "Kirjaudu sisään",
     },
+  },
+  ModeratorRequired: {
+    title: "Ei käyttöoikeutta",
+    message: "Tämä näkymä edellyttää moderaattorin oikeuksia.",
+  },
+  AdminRequired: {
+    title: "Ei käyttöoikeutta",
+    message: "Tämä näkymä edellyttää ylläpitäjän oikeuksia.",
   },
   Navigation: {
     actions: {

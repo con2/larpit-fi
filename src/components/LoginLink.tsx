@@ -29,6 +29,14 @@ export function PrivacyPolicyLink({ children }: { children: ReactNode }) {
   );
 }
 
+export function SubtlePrivacyPolicyLink({ children }: { children: ReactNode }) {
+  return (
+    <MaybeExternalLink href={privacyPolicyUrl} className="link-subtle">
+      {children}
+    </MaybeExternalLink>
+  );
+}
+
 export function ProfileLink({ children }: { children: ReactNode }) {
   return (
     <a href={kompassiProfileUrl} target="_blank" rel="noopener noreferrer">

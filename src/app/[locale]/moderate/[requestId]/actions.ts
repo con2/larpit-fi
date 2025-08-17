@@ -29,7 +29,7 @@ export async function resolveRequest(
     throw new Error("Login required");
   }
 
-  const [request, user] = await Promise.all([
+  const [request, actor] = await Promise.all([
     prisma.moderationRequest.findUnique({
       where: {
         id: requestId,
@@ -48,31 +48,36 @@ export async function resolveRequest(
     throw new Error("Request not found");
   }
 
-  if (!user) {
+  if (!actor) {
     throw new Error("User not found");
   }
 
-  if (!canModerate(user)) {
+  if (!canModerate(actor)) {
     throw new Error("Insufficient privileges");
   }
 
   const resolveRequest = ResolveRequest.parse(
     Object.fromEntries(formData.entries())
   );
-  console.log({ resolveRequest });
+
+  console.log("AUDIT", "resolveRequest", {
+    actorUserId: actor.id,
+    requestId: request.id,
+    resolution: resolveRequest.resolution,
+  });
 
   switch (resolveRequest.resolution) {
     case Resolution.APPROVED:
       const larp = await approveRequest(
         request,
-        user,
+        actor,
         resolveRequest.reason || null,
         EditStatus.APPROVED
       );
       return void redirect(`/larp/${larp.id}`);
 
     case Resolution.REJECTED:
-      await rejectRequest(request, user, resolveRequest.reason || null);
+      await rejectRequest(request, actor, resolveRequest.reason || null);
       revalidatePath(`/${locale}/moderation/${request.id}`);
       revalidatePath(`/${locale}/moderation`);
       return void redirect(`/moderate`);

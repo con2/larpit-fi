@@ -52,8 +52,6 @@ locale 'fi_FI.UTF-8'
 template template0
 ```
 
-
-
 Start the development environment with
 
 ```
@@ -89,21 +87,23 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [x] Larp form skellington
   - [x] Add signup starts/ends dates to larp form
   - [ ] Encap larp form into a component
-  - [ ] Non logged in user makes a request
-    - [ ] Email confirmation required
-  - [ ] Logged in user makes a request
-  - [ ] Requests from logged in users having created larps previously automatically approved
-  - [ ] Moderator approval for requests from non logged in users
+  - [x] Non logged in user makes a request
+    - [x] Email confirmation required
+  - [x] Logged in user makes a request
+  - [x] Requests from logged in users having created larps previously automatically approved
+  - [x] Moderator approval for requests from non logged in users
   - [ ] Create re-run of a larp, or run of multi-run larp, prefilling details
 - [x] Logging in with Kompassi
-- [ ] Admin menu
-  - [ ] Show pending edit requests as notification balloon
+- [x] Moderation requests page
+  - [x] Show pending edit requests as notification balloon
 - [ ] User management
-  - [ ] Make user a moderator or an admin
+  - [x] Make user a moderator or an admin
   - [ ] Make user a GM of a larp
   - [ ] Shadowban user or email
     - [ ] Admin can shadowban a user or email
     - [ ] Requests by them get autorejected
+  - [ ] List of requests by the user
+  - [ ] List of larps the user is involved with
 - [ ] Claiming a larp page (by the GM)
   - [ ] Logged in user makes the claim
   - [ ] Non logged in user makes the claim (UNSUPPORTED?)

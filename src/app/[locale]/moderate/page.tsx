@@ -8,6 +8,10 @@ import { getTranslations } from "@/translations";
 import { Container } from "react-bootstrap";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import Link from "next/link";
+import { auth } from "@/auth";
+import LoginRequired from "@/components/LoginRequired";
+import { canModerate } from "@/models/User";
+import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -18,6 +22,26 @@ const defaultStatuses = [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED];
 
 export default async function ModerationPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const translations = getTranslations(locale);
+  const t = translations.ModerationRequest;
+
+  const session = await auth();
+  if (!session?.user?.email) {
+    return <LoginRequired messages={translations.LoginRequired} />;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    select: {
+      id: true,
+      role: true,
+    },
+  });
+  if (!canModerate(user)) {
+    return <InsufficientPrivileges messages={translations.ModeratorRequired} />;
+  }
 
   let { status: statuses } = await searchParams;
   if (typeof statuses === "string") {
@@ -53,9 +77,6 @@ export default async function ModerationPage({ params, searchParams }: Props) {
       },
     },
   });
-
-  const translations = getTranslations(locale);
-  const t = translations.ModerationRequest;
 
   const columns: Column<(typeof requests)[number]>[] = [
     {
