@@ -36,7 +36,7 @@ See `src/config.ts` for available environment variables.
 
 Note that `?schema=larpit` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely.
 
-If you want to see how the HTML email messages look like, get a throwaway SMTP account at [ethereail.email](https://ethereal.email). If you leave `SMTP_HOSTNAME` unset, email text content is logged at the terminal.
+If you want to see how the HTML email messages look like, get a throwaway SMTP account at [ethereal.email](https://ethereal.email). If you leave `SMTP_HOSTNAME` unset, email text content is logged at the terminal.
 
 You may want to create the database beforehand with the `createdb` command to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO):
 
@@ -76,6 +76,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [x] Display links to home page, player guide, social media etc. external resources
   - [x] Display relations between larps (eg. rerun, sequel)
   - [x] Links to claim the larp page or suggest an edit
+  - [ ] Type of larp
   - [ ] Number of players
   - [ ] Author (as opposed to organizer)
   - [ ] Age limits
@@ -96,6 +97,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [x] Logging in with Kompassi
 - [x] Moderation requests page
   - [x] Show pending edit requests as notification balloon
+  - [x] Post-moderate automatically approved requests
 - [ ] User management
   - [x] Make user a moderator or an admin
   - [ ] Make user a GM of a larp

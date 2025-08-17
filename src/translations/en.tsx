@@ -555,21 +555,27 @@ const translations = {
         choices: {
           PENDING_VERIFICATION: {
             title: "Pending email verification",
+            label: "Request pending email verification",
           },
           VERIFIED: {
             title: "Pending moderator approval",
+            label: "Request pending moderator approval",
           },
           AUTO_APPROVED: {
             title: "Published (pending moderator check)",
+            label: "Auto-approved request (pending moderator check)",
           },
           APPROVED: {
             title: "Approved",
+            label: "Approved request",
           },
           REJECTED: {
             title: "Rejected",
+            label: "Rejected request",
           },
           WITHDRAWN: {
             title: "Withdrawn",
+            label: "Withdrawn request",
           },
         },
       },
@@ -634,6 +640,24 @@ const translations = {
             },
           },
         },
+      },
+      markChecked: {
+        title: "Mark automatically approved request as checked",
+        submit: "Mark as checked",
+        description: (
+          <>
+            <p>
+              This request was approved automatically, as the submitter had
+              previously submitted a larp that was approved. On such occasions,
+              subsequent larps created by them are flagged for post-moderation.
+            </p>
+            <p>
+              Once you have checked the larp page, please mark this request as
+              checked. If there is a problem with the content, please fix it by
+              editing the larp page.
+            </p>
+          </>
+        ),
       },
     },
     messages: {

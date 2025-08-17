@@ -25,7 +25,7 @@ import {
   FormText,
   Row,
 } from "react-bootstrap";
-import { resolveRequest } from "./actions";
+import { markChecked, resolveRequest } from "./actions";
 import { EditStatus } from "@/generated/prisma";
 import Link from "next/link";
 import getLarpHref from "@/models/Larp";
@@ -120,10 +120,8 @@ export default async function ModerationRequestPage({ params }: Props) {
       <Card className="mb-4">
         <CardBody>
           <CardTitle>
-            {request.resolvedAt
-              ? t.attributes.isResolved.choices.true.label
-              : t.attributes.isResolved.choices.false.label}
-            : {t.attributes.action.choices[request.action].title}
+            {t.attributes.status.choices[request.status].label}:{" "}
+            {t.attributes.action.choices[request.action].title}
           </CardTitle>
 
           <div className="row mt-3">
@@ -311,7 +309,7 @@ export default async function ModerationRequestPage({ params }: Props) {
         </CardBody>
       </Card>
 
-      {request.status === EditStatus.APPROVED ? null : (
+      {request.status === EditStatus.VERIFIED ? (
         <Card className="mb-5">
           <CardBody>
             <CardTitle>{t.actions.resolve.title}</CardTitle>
@@ -364,7 +362,31 @@ export default async function ModerationRequestPage({ params }: Props) {
             </Form>
           </CardBody>
         </Card>
-      )}
+      ) : null}
+
+      {request.status === EditStatus.AUTO_APPROVED ? (
+        <Card className="mb-5">
+          <CardBody>
+            <CardTitle>{t.actions.markChecked.title}</CardTitle>
+            {t.actions.markChecked.description}
+            <Form action={markChecked.bind(null, locale, requestId)}>
+              <FormLabel htmlFor="ModerationRequestPage-reason">
+                {t.attributes.resolvedMessage.label}
+              </FormLabel>
+              <FormControl
+                as={"textarea"}
+                rows={5}
+                id="ModerationRequestPage-reason"
+                name="reason"
+              />
+              <FormText>{t.attributes.resolvedMessage.helpText}</FormText>
+              <SubmitButton className="d-block w-100 mt-4 btn btn-primary btn-lg">
+                {t.actions.markChecked.submit}
+              </SubmitButton>
+            </Form>
+          </CardBody>
+        </Card>
+      ) : null}
     </Container>
   );
 }

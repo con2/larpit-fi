@@ -571,21 +571,28 @@ const translations: Translations = {
         choices: {
           PENDING_VERIFICATION: {
             title: "Odottaa sähköpostivahvistusta",
+            label: "Sähköpostivahvistusta odottava pyyntö",
           },
           VERIFIED: {
             title: "Odottaa moderaattorin hyväksyntää",
+            label: "Moderaattorin hyväksyntää odottava pyyntö",
           },
           AUTO_APPROVED: {
             title: "Julkaistu (odottaa moderaattorin tarkistusta)",
+            label:
+              "Moderaattorin tarkistusta odottava automaattisesti hyväksytty pyyntö",
           },
           APPROVED: {
             title: "Hyväksytty",
+            label: "Hyväksytty pyyntö",
           },
           REJECTED: {
             title: "Hylätty",
+            label: "Hylätty pyyntö",
           },
           WITHDRAWN: {
             title: "Peruttu",
+            label: "Peruttu pyyntö",
           },
         },
       },
@@ -612,7 +619,7 @@ const translations: Translations = {
       },
       resolvedMessage: {
         title: "Käsittelijän viesti",
-        label: "Perustelu",
+        label: "Käsittelijän viesti",
         helpText: (
           <>
             Tässä voit halutessasi perustella ratkaisusi. Perustelu näkyy muille
@@ -651,6 +658,25 @@ const translations: Translations = {
             },
           },
         },
+      },
+      markChecked: {
+        title: "Merkitse automaattisesti hyväksytty pyyntö tarkistetuksi",
+        submit: "Merkitse tarkistetuksi",
+        description: (
+          <>
+            <p>
+              Tämä pyyntö hyväksyttiin automaattisesti, koska lähettäjä oli
+              aiemmin luonut larpin joka hyväksyttiin. Tällöin saman lähettäjän
+              myöhemmät larpit hyväksytään automaattisesti, mutta ne merkitään
+              jälkikäteen tarkistettavaksi.
+            </p>
+            <p>
+              Kun olet tarkistanut larpin sivun, merkitse tämä pyyntö
+              tarkistetuksi. Jos sisällössä on ongelmia, korjaa ne muokkaamalla
+              suoraan larpin sivua.
+            </p>
+          </>
+        ),
       },
     },
     messages: {
