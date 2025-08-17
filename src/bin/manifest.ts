@@ -60,7 +60,7 @@ const tlsSecretName = "ingress-letsencrypt";
 const port = 3000;
 const ingressClassName = "nginx";
 const livenessProbeEnabled = true;
-const smtpHostname = "mailer.con2.fi";
+const smtpHostname = "sr1.pahaip.fi";
 
 const { hostname, secretManaged, kompassiBaseUrl, tlsEnabled } =
   environmentConfiguration;
