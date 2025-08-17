@@ -410,7 +410,7 @@ const translations: Translations = {
         ),
       },
       locationText: {
-        title: "Sijainti",
+        title: "Pelipaikka",
         label: "Missä larppi pelataan?",
         helpText: (
           <>
