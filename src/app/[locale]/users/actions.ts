@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { UserRole } from "@/generated/prisma";
+import { canManageUsers } from "@/models/User";
 import prisma from "@/prisma";
 import { revalidatePath } from "next/cache";
 import z from "zod";
@@ -27,7 +28,7 @@ export async function setUserRole(
   if (!actor) {
     throw new Error("User not found");
   }
-  if (actor.role !== UserRole.ADMIN) {
+  if (!canManageUsers(actor)) {
     throw new Error("Unauthorized");
   }
   if (actor.id === userId) {
