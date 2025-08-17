@@ -732,8 +732,8 @@ const translations: Translations = {
       <>
         <strong>HUOM:</strong> Alla olevia tietoja saa käyttää{" "}
         <em>ainoastaan</em>{" "}
-        <PrivacyPolicyLink>tietosuojakäytännön</PrivacyPolicyLink>
-        mukaisiin tarkoituksiin.
+        <PrivacyPolicyLink>tietosuojakäytännön</PrivacyPolicyLink> mukaisiin
+        tarkoituksiin.
       </>
     ),
     attributes: {

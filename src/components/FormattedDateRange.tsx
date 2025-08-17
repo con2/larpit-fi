@@ -21,26 +21,22 @@ function isSameDay(start: Date, end: Date): boolean {
 }
 
 export function FormattedDateRange({ locale, start, end }: Props) {
-  if (!start || !end) {
-    return <></>;
-  }
-
   if (start && !end) {
     return <FormattedDate locale={locale} date={start} />;
-  }
-
-  if (!start && end) {
+  } else if (!start && end) {
     return <FormattedDate locale={locale} date={end} />;
+  } else if (start && end) {
+    if (isSameDay(start, end)) {
+      return <FormattedDate locale={locale} date={start} />;
+    } else {
+      return (
+        <span>
+          <FormattedDate locale={locale} date={start} /> –{" "}
+          <FormattedDate locale={locale} date={end} />
+        </span>
+      );
+    }
+  } else {
+    return <></>;
   }
-
-  if (isSameDay(start, end)) {
-    return <FormattedDate locale={locale} date={start} />;
-  }
-
-  return (
-    <span>
-      <FormattedDate locale={locale} date={start} /> –{" "}
-      <FormattedDate locale={locale} date={end} />
-    </span>
-  );
 }
