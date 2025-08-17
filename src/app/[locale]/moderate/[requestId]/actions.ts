@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { EditStatus } from "@/generated/prisma";
-import { canModerate } from "@/helpers/roles";
+import { canModerate } from "@/models/User";
 import {
   approveRequest,
   rejectRequest,
@@ -63,11 +63,11 @@ export async function resolveRequest(
 
   switch (resolveRequest.resolution) {
     case Resolution.APPROVED:
-      request.status = EditStatus.APPROVED;
       const larp = await approveRequest(
         request,
         user,
-        resolveRequest.reason || null
+        resolveRequest.reason || null,
+        EditStatus.APPROVED
       );
       return void redirect(`/larp/${larp.id}`);
 

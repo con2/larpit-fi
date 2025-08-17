@@ -1,4 +1,4 @@
-import { Larp } from "@/generated/prisma";
+import { Larp, RelatedUser, RelatedUserRole } from "@/generated/prisma";
 
 type LarpDates = Pick<
   Larp,
@@ -35,4 +35,10 @@ export function isSignupOpenOrOpeningSoon(
   deltaDays: number = 7
 ): boolean {
   return isSignupOpen(larp) || isSignupOpeningSoon(larp, deltaDays);
+}
+export default function getLarpHref(larp: Pick<Larp, "id" | "alias">): string {
+  return larp.alias ? `/${larp.alias}` : `/larp/${larp.id}`;
+}
+export function hasEditors(larp: { relatedUsers: RelatedUser[] }): boolean {
+  return larp.relatedUsers.some((user) => user.role === RelatedUserRole.EDITOR);
 }

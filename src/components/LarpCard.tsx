@@ -1,8 +1,8 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import { Larp } from "@/generated/prisma";
-import getLarpHref from "@/helpers/getLarpHref";
-import { isSignupOpen, isSignupOpeningSoon } from "@/helpers/isSignupOpen";
+import getLarpHref from "@/models/Larp";
+import { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
 import { ReactNode } from "react";

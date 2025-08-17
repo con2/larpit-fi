@@ -5,7 +5,7 @@ import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
-import { canModerate } from "@/helpers/roles";
+import { canModerate } from "@/models/User";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import prisma from "@/prisma";
@@ -28,7 +28,7 @@ import {
 import { resolveRequest } from "./actions";
 import { EditStatus } from "@/generated/prisma";
 import Link from "next/link";
-import getLarpHref from "@/helpers/getLarpHref";
+import getLarpHref from "@/models/Larp";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;

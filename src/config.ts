@@ -1,3 +1,8 @@
+import { SendMailOptions } from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
+
+export const nodeEnv = process.env.NODE_ENV || "development";
+
 export const timezone = "Europe/Helsinki";
 export const privacyPolicyUrl = "https://tracon.fi/tietosuoja/larpit-fi";
 
@@ -24,3 +29,21 @@ export const isStaging = publicUrl.includes("dev.larpit.fi");
 // next-auth aka auth.js
 export const authSecret =
   process.env.AUTH_SECRET || "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+
+export const nodemailerConfig: SMTPTransport.Options = {
+  host: process.env.SMTP_HOSTNAME || "",
+  port: 587,
+  auth: {
+    user: process.env.SMTP_USERNAME || "",
+    pass: process.env.SMTP_PASSWORD || "",
+  },
+};
+
+export const mailSender = process.env.MAIL_SENDER || "larpit-fi@tracon.fi";
+export const formattedMailFrom =
+  process.env.FORMATTED_MAIL_FROM || `Larpit.fi <larpit-fi@tracon.fi>`;
+
+export const mailOptions: Partial<SendMailOptions> = {
+  sender: mailSender,
+  from: formattedMailFrom,
+};

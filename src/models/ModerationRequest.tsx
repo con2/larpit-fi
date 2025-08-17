@@ -1,3 +1,8 @@
+import { sendEmail } from "@/email";
+import VerifyRequest, {
+  verifyRequestSubject,
+  verifyRequestText,
+} from "@/emails/VerifyRequest";
 import {
   EditAction,
   EditStatus,
@@ -17,7 +22,9 @@ import {
   fromMorningNull,
 } from "@/helpers/temporal";
 import prisma from "@/prisma";
+import { toSupportedLanguage } from "@/translations";
 import { Temporal } from "@js-temporal/polyfill";
+import { pretty, render } from "@react-email/render";
 import z from "zod";
 
 export enum Resolution {
@@ -64,8 +71,6 @@ export const CreateLarpForm = ModerationRequestContent.extend({
 export type ModerationRequestContent = z.infer<typeof ModerationRequestContent>;
 export type CreateLarpForm = z.infer<typeof CreateLarpForm>;
 
-// NOTE: Expects request.status to be already set to APPROVED or AUTO_APPROVED to facilitate
-// the new request status selection logic (verified users get VERIFIED etc.)
 export async function approveRequest(
   request: Pick<
     ModerationRequest,
@@ -78,23 +83,23 @@ export async function approveRequest(
     | "submitterRole"
   >,
   resolvedBy: Pick<User, "id" | "role">,
-  reason: string | null
+  reason: string | null,
+  newStatus: "APPROVED" | "AUTO_APPROVED"
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.CREATE) {
     throw new Error(`Not implemented yet: ${request.action}`);
   }
 
   switch (request.status) {
-    case EditStatus.APPROVED:
-    case EditStatus.AUTO_APPROVED:
+    case EditStatus.VERIFIED:
       break;
     default:
       throw new Error(
-        `A larp can only be created from an approved request (got ${request.status}).`
+        `A larp can only be created from a verified request (got ${request.status}).`
       );
   }
 
-  if (request.larpId && request.status !== EditStatus.AUTO_APPROVED) {
+  if (request.larpId) {
     throw new Error("A larp has already been created from this request.");
   }
 
@@ -168,7 +173,7 @@ export async function approveRequest(
   let resolvedAt: Date | null = null;
   let resolvedById: string | null = null;
   let resolvedMessage: string | null = null;
-  if (request.status === EditStatus.APPROVED) {
+  if (newStatus === EditStatus.APPROVED) {
     resolvedAt = new Date();
     resolvedById = resolvedBy.id;
     resolvedMessage = reason;
@@ -178,6 +183,7 @@ export async function approveRequest(
     where: { id: request.id },
     data: {
       larpId: larp.id,
+      status: newStatus,
       resolvedAt,
       resolvedById,
       resolvedMessage,
@@ -208,4 +214,29 @@ export async function rejectRequest(
       resolvedMessage: reason,
     },
   });
+}
+
+export async function sendVerificationEmail(
+  locale: string,
+  request: Pick<ModerationRequest, "id" | "verificationCode" | "submitterEmail">
+) {
+  const { verificationCode, submitterEmail } = request;
+  if (!submitterEmail) {
+    throw new Error("No submitter email provided");
+  }
+  if (!verificationCode) {
+    throw new Error("No verification code provided");
+  }
+
+  locale = toSupportedLanguage(locale);
+
+  const subject = verifyRequestSubject(locale);
+  const html = await pretty(
+    await render(
+      <VerifyRequest locale={locale} verificationCode={verificationCode} />
+    )
+  );
+  const text = verifyRequestText(locale, verificationCode);
+
+  await sendEmail(submitterEmail, subject, text, html);
 }

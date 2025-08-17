@@ -16,7 +16,7 @@ import { isStaging } from "@/config";
 import { auth } from "@/auth";
 import prisma from "@/prisma";
 import { EditStatus } from "@/generated/prisma";
-import { canManageUsers, canModerate } from "@/helpers/roles";
+import { canManageUsers, canModerate } from "@/models/User";
 
 interface Props {
   locale: string;

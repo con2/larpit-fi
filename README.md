@@ -24,13 +24,21 @@ npm install
 Create an `.env` file not unlike the following:
 
 ```ini
-DATABASE_URL="postgres://japsu@localhost/larpit?schema=larpit"
-NEXTAUTH_URL="http://localhost:3158"
+DATABASE_URL=postgres://japsu@localhost/larpit?schema=larpit
+NEXTAUTH_URL=http://localhost:3158
+AUTH_SECRET=eeeee
+SMTP_HOSTNAME=smtp.ethereal.email
+SMTP_USERNAME=youraccount@ethereal.email
+SMTP_PASSWORD=yourpassword
 ```
 
-Note that `?schema=larpit` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely. See `src/config.ts` for available environment variables.
+See `src/config.ts` for available environment variables.
 
-You may want to create the database beforehand with the `createdb` command
+Note that `?schema=larpit` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely.
+
+If you want to see how the HTML email messages look like, get a throwaway SMTP account at [ethereail.email](https://ethereal.email). If you leave `SMTP_HOSTNAME` unset, email text content is logged at the terminal.
+
+You may want to create the database beforehand with the `createdb` command to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO):
 
 ```bash
 createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi_FI --template template0
@@ -44,7 +52,7 @@ locale 'fi_FI.UTF-8'
 template template0
 ```
 
-to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO).
+
 
 Start the development environment with
 

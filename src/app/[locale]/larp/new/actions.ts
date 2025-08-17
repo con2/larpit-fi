@@ -1,17 +1,25 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditAction, EditStatus, UserRole } from "@/generated/prisma";
+import { EditAction, EditStatus } from "@/generated/prisma";
 import compactObject from "@/helpers/compactObject";
-import { CreateLarpForm, approveRequest } from "@/models/ModerationRequest";
+import {
+  CreateLarpForm,
+  approveRequest,
+  sendVerificationEmail,
+} from "@/models/ModerationRequest";
+import {
+  canCreateLarpWithoutPostModeration,
+  canCreateLarpWithoutPreModeration,
+} from "@/models/User";
 import prisma from "@/prisma";
-import { redirect } from "next/navigation";
 import fi from "@/translations/fi";
+import { redirect } from "next/navigation";
 
 const acceptableFelines = ["cat", "kissa", "katt"] as const;
 
 export async function createLarp(
-  _locale: string,
+  locale: string,
   data: FormData
 ): Promise<void> {
   const session = await auth();
@@ -44,18 +52,10 @@ export async function createLarp(
     throw new Error("You might be a robot");
   }
 
-  let status: EditStatus = EditStatus.PENDING_VERIFICATION;
-  if (user) {
-    if (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR) {
-      // They have the right to accept their own edits, so take a shortcut
-      status = EditStatus.APPROVED;
-    } else if (user.role === UserRole.VERIFIED) {
-      // Accept but flag for check
-      status = EditStatus.AUTO_APPROVED;
-    }
-  }
-
-  const moderationRequest = await prisma.moderationRequest.create({
+  const status: EditStatus = canCreateLarpWithoutPreModeration(user)
+    ? EditStatus.VERIFIED
+    : EditStatus.PENDING_VERIFICATION;
+  const request = await prisma.moderationRequest.create({
     data: {
       action: EditAction.CREATE,
       status,
@@ -68,31 +68,26 @@ export async function createLarp(
     },
   });
 
-  let larpId: string | null = null;
-  if (
-    moderationRequest.status === EditStatus.APPROVED ||
-    moderationRequest.status === EditStatus.AUTO_APPROVED
-  ) {
+  if (request.status === EditStatus.VERIFIED) {
+    // We can create a larp without pre-moderation. Cool beans!
+
     if (!user) {
       throw new Error("This shouldn't happen (appease typechecker)");
     }
-    const larp = await approveRequest(
-      moderationRequest,
-      user,
-      moderationRequest.status === EditStatus.APPROVED
-        ? fi.ModerationRequest.messages.autoApproved(user.role)
-        : null
-    );
-    larpId = larp.id;
-  }
 
-  switch (moderationRequest.status) {
-    case EditStatus.APPROVED:
-    case EditStatus.AUTO_APPROVED:
-      return void redirect(`/larp/${larpId}`);
-    case EditStatus.PENDING_VERIFICATION:
-      return void redirect("/larp/new/verify");
-    default:
-      return void redirect("/larp/new/thanks");
+    // If it was a moderator or admin, no need to flag it for post-moderation either.
+    const newStatus = canCreateLarpWithoutPostModeration(user)
+      ? EditStatus.APPROVED
+      : EditStatus.AUTO_APPROVED;
+    const reason =
+      newStatus === EditStatus.APPROVED
+        ? fi.ModerationRequest.messages.autoApproved(user.role)
+        : null;
+    const larp = await approveRequest(request, user, reason, newStatus);
+
+    return void redirect(`/larp/${larp.id}`);
+  } else {
+    await sendVerificationEmail(locale, request);
+    return void redirect("/larp/new/verify");
   }
 }

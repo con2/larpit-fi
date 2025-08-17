@@ -2,7 +2,7 @@ import LarpCard from "@/components/LarpCard";
 import { PrivacyPolicyLink } from "@/components/LoginLink";
 import { isStaging } from "@/config";
 import { LarpType } from "@/generated/prisma";
-import { isSignupOpenOrOpeningSoon } from "@/helpers/isSignupOpen";
+import { isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";

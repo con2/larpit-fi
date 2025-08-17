@@ -1,6 +1,6 @@
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import { LarpLink, PrismaClient } from "@/generated/prisma";
-import getLarpHref from "@/helpers/getLarpHref";
+import getLarpHref from "@/models/Larp";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import Link from "next/link";

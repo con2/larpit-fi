@@ -60,6 +60,7 @@ const tlsSecretName = "ingress-letsencrypt";
 const port = 3000;
 const ingressClassName = "nginx";
 const livenessProbeEnabled = true;
+const smtpHostname = "mailer.con2.fi";
 
 const { hostname, secretManaged, kompassiBaseUrl, tlsEnabled } =
   environmentConfiguration;
@@ -105,6 +106,7 @@ const env = Object.entries({
   NEXT_PUBLIC_KOMPASSI_BASE_URL: kompassiBaseUrl,
   KOMPASSI_OIDC_CLIENT_ID: secretKeyRef("KOMPASSI_OIDC_CLIENT_ID"),
   KOMPASSI_OIDC_CLIENT_SECRET: secretKeyRef("KOMPASSI_OIDC_CLIENT_SECRET"),
+  SMTP_HOSTNAME: smtpHostname,
 }).map(([key, value]) => {
   if (value instanceof Object) {
     return {
