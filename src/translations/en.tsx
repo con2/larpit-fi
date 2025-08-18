@@ -76,7 +76,7 @@ const translations = {
     sections: {
       ongoingSignup: "Sign-up in progress or opening soon",
       upcoming: "Other upcoming larps",
-      past: "Past larps",
+      past: "Some past larps",
     },
   },
   LarpPage: {
@@ -491,6 +491,11 @@ const translations = {
         inactive: "Showing only actual larps.",
       },
     },
+    tableFooter: (count: number, totalCount: number) => (
+      <>
+        Showing {count} larp{count === 1 ? "" : "s"} (total {totalCount}).
+      </>
+    ),
   },
   ModerationRequest: {
     listTitle: "Moderation requests",

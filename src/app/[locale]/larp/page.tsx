@@ -20,6 +20,7 @@ function LarpTable({
   larps,
   messages: t,
   locale,
+  totalCount,
 }: {
   larps: Pick<
     Larp,
@@ -27,6 +28,7 @@ function LarpTable({
   >[];
   messages: Translations["Larp"];
   locale: string;
+  totalCount: number;
 }) {
   const columns: Column<(typeof larps)[number]>[] = [
     {
@@ -64,7 +66,15 @@ function LarpTable({
       columns={columns}
       rows={larps}
       getRowHref={(row) => getLarpHref(row)}
-    />
+    >
+      <tfoot>
+        <tr>
+          <td colSpan={columns.length}>
+            {t.tableFooter(larps.length, totalCount)}
+          </td>
+        </tr>
+      </tfoot>
+    </DataTable>
   );
 }
 
@@ -89,19 +99,22 @@ export default async function LarpListPage({ params, searchParams }: Props) {
     types.includes(status)
   );
 
-  const larps = await prisma.larp.findMany({
-    orderBy: {
-      startsAt: {
-        sort: "desc",
-        nulls: "last",
+  const [larps, totalCount] = await Promise.all([
+    prisma.larp.findMany({
+      orderBy: {
+        startsAt: {
+          sort: "desc",
+          nulls: "last",
+        },
       },
-    },
-    where: {
-      type: {
-        in: types as LarpType[],
+      where: {
+        type: {
+          in: types as LarpType[],
+        },
       },
-    },
-  });
+    }),
+    prisma.larp.count(),
+  ]);
 
   return (
     <Container>
@@ -117,7 +130,12 @@ export default async function LarpListPage({ params, searchParams }: Props) {
           .
         </p>
       )}
-      <LarpTable larps={larps} messages={t} locale={locale} />
+      <LarpTable
+        larps={larps}
+        messages={t}
+        locale={locale}
+        totalCount={totalCount}
+      />
     </Container>
   );
 }

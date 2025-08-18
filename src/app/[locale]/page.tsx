@@ -1,5 +1,6 @@
 import LarpCard from "@/components/LarpCard";
 import { PrivacyPolicyLink } from "@/components/LoginLink";
+import MainHeading from "@/components/MainHeading";
 import { isStaging } from "@/config";
 import { LarpType } from "@/generated/prisma";
 import { isSignupOpenOrOpeningSoon } from "@/models/Larp";
@@ -53,16 +54,18 @@ function Section({
   larps,
   locale,
   messages,
+  children,
 }: {
   title: string;
   larps: HomePageLarp[];
   locale: string;
   messages: Translations["Larp"];
+  children?: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="mb-5">
       <h4 className="h-float mb-4">{title}</h4>
-      <div className="mb-5 row">
+      <div className="row">
         {larps.map((larp) => (
           <LarpCard
             larp={larp}
@@ -72,7 +75,8 @@ function Section({
           />
         ))}
       </div>
-    </>
+      {children}
+    </div>
   );
 }
 
@@ -92,6 +96,8 @@ function ensureEndsAt(larp: {
   return null;
 }
 
+const limitPastLarps = 8;
+
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
@@ -109,7 +115,7 @@ export default async function HomePage({ params }: Props) {
     futureLarps,
     (larp) => isSignupOpenOrOpeningSoon(larp) // avoid index at 2nd arg
   );
-  pastLarps.reverse();
+  pastLarps.reverse().splice(limitPastLarps, pastLarps.length - limitPastLarps);
 
   const introduction = isStaging
     ? t.stagingIntroduction
@@ -117,34 +123,47 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <div className="container">
-      <Card className="mt-3 mb-5">
+      <div className="text-center mb-4">
+        <h2 className="mt-5">{translations.title}</h2>
+        <p className="fs-5 fst-italic h-float">
+          {translations.HomePage.tagline}
+        </p>
+      </div>
+
+      <Card className="mb-5">
         <CardBody>
-          <CardTitle as={"h3"}>
-            {translations.title}{" "}
-            <span className="fs-5 text-muted">{t.tagline}</span>
-          </CardTitle>
           <div className="card-text">{introduction}</div>
         </CardBody>
       </Card>
 
-      <Section
-        title={t.sections.ongoingSignup}
-        larps={ongoingSignupLarps}
-        locale={locale}
-        messages={translations.Larp}
-      />
-      <Section
-        title={t.sections.upcoming}
-        larps={otherFutureLarps}
-        locale={locale}
-        messages={translations.Larp}
-      />
-      <Section
-        title={t.sections.past}
-        larps={pastLarps}
-        locale={locale}
-        messages={translations.Larp}
-      />
+      {ongoingSignupLarps.length > 0 && (
+        <Section
+          title={t.sections.ongoingSignup}
+          larps={ongoingSignupLarps}
+          locale={locale}
+          messages={translations.Larp}
+        />
+      )}
+      {otherFutureLarps.length > 0 && (
+        <Section
+          title={t.sections.upcoming}
+          larps={otherFutureLarps}
+          locale={locale}
+          messages={translations.Larp}
+        />
+      )}
+      {pastLarps.length > 0 && (
+        <Section
+          title={t.sections.past}
+          larps={pastLarps}
+          locale={locale}
+          messages={translations.Larp}
+        >
+          <Link href="/larp" className="link-subtle">
+            {translations.Larp.listTitle}…
+          </Link>
+        </Section>
+      )}
     </div>
   );
 }

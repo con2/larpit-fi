@@ -119,7 +119,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Subscribeable calendar resource (ICS)
 - [ ] Public data API (REST/JSON)
 - [ ] Own larps
-  - [ ] Own larps list in profile
+  - [x] Own larps list in profile
   - [ ] "I played this larp" button on larp page for logged in users
   - [ ] Favorite button on larp page for logged in users
   - [ ] Public player list (if set as public by GM)
@@ -130,7 +130,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Support requests
   - [ ] I want this page gone
 - [ ] Launch in X-con
-  - [ ] Scream test concept with pilot group before X-con
+  - [x] Scream test concept with pilot group before X-con
   - [ ] Powerpoint presentation
 - [ ] Deployment on QB
   - [x] Staging environment

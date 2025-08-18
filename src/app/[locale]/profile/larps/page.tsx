@@ -77,7 +77,7 @@ function OwnLarpsTable({
     {
       slug: "role",
       title: t.attributes.role.label,
-      className: "col-2",
+      className: "col-2 align-middle",
       getCellContents: (row) => (
         <>
           {row.roles.map((role) => (
@@ -89,7 +89,7 @@ function OwnLarpsTable({
     {
       slug: "dateRange",
       title: <>{larpT.attributes.dateRange.title} 🔼</>,
-      className: "col-2",
+      className: "col-2 align-middle",
       getCellContents: (row) => (
         <FormattedDateRange
           start={row.startsAt}

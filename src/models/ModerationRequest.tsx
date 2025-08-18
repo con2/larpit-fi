@@ -23,9 +23,9 @@ import {
 } from "@/helpers/temporal";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
-import { Temporal } from "@js-temporal/polyfill";
 import { pretty, render } from "@react-email/render";
 import z from "zod";
+import { zPlainDateNull } from "@/helpers/temporal";
 
 export enum Resolution {
   APPROVED = "APPROVED",
@@ -33,15 +33,6 @@ export enum Resolution {
 }
 
 export const zResolution = z.enum<typeof Resolution>(Resolution);
-
-export const zPlainDateNull = z
-  .string()
-  .nullable()
-  .optional()
-  .transform((val) => {
-    if (!val) return null;
-    return Temporal.PlainDate.from(val);
-  });
 
 export const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
 export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);

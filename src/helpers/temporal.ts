@@ -1,5 +1,6 @@
 import { timezone } from "@/config";
 import { Temporal } from "@js-temporal/polyfill";
+import z from "zod";
 
 export function toZonedDateTime(
   value: Temporal.ZonedDateTime | Temporal.Instant | Date | string
@@ -16,44 +17,47 @@ export function toZonedDateTime(
   return value.toZonedDateTimeISO(timezone);
 }
 
-export function toPlainDate(date: Date): Temporal.PlainDate {
-  return toZonedDateTime(date).toPlainDate();
-}
-
 /// Null in, null out
 export function toZonedDateTimeNull(
-  datetime: Date | null
+  datetime:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Date
+    | string
+    | null
+    | undefined
 ): Temporal.ZonedDateTime | null {
-  if (datetime === null) return null;
+  if (!datetime) return null;
   return toZonedDateTime(datetime);
 }
 
-/// Null in, null out
-export function toPlainDateNull(date: Date | null): Temporal.PlainDate | null {
-  if (date === null) return null;
+export function toPlainDate(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+): Temporal.PlainDate {
+  if (date instanceof Temporal.PlainDate) {
+    return date;
+  }
   return toZonedDateTime(date).toPlainDate();
 }
 
-export function withZonedDateTime(
-  fn: (zdt: Temporal.ZonedDateTime) => Temporal.ZonedDateTime
-): (dt: Date) => Date {
-  return (dt: Date) => {
-    const zdt = toZonedDateTime(dt);
-    const newZdt = fn(zdt);
-    return new Date(newZdt.toInstant().epochMilliseconds);
-  };
-}
-
-/// NOTE: fn is not called if dt is null
-export function withZonedDateTimeNull(
-  fn: (zdt: Temporal.ZonedDateTime) => Temporal.ZonedDateTime
-): (dt: Date | null) => Date | null {
-  return (dt: Date | null) => {
-    if (dt === null) return null;
-    const zdt = toZonedDateTime(dt);
-    const newZdt = fn(zdt);
-    return new Date(newZdt.toInstant().epochMilliseconds);
-  };
+/// Null in, null out
+export function toPlainDateNull(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+    | null
+    | undefined
+): Temporal.PlainDate | null {
+  if (!date) return null;
+  return toPlainDate(date);
 }
 
 export const morning: Temporal.PlainTime = Temporal.PlainTime.from({
@@ -138,3 +142,12 @@ export function uuid7ToInstant(uuid: string): Temporal.Instant {
 export function uuid7ToZonedDateTime(uuid: string): Temporal.ZonedDateTime {
   return uuid7ToInstant(uuid).toZonedDateTimeISO(timezone);
 }
+
+export const zPlainDateNull = z
+  .string()
+  .nullable()
+  .optional()
+  .transform((val) => {
+    if (!val) return null;
+    return Temporal.PlainDate.from(val);
+  });

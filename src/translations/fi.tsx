@@ -84,7 +84,7 @@ const translations: Translations = {
     sections: {
       ongoingSignup: "Ilmoittautuminen käynnissä tai avautumassa pian",
       upcoming: "Muut tulevat larpit",
-      past: "Menneet larpit",
+      past: "Viimeaikaisia larppeja",
     },
   },
   LarpPage: {
@@ -501,12 +501,17 @@ const translations: Translations = {
     actions: {
       showAll: {
         title: "Näytä ihan kaikki",
-        active:
-          "Näytetään ihan kaikki (ml. kampanjasivut, miitit ym. ei-larpit).",
+        active: "Näytetään ihan kaikki (ml. kampanjasivut, miitit ym).",
         inactive:
-          "Näytetään vain varsinaiset pelautukset (ei kampanjasivuja, miittejä ym. ei-larppeja).",
+          "Näytetään vain varsinaiset pelautukset (ei kampanjasivuja, miittejä ym).",
       },
     },
+    tableFooter: (count: number, totalCount: number) => (
+      <>
+        Näytetään {count} larppi{count === 1 ? "" : "a"} (yhteensä {totalCount}
+        ).
+      </>
+    ),
   },
   ModerationRequest: {
     listTitle: "Moderointipyynnöt",
@@ -785,7 +790,7 @@ const translations: Translations = {
             title: "Muokkausoikeutettu",
           },
           CREATED_BY: {
-            title: "Luonut larppisivun",
+            title: "Luonut sivun",
           },
           GAME_MASTER: {
             title: "Pelinjohtaja",
