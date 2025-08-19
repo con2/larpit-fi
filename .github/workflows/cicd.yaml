@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     env:
       SKAFFOLD_DEFAULT_REPO: ghcr.io/con2
     steps:
