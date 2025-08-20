@@ -11,7 +11,7 @@ import { ModerationRequestContent } from "@/models/ModerationRequest";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { notFound } from "next/navigation";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import {
   Card,
   CardBody,
@@ -30,6 +30,8 @@ import { EditStatus } from "@/generated/prisma";
 import Link from "next/link";
 import getLarpHref from "@/models/Larp";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
+import { LarpLinkUpsertable } from "@/models/LarpLink";
+import z from "zod";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
@@ -90,6 +92,7 @@ export default async function ModerationRequestPage({ params }: Props) {
   }
 
   const newContent = ModerationRequestContent.parse(request.newContent);
+  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
   function Empty() {
     return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;
@@ -308,6 +311,31 @@ export default async function ModerationRequestPage({ params }: Props) {
           />
         </CardBody>
       </Card>
+
+      {addLinks.length > 0 ? (
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.attributes.addLinks.title}</CardTitle>
+            <dl>
+              {addLinks.map((link) => (
+                <Fragment key={JSON.stringify(link)}>
+                  <dt>{larpT.attributes.links.types[link.type].title}</dt>
+                  <dd>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="link-subtle"
+                    >
+                      {link.href}
+                    </a>
+                  </dd>
+                </Fragment>
+              ))}
+            </dl>
+          </CardBody>
+        </Card>
+      ) : null}
 
       {request.status === EditStatus.VERIFIED ? (
         <Card className="mb-5">

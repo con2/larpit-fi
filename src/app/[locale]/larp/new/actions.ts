@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { EditAction, EditStatus } from "@/generated/prisma";
 import compactObject from "@/helpers/compactObject";
+import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
   CreateLarpForm,
   approveRequest,
@@ -30,7 +31,10 @@ export async function createLarp(
       })
     : null;
 
-  const parsed = CreateLarpForm.parse(Object.fromEntries(data.entries()));
+  const formDataObject = Object.fromEntries(data.entries());
+
+  const larpForm = CreateLarpForm.parse(formDataObject);
+  const linksForm = LarpLinksForm.parse(formDataObject);
 
   const {
     submitterName = user?.name,
@@ -39,7 +43,7 @@ export async function createLarp(
     message,
     cat,
     ...newContent
-  } = parsed;
+  } = larpForm;
 
   if (!submitterName || !submitterEmail) {
     throw new Error("Missing submitter information");
@@ -65,6 +69,7 @@ export async function createLarp(
       submitterRole,
       message,
       newContent: compactObject(newContent),
+      addLinks: formToLarpLinks(linksForm),
     },
   });
 

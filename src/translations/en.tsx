@@ -522,12 +522,7 @@ const translations = {
       },
       isClaimedByGm: {
         title: "Claimed by Game Master",
-        message: (
-          <>
-            This larp has been claimed by its Game Master. They control the
-            content of this page.
-          </>
-        ),
+        message: <>The Game Master is managing the content of this page.</>,
       },
     },
     actions: {
@@ -665,6 +660,9 @@ const translations = {
       },
       larp: {
         title: "Larp subject to the request",
+      },
+      addLinks: {
+        title: "Links",
       },
     },
     actions: {

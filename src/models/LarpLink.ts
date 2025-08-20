@@ -1,7 +1,15 @@
-import { LarpLink, LarpLinkType } from "@/generated/prisma";
+import { LarpLinkType } from "@/generated/prisma";
 import z from "zod";
 
-export type LarpLinkUpsertable = Pick<LarpLink, "type" | "href">;
+const zLarpLinkType = z.enum<typeof LarpLinkType>(LarpLinkType);
+
+// TODO use z.url() instead when we have proper feedback from validation
+export const LarpLinkUpsertable = z.object({
+  type: zLarpLinkType,
+  href: z.string().max(400),
+});
+
+export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;
 
 // TODO Cheap-ass solution, only provides for single link of each type.
 // TODO use z.url() instead when we have proper feedback from validation
@@ -50,4 +58,31 @@ export function formToLarpLinks(form: LarpLinksForm): LarpLinkUpsertable[] {
   }
 
   return links;
+}
+
+export function socialMediaLinkTitleFromHref(href: string) {
+  href = href.trim();
+
+  if (href.startsWith("https://instagram.com")) {
+    return "Instagram";
+  } else if (
+    href.startsWith("https://x.com") ||
+    href.startsWith("https://twitter.com")
+  ) {
+    return "Twitter";
+  } else if (
+    href.startsWith("https://facebook.com") ||
+    href.startsWith("https://fb.me")
+  ) {
+    return "Facebook";
+  } else if (href.startsWith("https://discord.gg")) {
+    return "Discord";
+  } else if (
+    href.startsWith("https://youtu.be") ||
+    href.startsWith("https://www.youtube.com")
+  ) {
+    return "YouTube";
+  }
+
+  return null;
 }

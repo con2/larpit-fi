@@ -8,6 +8,7 @@ import {
   EditStatus,
   Language,
   Larp,
+  LarpLinkType,
   LarpType,
   ModerationRequest,
   RelatedUser,
@@ -26,6 +27,7 @@ import { toSupportedLanguage } from "@/translations";
 import { pretty, render } from "@react-email/render";
 import z from "zod";
 import { zPlainDateNull } from "@/helpers/temporal";
+import { LarpLinkUpsertable, socialMediaLinkTitleFromHref } from "./LarpLink";
 
 export enum Resolution {
   APPROVED = "APPROVED",
@@ -70,6 +72,7 @@ export async function approveRequest(
     | "status"
     | "larpId"
     | "newContent"
+    | "addLinks"
     | "submitterId"
     | "submitterRole"
   >,
@@ -86,6 +89,8 @@ export async function approveRequest(
   }
 
   const content = ModerationRequestContent.parse(request.newContent);
+  const links = z.array(LarpLinkUpsertable).parse(request.addLinks);
+
   let larp: Pick<Larp, "id"> | null = null;
   if (request.larpId) {
     larp = await prisma.larp.findUnique({
@@ -150,6 +155,30 @@ export async function approveRequest(
       }),
     ]);
   }
+
+  // TODO support proper multiple links per type
+  await prisma.larpLink.deleteMany({
+    where: {
+      larpId: larp.id,
+    },
+  });
+  await prisma.larpLink.createMany({
+    data: links.map(({ type, href }) => {
+      href = href.trim();
+
+      const title =
+        type === LarpLinkType.SOCIAL_MEDIA
+          ? socialMediaLinkTitleFromHref(href)
+          : null;
+
+      return {
+        larpId: larp.id,
+        type,
+        href,
+        title,
+      };
+    }),
+  });
 
   // Auto-approved requests are not resolved; they will be post-moderated.
   let resolvedAt: Date | null = null;

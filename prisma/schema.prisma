@@ -29,12 +29,15 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  /// NOTE: role=VERIFIED does not imply emailVerified or vice versa
+  /// emailVerified=true when the user first submits a request and verifies it
+  /// role=VERIFIED when the request is approved (granting them power to add larps without pre-moderation)
   role UserRole @default(NOT_VERIFIED)
 
-  RelatedUser             RelatedUser[]
-  Authenticator           Authenticator[]
-  RequestsResolvedByUser  ModerationRequest[] @relation("RequestsResolvedByUser")
-  RequestsSubmittedByUser ModerationRequest[] @relation("RequestsSubmittedByUser")
+  larps                   RelatedUser[]
+  authenticators          Authenticator[]
+  requestsResolvedByUser  ModerationRequest[] @relation("RequestsResolvedByUser")
+  requestsSubmittedByUser ModerationRequest[] @relation("RequestsSubmittedByUser")
 
   @@map("user")
 }

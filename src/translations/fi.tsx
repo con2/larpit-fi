@@ -541,12 +541,7 @@ const translations: Translations = {
       },
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
-        message: (
-          <>
-            Tämän larpin pelinjohtaja on ottanut sivun hallintaansa.
-            Pelinjohtaja hallinnoi tämän sivun sisältöä.
-          </>
-        ),
+        message: <>Pelinjohtaja hallinnoi tämän sivun sisältöä.</>,
       },
     },
     actions: {
@@ -687,6 +682,9 @@ const translations: Translations = {
       },
       larp: {
         title: "Larppi jota pyyntö koskee",
+      },
+      addLinks: {
+        title: "Linkit",
       },
     },
     actions: {

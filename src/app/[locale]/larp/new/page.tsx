@@ -294,30 +294,28 @@ export default async function NewLarpPage({ params }: Props) {
           </CardBody>
         </Card>
 
-        {/* Links (WIP) */}
-        {false && (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.sections.links.title}</CardTitle>
-              {t.sections.links.message}
-              {Object.entries(larpT.attributes.links.types).map(
-                ([key, { title, helpText }]) => (
-                  <div key={key} className={`form-group mt-3`}>
-                    <FormLabel htmlFor={`NewLarpPage-link-${key}`}>
-                      {title}
-                    </FormLabel>
-                    <FormControl
-                      type="url"
-                      id={`NewLarpPage-link-${key}`}
-                      name={`links_${key}`}
-                    />
-                    <FormText>{helpText}</FormText>
-                  </div>
-                )
-              )}
-            </CardBody>
-          </Card>
-        )}
+        {/* Links */}
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.sections.links.title}</CardTitle>
+            {t.sections.links.message}
+            {Object.entries(larpT.attributes.links.types).map(
+              ([key, { title, helpText }]) => (
+                <div key={key} className={`form-group mt-3`}>
+                  <FormLabel htmlFor={`NewLarpPage-link-${key}`}>
+                    {title}
+                  </FormLabel>
+                  <FormControl
+                    type="url"
+                    id={`NewLarpPage-link-${key}`}
+                    name={`links_${key}`}
+                  />
+                  <FormText>{helpText}</FormText>
+                </div>
+              )
+            )}
+          </CardBody>
+        </Card>
 
         {/* You're almost ready! */}
         <Card className="mb-5">
