@@ -1,6 +1,5 @@
 import LarpCard from "@/components/LarpCard";
 import { PrivacyPolicyLink } from "@/components/LoginLink";
-import MainHeading from "@/components/MainHeading";
 import { isStaging } from "@/config";
 import { LarpType } from "@/generated/prisma";
 import { isSignupOpenOrOpeningSoon } from "@/models/Larp";
@@ -8,7 +7,7 @@ import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
-import { CardBody, CardTitle } from "react-bootstrap";
+import { CardBody } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { partition } from "underscore";
 

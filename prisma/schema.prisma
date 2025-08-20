@@ -257,6 +257,9 @@ model ModerationRequest {
   oldContent Json @default("{}") @map("old_content")
   newContent Json @default("{}") @map("new_content")
 
+  removeLinks Json @default("[]") @map("remove_links")
+  addLinks    Json @default("[]") @map("add_links")
+
   message String?
 
   larp       Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)

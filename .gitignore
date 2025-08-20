@@ -47,3 +47,6 @@ next-env.d.ts
 # build pipeline
 /build.json
 /bin/
+
+# just in case
+*.sql

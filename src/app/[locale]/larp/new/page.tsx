@@ -47,6 +47,7 @@ export default async function NewLarpPage({ params }: Props) {
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-5">{t.message}</div>
       <Form action={createLarp.bind(null, locale)}>
+        {/* Who are you? */}
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.contact.title}</CardTitle>
@@ -131,6 +132,7 @@ export default async function NewLarpPage({ params }: Props) {
           </CardBody>
         </Card>
 
+        {/* We care about your privacy */}
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.privacy.title}</CardTitle>
@@ -146,6 +148,7 @@ export default async function NewLarpPage({ params }: Props) {
           </CardBody>
         </Card>
 
+        {/* Details about the larp */}
         <Card className="mb-4">
           <CardBody>
             <CardTitle>{t.sections.larp.title}</CardTitle>
@@ -291,6 +294,32 @@ export default async function NewLarpPage({ params }: Props) {
           </CardBody>
         </Card>
 
+        {/* Links (WIP) */}
+        {false && (
+          <Card className="mb-4">
+            <CardBody>
+              <CardTitle>{t.sections.links.title}</CardTitle>
+              {t.sections.links.message}
+              {Object.entries(larpT.attributes.links.types).map(
+                ([key, { title, helpText }]) => (
+                  <div key={key} className={`form-group mt-3`}>
+                    <FormLabel htmlFor={`NewLarpPage-link-${key}`}>
+                      {title}
+                    </FormLabel>
+                    <FormControl
+                      type="url"
+                      id={`NewLarpPage-link-${key}`}
+                      name={`links_${key}`}
+                    />
+                    <FormText>{helpText}</FormText>
+                  </div>
+                )
+              )}
+            </CardBody>
+          </Card>
+        )}
+
+        {/* You're almost ready! */}
         <Card className="mb-5">
           <CardBody>
             <CardTitle>{t.sections.submit.title}</CardTitle>

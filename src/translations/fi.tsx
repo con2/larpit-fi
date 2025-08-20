@@ -212,6 +212,24 @@ const translations: Translations = {
           </>
         ),
       },
+      links: {
+        title: "Linkit",
+        message: (
+          <>
+            <p>
+              Jos tiedät larpin kotisivun, pelaajan käsikirjan, valokuvien tai
+              sosiaalisen median profiilin osoitteen, voit lisätä sen tähän.
+              Syötä vain URL (<em>https://…</em>), ei mitään muuta.
+            </p>
+            <p>
+              Harkitse, onko linkki jota olet lisäämässä tarkoitettu julkisesti
+              jaettavaksi. Esimerkiksi joidenkin pelien pelaajan käsikirjat on
+              suunnattu kaikille pelistä kiinnostuneille, toisissa vain
+              pelaajaksi valituille.
+            </p>
+          </>
+        ),
+      },
       submit: {
         title: "Melkein valmista!",
         message: (
@@ -331,21 +349,27 @@ const translations: Translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
+            label: <>One-shot</>,
           },
           CAMPAIGN_LARP: {
             title: "Kampanjapeli",
+            label: <>Kampanjapeli</>,
           },
           CAMPAIGN: {
             title: "Kampanja",
+            label: <>Kampanja</>,
           },
           MULTIPLE_RUNS: {
             title: "Useita pelautuksia",
+            label: <>Larppi, josta on useita pelautuksia</>,
           },
           OTHER_EVENT_SERIES: {
             title: "Muiden tapahtumien sarja",
+            label: <>Tapahtumasarja</>,
           },
           OTHER_EVENT: {
             title: "Muu tapahtuma",
+            label: <>Muu tapahtuma</>,
           },
         },
       },
@@ -458,10 +482,28 @@ const translations: Translations = {
       links: {
         title: "Links",
         types: {
-          HOMEPAGE: "Pelin kotisivu",
-          PHOTOS: "Kuvia pelistä",
-          SOCIAL_MEDIA: "Sosiaalinen media",
-          PLAYER_GUIDE: "Pelaajan käsikirja",
+          HOMEPAGE: {
+            title: "Pelin kotisivu",
+            helpText: <></>,
+          },
+          PHOTOS: {
+            title: "Kuvia pelistä",
+            helpText: <>Suosi Larppikuvat.fi-linkkejä.</>,
+          },
+          SOCIAL_MEDIA: {
+            title: "Sosiaalinen media",
+            helpText: <></>,
+          },
+          PLAYER_GUIDE: {
+            title: "Pelaajan käsikirja",
+            helpText: (
+              <>
+                Pelaajan käsikirja on dokumentti, joka sisältää olennaisimmat
+                pelaajille tarpeelliset tiedot larpista. Joissain yhteisöissä
+                pelaajan käsikirjaa kutsutaan myös nimellä yleisinfo.
+              </>
+            ),
+          },
         },
       },
       leftRelatedLarps: {
@@ -495,6 +537,15 @@ const translations: Translations = {
         ),
         opensAt: (formattedDate: ReactNode) => (
           <>Ilmoittautuminen avautuu {formattedDate}</>
+        ),
+      },
+      isClaimedByGm: {
+        title: "Pelinjohtajan hallinnassa",
+        message: (
+          <>
+            Tämän larpin pelinjohtaja on ottanut sivun hallintaansa.
+            Pelinjohtaja hallinnoi tämän sivun sisältöä.
+          </>
         ),
       },
     },

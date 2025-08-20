@@ -68,6 +68,15 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 
 ## Features/TODO list
 
+### Next priorities (as of 2025-08-19)
+
+- [ ] Adding homepage, player's guide etc. URLs when creating a larp page
+- [ ] Suggesting edits
+- [ ] Claiming a page as the GM
+- [ ] Support requests
+
+### Unsorted feature list
+
 - [x] Front page
   - [x] Listing of past and future larps
   - [x] Emphasize those which have signup open
@@ -84,6 +93,9 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Should related users be shown somehow?
     - [ ] GM preference
     - [ ] Override how GMs are displayed
+  - [ ] Edit history (shown to moderators & GM)
+  - [ ] "You have 2 edits to this larp page pending moderation."
+    - [ ] "Show page as it will be once these edits are approved"
 - [ ] Adding a larp
   - [x] Larp form skellington
   - [x] Add signup starts/ends dates to larp form
@@ -101,11 +113,11 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] User management
   - [x] Make user a moderator or an admin
   - [ ] Make user a GM of a larp
-  - [ ] Shadowban user or email
-    - [ ] Admin can shadowban a user or email
-    - [ ] Requests by them get autorejected
   - [ ] List of requests by the user
   - [ ] List of larps the user is involved with
+  - [ ] (Shadow?)ban user
+  - [ ] (Shadow?)ban email address
+  - [ ] Autoreject requests by banned users
 - [ ] Claiming a larp page (by the GM)
   - [ ] Logged in user makes the claim
   - [ ] Non logged in user makes the claim (UNSUPPORTED?)
@@ -125,7 +137,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Public player list (if set as public by GM)
 - [ ] Import larps en masse
   - [ ] Import larppi.xlsx
-  - [ ] Import larps and series from larppikuvat.fi
+  - [x] Import larps and series from larppikuvat.fi
   - [ ] Ask Rai if we can scrape or emfederate kalenteri.larp.fi
 - [ ] Support requests
   - [ ] I want this page gone
@@ -138,7 +150,8 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?
   - [ ] GM preference
-- [ ] Write proper privacy policy (Tracon.fi Wordpress)
+- [x] Write proper [privacy policy]() (Tracon.fi Wordpress)
+  - [ ] English translation
 
 ### Ideas/unsorted items from Illusia evening 15 August 2025
 
@@ -148,6 +161,12 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Freeform tags
   - [ ] Promoting freeform tags into a curated hierarchy
 - [ ] Email notifications
+  - [ ] To GM
+    - [ ] An edit is suggested that ought to be moderated by the GM
+  - [ ] To moderators
+    - [ ] An edit is suggested that ought to be moderated by a moderator (nightly digest?)
+  - [ ] To admin
+    - [ ] A user removed their account
 - [ ] Organizations (that organize larps)
 - [ ] Venues
 - [ ] Statistics! (total larps, larp per year etc.)

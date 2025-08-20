@@ -199,6 +199,17 @@ const translations = {
           </>
         ),
       },
+      links: {
+        title: "Links",
+        message: (
+          <p>
+            If you know the address of the home page, a public player&apos;s
+            handbook, a public photo album or a social media account for the
+            larp, please provide them here. Only add the URL (<em>https://…</em>
+            ), nothing else.
+          </p>
+        ),
+      },
       submit: {
         title: "Almost ready!",
         message: (
@@ -317,21 +328,27 @@ const translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
+            label: <>An one-shot larp</>,
           },
           CAMPAIGN_LARP: {
             title: "Campaign larp",
+            label: <>A larp in a campaign</>,
           },
           CAMPAIGN: {
             title: "Campaign",
+            label: <>A campaign of multiple larps</>,
           },
           MULTIPLE_RUNS: {
-            title: "A larp with multiple runs",
+            title: "Multiple runs",
+            label: <>A larp with multiple runs</>,
           },
           OTHER_EVENT_SERIES: {
-            title: "A series of other events",
+            title: "Other event series",
+            label: <>A series of events</>,
           },
           OTHER_EVENT: {
             title: "Other event",
+            label: <>Other event</>,
           },
         },
       },
@@ -443,10 +460,31 @@ const translations = {
       links: {
         title: "Links",
         types: {
-          HOMEPAGE: "Home page of the larp",
-          PHOTOS: "Photos from the larp",
-          SOCIAL_MEDIA: "Social media",
-          PLAYER_GUIDE: "Player guide",
+          HOMEPAGE: {
+            title: "Home page of the larp",
+            helpText: <></>,
+          },
+          PHOTOS: {
+            title: "Photos from the larp",
+            helpText: (
+              <>Links to Larppikuvat.fi are preferred (if available).</>
+            ),
+          },
+          SOCIAL_MEDIA: {
+            title: "Social media",
+            helpText: <></>,
+          },
+          PLAYER_GUIDE: {
+            title: "Player guide",
+            helpText: (
+              <>
+                A player guide is a document that provides most of the
+                information about a larp all players need to know. Only share
+                the link to the player guide if it is meant to be publicly
+                accessible.
+              </>
+            ),
+          },
         },
       },
       leftRelatedLarps: {
@@ -480,6 +518,15 @@ const translations = {
         ),
         opensAt: (formattedDate: ReactNode) => (
           <>Signup opening at {formattedDate}</>
+        ),
+      },
+      isClaimedByGm: {
+        title: "Claimed by Game Master",
+        message: (
+          <>
+            This larp has been claimed by its Game Master. They control the
+            content of this page.
+          </>
         ),
       },
     },

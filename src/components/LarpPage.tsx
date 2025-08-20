@@ -1,5 +1,5 @@
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { LarpLink, PrismaClient } from "@/generated/prisma";
+import { LarpLink, LarpType, PrismaClient } from "@/generated/prisma";
 import getLarpHref from "@/models/Larp";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
@@ -29,6 +29,10 @@ const include = {
     include: { left: relatedLarpInclude },
     orderBy: { left: { startsAt: "asc" } },
   },
+  relatedUsers: {
+    where: { role: "GAME_MASTER" },
+    select: { id: true },
+  },
 } as const;
 
 export async function getLarpPageData(
@@ -56,7 +60,7 @@ function LarpLinkComponent({
         rel="noopener noreferrer"
         target="_blank"
       >
-        {link.title || t.attributes.links.types[link.type] || link.type}
+        {link.title || t.attributes.links.types[link.type]?.title || link.type}
       </a>
     </div>
   );
@@ -115,6 +119,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   const translations = getTranslations(locale);
   const t = translations.LarpPage;
+  const larpT = translations.Larp;
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
@@ -132,6 +137,8 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
     );
   }
 
+  const isClaimedByGm = larp.relatedUsers.length > 0;
+
   return (
     <>
       <div className="container">
@@ -148,30 +155,39 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
             />{" "}
             {larp.locationText}
           </p>
-          {larp.relatedLarpsLeft.map((relatedLarp) => (
-            <LeftRelatedLarpComponent
-              key={relatedLarp.rightId}
-              relatedLarp={relatedLarp}
-              messages={translations.Larp}
-            />
-          ))}
-          {larp.relatedLarpsRight.map((relatedLarp) => (
-            <RightRelatedLarpComponent
-              key={relatedLarp.leftId}
-              relatedLarp={relatedLarp}
-              messages={translations.Larp}
-            />
-          ))}
-          {larp.links.map((link) => (
-            <LarpLinkComponent
-              key={link.id}
-              link={link}
-              messages={translations.Larp}
-            />
-          ))}
+          {larp.type !== LarpType.ONE_SHOT ? (
+            <p className="text-muted">
+              {larpT.attributes.type.choices[larp.type].label}
+            </p>
+          ) : null}
+          <div className="mb-3">
+            {larp.relatedLarpsLeft.map((relatedLarp) => (
+              <LeftRelatedLarpComponent
+                key={relatedLarp.rightId}
+                relatedLarp={relatedLarp}
+                messages={translations.Larp}
+              />
+            ))}
+            {larp.relatedLarpsRight.map((relatedLarp) => (
+              <RightRelatedLarpComponent
+                key={relatedLarp.leftId}
+                relatedLarp={relatedLarp}
+                messages={translations.Larp}
+              />
+            ))}
+          </div>
+          <div className="mb-5">
+            {larp.links.map((link) => (
+              <LarpLinkComponent
+                key={link.id}
+                link={link}
+                messages={translations.Larp}
+              />
+            ))}
+          </div>
         </div>
       </div>
-      <div className="container mt-5 mb-5" style={{ maxWidth: "800px" }}>
+      <div className="container mb-5" style={{ maxWidth: "800px" }}>
         {larp.fluffText && (
           <div className="mb-5 fst-italic">
             <Paragraphs text={larp.fluffText} />
@@ -182,7 +198,13 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
             <Markdown input={larp.description} />
           </div>
         )}
-        <div className="mb-2 form-text">⚠️ {t.actions.claim(ClaimLink)}</div>
+        <div className="mb-2 form-text">
+          {isClaimedByGm ? (
+            <>✅ {larpT.attributes.isClaimedByGm.message}</>
+          ) : (
+            <>⚠️ {t.actions.claim(ClaimLink)}</>
+          )}
+        </div>
         <div className="mb-2 form-text">
           ⚠️ {t.actions.suggestEdit(EditLink)}
         </div>
