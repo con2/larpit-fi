@@ -2,7 +2,7 @@ import LarpCard from "@/components/LarpCard";
 import { PrivacyPolicyLink } from "@/components/LoginLink";
 import { isStaging } from "@/config";
 import { LarpType } from "@/generated/prisma";
-import { isSignupOpenOrOpeningSoon } from "@/models/Larp";
+import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -77,22 +77,6 @@ function Section({
       {children}
     </div>
   );
-}
-
-function ensureEndsAt(larp: {
-  startsAt: Date | null;
-  endsAt: Date | null;
-}): Date | null {
-  if (larp.endsAt) {
-    return larp.endsAt;
-  }
-  if (larp.startsAt) {
-    // assume ending at 8PM Europe/Helsinki same day
-    const endDate = new Date(larp.startsAt);
-    endDate.setHours(20, 0, 0, 0);
-    return endDate;
-  }
-  return null;
 }
 
 const limitPastLarps = 8;

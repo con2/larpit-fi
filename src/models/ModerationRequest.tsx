@@ -53,7 +53,7 @@ export const ModerationRequestContent = z.object({
   signupEndsAt: zPlainDateNull,
 });
 
-export const CreateLarpForm = ModerationRequestContent.extend({
+export const ModerationRequestForm = ModerationRequestContent.extend({
   submitterName: z.string().min(1).max(100).optional(),
   submitterEmail: z.email().optional(),
   submitterRole: zSubmitterRole,
@@ -62,7 +62,7 @@ export const CreateLarpForm = ModerationRequestContent.extend({
 });
 
 export type ModerationRequestContent = z.infer<typeof ModerationRequestContent>;
-export type CreateLarpForm = z.infer<typeof CreateLarpForm>;
+export type ModerationRequestForm = z.infer<typeof ModerationRequestForm>;
 
 export async function approveRequest(
   request: Pick<

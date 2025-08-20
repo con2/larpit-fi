@@ -42,3 +42,19 @@ export default function getLarpHref(larp: Pick<Larp, "id" | "alias">): string {
 export function hasEditors(larp: { relatedUsers: RelatedUser[] }): boolean {
   return larp.relatedUsers.some((user) => user.role === RelatedUserRole.EDITOR);
 }
+
+export function ensureEndsAt(larp: {
+  startsAt: Date | null;
+  endsAt: Date | null;
+}): Date | null {
+  if (larp.endsAt) {
+    return larp.endsAt;
+  }
+  if (larp.startsAt) {
+    // assume ending at 8PM Europe/Helsinki same day
+    const endDate = new Date(larp.startsAt);
+    endDate.setHours(20, 0, 0, 0);
+    return endDate;
+  }
+  return null;
+}

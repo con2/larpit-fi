@@ -1,4 +1,7 @@
+import { Larp } from "@/generated/prisma";
+import { toPlainDate } from "@/helpers/temporal";
 import type { Translations } from "@/translations/en";
+import { Temporal } from "@js-temporal/polyfill";
 import {
   Card,
   CardBody,
@@ -12,9 +15,40 @@ import {
 interface Props {
   translations: Translations;
   locale: string;
+  larp: Pick<
+    Larp,
+    | "name"
+    | "tagline"
+    | "locationText"
+    | "language"
+    | "startsAt"
+    | "endsAt"
+    | "signupStartsAt"
+    | "signupEndsAt"
+    | "fluffText"
+    | "description"
+  > | null;
 }
 
-export function LarpDetailsFormComponent({ translations, locale }: Props) {
+function toISODateEmpty(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+    | null
+    | undefined
+): string {
+  if (!date) return "";
+  return toPlainDate(date).toString();
+}
+
+export function LarpDetailsFormComponent({
+  translations,
+  locale,
+  larp,
+}: Props) {
   const newT = translations.NewLarpPage;
   const t = translations.Larp;
 
@@ -32,6 +66,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
             type="text"
             id="LarpDetailsFormComponent-name"
             name="name"
+            defaultValue={larp?.name || ""}
             required
           />
           <FormText>{t.attributes.name.helpText}</FormText>
@@ -45,6 +80,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
             type="text"
             id="LarpDetailsFormComponent-tagline"
             name="tagline"
+            defaultValue={larp?.tagline || ""}
           />
           <FormText>{t.attributes.tagline.helpText}</FormText>
         </div>
@@ -58,6 +94,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               type="text"
               id="LarpDetailsFormComponent-locationText"
               name="locationText"
+              defaultValue={larp?.locationText || ""}
             />
             <FormText>{t.attributes.locationText.helpText}</FormText>
           </div>
@@ -70,7 +107,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               id="LarpDetailsFormComponent-language"
               name="language"
               required
-              defaultValue={locale}
+              defaultValue={larp?.language ?? locale}
             >
               <option value=""></option>
               {Object.entries(t.attributes.language.choices).map(
@@ -94,6 +131,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               type="date"
               id="LarpDetailsFormComponent-startsAt"
               name="startsAt"
+              defaultValue={toISODateEmpty(larp?.startsAt)}
             />
             <FormText>{t.attributes.startsAt.helpText}</FormText>
           </div>
@@ -106,6 +144,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               type="date"
               id="LarpDetailsFormComponent-endsAt"
               name="endsAt"
+              defaultValue={toISODateEmpty(larp?.endsAt)}
             />
             <FormText>{t.attributes.endsAt.helpText}</FormText>
           </div>
@@ -120,6 +159,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               type="date"
               id="LarpDetailsFormComponent-signupStartsAt"
               name="signupStartsAt"
+              defaultValue={toISODateEmpty(larp?.signupStartsAt)}
             />
             <FormText>{t.attributes.signupStartsAt.helpText}</FormText>
           </div>
@@ -132,6 +172,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
               type="date"
               id="LarpDetailsFormComponent-signupEndsAt"
               name="signupEndsAt"
+              defaultValue={toISODateEmpty(larp?.signupEndsAt)}
             />
             <FormText>{t.attributes.signupEndsAt.helpText}</FormText>
           </div>
@@ -146,6 +187,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
             id="LarpDetailsFormComponent-fluffText"
             name="fluffText"
             rows={5}
+            defaultValue={larp?.fluffText || ""}
           />
           <FormText>{t.attributes.fluffText.helpText}</FormText>
         </div>
@@ -158,6 +200,7 @@ export function LarpDetailsFormComponent({ translations, locale }: Props) {
             id="LarpDetailsFormComponent-description"
             name="description"
             rows={5}
+            defaultValue={larp?.description || ""}
           />
           <FormText>{t.attributes.description.helpText}</FormText>
         </div>

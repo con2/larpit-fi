@@ -199,15 +199,14 @@ const translations: Translations = {
         message: (
           <>
             <p>
-              Näitä tietoja käytetään larppisivun luomiseen, ja ne tulevat
-              näkyviin muille käyttäjille. Varaamme oikeuden muokata syöttämiäsi
-              tietoja oikeellisuuden ja tyylin vuoksi.
+              Nämä tiedot näytetään larppisivulla. Varaamme oikeuden muokata
+              syöttämiäsi tietoja oikeellisuuden ja tyylin nimissä.
             </p>
             <p>
               Jos et ole tämän larpin pelinjohtaja, olethan erityisen tarkka
-              siitä, mitä tietoja annat tässä. Onko tieto julkaistu jossain
-              julkisessa lähteessä larpin järjestäjien toimesta? Jos ei, pohdi
-              mitä tietoja voit julkaista ja mitä et.
+              siitä, mitä tietoja annat tässä. Ovatko larpin järjestäjät
+              julkaisseet jossain tiedon, jonka olet lisäämässä? Jos eivät,
+              pohdi tarkoin mitä tietoja voit lisätä ja mitä et.
             </p>
           </>
         ),
@@ -292,9 +291,63 @@ const translations: Translations = {
   },
   EditLarpPage: {
     title: "Muokkaa larppia",
+    underConstruction: {
+      title: "Rakenteilla",
+      message: (
+        <>
+          Muokkaussivu on vielä rakenteilla (melkein valmis!). Sillä välin, jos
+          jotain tarvitsee korjata saman tien, laita viesti Japsulle.
+        </>
+      ),
+    },
+    message: {
+      moderatorWhenNoGameMasterListed: (
+        <>
+          Tälle larpille ei ole merkitty pelinjohtajaa. Sinulla on moderaattorin
+          oikeudet, joten muokkauksesi hyväksytään automaattisesti.
+        </>
+      ),
+      moderatorWhenGameMasterListed: (
+        <>
+          Sinulla on moderaattorin oikeudet, mutta sinua ei ole merkitty tämän
+          larpin pelinjohtajaksi. Muokkausehdotuksesi menevät pelinjohtajan
+          hyväksyttäväksi. Jos pelinjohtaja ei käsittele ehdotusta
+          kohtuullisessa ajassa, voit hyväksyä sen itse moderointinäkymän
+          kautta.
+        </>
+      ),
+      gameMaster: (
+        <>
+          Sinut on merkitty tämän larpin pelinjohtajaksi. Voit muokata larpin
+          sivua ilman ennakkotarkistusta.
+        </>
+      ),
+      editor: (
+        <>
+          Sinulla on muokkausoikeudet tähän larppiin. Voit muokata tätä sivua
+          ilman ennakkotarkistusta.
+        </>
+      ),
+      noRole: (
+        <>
+          Sinua ei ole merkitty tämän larpin pelinjohtajaksi. Olemassa olevien
+          larppisivujen muokkausehdotukset ohjataan moderaattorien tai
+          pelinjohtajan tarkastettavaksi.
+        </>
+      ),
+    },
   },
   ClaimLarpPage: {
     title: "Oletko pelinjohtaja tai järjestäjä? Ota sivu hallintaasi!",
+    underConstruction: {
+      title: "Rakenteilla",
+      message: (
+        <>
+          Larppisivun haltuunottosivu on vielä rakenteilla. Sillä välin, jos
+          jotain tarvitsee korjata saman tien, laita viesti Japsulle.
+        </>
+      ),
+    },
     message: (
       <>
         <p>

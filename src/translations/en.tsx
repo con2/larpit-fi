@@ -271,9 +271,65 @@ const translations = {
   },
   EditLarpPage: {
     title: "Edit this page",
+    underConstruction: {
+      title: "Under construction",
+      message: (
+        <>
+          The edit page is still under construction. But we&apos;re nearly
+          there! In the meantime, if there&apos;s something you really need
+          fixed right now, send Japsu a message.
+        </>
+      ),
+    },
+    message: {
+      moderatorWhenNoGameMasterListed: (
+        <>
+          There is no GM listed for this larp. You have moderator privileges,
+          and your edits will be approved automatically.
+        </>
+      ),
+      moderatorWhenGameMasterListed: (
+        <>
+          There is a GM listed for this larp. You have moderator privileges, but
+          you are not listed as the GM of this larp. Your edit suggestions will
+          be sent to the GM for approval. If the GM does not process the
+          suggestion in a reasonable time, you can approve it yourself through
+          the moderation view.
+        </>
+      ),
+      gameMaster: (
+        <>
+          You are listed as the GM of this larp. You can edit the larp page
+          without prior approval.
+        </>
+      ),
+      editor: (
+        <>
+          You have edit rights for this larp. You can edit the larp page without
+          prior approval.
+        </>
+      ),
+      noRole: (
+        <>
+          You are not listed as the GM of this larp. All suggestions to edit
+          existing larp pages are checked and approved by either a moderator or
+          the GM.
+        </>
+      ),
+    },
   },
   ClaimLarpPage: {
     title: "Claim this page",
+    underConstruction: {
+      title: "Under construction",
+      message: (
+        <>
+          The claim page is still under construction. In the meantime, if
+          there&apos;s something you really need fixed right now, send Japsu a
+          message.
+        </>
+      ),
+    },
     message: (
       <>
         <p>

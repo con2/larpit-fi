@@ -5,7 +5,7 @@ import { EditAction, EditStatus } from "@/generated/prisma";
 import compactObject from "@/helpers/compactObject";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
-  CreateLarpForm,
+  ModerationRequestForm,
   approveRequest,
   sendVerificationEmail,
 } from "@/models/ModerationRequest";
@@ -33,7 +33,7 @@ export async function createLarp(
 
   const formDataObject = Object.fromEntries(data.entries());
 
-  const larpForm = CreateLarpForm.parse(formDataObject);
+  const larpForm = ModerationRequestForm.parse(formDataObject);
   const linksForm = LarpLinksForm.parse(formDataObject);
 
   const {
