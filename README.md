@@ -85,11 +85,12 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [x] Display links to home page, player guide, social media etc. external resources
   - [x] Display relations between larps (eg. rerun, sequel)
   - [x] Links to claim the larp page or suggest an edit
-  - [ ] Type of larp
+  - [x] Type of larp
   - [ ] Number of players
   - [ ] Author (as opposed to organizer)
   - [ ] Age limits
   - [ ] Intended audience? (-> tagging/categories?)
+  - [ ] Signup openness (public/targeted/invite only)
   - [ ] Should related users be shown somehow?
     - [ ] GM preference
     - [ ] Override how GMs are displayed
@@ -140,18 +141,22 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [x] Import larps and series from larppikuvat.fi
   - [ ] Ask Rai if we can scrape or emfederate kalenteri.larp.fi
 - [ ] Support requests
-  - [ ] I want this page gone
+  - [ ] There is a problem with this page that cannot be rectified by suggesting an edit
+  - [ ] I am a journalist or researcher and want to speak to an expert about larp
+  - [ ] I need to contact the GM of a larp
+  - [ ] I want to give feedback about the site
 - [ ] Launch in X-con
   - [x] Scream test concept with pilot group before X-con
   - [ ] Powerpoint presentation
-- [ ] Deployment on QB
-  - [x] Staging environment
-  - [ ] Production environment
+- [x] Deployment on QB
+  - [x] Staging environment (<https://dev.larpit.fi>)
+  - [x] Production environment (<https://larpit.fi>)
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?
   - [ ] GM preference
 - [x] Write proper [privacy policy]() (Tracon.fi Wordpress)
   - [ ] English translation
+- [ ] Move backlog to GitHub Projects
 
 ### Ideas/unsorted items from Illusia evening 15 August 2025
 
@@ -170,3 +175,4 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Organizations (that organize larps)
 - [ ] Venues
 - [ ] Statistics! (total larps, larp per year etc.)
+- [ ] Moderator needs to be able to set alias for larp

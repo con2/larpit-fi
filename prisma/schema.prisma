@@ -183,6 +183,12 @@ enum RelatedUserRole {
   FAVORITE
 }
 
+enum Visibility {
+  PUBLIC
+  GAME_MASTER
+  PRIVATE
+}
+
 model RelatedUser {
   id     String          @id @default(uuid(7)) @db.Uuid
   larpId String          @map("larp_id") @db.Uuid
