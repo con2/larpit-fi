@@ -121,14 +121,46 @@ enum Language {
   OTHER
 }
 
+model Country {
+  id             String         @id // Wikidata id with wd: prefix, eg. wd:Q33
+  code           String?        @unique // ISO 3166-1 alpha-2 country code, eg. FI
+  nameFi         String?        @map("name_fi")
+  nameSv         String?        @map("name_sv")
+  nameEn         String?        @map("name_en")
+  municipalities Municipality[]
+
+  @@map("country")
+}
+
+model Municipality {
+  id                    String  @id
+  nameFi                String? @map("name_fi")
+  nameSv                String? @map("name_sv")
+  nameOther             String? @map("name_other")
+  nameOtherLanguageCode String? @map("name_other_language_code")
+  countryId             String  @default("wd:Q33") @map("country_code")
+  lat                   Float
+  long                  Float
+  larps                 Larp[]
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@map("municipality")
+}
+
 model Larp {
-  id           String   @id @default(uuid(7)) @db.Uuid
-  name         String
-  type         LarpType @default(ONE_SHOT)
-  language     Language
-  tagline      String?
-  alias        String?  @unique
-  locationText String?  @map("location_text")
+  id       String   @id @default(uuid(7)) @db.Uuid
+  name     String
+  type     LarpType @default(ONE_SHOT)
+  language Language
+  tagline  String?
+  alias    String?  @unique
+
+  locationText   String? @map("location_text")
+  municipalityId String? @map("municipality_id")
+
+  numPlayerCharacters  Int? @map("num_player_characters")
+  numTotalParticipants Int? @map("num_total_participants")
 
   fluffText   String? @map("fluff_text")
   description String? @map("description")
@@ -146,6 +178,7 @@ model Larp {
   relatedLarpsRight RelatedLarp[]       @relation("RelatedLarpsRight")
   relatedUsers      RelatedUser[]
   requests          ModerationRequest[]
+  municipality      Municipality?       @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
 
   @@map("larp")
 }

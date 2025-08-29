@@ -48,6 +48,7 @@
     "@types/underscore": "^1.13.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "rdflib": "^2.2.37",
     "react-email": "^4.2.8",
     "sass": "^1.90.0",
     "tsx": "^4.20.3",

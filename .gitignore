@@ -43,6 +43,7 @@ next-env.d.ts
 # generated files
 /src/generated/prisma/
 /kubernetes/
+/data/
 
 # build pipeline
 /build.json
