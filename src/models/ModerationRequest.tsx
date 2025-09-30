@@ -11,6 +11,7 @@ import {
   LarpLinkType,
   LarpType,
   ModerationRequest,
+  Openness,
   RelatedUser,
   RelatedUserRole,
   SubmitterRole,
@@ -35,17 +36,23 @@ export enum Resolution {
 }
 
 export const zResolution = z.enum<typeof Resolution>(Resolution);
-
+export const zOpenness = z.enum<typeof Openness>(Openness);
 export const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
 export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);
 
 export const ModerationRequestContent = z.object({
   name: z.string().min(1).max(200),
   tagline: z.string().max(500).optional(),
+  openness: zOpenness,
   language: zLanguage,
-  locationText: z.string().max(200).optional(),
   fluffText: z.string().max(2000).optional(),
   description: z.string().max(2000).optional(),
+
+  locationText: z.string().max(200).optional(),
+  municipalityId: z.string().max(20).optional(),
+
+  numPlayerCharacters: z.int().optional(),
+  numTotalParticipants: z.int().optional(),
 
   startsAt: zPlainDateNull,
   endsAt: zPlainDateNull,

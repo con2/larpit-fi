@@ -11,23 +11,48 @@ interface Props {
   }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+async function getContent({ params }: Props) {
   const { alias, locale } = await params;
-  const translations = getTranslations(locale);
-  const larp = await prisma.larp.findUnique({
-    where: { alias: alias },
-    select: {
-      name: true,
-      tagline: true,
-    },
-  });
-  if (!larp) {
+  const [larp, page] = await Promise.all([
+    prisma.larp.findUnique({
+      where: { alias: alias },
+      select: {
+        name: true,
+        tagline: true,
+      },
+    }),
+    prisma.page.findUnique({
+      where: { slug_language: { slug: alias, language: locale } },
+      select: {
+        title: true,
+        content: true,
+      },
+    }),
+  ]);
+  if (!larp && !page) {
     notFound();
   }
-  return {
-    title: `${larp.name} – ${translations.title}`,
-    description: larp.tagline,
-  };
+  return { larp, page };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const translations = getTranslations(locale);
+  const { larp, page } = await getContent({ params });
+
+  if (page) {
+    return {
+      title: page.title,
+      description: page.content,
+    };
+  } else if (larp) {
+    return {
+      title: `${larp.name} – ${translations.title}`,
+      description: larp.tagline,
+    };
+  } else {
+    notFound();
+  }
 }
 
 export default async function LarpByAliasPage({ params }: Props) {

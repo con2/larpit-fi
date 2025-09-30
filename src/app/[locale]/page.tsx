@@ -1,6 +1,5 @@
 import LarpCard from "@/components/LarpCard";
-import { PrivacyPolicyLink } from "@/components/LoginLink";
-import { isStaging } from "@/config";
+import Markdown from "@/components/Markdown";
 import { LarpType } from "@/generated/prisma";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
@@ -38,15 +37,12 @@ async function getHomePageData() {
       signupEndsAt: true,
       language: true,
       alias: true,
+      openness: true,
     },
   });
 }
 
 type HomePageLarp = Awaited<ReturnType<typeof getHomePageData>>[number];
-
-function AddLarpLink({ children }: { children: React.ReactNode }) {
-  return <Link href="/larp/new">{children}</Link>;
-}
 
 function Section({
   title,
@@ -80,6 +76,7 @@ function Section({
 }
 
 const limitPastLarps = 8;
+const slug = "front-page";
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
@@ -87,7 +84,12 @@ export default async function HomePage({ params }: Props) {
   const t = translations.HomePage;
   const now = new Date();
 
-  const larps = await getHomePageData();
+  const [larps, page] = await Promise.all([
+    getHomePageData(),
+    prisma.page.findUnique({
+      where: { slug_language: { slug, language: locale } },
+    }),
+  ]);
 
   const larpsWithStartDates = larps.filter((larp) => larp.startsAt);
   const [pastLarps, futureLarps] = partition(
@@ -100,10 +102,6 @@ export default async function HomePage({ params }: Props) {
   );
   pastLarps.reverse().splice(limitPastLarps, pastLarps.length - limitPastLarps);
 
-  const introduction = isStaging
-    ? t.stagingIntroduction
-    : t.introduction(AddLarpLink, PrivacyPolicyLink);
-
   return (
     <div className="container">
       <div className="text-center mb-4">
@@ -113,11 +111,13 @@ export default async function HomePage({ params }: Props) {
         </p>
       </div>
 
-      <Card className="mb-5">
-        <CardBody>
-          <div className="card-text">{introduction}</div>
-        </CardBody>
-      </Card>
+      {page && (
+        <Card className="mb-5">
+          <CardBody>
+            <Markdown input={page.content} />
+          </CardBody>
+        </Card>
+      )}
 
       {ongoingSignupLarps.length > 0 && (
         <Section
@@ -129,7 +129,13 @@ export default async function HomePage({ params }: Props) {
       )}
       {otherFutureLarps.length > 0 && (
         <Section
-          title={t.sections.upcoming}
+          title={
+            // some may call it overkill
+            // we call it attention to detail
+            ongoingSignupLarps.length > 0
+              ? t.sections.upcomingWhenOngoingSignupPresent
+              : t.sections.upcomingWhenNoOngoingSignupPresent
+          }
           larps={otherFutureLarps}
           locale={locale}
           messages={translations.Larp}

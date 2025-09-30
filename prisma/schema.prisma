@@ -148,6 +148,12 @@ model Municipality {
   @@map("municipality")
 }
 
+enum Openness {
+  OPEN
+  TARGETED
+  INVITE_ONLY
+}
+
 model Larp {
   id       String   @id @default(uuid(7)) @db.Uuid
   name     String
@@ -172,6 +178,7 @@ model Larp {
   endsAt         DateTime? @map("ends_at")
   signupStartsAt DateTime? @map("signup_starts_at")
   signupEndsAt   DateTime? @map("signup_ends_at")
+  openness       Openness?
 
   links             LarpLink[]
   relatedLarpsLeft  RelatedLarp[]       @relation("RelatedLarpsLeft")
@@ -309,4 +316,16 @@ model ModerationRequest {
   submitter  User? @relation("RequestsSubmittedByUser", fields: [submitterId], references: [id], onDelete: Cascade)
 
   @@map("moderation_request")
+}
+
+model Page {
+  slug      String   @default("front-page")
+  language  String
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([slug, language])
+  @@map("page")
 }

@@ -19,7 +19,7 @@ interface Props {
     Larp,
     | "name"
     | "tagline"
-    | "locationText"
+    | "openness"
     | "language"
     | "startsAt"
     | "endsAt"
@@ -87,18 +87,26 @@ export function LarpDetailsFormComponent({
 
         <div className="row">
           <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpDetailsFormComponent-locationText">
-              {t.attributes.locationText.label}
+            <FormLabel htmlFor="LarpDetailsFormComponent-openness">
+              {t.attributes.openness.label}*
             </FormLabel>
-            <FormControl
-              type="text"
-              id="LarpDetailsFormComponent-locationText"
-              name="locationText"
-              defaultValue={larp?.locationText || ""}
-            />
-            <FormText>{t.attributes.locationText.helpText}</FormText>
+            <FormSelect
+              id="LarpDetailsFormComponent-openness"
+              name="openness"
+              required
+              defaultValue={larp?.openness ?? ""}
+            >
+              <option value=""></option>
+              {Object.entries(t.attributes.openness.choices).map(
+                ([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                )
+              )}
+            </FormSelect>
+            <FormText>{t.attributes.openness.helpText}</FormText>
           </div>
-
           <div className="form-group mb-3 col-md-6">
             <FormLabel htmlFor="LarpDetailsFormComponent-language">
               {t.attributes.language.label}*
