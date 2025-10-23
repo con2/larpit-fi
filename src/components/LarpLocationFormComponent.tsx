@@ -16,6 +16,8 @@ interface Props {
   translations: Translations;
   locale: string;
   larp: Pick<Larp, "locationText" | "municipalityId" | "language"> | null;
+  readOnly?: boolean;
+  compact?: boolean;
 }
 
 function getMunicipalityName(municipality: Municipality, _locale: string) {
@@ -39,9 +41,12 @@ export default async function LarpLocationFormComponent({
   larp,
   locale,
   translations,
+  readOnly,
+  compact,
 }: Props) {
   const t = translations.Larp;
   const newT = translations.NewLarpPage;
+  const showHelpText = !compact;
 
   const municipalities = await prisma.municipality.findMany({
     orderBy: { nameFi: "asc" }, // TODO handle other languages
@@ -52,7 +57,9 @@ export default async function LarpLocationFormComponent({
     <Card className="mb-4">
       <CardBody>
         <CardTitle>{newT.sections.location.title}</CardTitle>
-        <div className="mb-4">{newT.sections.location.message}</div>
+        {showHelpText && (
+          <div className="mb-4">{newT.sections.location.message}</div>
+        )}
 
         <div className="row">
           <div className="form-group mb-3 col-md-6">
@@ -64,8 +71,11 @@ export default async function LarpLocationFormComponent({
               id="LarpLocationFormComponent-locationText"
               name="locationText"
               defaultValue={larp?.locationText || ""}
+              readOnly={readOnly}
             />
-            <FormText>{t.attributes.locationText.helpText}</FormText>
+            {showHelpText && (
+              <FormText>{t.attributes.locationText.helpText}</FormText>
+            )}
           </div>
           <div className="form-group mb-3 col-md-6">
             <FormLabel htmlFor="LarpLocationFormComponent-municipality">
@@ -75,6 +85,7 @@ export default async function LarpLocationFormComponent({
               id="LarpLocationFormComponent-municipality"
               name="municipality"
               defaultValue={larp?.municipalityId ?? ""}
+              disabled={readOnly}
             >
               <option value=""></option>
               {municipalities.map((municipality) => {
@@ -93,7 +104,9 @@ export default async function LarpLocationFormComponent({
                 );
               })}
             </FormSelect>
-            <FormText>{t.attributes.municipality.helpText}</FormText>
+            {showHelpText && (
+              <FormText>{t.attributes.municipality.helpText}</FormText>
+            )}
           </div>
         </div>
       </CardBody>

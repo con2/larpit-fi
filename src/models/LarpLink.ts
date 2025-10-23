@@ -1,5 +1,6 @@
-import { LarpLinkType } from "@/generated/prisma";
+import { LarpLink, LarpLinkType } from "@/generated/prisma";
 import z from "zod";
+import prisma from "@/prisma";
 
 const zLarpLinkType = z.enum<typeof LarpLinkType>(LarpLinkType);
 
@@ -10,6 +11,12 @@ export const LarpLinkUpsertable = z.object({
 });
 
 export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;
+
+export const LarpLinkRemovable = z.object({
+  id: z.uuid(),
+});
+
+export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;
 
 // TODO Cheap-ass solution, only provides for single link of each type.
 // TODO use z.url() instead when we have proper feedback from validation
@@ -85,4 +92,47 @@ export function socialMediaLinkTitleFromHref(href: string) {
   }
 
   return null;
+}
+
+export async function handleLarpLinks(
+  larpId: string,
+  addLinks: LarpLinkUpsertable[],
+  removeLinks: LarpLinkRemovable[]
+) {
+  const promises: Promise<unknown>[] = [];
+
+  if (addLinks.length > 0) {
+    promises.push(
+      prisma.larpLink.createMany({
+        data: addLinks.map(({ type, href }) => {
+          href = href.trim();
+
+          const title =
+            type === LarpLinkType.SOCIAL_MEDIA
+              ? socialMediaLinkTitleFromHref(href)
+              : null;
+
+          return {
+            larpId,
+            type,
+            href,
+            title,
+          };
+        }),
+      })
+    );
+  }
+
+  if (removeLinks.length > 0) {
+    promises.push(
+      prisma.larpLink.deleteMany({
+        where: {
+          id: { in: removeLinks.map((link) => link.id) },
+          larpId,
+        },
+      })
+    );
+  }
+
+  await Promise.all(promises);
 }

@@ -73,7 +73,10 @@ export function ensureLocation(
     > | null;
   }
 ): { location: string; language: string } | null {
-  if (larp.locationText) {
+  if (larp.locationText && larp.municipality) {
+    const location = `${larp.locationText}, ${larp.municipality.nameFi}`;
+    return { location, language: larp.language };
+  } else if (larp.locationText) {
     return { location: larp.locationText, language: larp.language };
   } else if (larp.municipality) {
     if (larp.municipality.nameFi) {

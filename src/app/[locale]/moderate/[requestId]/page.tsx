@@ -7,7 +7,10 @@ import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
 import { canModerate } from "@/models/User";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
-import { ModerationRequestContent } from "@/models/ModerationRequest";
+import {
+  contentToLarp,
+  ModerationRequestContent,
+} from "@/models/ModerationRequest";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { notFound } from "next/navigation";
@@ -30,8 +33,10 @@ import { EditStatus } from "@/generated/prisma";
 import Link from "next/link";
 import getLarpHref from "@/models/Larp";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import { LarpLinkUpsertable } from "@/models/LarpLink";
+import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import z from "zod";
+import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
+import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
@@ -42,7 +47,6 @@ export default async function ModerationRequestPage({ params }: Props) {
 
   const translations = getTranslations(locale);
   const t = translations.ModerationRequest;
-  const newLarpT = translations.NewLarpPage;
   const larpT = translations.Larp;
 
   const session = await auth();
@@ -92,7 +96,11 @@ export default async function ModerationRequestPage({ params }: Props) {
   }
 
   const newContent = ModerationRequestContent.parse(request.newContent);
+  const updatedLarp = contentToLarp(newContent);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
+
+  // TODO show
+  const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
 
   function Empty() {
     return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;
@@ -213,104 +221,21 @@ export default async function ModerationRequestPage({ params }: Props) {
         </CardBody>
       </Card>
 
-      <Card className="mb-4">
-        <CardBody>
-          <CardTitle>{newLarpT.sections.larp.title}</CardTitle>
-          <Field title={larpT.attributes.name.title} value={newContent.name} />
-          <Field
-            title={larpT.attributes.tagline.title}
-            value={newContent.tagline}
-          />
-          <Row>
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.locationText.title}
-              value={newContent.locationText}
-            />
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.language.title}
-              value={larpT.attributes.language.choices[newContent.language]}
-            />
-          </Row>
-          <Row>
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.startsAt.title}
-              value={
-                newContent.startsAt ? (
-                  <FormattedDate date={newContent.startsAt} locale={locale} />
-                ) : (
-                  <Empty />
-                )
-              }
-            />
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.endsAt.title}
-              value={
-                newContent.endsAt ? (
-                  <FormattedDate date={newContent.endsAt} locale={locale} />
-                ) : (
-                  <Empty />
-                )
-              }
-            />
-          </Row>
-          <Row>
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.signupStartsAt.title}
-              value={
-                newContent.signupStartsAt ? (
-                  <FormattedDate
-                    date={newContent.signupStartsAt}
-                    locale={locale}
-                  />
-                ) : (
-                  <Empty />
-                )
-              }
-            />
-            <Field
-              className="col-md-6"
-              title={larpT.attributes.signupEndsAt.title}
-              value={
-                newContent.signupEndsAt ? (
-                  <FormattedDate
-                    date={newContent.signupEndsAt}
-                    locale={locale}
-                  />
-                ) : (
-                  <Empty />
-                )
-              }
-            />
-          </Row>
-          <Field
-            title={larpT.attributes.fluffText.title}
-            value={
-              newContent.fluffText ? (
-                <UnrenderedMarkdown>{newContent.fluffText}</UnrenderedMarkdown>
-              ) : (
-                <Empty />
-              )
-            }
-          />
-          <Field
-            title={larpT.attributes.description.title}
-            value={
-              newContent.description ? (
-                <UnrenderedMarkdown>
-                  {newContent.description}
-                </UnrenderedMarkdown>
-              ) : (
-                <Empty />
-              )
-            }
-          />
-        </CardBody>
-      </Card>
+      <LarpDetailsFormComponent
+        translations={translations}
+        locale={locale}
+        larp={updatedLarp}
+        readOnly
+        compact
+      />
+
+      <LarpLocationFormComponent
+        translations={translations}
+        larp={updatedLarp}
+        locale={locale}
+        readOnly
+        compact
+      />
 
       {addLinks.length > 0 ? (
         <Card className="mb-4">

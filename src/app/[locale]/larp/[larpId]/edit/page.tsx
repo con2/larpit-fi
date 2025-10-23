@@ -15,6 +15,7 @@ import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { editLarp } from "./actions";
+import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 
 interface Props {
   params: Promise<{
@@ -101,36 +102,31 @@ export default async function EditLarpPage({ params }: Props) {
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-5">{message}</div>
 
-      <Card className="mb-5">
-        <CardBody>
-          <CardTitle>{t.underConstruction.title}</CardTitle>
-          <CardText>{t.underConstruction.message}</CardText>
-        </CardBody>
-      </Card>
-
-      {false && (
-        <Form action={editLarp.bind(null, locale, larp!.id)}>
-          <SubmitterFormComponent
-            user={user}
-            role={highestExistingRole}
-            translations={translations}
-          />
-          <PrivacyFormComponent translations={translations} />
-          <LarpDetailsFormComponent
-            translations={translations}
-            locale={locale}
-            larp={larp}
-          />
-          <LarpLinksFormComponent
-            translations={translations}
-            links={larp!.links}
-          />
-          <YoureAlmostReadyFormComponent
-            translations={translations}
-            user={user}
-          />
-        </Form>
-      )}
+      <Form action={editLarp.bind(null, locale, larp!.id)}>
+        <SubmitterFormComponent
+          user={user}
+          role={highestExistingRole}
+          translations={translations}
+        />
+        <LarpDetailsFormComponent
+          translations={translations}
+          locale={locale}
+          larp={larp}
+        />
+        <LarpLocationFormComponent
+          translations={translations}
+          locale={locale}
+          larp={larp}
+        />
+        <LarpLinksFormComponent
+          translations={translations}
+          links={larp!.links}
+        />
+        <YoureAlmostReadyFormComponent
+          translations={translations}
+          user={user}
+        />
+      </Form>
     </Container>
   );
 }
