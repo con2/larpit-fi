@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "prisma migrate dev && prisma generate --no-hints && next dev --turbopack --port 3158",
-    "build": "prisma generate --no-hints --no-engine && next build",
+    "build": "prisma generate --no-hints && next build",
     "start": "next start",
     "lint": "prisma generate --no-hints && next lint",
     "email:dev": "npx email dev -d src/emails -p 3159",
