@@ -123,16 +123,17 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Logged in user makes the claim
   - [ ] Non logged in user makes the claim (UNSUPPORTED?)
   - [ ] Admin processes the claim
-- [ ] Suggesting an edit
-  - [ ] Logged in user makes a suggestion
+- [x] Suggesting an edit
+  - [x] Logged in user makes a suggestion
   - [ ] Non logged in user makes a suggestion
     - [ ] Email confirmation required for each suggestion
-  - [ ] Moderator processes suggested edits for non claimed larp pages
+  - [x] Moderator processes suggested edits for non claimed larp pages
   - [ ] GM (or admin) processes suggested edits for claimed larp pages
 - [ ] Subscribeable calendar resource (ICS)
 - [ ] Public data API (REST/JSON)
 - [ ] Own larps
   - [x] Own larps list in profile
+  - [ ] Filter own larps list by role
   - [ ] "I played this larp" button on larp page for logged in users
   - [ ] Favorite button on larp page for logged in users
   - [ ] Public player list (if set as public by GM)
@@ -147,14 +148,14 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] I want to give feedback about the site
 - [ ] Launch in X-con
   - [x] Scream test concept with pilot group before X-con
-  - [ ] Powerpoint presentation
+  - [x] Powerpoint presentation
 - [x] Deployment on QB
   - [x] Staging environment (<https://dev.larpit.fi>)
   - [x] Production environment (<https://larpit.fi>)
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?
   - [ ] GM preference
-- [x] Write proper [privacy policy]() (Tracon.fi Wordpress)
+- [x] Write proper privacy policy (Tracon.fi Wordpress)
   - [ ] English translation
 - [ ] Move backlog to GitHub Projects
 
