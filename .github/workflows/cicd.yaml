@@ -97,11 +97,10 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: build-json
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: package-lock.json
+          node-version: 24
+          package-manager-cache: false
 
       - id: cache-bin
         uses: actions/cache@v4
@@ -115,8 +114,7 @@ jobs:
           curl -Lo bin/kubectl https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl
           chmod +x bin/skaffold bin/kubectl
       - run: echo "$PWD/bin" >> $GITHUB_PATH
-      - run: npm ci
-      - run: npx tsx src/bin/manifest.ts
+      - run: node --experimental-strip-types src/bin/manifest.mts
         env:
           ENV: production
       - run: skaffold deploy -n larpit-production -a build.json

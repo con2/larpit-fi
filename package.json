@@ -11,8 +11,9 @@
     "db:seed": "prisma db seed",
     "db:reset": "prisma migrate reset",
     "db:migrate": "prisma migrate deploy",
-    "k8s:generate": "tsx src/bin/manifest.ts",
-    "k8s:dev": "npm run k8s:generate && skaffold dev"
+    "k8s:generate": "node --experimental-strip-types src/bin/manifest.mts",
+    "k8s:secret": "node --experimental-strip-types src/bin/secret.mts",
+    "k8s:dev": "npm run k8s:generate && npm run k8s:secret && skaffold dev"
   },
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",

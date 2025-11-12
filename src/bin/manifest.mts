@@ -1,18 +1,17 @@
 // Generate Kubernetes manifests based on environment variables.
 // See https://github.com/japsu/depleten for philosophy.
+// Usage: ENV=staging node --experimental-strip-types src/bin/manifest.mts
 
-import { databaseUrl, kompassiOidc, authSecret } from "@/config";
-import { writeFileSync, unlinkSync, existsSync, mkdirSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 
 interface Environment {
   hostname: string;
-  secretManaged: boolean;
   kompassiBaseUrl: string;
   tlsEnabled: boolean;
 }
 
-const manifestsDir = path.resolve(path.join(__dirname, "../../kubernetes"));
+const manifestsDir = path.resolve("kubernetes");
 
 type EnvironmentName = "dev" | "staging" | "production";
 const environmentNames: EnvironmentName[] = ["dev", "staging", "production"];
@@ -20,19 +19,16 @@ const environmentNames: EnvironmentName[] = ["dev", "staging", "production"];
 const environmentConfigurations: Record<EnvironmentName, Environment> = {
   dev: {
     hostname: "larpit.localhost",
-    secretManaged: true,
     kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: false,
   },
   staging: {
     hostname: "dev.larpit.fi",
-    secretManaged: false,
     kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: true,
   },
   production: {
     hostname: "larpit.fi",
-    secretManaged: false,
     kompassiBaseUrl: "https://kompassi.eu",
     tlsEnabled: true,
   },
@@ -63,8 +59,7 @@ const livenessProbeEnabled = true;
 const smtpHostname = "sr1.pahaip.fi";
 const smtpPort = 25;
 
-const { hostname, secretManaged, kompassiBaseUrl, tlsEnabled } =
-  environmentConfiguration;
+const { hostname, kompassiBaseUrl, tlsEnabled } = environmentConfiguration;
 
 const ingressProtocol = tlsEnabled ? "https" : "http";
 const publicUrl = `${ingressProtocol}://${hostname}`;
@@ -261,27 +256,6 @@ const ingress = {
   },
 };
 
-export function b64(str: string) {
-  return Buffer.from(str).toString("base64");
-}
-
-// only written if secretManaged is true
-const secret = {
-  apiVersion: "v1",
-  kind: "Secret",
-  type: "Opaque",
-  metadata: {
-    name: stack,
-    labels: labels(),
-  },
-  data: {
-    KOMPASSI_OIDC_CLIENT_SECRET: b64(kompassiOidc.clientSecret),
-    KOMPASSI_OIDC_CLIENT_ID: b64(kompassiOidc.clientId),
-    AUTH_SECRET: b64(authSecret),
-    DATABASE_URL: b64(databaseUrl),
-  },
-};
-
 export function writeManifest(filename: string, manifest: unknown) {
   const filePath = path.join(manifestsDir, filename);
   writeFileSync(filePath, JSON.stringify(manifest, null, 2), {
@@ -296,14 +270,6 @@ function main() {
   writeManifest("deployment.json", deployment);
   writeManifest("service.json", service);
   writeManifest("ingress.json", ingress);
-
-  const secretFilename = "secret.json";
-  const secretPath = path.join(manifestsDir, secretFilename);
-  if (secretManaged) {
-    writeManifest(secretFilename, secret);
-  } else if (existsSync(secretPath)) {
-    unlinkSync(secretPath);
-  }
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
