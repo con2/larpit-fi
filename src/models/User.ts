@@ -1,4 +1,5 @@
 import {
+  EditStatus,
   RelatedUser,
   RelatedUserRole,
   User,
@@ -13,51 +14,44 @@ export function canManageUsers(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.ADMIN;
 }
 
-export function canCreateLarpWithoutPreModeration(
+/// When this user makes a request to create a larp,
+/// this determines the status of the created moderation request.
+export function getNewLarpInitialStatusForUser(
   user: Pick<User, "role"> | null
-): boolean {
-  switch (user?.role) {
+) {
+  if (!user) {
+    return EditStatus.PENDING_VERIFICATION;
+  }
+
+  switch (user.role) {
+    case UserRole.ADMIN:
+    case UserRole.MODERATOR:
+      return EditStatus.APPROVED;
     case UserRole.VERIFIED:
-    case UserRole.ADMIN:
-    case UserRole.MODERATOR:
-      return true;
+      return EditStatus.AUTO_APPROVED;
+    case UserRole.NOT_VERIFIED:
     default:
-      return false;
+      return EditStatus.PENDING_VERIFICATION;
   }
 }
 
-export function canCreateLarpWithoutPostModeration(
-  user: Pick<User, "role"> | null
-): boolean {
-  switch (user?.role) {
-    case UserRole.ADMIN:
-    case UserRole.MODERATOR:
-      return true;
-    default:
-      return false;
-  }
-}
-
-enum LarpEditPolicy {
-  NOPE_LOGIN_REQUIRED = "NOPE_LOGIN_REQUIRED",
-  WITH_MODERATION = "WITH_MODERATION",
-  WITHOUT_MODERATION = "WITHOUT_MODERATION",
-}
-
-export function getEditPolicyForUserAndLarp(
+/// When this user makes a request to create a larp,
+/// this determines the status of the created moderation request.
+/// If the user cannot edit the larp, returns null.
+export function getEditLarpInitialStatusForUserAndLarp(
   user: Pick<User, "id" | "role"> | null,
   larp: {
     relatedUsers: Pick<RelatedUser, "userId" | "role">[];
   }
-): LarpEditPolicy {
+) {
   // Non-logged in users cannot edit
   if (!user?.id) {
-    return LarpEditPolicy.NOPE_LOGIN_REQUIRED;
+    return null;
   }
 
   // Admins and moderators can edit without moderation
   if (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR) {
-    return LarpEditPolicy.WITHOUT_MODERATION;
+    return EditStatus.APPROVED;
   }
 
   // Editors and game masters can edit without moderation
@@ -69,9 +63,9 @@ export function getEditPolicyForUserAndLarp(
           relatedUser.role === RelatedUserRole.GAME_MASTER)
     )
   ) {
-    return LarpEditPolicy.WITHOUT_MODERATION;
+    return EditStatus.AUTO_APPROVED;
   }
 
   // Other logged in users can edit with moderation
-  return LarpEditPolicy.WITH_MODERATION;
+  return EditStatus.VERIFIED;
 }

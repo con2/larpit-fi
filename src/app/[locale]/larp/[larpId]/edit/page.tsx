@@ -1,21 +1,19 @@
 import { auth } from "@/auth";
 import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
 import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
+import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import MainHeading from "@/components/MainHeading";
-import PrivacyFormComponent from "@/components/PrivacyFormComponent";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
-import { RelatedUserRole, SubmitterRole } from "@/generated/prisma";
-import { canModerate } from "@/models/User";
+import { getEditLarpInitialStatusForUserAndLarp } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
-import { Card, CardBody, CardText, CardTitle } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { editLarp } from "./actions";
-import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
+import LoginRequired from "@/components/LoginRequired";
 
 interface Props {
   params: Promise<{
@@ -40,7 +38,7 @@ export default async function EditLarpPage({ params }: Props) {
     session?.user?.email
       ? await prisma.user.findUnique({
           where: { email: session.user.email },
-          select: { name: true, role: true, email: true },
+          select: { id: true, name: true, role: true, email: true },
         })
       : null,
     await prisma.larp.findUnique({
@@ -51,6 +49,7 @@ export default async function EditLarpPage({ params }: Props) {
           include: {
             user: {
               select: {
+                id: true,
                 email: true,
               },
             },
@@ -63,49 +62,20 @@ export default async function EditLarpPage({ params }: Props) {
     notFound();
   }
 
-  const haveGameMaster = larp.relatedUsers.some(
-    (relatedUser) => relatedUser.role === RelatedUserRole.GAME_MASTER
-  );
-
-  const existingRoles = larp.relatedUsers
-    .filter(
-      (relatedUser) => user?.email && relatedUser.user.email === user.email
-    )
-    .map((relatedUser) => relatedUser.role);
-  let highestExistingRole: SubmitterRole = SubmitterRole.NONE;
-  for (const role of [
-    RelatedUserRole.GAME_MASTER,
-    RelatedUserRole.VOLUNTEER,
-    RelatedUserRole.PLAYER,
-  ]) {
-    if (existingRoles.includes(role)) {
-      highestExistingRole = role;
-      break;
-    }
-  }
-
-  let message = t.message.noRole;
-  if (highestExistingRole === RelatedUserRole.GAME_MASTER) {
-    message = t.message.gameMaster;
-  } else if (existingRoles.some((role) => role === RelatedUserRole.EDITOR)) {
-    message = t.message.editor;
-  } else if (canModerate(user)) {
-    if (haveGameMaster) {
-      message = t.message.moderatorWhenGameMasterListed;
-    } else {
-      message = t.message.moderatorWhenNoGameMasterListed;
-    }
+  const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
+  if (!initialStatus) {
+    return <LoginRequired messages={translations.LoginRequired} />;
   }
 
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
-      <div className="text-center mb-5">{message}</div>
+      <div className="text-center mb-5">{t.editPolicy[initialStatus]}</div>
 
       <Form action={editLarp.bind(null, locale, larp!.id)}>
         <SubmitterFormComponent
           user={user}
-          role={highestExistingRole}
+          role={null}
           translations={translations}
         />
         <LarpDetailsFormComponent

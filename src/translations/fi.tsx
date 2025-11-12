@@ -237,41 +237,20 @@ const translations: Translations = {
         </>
       ),
     },
-    message: {
-      moderatorWhenNoGameMasterListed: (
+    editPolicy: {
+      VERIFIED: (
         <>
-          Tälle larpille ei ole merkitty pelinjohtajaa. Sinulla on moderaattorin
-          oikeudet, joten muokkauksesi hyväksytään automaattisesti.
+          Muokkauksesi tarkistetaan ennen julkaisua moderaattorin tai
+          pelinjohtajan toimesta.
         </>
       ),
-      moderatorWhenGameMasterListed: (
+      AUTO_APPROVED: (
         <>
-          Sinulla on moderaattorin oikeudet, mutta sinua ei ole merkitty tämän
-          larpin pelinjohtajaksi. Muokkausehdotuksesi menevät pelinjohtajan
-          hyväksyttäväksi. Jos pelinjohtaja ei käsittele ehdotusta
-          kohtuullisessa ajassa, voit hyväksyä sen itse moderointinäkymän
-          kautta.
+          Voit muokata tätä sivua suoraan ilman ennakkotarkistusta. Muokkauksesi
+          tarkistetaan jälkikäteen moderaattorin toimesta.
         </>
       ),
-      gameMaster: (
-        <>
-          Sinut on merkitty tämän larpin pelinjohtajaksi. Voit muokata larpin
-          sivua ilman ennakkotarkistusta.
-        </>
-      ),
-      editor: (
-        <>
-          Sinulla on muokkausoikeudet tähän larppiin. Voit muokata tätä sivua
-          ilman ennakkotarkistusta.
-        </>
-      ),
-      noRole: (
-        <>
-          Sinua ei ole merkitty tämän larpin pelinjohtajaksi. Olemassa olevien
-          larppisivujen muokkausehdotukset ohjataan moderaattorien tai
-          pelinjohtajan tarkastettavaksi.
-        </>
-      ),
+      APPROVED: <>Voit muokata tätä sivua suoraan ilman ennakkotarkistusta.</>,
     },
   },
   ClaimLarpPage: {
@@ -755,7 +734,7 @@ const translations: Translations = {
       },
     },
     messages: {
-      autoApproved: (role: UserRole) => {
+      approvedAutomaticallyBecauseUserIs: (role: UserRole) => {
         let roleName: string = role;
         if (role === UserRole.ADMIN) {
           roleName = "ylläpitäjä";

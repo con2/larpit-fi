@@ -225,41 +225,20 @@ const translations = {
         </>
       ),
     },
-    message: {
-      moderatorWhenNoGameMasterListed: (
+    editPolicy: {
+      VERIFIED: (
         <>
-          There is no GM listed for this larp. You have moderator privileges,
-          and your edits will be approved automatically.
+          Your edits will be reviewed by a moderator or the GM before being
+          published.
         </>
       ),
-      moderatorWhenGameMasterListed: (
+      AUTO_APPROVED: (
         <>
-          There is a GM listed for this larp. You have moderator privileges, but
-          you are not listed as the GM of this larp. Your edit suggestions will
-          be sent to the GM for approval. If the GM does not process the
-          suggestion in a reasonable time, you can approve it yourself through
-          the moderation view.
+          You can edit this page directly without moderation. Your edits will be
+          checked afterwards by a moderator.
         </>
       ),
-      gameMaster: (
-        <>
-          You are listed as the GM of this larp. You can edit the larp page
-          without prior approval.
-        </>
-      ),
-      editor: (
-        <>
-          You have edit rights for this larp. You can edit the larp page without
-          prior approval.
-        </>
-      ),
-      noRole: (
-        <>
-          You are not listed as the GM of this larp. All suggestions to edit
-          existing larp pages are checked and approved by either a moderator or
-          the GM.
-        </>
-      ),
+      APPROVED: <>You can edit this page directly without moderation.</>,
     },
   },
   ClaimLarpPage: {
@@ -739,7 +718,7 @@ const translations = {
       },
     },
     messages: {
-      autoApproved: (_role: UserRole): string => {
+      approvedAutomaticallyBecauseUserIs: (_role: UserRole): string => {
         throw new Error("This message should not be used in English.");
       },
     },

@@ -5,17 +5,14 @@ import { EditAction, EditStatus } from "@/generated/prisma";
 import compactObject from "@/helpers/compactObject";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
-  ModerationRequestForm,
   approveRequest,
+  ModerationRequestForm,
   sendVerificationEmail,
 } from "@/models/ModerationRequest";
-import {
-  canCreateLarpWithoutPostModeration,
-  canCreateLarpWithoutPreModeration,
-} from "@/models/User";
+import { getNewLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
-import fi from "@/translations/fi";
 import { redirect } from "next/navigation";
+import fi from "@/translations/fi";
 
 const acceptableFelines = ["cat", "kissa", "katt"] as const;
 
@@ -56,9 +53,8 @@ export async function createLarp(
     throw new Error("You might be a robot");
   }
 
-  const status: EditStatus = canCreateLarpWithoutPreModeration(user)
-    ? EditStatus.VERIFIED
-    : EditStatus.PENDING_VERIFICATION;
+  const status = getNewLarpInitialStatusForUser(user);
+
   const request = await prisma.moderationRequest.create({
     data: {
       action: EditAction.CREATE,
@@ -73,26 +69,22 @@ export async function createLarp(
     },
   });
 
-  if (request.status === EditStatus.VERIFIED) {
-    // We can create a larp without pre-moderation. Cool beans!
-
-    if (!user) {
-      throw new Error("This shouldn't happen (appease typechecker)");
-    }
-
-    // If it was a moderator or admin, no need to flag it for post-moderation either.
-    const newStatus = canCreateLarpWithoutPostModeration(user)
-      ? EditStatus.APPROVED
-      : EditStatus.AUTO_APPROVED;
-    const reason =
-      newStatus === EditStatus.APPROVED
-        ? fi.ModerationRequest.messages.autoApproved(user.role)
-        : null;
-    const larp = await approveRequest(request, user, reason, newStatus);
-
-    return void redirect(`/larp/${larp.id}`);
-  } else {
+  if (status === EditStatus.PENDING_VERIFICATION) {
     await sendVerificationEmail(locale, request);
     return void redirect("/larp/new/verify");
   }
+
+  if (!user) {
+    throw new Error("This shouldn't happen (appease typechecker)");
+  }
+
+  const reason =
+    status === EditStatus.APPROVED
+      ? fi.ModerationRequest.messages.approvedAutomaticallyBecauseUserIs(
+          user.role
+        )
+      : null;
+  const larp = await approveRequest(request, user, reason, status);
+
+  return void redirect(`/larp/${larp.id}`);
 }
