@@ -126,7 +126,10 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
-      <Link href={`/larp/${larp!.id}/claim`} className="link-subtle">
+      <Link
+        href={`/larp/${larp!.id}/edit?role=GAME_MASTER`}
+        className="link-subtle"
+      >
         {children}
       </Link>
     );

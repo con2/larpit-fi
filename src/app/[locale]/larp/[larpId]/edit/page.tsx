@@ -23,10 +23,14 @@ interface Props {
     locale: string;
     larpId: string;
   }>;
+  searchParams: Promise<{
+    role?: string;
+  }>;
 }
 
-export default async function EditLarpPage({ params }: Props) {
+export default async function EditLarpPage({ params, searchParams }: Props) {
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const locale = toSupportedLanguage(resolvedParams.locale);
 
   const translations = getTranslations(locale);
@@ -65,7 +69,10 @@ export default async function EditLarpPage({ params }: Props) {
     notFound();
   }
 
-  const role = getHighestUserRoleForLarp(user, larp);
+  const role =
+    resolvedSearchParams.role === "GAME_MASTER"
+      ? "GAME_MASTER"
+      : getHighestUserRoleForLarp(user, larp);
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
     return <LoginRequired messages={translations.LoginRequired} />;
