@@ -16,16 +16,38 @@ interface Props {
 
 const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
+async function getData(types: LarpType[]) {
+  return prisma.larp.findMany({
+    orderBy: {
+      startsAt: {
+        sort: "desc",
+        nulls: "last",
+      },
+    },
+    where: {
+      type: {
+        in: types,
+      },
+    },
+    include: {
+      municipality: {
+        select: {
+          nameFi: true,
+        },
+      },
+    },
+  });
+}
+
+type LarpListLarp = Awaited<ReturnType<typeof getData>>[number];
+
 function LarpTable({
   larps,
   messages: t,
   locale,
   totalCount,
 }: {
-  larps: Pick<
-    Larp,
-    "id" | "name" | "locationText" | "type" | "startsAt" | "endsAt" | "alias"
-  >[];
+  larps: LarpListLarp[];
   messages: Translations["Larp"];
   locale: string;
   totalCount: number;
@@ -81,29 +103,6 @@ function LarpTable({
       </tfoot>
     </DataTable>
   );
-}
-
-async function getData(types: LarpType[]) {
-  return prisma.larp.findMany({
-    orderBy: {
-      startsAt: {
-        sort: "desc",
-        nulls: "last",
-      },
-    },
-    where: {
-      type: {
-        in: types,
-      },
-    },
-    include: {
-      municipality: {
-        select: {
-          nameFi: true,
-        },
-      },
-    },
-  });
 }
 
 export default async function LarpListPage({ params, searchParams }: Props) {
