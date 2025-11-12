@@ -4,7 +4,6 @@ import {
   RelatedUser,
   RelatedUserRole,
 } from "@/generated/prisma";
-import { SupportedLanguage } from "@/translations";
 
 type LarpDates = Pick<
   Larp,

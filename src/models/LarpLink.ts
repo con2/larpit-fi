@@ -1,6 +1,6 @@
-import { LarpLink, LarpLinkType } from "@/generated/prisma";
-import z from "zod";
+import { LarpLinkType } from "@/generated/prisma";
 import prisma from "@/prisma";
+import z from "zod";
 
 const zLarpLinkType = z.enum<typeof LarpLinkType>(LarpLinkType);
 
@@ -57,7 +57,7 @@ export function larpLinksToForm(links: LarpLinkUpsertable[]): LarpLinksForm {
 export function formToLarpLinks(form: LarpLinksForm): LarpLinkUpsertable[] {
   const links: LarpLinkUpsertable[] = [];
 
-  for (const [_, type] of Object.entries(LarpLinkType)) {
+  for (const type of Object.values(LarpLinkType)) {
     const href = form[`links_${type}` as keyof LarpLinksForm];
     if (href) {
       links.push({ type, href });

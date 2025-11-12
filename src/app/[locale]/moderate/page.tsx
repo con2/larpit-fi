@@ -1,17 +1,17 @@
+import { auth } from "@/auth";
 import { Column, DataTable } from "@/components/DataTable";
 import FormattedDateTime from "@/components/FormattedDateTime";
+import InsufficientPrivileges from "@/components/InsufficientPrivileges";
+import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import { EditStatus } from "@/generated/prisma";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
+import { ModerationRequestContent } from "@/models/ModerationRequest";
+import { canModerate } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
-import { Container } from "react-bootstrap";
-import { ModerationRequestContent } from "@/models/ModerationRequest";
 import Link from "next/link";
-import { auth } from "@/auth";
-import LoginRequired from "@/components/LoginRequired";
-import { canModerate } from "@/models/User";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
+import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;

@@ -1,18 +1,24 @@
 import { auth } from "@/auth";
-import { FormattedDate } from "@/components/FormattedDate";
 import FormattedDateTime from "@/components/FormattedDateTime";
+import InsufficientPrivileges from "@/components/InsufficientPrivileges";
+import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
+import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
-import { canModerate } from "@/models/User";
+import { EditStatus } from "@/generated/prisma";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
+import getLarpHref from "@/models/Larp";
+import { LarpLinkUpsertable } from "@/models/LarpLink";
 import {
   contentToLarp,
   ModerationRequestContent,
 } from "@/models/ModerationRequest";
+import { canModerate } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment, ReactNode } from "react";
 import {
@@ -28,15 +34,8 @@ import {
   FormText,
   Row,
 } from "react-bootstrap";
-import { markChecked, resolveRequest } from "./actions";
-import { EditStatus } from "@/generated/prisma";
-import Link from "next/link";
-import getLarpHref from "@/models/Larp";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import z from "zod";
-import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
-import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
+import { markChecked, resolveRequest } from "./actions";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
@@ -100,7 +99,7 @@ export default async function ModerationRequestPage({ params }: Props) {
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
   // TODO show
-  const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
+  // const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
 
   function Empty() {
     return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;

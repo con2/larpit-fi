@@ -1,12 +1,10 @@
 import { auth } from "@/auth";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import MainHeading from "@/components/MainHeading";
-import Markdown from "@/components/Markdown";
 import SubmitButton from "@/components/SubmitButton";
 import { canEditPages } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Card,

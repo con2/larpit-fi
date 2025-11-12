@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { Column, DataTable } from "@/components/DataTable";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import { SubtlePrivacyPolicyLink } from "@/components/LoginLink";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import { canEditPages, getUserFromSession } from "@/models/User";

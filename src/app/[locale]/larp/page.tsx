@@ -1,7 +1,7 @@
 import { Column, DataTable } from "@/components/DataTable";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import MainHeading from "@/components/MainHeading";
-import { Larp, LarpType } from "@/generated/prisma";
+import { LarpType } from "@/generated/prisma";
 import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
