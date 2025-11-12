@@ -6,7 +6,7 @@ export const nodeEnv = process.env.NODE_ENV || "development";
 export const timezone = "Europe/Helsinki";
 export const privacyPolicyUrl = "https://tracon.fi/tietosuoja/larpit-fi";
 
-export const databaseUrl = process.env.DATABASE_URL || "postgres:///";
+export const databaseUrl = process.env.DATABASE_URL || "postgresql:///";
 
 // kompassi SSO
 export const kompassiBaseUrl =

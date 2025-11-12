@@ -24,7 +24,7 @@ npm install
 Create an `.env` file not unlike the following:
 
 ```ini
-DATABASE_URL=postgres://japsu@localhost/larpit?schema=larpit
+DATABASE_URL=postgresql://japsu@localhost/larpit?schema=larpit
 NEXTAUTH_URL=http://localhost:3158
 AUTH_SECRET=eeeee
 SMTP_HOSTNAME=smtp.ethereal.email
