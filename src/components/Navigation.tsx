@@ -16,7 +16,7 @@ import { isStaging } from "@/config";
 import { auth } from "@/auth";
 import prisma from "@/prisma";
 import { EditStatus } from "@/generated/prisma";
-import { canManageUsers, canModerate } from "@/models/User";
+import { canEditPages, canManageUsers, canModerate } from "@/models/User";
 
 interface Props {
   locale: string;
@@ -61,6 +61,11 @@ export async function Navigation({ locale }: Props) {
             <NavLink as={Link} href="/larp">
               {translations.Larp.listTitle}
             </NavLink>
+            {canEditPages(user) && (
+              <NavLink as={Link} href="/page">
+                {t.actions.pages}
+              </NavLink>
+            )}
             {canModerate(user) && (
               <NavLink as={Link} href="/moderate">
                 {t.actions.moderate}{" "}
@@ -72,7 +77,7 @@ export async function Navigation({ locale }: Props) {
               </NavLink>
             )}
             {canManageUsers(user) && (
-              <NavLink as={Link} href="/users">
+              <NavLink as={Link} href="/user">
                 {t.actions.manageUsers}
               </NavLink>
             )}

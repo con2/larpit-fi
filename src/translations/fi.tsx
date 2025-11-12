@@ -857,6 +857,42 @@ const translations: Translations = {
       },
     },
   },
+  Page: {
+    listTitle: "Sisältösivut",
+    singleTitle: "Sisältösivu",
+    editTitle: "Muokkaa sisältösivua",
+    attributes: {
+      slug: {
+        title: "Tekninen nimi",
+      },
+      title: {
+        title: "Otsikko",
+      },
+      content: {
+        title: "Sisältö",
+      },
+      language: {
+        title: "Kieli",
+      },
+    },
+    actions: {
+      view: {
+        title: "Näytä sivu",
+        label: "Näytä",
+      },
+      newPage: {
+        title: "Luo uusi sisältösivu",
+        label: "Uusi sivu",
+      },
+      edit: {
+        title: "Muokkaa tätä sivua",
+        label: "Muokkaa",
+      },
+      submit: {
+        title: "Tallenna muutokset",
+      },
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
@@ -876,6 +912,7 @@ const translations: Translations = {
     actions: {
       addLarp: "Lisää larppi",
       search: "Etsi larppeja",
+      pages: "Sisältösivut",
       moderate: "Moderoi",
       manageUsers: "Käyttäjät",
     },

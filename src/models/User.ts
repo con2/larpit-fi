@@ -5,12 +5,17 @@ import {
   User,
   UserRole,
 } from "@/generated/prisma";
+import prisma from "@/prisma";
 
 export function canModerate(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.MODERATOR || user?.role === UserRole.ADMIN;
 }
 
 export function canManageUsers(user: Pick<User, "role"> | null): boolean {
+  return user?.role === UserRole.ADMIN;
+}
+
+export function canEditPages(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.ADMIN;
 }
 
@@ -68,4 +73,52 @@ export function getEditLarpInitialStatusForUserAndLarp(
 
   // Other logged in users can edit with moderation
   return EditStatus.VERIFIED;
+}
+
+export async function getUserFromSession(
+  session: { user?: { email?: string | null } | null } | null | undefined
+) {
+  return session?.user?.email
+    ? await prisma.user.findUnique({
+        where: {
+          email: session.user.email,
+        },
+        select: {
+          id: true,
+          role: true,
+          name: true,
+          email: true,
+        },
+      })
+    : null;
+}
+
+const rolesHierarchy = [
+  RelatedUserRole.GAME_MASTER,
+  RelatedUserRole.VOLUNTEER,
+  RelatedUserRole.PLAYER,
+];
+
+export function getHighestUserRoleForLarp(
+  user: Pick<User, "id"> | null,
+  larp: {
+    relatedUsers: Pick<RelatedUser, "userId" | "role">[];
+  }
+) {
+  if (!user?.id) {
+    return "NONE";
+  }
+
+  for (const role of rolesHierarchy) {
+    if (
+      larp.relatedUsers.some(
+        (relatedUser) =>
+          relatedUser.userId === user.id && relatedUser.role === role
+      )
+    ) {
+      return role;
+    }
+  }
+
+  return "NONE";
 }

@@ -833,6 +833,42 @@ const translations = {
       },
     },
   },
+  Page: {
+    listTitle: "Content pages",
+    singleTitle: "Content page",
+    editTitle: "Edit content page",
+    attributes: {
+      slug: {
+        title: "Slug",
+      },
+      title: {
+        title: "Title",
+      },
+      content: {
+        title: "Content",
+      },
+      language: {
+        title: "Language",
+      },
+    },
+    actions: {
+      view: {
+        title: "View page",
+        label: "View",
+      },
+      newPage: {
+        title: "Create a new content page",
+        label: "New page",
+      },
+      edit: {
+        title: "Edit this page",
+        label: "Edit",
+      },
+      submit: {
+        title: "Save changes",
+      },
+    },
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",
@@ -852,6 +888,7 @@ const translations = {
     actions: {
       addLarp: "Add a larp",
       search: "Search larps",
+      pages: "Content pages",
       moderate: "Moderate",
       manageUsers: "Users",
     },

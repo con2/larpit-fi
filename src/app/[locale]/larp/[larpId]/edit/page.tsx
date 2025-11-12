@@ -5,7 +5,10 @@ import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
-import { getEditLarpInitialStatusForUserAndLarp } from "@/models/User";
+import {
+  getEditLarpInitialStatusForUserAndLarp,
+  getHighestUserRoleForLarp,
+} from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
@@ -62,6 +65,7 @@ export default async function EditLarpPage({ params }: Props) {
     notFound();
   }
 
+  const role = getHighestUserRoleForLarp(user, larp);
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
     return <LoginRequired messages={translations.LoginRequired} />;
@@ -75,7 +79,7 @@ export default async function EditLarpPage({ params }: Props) {
       <Form action={editLarp.bind(null, locale, larp!.id)}>
         <SubmitterFormComponent
           user={user}
-          role={null}
+          role={role}
           translations={translations}
         />
         <LarpDetailsFormComponent

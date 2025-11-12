@@ -8,19 +8,17 @@ import {
   approveRequest,
   ModerationRequestForm,
 } from "@/models/ModerationRequest";
-import { getEditLarpInitialStatusForUserAndLarp } from "@/models/User";
+import {
+  getEditLarpInitialStatusForUserAndLarp,
+  getUserFromSession,
+} from "@/models/User";
 import prisma from "@/prisma";
 import fi from "@/translations/fi";
 import { redirect } from "next/navigation";
 
 export async function editLarp(locale: string, larpId: string, data: FormData) {
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, name: true, email: true, role: true },
-      })
-    : null;
+  const user = await getUserFromSession(session);
 
   if (!user?.id) {
     throw new Error("You must be logged in to edit a larp");
@@ -37,6 +35,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
           },
         },
       },
+      links: { select: { id: true } },
     },
   });
 
@@ -64,6 +63,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const request = await prisma.moderationRequest.create({
     data: {
       action: EditAction.UPDATE,
+      larpId: larp.id,
       status,
       submitterId: user.id,
       submitterName,
@@ -71,7 +71,10 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
       submitterRole,
       message,
       newContent: compactObject(newContent),
+
+      // TODO cheap-ass solution, implement proper handling for multiple links of same type
       addLinks: formToLarpLinks(linksForm),
+      removeLinks: larp.links, // [{id}]
     },
   });
 
