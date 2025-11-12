@@ -2,6 +2,7 @@ generator client {
   provider        = "prisma-client-js"
   output          = "../src/generated/prisma"
   previewFeatures = ["fullTextSearchPostgres"]
+  engineType      = ""
 }
 
 datasource db {
@@ -148,6 +149,12 @@ model Municipality {
   @@map("municipality")
 }
 
+enum Openness {
+  OPEN
+  TARGETED
+  INVITE_ONLY
+}
+
 model Larp {
   id       String   @id @default(uuid(7)) @db.Uuid
   name     String
@@ -172,6 +179,7 @@ model Larp {
   endsAt         DateTime? @map("ends_at")
   signupStartsAt DateTime? @map("signup_starts_at")
   signupEndsAt   DateTime? @map("signup_ends_at")
+  openness       Openness?
 
   links             LarpLink[]
   relatedLarpsLeft  RelatedLarp[]       @relation("RelatedLarpsLeft")
@@ -286,7 +294,7 @@ model ModerationRequest {
 
   resolvedById    String?   @map("resolved_by_id") @db.Uuid
   resolvedAt      DateTime? @map("resolved_at")
-  resolvedMessage String?
+  resolvedMessage String?   @map("resolved_message")
 
   submitterName  String        @map("submitter_name")
   submitterEmail String        @map("submitter_email")
@@ -309,4 +317,16 @@ model ModerationRequest {
   submitter  User? @relation("RequestsSubmittedByUser", fields: [submitterId], references: [id], onDelete: Cascade)
 
   @@map("moderation_request")
+}
+
+model Page {
+  slug      String   @default("front-page")
+  language  String
+  title     String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@id([slug, language])
+  @@map("page")
 }

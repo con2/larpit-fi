@@ -1,4 +1,10 @@
-import { Larp, RelatedUser, RelatedUserRole } from "@/generated/prisma";
+import {
+  Larp,
+  Municipality,
+  RelatedUser,
+  RelatedUserRole,
+} from "@/generated/prisma";
+import { SupportedLanguage } from "@/translations";
 
 type LarpDates = Pick<
   Larp,
@@ -55,6 +61,35 @@ export function ensureEndsAt(larp: {
     const endDate = new Date(larp.startsAt);
     endDate.setHours(20, 0, 0, 0);
     return endDate;
+  }
+  return null;
+}
+
+export function ensureLocation(
+  larp: Pick<Larp, "locationText" | "language"> & {
+    municipality: Pick<
+      Municipality,
+      "nameFi" | "nameOther" | "nameOtherLanguageCode"
+    > | null;
+  }
+): { location: string; language: string } | null {
+  if (larp.locationText && larp.municipality) {
+    const location = `${larp.locationText}, ${larp.municipality.nameFi}`;
+    return { location, language: larp.language };
+  } else if (larp.locationText) {
+    return { location: larp.locationText, language: larp.language };
+  } else if (larp.municipality) {
+    if (larp.municipality.nameFi) {
+      return { location: larp.municipality.nameFi, language: "fi" as const };
+    } else if (
+      larp.municipality.nameOther &&
+      larp.municipality.nameOtherLanguageCode
+    ) {
+      return {
+        location: larp.municipality.nameOther,
+        language: larp.municipality.nameOtherLanguageCode,
+      };
+    }
   }
   return null;
 }

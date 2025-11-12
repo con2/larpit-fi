@@ -50,5 +50,5 @@ export async function setUserRole(
     data: { role },
   });
 
-  revalidatePath(`/${locale}/users`);
+  revalidatePath(`/${locale}/user`);
 }

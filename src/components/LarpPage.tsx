@@ -1,6 +1,6 @@
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import { LarpLink, LarpType, PrismaClient } from "@/generated/prisma";
-import getLarpHref from "@/models/Larp";
+import getLarpHref, { ensureLocation } from "@/models/Larp";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -32,6 +32,9 @@ const include = {
   relatedUsers: {
     where: { role: "GAME_MASTER" },
     select: { id: true },
+  },
+  municipality: {
+    select: { nameFi: true, nameOther: true, nameOtherLanguageCode: true },
   },
 } as const;
 
@@ -123,7 +126,10 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
-      <Link href={`/larp/${larp!.id}/claim`} className="link-subtle">
+      <Link
+        href={`/larp/${larp!.id}/edit?role=GAME_MASTER`}
+        className="link-subtle"
+      >
         {children}
       </Link>
     );
@@ -138,6 +144,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
   }
 
   const isClaimedByGm = larp.relatedUsers.length > 0;
+  const location = ensureLocation(larp);
 
   return (
     <>
@@ -153,7 +160,9 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
               start={larp.startsAt}
               end={larp.endsAt}
             />{" "}
-            {larp.locationText}
+            {location && (
+              <span lang={location.language}> {location.location}</span>
+            )}
           </p>
           {larp.type !== LarpType.ONE_SHOT ? (
             <p className="text-muted">

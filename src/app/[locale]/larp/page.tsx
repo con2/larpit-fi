@@ -40,6 +40,11 @@ function LarpTable({
       title: t.attributes.locationText.title,
     },
     {
+      slug: "municipalityName",
+      title: t.attributes.municipality.title,
+      getCellContents: (row) => row.municipality?.nameFi,
+    },
+    {
       slug: "type",
       title: t.attributes.type.title,
       className: "col-2",
@@ -78,6 +83,29 @@ function LarpTable({
   );
 }
 
+async function getData(types: LarpType[]) {
+  return prisma.larp.findMany({
+    orderBy: {
+      startsAt: {
+        sort: "desc",
+        nulls: "last",
+      },
+    },
+    where: {
+      type: {
+        in: types,
+      },
+    },
+    include: {
+      municipality: {
+        select: {
+          nameFi: true,
+        },
+      },
+    },
+  });
+}
+
 export default async function LarpListPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
@@ -94,27 +122,13 @@ export default async function LarpListPage({ params, searchParams }: Props) {
     types = Object.values(LarpType);
   }
   types = types.filter((type) => LarpType[type as keyof typeof LarpType]);
-
+  const [larps, totalCount] = await Promise.all([
+    getData(types as LarpType[]),
+    prisma.larp.count(),
+  ]);
   const isShowingAll = Object.values(LarpType).every((status) =>
     types.includes(status)
   );
-
-  const [larps, totalCount] = await Promise.all([
-    prisma.larp.findMany({
-      orderBy: {
-        startsAt: {
-          sort: "desc",
-          nulls: "last",
-        },
-      },
-      where: {
-        type: {
-          in: types as LarpType[],
-        },
-      },
-    }),
-    prisma.larp.count(),
-  ]);
 
   return (
     <Container>

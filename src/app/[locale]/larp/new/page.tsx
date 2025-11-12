@@ -10,6 +10,7 @@ import { getTranslations, toSupportedLanguage } from "@/translations";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { createLarp } from "./actions";
+import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 
 interface Props {
   params: Promise<{
@@ -47,6 +48,11 @@ export default async function NewLarpPage({ params }: Props) {
           translations={translations}
           locale={locale}
           larp={null}
+        />
+        <LarpLocationFormComponent
+          translations={translations}
+          larp={null}
+          locale={locale}
         />
         <LarpLinksFormComponent translations={translations} />
         <YoureAlmostReadyFormComponent

@@ -1,6 +1,6 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { Larp } from "@/generated/prisma";
+import { Larp, Openness } from "@/generated/prisma";
 import getLarpHref from "@/models/Larp";
 import { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
@@ -26,6 +26,7 @@ type LarpCardLarp = Pick<
   | "signupEndsAt"
   | "language"
   | "alias"
+  | "openness"
 >;
 
 function SignupOpen({
@@ -40,7 +41,10 @@ function SignupOpen({
   const t = messages.attributes.signupOpen;
   let content: ReactNode | null = null;
   let variant: BadgeProps["bg"] = "secondary";
-  if (isSignupOpen(larp)) {
+  if (larp.openness === Openness.INVITE_ONLY) {
+    variant = "danger";
+    content = t.inviteOnly;
+  } else if (isSignupOpen(larp)) {
     variant = "success";
     if (larp.signupEndsAt) {
       content = t.openUntil(

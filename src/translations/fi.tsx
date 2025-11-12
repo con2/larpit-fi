@@ -8,82 +8,10 @@ const translations: Translations = {
 
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
-    introduction: (
-      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element,
-      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
-    ) => (
-      <>
-        <p>
-          <strong>Larpit.fi</strong> on joukkoistettu arkisto menneistä ja
-          tulevista larpeista, jotka on järjestetty Suomessa, joilla on
-          suomalaisia järjestäjiä tai joihin on osallistunut merkittävä määrä
-          suomalaisia.
-        </p>
-        <p>
-          Larpit.fi eroaa esimerkiksi{" "}
-          <a
-            href="https://kalenteri.larp.fi"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            LARP-kalenterista
-          </a>{" "}
-          siten, että kuka tahansa voi{" "}
-          <AddLarpLink>lisätä larpin sivustolle</AddLarpLink> tai ehdottaa
-          muutosta larpin tietoihin – sen ei tarvitse olla pelinjohtaja!
-          Ensimmäistä larppiaan lisäävän käyttäjän lisäykset ennakkotarkistetaan
-          ja myöhemmät lisäykset jälkitarkistetaan. Pelinjohtaja voi ottaa oman
-          larppinsa sivun hallintaansa.
-        </p>
-        <p>
-          Larpit.fi on Tracon ry:n tarjoama maksuton palvelu, joka pyörii
-          Tampereen Nekalassa Säätöyhteisö B2 ry:n ja Tietotunkki oy:n
-          tarjoamalla infrastruktuurilla. Palvelua ylläpitää{" "}
-          <strong>Santtu ”Japsu” Pajukanta</strong>. Larpit.fi:n avoimeen
-          lähdekoodiin voit tutustua{" "}
-          <a
-            href="https://github.com/con2/larpit-fi"
-            rel="noopener noreferer"
-            target="_blank"
-          >
-            GitHubissa
-          </a>
-          . Tutustu myös{" "}
-          <PrivacyPolicyLink>tietosuojaselosteeseen</PrivacyPolicyLink>.
-        </p>
-        <h5>Katso myös</h5>
-        <ul className="bullet-none">
-          <li>
-            <a href="https://larp.fi" rel="noopener noreferer" target="_blank">
-              Larp.fi
-            </a>{" "}
-            – Mitä larppaaminen on?
-          </li>
-          <li>
-            <a
-              href="https://larppikuvat.fi"
-              rel="noopener noreferer"
-              target="_blank"
-            >
-              Larppikuvat.fi
-            </a>{" "}
-            – Kuvia suomalaisista larpeista
-          </li>
-        </ul>
-      </>
-    ),
-    stagingIntroduction: (
-      <p>
-        Tämä on kehitysversio. Halunnet siirtyä{" "}
-        <a href="https://larpit.fi" target="_blank" rel="noopener noreferrer">
-          tuotantoversioon
-        </a>
-        .
-      </p>
-    ),
     sections: {
       ongoingSignup: "Ilmoittautuminen käynnissä tai avautumassa pian",
-      upcoming: "Muut tulevat larpit",
+      upcomingWhenNoOngoingSignupPresent: "Tulevat larpit",
+      upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",
       past: "Viimeaikaisia larppeja",
     },
   },
@@ -211,6 +139,15 @@ const translations: Translations = {
           </>
         ),
       },
+      location: {
+        title: "Missä larppi pelataan?",
+        message: (
+          <>
+            Tässä voit syöttää pelipaikan nimen ja paikkakunnan, jossa se
+            sijaitsee. Älä syötä katuosoitetta.
+          </>
+        ),
+      },
       links: {
         title: "Linkit",
         message: (
@@ -300,41 +237,20 @@ const translations: Translations = {
         </>
       ),
     },
-    message: {
-      moderatorWhenNoGameMasterListed: (
+    editPolicy: {
+      VERIFIED: (
         <>
-          Tälle larpille ei ole merkitty pelinjohtajaa. Sinulla on moderaattorin
-          oikeudet, joten muokkauksesi hyväksytään automaattisesti.
+          Muokkauksesi tarkistetaan ennen julkaisua moderaattorin tai
+          pelinjohtajan toimesta.
         </>
       ),
-      moderatorWhenGameMasterListed: (
+      AUTO_APPROVED: (
         <>
-          Sinulla on moderaattorin oikeudet, mutta sinua ei ole merkitty tämän
-          larpin pelinjohtajaksi. Muokkausehdotuksesi menevät pelinjohtajan
-          hyväksyttäväksi. Jos pelinjohtaja ei käsittele ehdotusta
-          kohtuullisessa ajassa, voit hyväksyä sen itse moderointinäkymän
-          kautta.
+          Voit muokata tätä sivua suoraan ilman ennakkotarkistusta. Muokkauksesi
+          tarkistetaan jälkikäteen moderaattorin toimesta.
         </>
       ),
-      gameMaster: (
-        <>
-          Sinut on merkitty tämän larpin pelinjohtajaksi. Voit muokata larpin
-          sivua ilman ennakkotarkistusta.
-        </>
-      ),
-      editor: (
-        <>
-          Sinulla on muokkausoikeudet tähän larppiin. Voit muokata tätä sivua
-          ilman ennakkotarkistusta.
-        </>
-      ),
-      noRole: (
-        <>
-          Sinua ei ole merkitty tämän larpin pelinjohtajaksi. Olemassa olevien
-          larppisivujen muokkausehdotukset ohjataan moderaattorien tai
-          pelinjohtajan tarkastettavaksi.
-        </>
-      ),
+      APPROVED: <>Voit muokata tätä sivua suoraan ilman ennakkotarkistusta.</>,
     },
   },
   ClaimLarpPage: {
@@ -396,6 +312,27 @@ const translations: Translations = {
           OTHER: "muu",
         },
       },
+      openness: {
+        title: "Avoimuus",
+        label: "Kuka voi ilmoittautua tähän larppiin?",
+        helpText: (
+          <>
+            <strong>Avoin pelaajahaku</strong> tarkoittaa, että kuka tahansa voi
+            hakea tähän larppiin. Larppeja, joilla on avoin pelaajahaku,
+            nostetaan etusivulla, kun ilmoittautuminen on käynnissä tai
+            alkamassa. <strong>Kohdennettu pelaajahaku</strong> tarkoittaa, että
+            larppi on suunnattu tietyn yhdistyksen tai yhteisön jäsenille.{" "}
+            <strong>Kutsupeliin</strong> voivat osallistua vain pelinjohtajan
+            kutsumat henkilöt. Jos peliin ilmoittaudutaan ostamalla lippu,
+            valitse avoin pelaajahaku.
+          </>
+        ),
+        choices: {
+          OPEN: "Avoin pelaajahaku",
+          TARGETED: "Kohdennettu pelaajahaku",
+          INVITE_ONLY: "Kutsupeli",
+        },
+      },
       type: {
         title: "Tyyppi",
         label: "Minkä tyyppinen larppi on kyseessä?",
@@ -431,10 +368,10 @@ const translations: Translations = {
         label: "Larpin tagline",
         helpText: (
           <>
-            Tässä tiivistää myyvästi muutamalla sanalla mistä larpissa on kyse.
-            Tagline näytetään keskeisellä paikalla larpin nimen alapuolella.
-            Löydät esimerkkejä larppien taglineistä palvelun etusivulta. Tagline
-            voi olla vaikkapa muotoa &quot;
+            Tässä voit tiivistää myyvästi muutamalla sanalla mistä larpissa on
+            kyse. Tagline näytetään keskeisellä paikalla larpin nimen
+            alapuolella. Löydät esimerkkejä larppien taglineistä palvelun
+            etusivulta. Tagline voi olla vaikkapa muotoa &quot;
             <em>&lt;Adjektiivi&gt; larppi &lt;jostakin teemasta&gt;&quot;</em>;
             esimerkiksi &quot;<em>Jännittävä larppi aikamatkasta</em>&quot;.
           </>
@@ -471,8 +408,8 @@ const translations: Translations = {
         label: "Milloin ilmoittautuminen alkaa?",
         helpText: (
           <>
-            Niitä larppeja korostetaan etusivulla, joiden ilmoittautuminen on
-            käynnissä tai alkaa pian.
+            Etusivulla korostetaan larppeja, joilla on avoin ilmoittautuminen
+            käynnissä tai alkamassa pian.
           </>
         ),
       },
@@ -491,12 +428,20 @@ const translations: Translations = {
         label: "Missä larppi pelataan?",
         helpText: (
           <>
-            Anna tapahtumapaikan nimi. Voit lisätä kunnan tai kaupungin nimen,
-            jos se ei käy ilmi tapahtumapaikan nimestä. Älä sisällytä
-            katuosoitetta. <strong>HUOM:</strong> Jos tapahtumapaikka on
-            yksityisasunto tmv., älä syötä osoitetta tai asukkaan nimeä. Sen
-            sijaan syötä vain karkea sijainti, kuten <em>Helsinki</em> tai{" "}
-            <em>Pirkanmaa</em>.
+            Tämä näytetään sellaisenaan larppisivulla. <strong>HUOM:</strong>{" "}
+            Jos tapahtumapaikka on yksityisasunto tai vastaava, älä syötä
+            osoitetta tai asukkaan nimeä. Jätä sen sijaan tämä kenttä tyhjäksi
+            ja valitse vain paikkakunta.
+          </>
+        ),
+      },
+      municipality: {
+        title: "Kunta",
+        label: "Missä kunnassa tapahtumapaikka sijaitsee?",
+        helpText: (
+          <>
+            Jos kunta ei ole listalla, lisää se pelipaikkakenttään, niin
+            ylläpitäjä hoitaa sen siitä eteenpäin.
           </>
         ),
       },
@@ -591,6 +536,8 @@ const translations: Translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Ilmoittautuminen avautuu {formattedDate}</>
         ),
+        inviteOnly: <>Kutsupeli</>,
+        lookingForReservePlayers: <>Hakee varapelaajia</>,
       },
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
@@ -787,7 +734,7 @@ const translations: Translations = {
       },
     },
     messages: {
-      autoApproved: (role: UserRole) => {
+      approvedAutomaticallyBecauseUserIs: (role: UserRole) => {
         let roleName: string = role;
         if (role === UserRole.ADMIN) {
           roleName = "ylläpitäjä";
@@ -910,6 +857,42 @@ const translations: Translations = {
       },
     },
   },
+  Page: {
+    listTitle: "Sisältösivut",
+    singleTitle: "Sisältösivu",
+    editTitle: "Muokkaa sisältösivua",
+    attributes: {
+      slug: {
+        title: "Tekninen nimi",
+      },
+      title: {
+        title: "Otsikko",
+      },
+      content: {
+        title: "Sisältö",
+      },
+      language: {
+        title: "Kieli",
+      },
+    },
+    actions: {
+      view: {
+        title: "Näytä sivu",
+        label: "Näytä",
+      },
+      newPage: {
+        title: "Luo uusi sisältösivu",
+        label: "Uusi sivu",
+      },
+      edit: {
+        title: "Muokkaa tätä sivua",
+        label: "Muokkaa",
+      },
+      submit: {
+        title: "Tallenna muutokset",
+      },
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
@@ -929,6 +912,7 @@ const translations: Translations = {
     actions: {
       addLarp: "Lisää larppi",
       search: "Etsi larppeja",
+      pages: "Sisältösivut",
       moderate: "Moderoi",
       manageUsers: "Käyttäjät",
     },

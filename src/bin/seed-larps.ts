@@ -1,14 +1,13 @@
+import process from "process";
+import { fileURLToPath } from "url";
+
 import {
   LarpLinkType,
   LarpType,
-  PrismaClient,
   RelatedLarpType,
   RelatedUserRole,
 } from "@/generated/prisma";
-import { fileURLToPath } from "url";
-import process from "process";
-
-const prisma = new PrismaClient();
+import prisma from "@/prisma";
 
 async function main() {
   const user = await prisma.user.upsert({

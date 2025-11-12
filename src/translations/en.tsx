@@ -7,75 +7,10 @@ const translations = {
 
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
-    introduction: (
-      AddLarpLink: ({ children }: { children: ReactNode }) => JSX.Element,
-      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
-    ) => (
-      <>
-        <p>
-          Larpit.fi is a crowd-sourced archive of past and future larps
-          organized in Finland, by Finns, or having a significant Finnvasion.
-        </p>
-        <p>
-          Anyone can <AddLarpLink>add a larp to the site</AddLarpLink> or
-          suggest a change – you do not have to be the organizer or GM to do so!
-          Your first larp submission will be pre-moderated, and subsequent
-          changes will be post-moderated. The GM can take ownership of the larp
-          page.
-        </p>
-        <p>
-          Larpit.fi is a service of Tracon ry, running on the infrastructure
-          generously provided by Säätöyhteisö B2 ry and Tietotunkki oy, and
-          maintained by <strong>Santtu ”Japsu” Pajukanta</strong>. The service
-          is open source and the source code can be found on{" "}
-          <a
-            href="https://github.com/con2/larpit-fi"
-            rel="noopener noreferer"
-            target="_blank"
-          >
-            GitHub
-          </a>
-          . You can also view our{" "}
-          <PrivacyPolicyLink>privacy policy</PrivacyPolicyLink>.
-        </p>
-        <h5>See also</h5>
-        <ul className="bullet-none">
-          <li>
-            <a
-              href="https://www.odysseuslarp.com/what-is-larp.html"
-              rel="noopener noreferer"
-              target="_blank"
-            >
-              What is larp?
-            </a>{" "}
-            – Larp, Nordic larp and Finnish larp explained at the Odysseus
-            website
-          </li>
-          <li>
-            <a
-              href="https://larppikuvat.fi"
-              rel="noopener noreferer"
-              target="_blank"
-            >
-              Larppikuvat.fi
-            </a>{" "}
-            – Photos from Finnish larps
-          </li>
-        </ul>
-      </>
-    ),
-    stagingIntroduction: (
-      <p>
-        This is the staging environment. You might want to go to the{" "}
-        <a href="https://larpit.fi" target="_blank" rel="noopener noreferrer">
-          production site
-        </a>
-        .
-      </p>
-    ),
     sections: {
       ongoingSignup: "Sign-up in progress or opening soon",
-      upcoming: "Other upcoming larps",
+      upcomingWhenNoOngoingSignupPresent: "Upcoming larps",
+      upcomingWhenOngoingSignupPresent: "Other upcoming larps",
       past: "Some past larps",
     },
   },
@@ -199,6 +134,15 @@ const translations = {
           </>
         ),
       },
+      location: {
+        title: "Where is the larp played?",
+        message: (
+          <>
+            Please provide the name of the venue and the municipality it is
+            located in. Do not include the street address.{" "}
+          </>
+        ),
+      },
       links: {
         title: "Links",
         message: (
@@ -281,41 +225,20 @@ const translations = {
         </>
       ),
     },
-    message: {
-      moderatorWhenNoGameMasterListed: (
+    editPolicy: {
+      VERIFIED: (
         <>
-          There is no GM listed for this larp. You have moderator privileges,
-          and your edits will be approved automatically.
+          Your edits will be reviewed by a moderator or the GM before being
+          published.
         </>
       ),
-      moderatorWhenGameMasterListed: (
+      AUTO_APPROVED: (
         <>
-          There is a GM listed for this larp. You have moderator privileges, but
-          you are not listed as the GM of this larp. Your edit suggestions will
-          be sent to the GM for approval. If the GM does not process the
-          suggestion in a reasonable time, you can approve it yourself through
-          the moderation view.
+          You can edit this page directly without moderation. Your edits will be
+          checked afterwards by a moderator.
         </>
       ),
-      gameMaster: (
-        <>
-          You are listed as the GM of this larp. You can edit the larp page
-          without prior approval.
-        </>
-      ),
-      editor: (
-        <>
-          You have edit rights for this larp. You can edit the larp page without
-          prior approval.
-        </>
-      ),
-      noRole: (
-        <>
-          You are not listed as the GM of this larp. All suggestions to edit
-          existing larp pages are checked and approved by either a moderator or
-          the GM.
-        </>
-      ),
+      APPROVED: <>You can edit this page directly without moderation.</>,
     },
   },
   ClaimLarpPage: {
@@ -376,6 +299,24 @@ const translations = {
           en: "English",
           sv: "Swedish",
           OTHER: "Other",
+        },
+      },
+      openness: {
+        title: "Openness",
+        label: "Who can sign up for this larp?",
+        helpText: (
+          <>
+            Open signup means anyone can apply for this larp. Larps with open
+            signup will be highlighted on the front page when the signup is
+            approaching or underway. Targeted signup means the larp is targeted
+            towards members of a certain association or community. Invite only
+            means only people who are invited by the GM can attend.
+          </>
+        ),
+        choices: {
+          OPEN: "Open signup",
+          TARGETED: "Targeted signup",
+          INVITE_ONLY: "Invite only",
         },
       },
       type: {
@@ -470,15 +411,23 @@ const translations = {
       },
       locationText: {
         title: "Location",
-        label: "Where is the larp played?",
+        label: "At which venue is the larp played?",
         helpText: (
           <>
-            Please provide the name of the venue. You can add the name of the
-            municipality or city, if it is not apparent from the name of the
-            venue. Do not include the street address. <strong>NOTE:</strong> If
-            this is a private residence or similar, do not provide the address
-            or the name of the resident. Instead, only give a vague location
-            such as <em>Helsinki</em> or <em>Tampere region</em>.
+            This will be shown as-is on the larp page. <strong>NOTE:</strong> If
+            the venue is a private residence or similar, do not provide the
+            address or the name of the resident. Instead, leave this field blank
+            and select the municipality.
+          </>
+        ),
+      },
+      municipality: {
+        title: "Municipality",
+        label: "Which municipality is the venue located in?",
+        helpText: (
+          <>
+            If the municipality is not in the list, just fill it in the venue
+            name field and an admin will take it from there.
           </>
         ),
       },
@@ -575,6 +524,8 @@ const translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Signup opening at {formattedDate}</>
         ),
+        inviteOnly: <>Invite only</>,
+        lookingForReservePlayers: <>Looking for reserve players</>,
       },
       isClaimedByGm: {
         title: "Claimed by Game Master",
@@ -767,7 +718,7 @@ const translations = {
       },
     },
     messages: {
-      autoApproved: (_role: UserRole): string => {
+      approvedAutomaticallyBecauseUserIs: (_role: UserRole): string => {
         throw new Error("This message should not be used in English.");
       },
     },
@@ -882,6 +833,42 @@ const translations = {
       },
     },
   },
+  Page: {
+    listTitle: "Content pages",
+    singleTitle: "Content page",
+    editTitle: "Edit content page",
+    attributes: {
+      slug: {
+        title: "Slug",
+      },
+      title: {
+        title: "Title",
+      },
+      content: {
+        title: "Content",
+      },
+      language: {
+        title: "Language",
+      },
+    },
+    actions: {
+      view: {
+        title: "View page",
+        label: "View",
+      },
+      newPage: {
+        title: "Create a new content page",
+        label: "New page",
+      },
+      edit: {
+        title: "Edit this page",
+        label: "Edit",
+      },
+      submit: {
+        title: "Save changes",
+      },
+    },
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",
@@ -901,6 +888,7 @@ const translations = {
     actions: {
       addLarp: "Add a larp",
       search: "Search larps",
+      pages: "Content pages",
       moderate: "Moderate",
       manageUsers: "Users",
     },

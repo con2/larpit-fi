@@ -8,9 +8,9 @@ import {
   EditStatus,
   Language,
   Larp,
-  LarpLinkType,
   LarpType,
   ModerationRequest,
+  Openness,
   RelatedUser,
   RelatedUserRole,
   SubmitterRole,
@@ -21,13 +21,17 @@ import {
   fromEveningNull,
   fromJustBeforeMidnightNull,
   fromMorningNull,
+  zPlainDateNull,
 } from "@/helpers/temporal";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
 import { pretty, render } from "@react-email/render";
 import z from "zod";
-import { zPlainDateNull } from "@/helpers/temporal";
-import { LarpLinkUpsertable, socialMediaLinkTitleFromHref } from "./LarpLink";
+import {
+  handleLarpLinks,
+  LarpLinkRemovable,
+  LarpLinkUpsertable,
+} from "./LarpLink";
 
 export enum Resolution {
   APPROVED = "APPROVED",
@@ -35,17 +39,26 @@ export enum Resolution {
 }
 
 export const zResolution = z.enum<typeof Resolution>(Resolution);
-
+export const zOpenness = z.preprocess(
+  (value) => (value === "" ? null : value),
+  z.enum<typeof Openness>(Openness).nullable().default(null)
+);
 export const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
 export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);
 
 export const ModerationRequestContent = z.object({
   name: z.string().min(1).max(200),
-  tagline: z.string().max(500).optional(),
+  tagline: z.string().max(500).optional().default(""),
+  openness: zOpenness,
   language: zLanguage,
-  locationText: z.string().max(200).optional(),
-  fluffText: z.string().max(2000).optional(),
-  description: z.string().max(2000).optional(),
+  fluffText: z.string().max(2000).optional().default(""),
+  description: z.string().max(2000).optional().default(""),
+
+  locationText: z.string().max(200).optional().default(""),
+  municipality: z.string().max(20).nullable().default(null),
+
+  numPlayerCharacters: z.int().nullable().default(null),
+  numTotalParticipants: z.int().nullable().default(null),
 
   startsAt: zPlainDateNull,
   endsAt: zPlainDateNull,
@@ -73,6 +86,91 @@ export async function approveRequest(
     | "larpId"
     | "newContent"
     | "addLinks"
+    | "removeLinks"
+    | "submitterId"
+    | "submitterRole"
+  >,
+  resolvedBy: Pick<User, "id" | "role">,
+  reason: string | null,
+  newStatus: "APPROVED" | "AUTO_APPROVED"
+) {
+  if (request.action === EditAction.CREATE) {
+    return approveCreateLarpRequest(request, resolvedBy, reason, newStatus);
+  } else if (request.action === EditAction.UPDATE) {
+    return approveUpdateLarpRequest(request, resolvedBy, reason, newStatus);
+  } else {
+    throw new Error(`Not implemented yet: ${request.action}`);
+  }
+}
+
+export function contentToLarp(content: ModerationRequestContent) {
+  return {
+    name: content.name,
+    type: LarpType.ONE_SHOT, // TODO
+    openness: content.openness,
+    tagline: content.tagline,
+    language: content.language,
+    locationText: content.locationText,
+    municipalityId: content.municipality,
+    fluffText: content.fluffText,
+    description: content.description,
+    startsAt: fromMorningNull(content.startsAt),
+    endsAt: fromEveningNull(content.endsAt),
+    signupStartsAt: fromEveningNull(content.signupStartsAt),
+    signupEndsAt: fromJustBeforeMidnightNull(content.signupEndsAt),
+  };
+}
+
+async function handleRequestSubmitter(
+  action: EditAction,
+  larpId: string,
+  submitterId: string,
+  submitterRole: SubmitterRole
+) {
+  const roles: Omit<RelatedUser, "id">[] = [];
+
+  if (action === EditAction.CREATE) {
+    roles.push({
+      larpId,
+      userId: submitterId,
+      role: RelatedUserRole.CREATED_BY,
+    });
+  }
+
+  if (
+    submitterRole === SubmitterRole.GAME_MASTER ||
+    submitterRole === SubmitterRole.VOLUNTEER
+  ) {
+    roles.push({
+      larpId,
+      userId: submitterId,
+      role: submitterRole,
+    });
+  }
+
+  await Promise.all([
+    prisma.relatedUser.createMany({
+      data: roles,
+    }),
+
+    // Verify the user if they are not yet verified
+    // so that they may create further larps without pre-moderation
+    prisma.user.updateMany({
+      where: { id: submitterId, role: UserRole.NOT_VERIFIED },
+      data: { role: UserRole.VERIFIED },
+    }),
+  ]);
+}
+
+export async function approveCreateLarpRequest(
+  request: Pick<
+    ModerationRequest,
+    | "id"
+    | "action"
+    | "status"
+    | "larpId"
+    | "newContent"
+    | "addLinks"
     | "submitterId"
     | "submitterRole"
   >,
@@ -81,7 +179,7 @@ export async function approveRequest(
   newStatus: "APPROVED" | "AUTO_APPROVED"
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.CREATE) {
-    throw new Error(`Not implemented yet: ${request.action}`);
+    throw new Error(`Not a create larp request: ${request.id}`);
   }
 
   if (request.larpId) {
@@ -89,97 +187,44 @@ export async function approveRequest(
   }
 
   const content = ModerationRequestContent.parse(request.newContent);
-  const links = z.array(LarpLinkUpsertable).parse(request.addLinks);
+  const data = contentToLarp(content);
+  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
-  let larp: Pick<Larp, "id"> | null = null;
-  if (request.larpId) {
-    larp = await prisma.larp.findUnique({
-      where: { id: request.larpId },
-      select: { id: true },
-    });
-
-    if (!larp) {
-      throw new Error("Larp not found");
-    }
-  } else {
-    larp = await prisma.larp.create({
-      data: {
-        name: content.name,
-        type: LarpType.ONE_SHOT, // TODO
-        tagline: content.tagline,
-        language: content.language,
-        locationText: content.locationText,
-        fluffText: content.fluffText,
-        description: content.description,
-        startsAt: fromMorningNull(content.startsAt),
-        endsAt: fromEveningNull(content.endsAt),
-        signupStartsAt: fromEveningNull(content.signupStartsAt),
-        signupEndsAt: fromJustBeforeMidnightNull(content.signupEndsAt),
-      },
-      select: {
-        id: true,
-      },
-    });
-  }
-
-  if (request.submitterId) {
-    const roles: Omit<RelatedUser, "id">[] = [
-      {
-        userId: request.submitterId,
-        larpId: larp.id,
-        role: RelatedUserRole.CREATED_BY,
-      },
-    ];
-
-    if (
-      request.submitterRole === SubmitterRole.GAME_MASTER ||
-      request.submitterRole === SubmitterRole.VOLUNTEER
-    ) {
-      roles.push({
-        userId: request.submitterId,
-        larpId: larp.id,
-        role: request.submitterRole,
-      });
-    }
-
-    await Promise.all([
-      prisma.relatedUser.createMany({
-        data: roles,
-      }),
-
-      // Verify the user if they are not yet verified
-      // so that they may create further larps without pre-moderation
-      prisma.user.updateMany({
-        where: { id: request.submitterId, role: UserRole.NOT_VERIFIED },
-        data: { role: UserRole.VERIFIED },
-      }),
-    ]);
-  }
-
-  // TODO support proper multiple links per type
-  await prisma.larpLink.deleteMany({
-    where: {
-      larpId: larp.id,
+  const larp = await prisma.larp.create({
+    data,
+    select: {
+      id: true,
     },
   });
-  await prisma.larpLink.createMany({
-    data: links.map(({ type, href }) => {
-      href = href.trim();
 
-      const title =
-        type === LarpLinkType.SOCIAL_MEDIA
-          ? socialMediaLinkTitleFromHref(href)
-          : null;
+  if (request.submitterId) {
+    await handleRequestSubmitter(
+      request.action,
+      larp.id,
+      request.submitterId,
+      request.submitterRole
+    );
+  }
 
-      return {
-        larpId: larp.id,
-        type,
-        href,
-        title,
-      };
-    }),
-  });
+  await handleLarpLinks(larp.id, addLinks, []);
+  await handleRequestStatusUpdate(
+    request.id,
+    larp.id,
+    newStatus,
+    resolvedBy,
+    reason
+  );
 
+  return larp;
+}
+
+async function handleRequestStatusUpdate(
+  requestId: string,
+  larpId: string,
+  newStatus: "APPROVED" | "AUTO_APPROVED",
+  resolvedBy: Pick<User, "id" | "role">,
+  reason: string | null
+) {
   // Auto-approved requests are not resolved; they will be post-moderated.
   let resolvedAt: Date | null = null;
   let resolvedById: string | null = null;
@@ -191,15 +236,78 @@ export async function approveRequest(
   }
 
   await prisma.moderationRequest.update({
-    where: { id: request.id },
+    where: { id: requestId },
     data: {
-      larpId: larp.id,
-      status: newStatus,
+      larpId,
       resolvedAt,
       resolvedById,
       resolvedMessage,
+      status: newStatus,
     },
   });
+}
+
+export async function approveUpdateLarpRequest(
+  request: Pick<
+    ModerationRequest,
+    | "id"
+    | "action"
+    | "status"
+    | "larpId"
+    | "newContent"
+    | "addLinks"
+    | "removeLinks"
+    | "submitterId"
+    | "submitterRole"
+  >,
+  resolvedBy: Pick<User, "id" | "role">,
+  reason: string | null,
+  newStatus: "APPROVED" | "AUTO_APPROVED"
+): Promise<Pick<Larp, "id">> {
+  if (request.action !== EditAction.UPDATE) {
+    throw new Error(`Not an update larp request: ${request.id}`);
+  }
+
+  if (!request.larpId) {
+    throw new Error(`Update larp request without larpId: ${request.id}`);
+  }
+
+  const content = ModerationRequestContent.parse(request.newContent);
+  const data = contentToLarp(content);
+  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
+  const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
+
+  const larp = await prisma.larp.findUnique({
+    where: { id: request.larpId },
+    select: { id: true },
+  });
+
+  if (!larp) {
+    throw new Error("Larp not found");
+  }
+
+  await prisma.larp.update({
+    where: { id: request.larpId },
+    data,
+  });
+
+  if (request.submitterId) {
+    await handleRequestSubmitter(
+      request.action,
+      larp.id,
+      request.submitterId,
+      request.submitterRole
+    );
+  }
+
+  await handleLarpLinks(larp.id, addLinks, removeLinks);
+  await handleRequestStatusUpdate(
+    request.id,
+    larp.id,
+    newStatus,
+    resolvedBy,
+    reason
+  );
 
   return larp;
 }
