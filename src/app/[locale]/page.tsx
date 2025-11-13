@@ -1,6 +1,6 @@
 import LarpCard from "@/components/LarpCard";
 import Markdown from "@/components/Markdown";
-import { LarpType } from "@/generated/prisma";
+import { LarpType, Openness } from "@/generated/prisma";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -23,6 +23,11 @@ async function getHomePageData() {
       type: {
         not: {
           in: [LarpType.OTHER_EVENT, LarpType.OTHER_EVENT_SERIES],
+        },
+      },
+      openness: {
+        not: {
+          equals: Openness.INVITE_ONLY,
         },
       },
     },
