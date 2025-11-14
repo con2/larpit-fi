@@ -38,6 +38,9 @@ export enum Resolution {
   REJECTED = "REJECTED",
 }
 
+export const zLarpType = z
+  .enum<typeof LarpType>(LarpType)
+  .default(LarpType.ONE_SHOT);
 export const zResolution = z.enum<typeof Resolution>(Resolution);
 export const zOpenness = z.preprocess(
   (value) => (value === "" ? null : value),
@@ -49,6 +52,7 @@ export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);
 export const ModerationRequestContent = z.object({
   name: z.string().min(1).max(200),
   tagline: z.string().max(500).optional().default(""),
+  type: zLarpType,
   openness: zOpenness,
   language: zLanguage,
   fluffText: z.string().max(2000).optional().default(""),
@@ -57,8 +61,8 @@ export const ModerationRequestContent = z.object({
   locationText: z.string().max(200).optional().default(""),
   municipality: z.string().max(20).nullable().default(null),
 
-  numPlayerCharacters: z.int().nullable().default(null),
-  numTotalParticipants: z.int().nullable().default(null),
+  numPlayerCharacters: z.coerce.number().nullable().default(null),
+  numTotalParticipants: z.coerce.number().nullable().default(null),
 
   startsAt: zPlainDateNull,
   endsAt: zPlainDateNull,
@@ -104,20 +108,22 @@ export async function approveRequest(
 }
 
 export function contentToLarp(content: ModerationRequestContent) {
+  const {
+    municipality,
+    startsAt,
+    endsAt,
+    signupStartsAt,
+    signupEndsAt,
+    ...rest
+  } = content;
+
   return {
-    name: content.name,
-    type: LarpType.ONE_SHOT, // TODO
-    openness: content.openness,
-    tagline: content.tagline,
-    language: content.language,
-    locationText: content.locationText,
-    municipalityId: content.municipality,
-    fluffText: content.fluffText,
-    description: content.description,
-    startsAt: fromMorningNull(content.startsAt),
-    endsAt: fromEveningNull(content.endsAt),
-    signupStartsAt: fromEveningNull(content.signupStartsAt),
-    signupEndsAt: fromJustBeforeMidnightNull(content.signupEndsAt),
+    ...rest,
+    municipalityId: municipality,
+    startsAt: fromMorningNull(startsAt),
+    endsAt: fromEveningNull(endsAt),
+    signupStartsAt: fromEveningNull(signupStartsAt),
+    signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt),
   };
 }
 

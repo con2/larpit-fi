@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
-import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
+import LarpFormComponent from "@/components/LarpFormComponent";
 import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
 import MainHeading from "@/components/MainHeading";
-import PrivacyFormComponent from "@/components/PrivacyFormComponent";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
 import prisma from "@/prisma";
@@ -10,7 +9,7 @@ import { getTranslations, toSupportedLanguage } from "@/translations";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { createLarp } from "./actions";
-import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
+import PrivacyFormComponent from "@/components/PrivacyFormComponent";
 
 interface Props {
   params: Promise<{
@@ -44,15 +43,11 @@ export default async function NewLarpPage({ params }: Props) {
           translations={translations}
         />
         <PrivacyFormComponent translations={translations} />
-        <LarpDetailsFormComponent
+
+        <LarpFormComponent
           translations={translations}
           locale={locale}
           larp={null}
-        />
-        <LarpLocationFormComponent
-          translations={translations}
-          larp={null}
-          locale={locale}
         />
         <LarpLinksFormComponent translations={translations} />
         <YoureAlmostReadyFormComponent

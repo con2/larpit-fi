@@ -9,6 +9,7 @@ const translations: Translations = {
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     sections: {
+      upcomingOtherEvents: "Tulevat conit, miitit ja muut tapahtumat",
       ongoingSignup: "Ilmoittautuminen käynnissä tai avautumassa pian",
       upcomingWhenNoOngoingSignupPresent: "Tulevat larpit",
       upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",
@@ -123,7 +124,7 @@ const translations: Translations = {
         ),
       },
       larp: {
-        title: "Larpin tiedot",
+        title: "Larpin perustiedot",
         message: (
           <>
             <p>
@@ -139,12 +140,49 @@ const translations: Translations = {
           </>
         ),
       },
+      time: {
+        title: "Milloin larppi pelataan?",
+        message: (
+          <>
+            <p>
+              Jos larpin alku- ja loppupäivä on jo tiedossa, syötä ne tässä.
+              Yksipäiväisille larpeille riittää syöttää vain alkupäivä.
+            </p>
+            <p>
+              <strong>HUOM:</strong> Jätä nämä tyhjäksi, jos olet luomassa
+              larppisivua kampanjalle (vrt. kampanjan yksittäinen peli),
+              larpille josta on useita pelautuksia (vrt. yksittäinen pelautus)
+              tai tapahtumasarjalle (vrt. yksittäinen tapahtuma sarjassa).
+            </p>
+          </>
+        ),
+      },
       location: {
         title: "Missä larppi pelataan?",
         message: (
           <>
             Tässä voit syöttää pelipaikan nimen ja paikkakunnan, jossa se
             sijaitsee. Älä syötä katuosoitetta.
+          </>
+        ),
+      },
+      signup: {
+        title: "Tietoja larppiin ilmoittautumisesta",
+        message: (
+          <>
+            <p>
+              Tässä voit syöttää tietoja siitä, kuka voi ilmoittautua tähän
+              larppiin ja milloin.
+            </p>
+          </>
+        ),
+      },
+      content: {
+        title: "Larppisivun tekstisisältö",
+        message: (
+          <>
+            Tässä voit antaa lyhyen fluffitekstin ja esittelyn larppisivua
+            varten.
           </>
         ),
       },
@@ -339,27 +377,31 @@ const translations: Translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
-            label: <>One-shot</>,
+            label: (
+              <>One-shot (tai pelautus larpista, josta on useita pelautuksia)</>
+            ),
           },
           CAMPAIGN_LARP: {
             title: "Kampanjapeli",
-            label: <>Kampanjapeli</>,
+            label: <>Kampanjapeli (yksittäinen peli kampanjassa)</>,
           },
           CAMPAIGN: {
             title: "Kampanja",
-            label: <>Kampanja</>,
+            label: <>Kampanja (joka sisältää useita pelejä)</>,
           },
           MULTIPLE_RUNS: {
             title: "Useita pelautuksia",
             label: <>Larppi, josta on useita pelautuksia</>,
           },
+          OTHER_EVENT: {
+            title: "Muu tapahtuma",
+            label: (
+              <>Muu tapahtuma (kuten miitti, coni tai skenaariofestivaali)</>
+            ),
+          },
           OTHER_EVENT_SERIES: {
             title: "Muiden tapahtumien sarja",
             label: <>Tapahtumasarja</>,
-          },
-          OTHER_EVENT: {
-            title: "Muu tapahtuma",
-            label: <>Muu tapahtuma</>,
           },
         },
       },
@@ -425,7 +467,7 @@ const translations: Translations = {
       },
       locationText: {
         title: "Pelipaikka",
-        label: "Missä larppi pelataan?",
+        label: "Mikä on pelipaikan nimi?",
         helpText: (
           <>
             Tämä näytetään sellaisenaan larppisivulla. <strong>HUOM:</strong>{" "}
@@ -437,7 +479,7 @@ const translations: Translations = {
       },
       municipality: {
         title: "Kunta",
-        label: "Missä kunnassa tapahtumapaikka sijaitsee?",
+        label: "Missä kunnassa pelipaikka sijaitsee?",
         helpText: (
           <>
             Jos kunta ei ole listalla, lisää se pelipaikkakenttään, niin
@@ -542,6 +584,37 @@ const translations: Translations = {
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
         message: <>Pelinjohtaja hallinnoi tämän sivun sisältöä.</>,
+      },
+      numPlayerCharacters: {
+        title: "Pelaajahahmojen lukumäärä",
+        label: "Kuinka monta pelaajahahmoa tässä larpissa on?",
+        helpText: (
+          <>
+            Jos tässä larpissa erotellaan pelaajahahmot ja ei-pelaajahahmot
+            (NPC:t), sisällytä tähän lukumäärään vain pelaajahahmot.
+          </>
+        ),
+      },
+      numTotalParticipants: {
+        title: "Osallistujien kokonaismäärä",
+        label: "Kuinka monta osallistujaa tässä larpissa on yhteensä?",
+        helpText: (
+          <>Sisältäen pelaajat, pelinjohtajat, järjestäjät, apulaiset ym.</>
+        ),
+      },
+      numParticipants(
+        numPlayerCharacters: number | null,
+        numTotalParticipants: number | null
+      ) {
+        if (numPlayerCharacters && numTotalParticipants) {
+          return `${numPlayerCharacters} pelaajahahmoa, ${numTotalParticipants} osallistujaa yhteensä`;
+        } else if (numTotalParticipants) {
+          return `${numTotalParticipants} osallistujaa yhteensä`;
+        } else if (numPlayerCharacters) {
+          return `${numPlayerCharacters} pelaajahahmoa`;
+        } else {
+          return null;
+        }
       },
     },
     actions: {

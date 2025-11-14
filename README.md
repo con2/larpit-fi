@@ -86,7 +86,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [x] Display relations between larps (eg. rerun, sequel)
   - [x] Links to claim the larp page or suggest an edit
   - [x] Type of larp
-  - [ ] Number of players
+  - [x] Number of players
   - [ ] Author (as opposed to organizer)
   - [ ] Age limits
   - [ ] Intended audience? (-> tagging/categories?)
@@ -141,6 +141,7 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Import larppi.xlsx
   - [x] Import larps and series from larppikuvat.fi
   - [ ] Ask Rai if we can scrape or emfederate kalenteri.larp.fi
+  - [ ] Import the Oulu sheet
 - [ ] Support requests
   - [ ] There is a problem with this page that cannot be rectified by suggesting an edit
   - [ ] I am a journalist or researcher and want to speak to an expert about larp

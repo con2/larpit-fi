@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
-import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
+import LarpFormComponent from "@/components/LarpFormComponent";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
@@ -220,20 +219,12 @@ export default async function ModerationRequestPage({ params }: Props) {
         </CardBody>
       </Card>
 
-      <LarpDetailsFormComponent
+      <LarpFormComponent
         translations={translations}
         locale={locale}
         larp={updatedLarp}
-        readOnly
-        compact
-      />
-
-      <LarpLocationFormComponent
-        translations={translations}
-        larp={updatedLarp}
-        locale={locale}
-        readOnly
-        compact
+        readOnly={true}
+        compact={false}
       />
 
       {addLinks.length > 0 ? (

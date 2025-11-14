@@ -8,6 +8,7 @@ const translations = {
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
     sections: {
+      upcomingOtherEvents: "Upcoming conventions, meetups and other events",
       ongoingSignup: "Sign-up in progress or opening soon",
       upcomingWhenNoOngoingSignupPresent: "Upcoming larps",
       upcomingWhenOngoingSignupPresent: "Other upcoming larps",
@@ -134,12 +135,51 @@ const translations = {
           </>
         ),
       },
+      time: {
+        title: "When is the larp played?",
+        message: (
+          <>
+            <p>
+              If the larp already has its dates set, please provide them here.
+              For one-day events, just the starting date is enough. If the dates
+              are not yet set, you can leave these blank.
+            </p>
+            <p>
+              <strong>NOTE:</strong> Please leave these blank if you are
+              creating a page for a campaign (as opposed to a single larp in a
+              campaign), or a larp with multiple runs (as opposed to a single
+              run of such a larp), or a series of events (as opposed to a single
+              event in such a series).
+            </p>
+          </>
+        ),
+      },
       location: {
         title: "Where is the larp played?",
         message: (
           <>
             Please provide the name of the venue and the municipality it is
             located in. Do not include the street address.{" "}
+          </>
+        ),
+      },
+      signup: {
+        title: "Signup information",
+        message: (
+          <>
+            <p>
+              Here you can provide information about the who can sign up for
+              this larp and when.
+            </p>
+          </>
+        ),
+      },
+      content: {
+        title: "Larp page content",
+        message: (
+          <>
+            Here you can provide a short fluff text and a description for the
+            larp page.
           </>
         ),
       },
@@ -325,7 +365,7 @@ const translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
-            label: <>An one-shot larp</>,
+            label: <>A one-shot larp (or a run of a larp with multiple runs)</>,
           },
           CAMPAIGN_LARP: {
             title: "Campaign larp",
@@ -339,13 +379,18 @@ const translations = {
             title: "Multiple runs",
             label: <>A larp with multiple runs</>,
           },
-          OTHER_EVENT_SERIES: {
-            title: "Other event series",
-            label: <>A series of events</>,
-          },
           OTHER_EVENT: {
             title: "Other event",
-            label: <>Other event</>,
+            label: (
+              <>
+                Other event (such as a meet-up, convention, or scenario
+                festival)
+              </>
+            ),
+          },
+          OTHER_EVENT_SERIES: {
+            title: "Other event series",
+            label: <>A series of other events</>,
           },
         },
       },
@@ -530,6 +575,41 @@ const translations = {
       isClaimedByGm: {
         title: "Claimed by Game Master",
         message: <>The Game Master is managing the content of this page.</>,
+      },
+      numPlayerCharacters: {
+        title: "Number of player characters",
+        label: "How many player characters are there in this larp?",
+        helpText: (
+          <>
+            If this larp separates player characters and NPCs, include only the
+            player characters. If the number is not exactly known, enter your
+            best estimate.
+          </>
+        ),
+      },
+      numTotalParticipants: {
+        title: "Total number of participants",
+        label: "How many total participants are there in this larp?",
+        helpText: (
+          <>
+            Including all participants, organizers, volunteers etc. If the
+            number is not exactly known, enter your best estimate.
+          </>
+        ),
+      },
+      numParticipants(
+        numPlayerCharacters: number | null,
+        numTotalParticipants: number | null
+      ) {
+        if (numPlayerCharacters && numTotalParticipants) {
+          return `${numPlayerCharacters} player character, ${numTotalParticipants} total participants`;
+        } else if (numTotalParticipants) {
+          return `${numTotalParticipants} total participants`;
+        } else if (numPlayerCharacters) {
+          return `${numPlayerCharacters} player characters`;
+        } else {
+          return null;
+        }
       },
     },
     actions: {

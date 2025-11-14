@@ -1,8 +1,7 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { Larp, Openness } from "@/generated/prisma";
-import getLarpHref from "@/models/Larp";
-import { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
+import { Larp, LarpType, Openness } from "@/generated/prisma";
+import getLarpHref, { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -27,9 +26,10 @@ type LarpCardLarp = Pick<
   | "language"
   | "alias"
   | "openness"
+  | "type"
 >;
 
-function SignupOpen({
+function SignupLabel({
   larp,
   messages,
   locale,
@@ -65,10 +65,41 @@ function SignupOpen({
   }
 
   if (content) {
-    return <Badge bg={variant}>{content}</Badge>;
+    return (
+      <Badge bg={variant} className="me-2">
+        {content}
+      </Badge>
+    );
   }
 
   return null;
+}
+
+function TypeLabel({
+  larp,
+  messages,
+}: {
+  larp: LarpCardLarp;
+  messages: Translations["Larp"];
+}) {
+  const t = messages.attributes.type.choices;
+
+  switch (larp.type) {
+    case LarpType.CAMPAIGN_LARP:
+      return (
+        <Badge bg="success" className="me-2">
+          {t.CAMPAIGN_LARP.title}
+        </Badge>
+      );
+    case LarpType.OTHER_EVENT:
+      return (
+        <Badge bg="info" className="me-2">
+          {t[larp.type].title}
+        </Badge>
+      );
+    default:
+      return null;
+  }
 }
 
 interface Props {
@@ -98,7 +129,8 @@ export default function LarpCard({ larp, locale, messages: t }: Props) {
           <CardText className="fst-italic" style={{ fontSize: "0.9rem" }}>
             {larp.tagline}
           </CardText>
-          <SignupOpen larp={larp} messages={t} locale={locale} />
+          <TypeLabel larp={larp} messages={t} />
+          <SignupLabel larp={larp} messages={t} locale={locale} />
         </CardBody>
       </Card>
     </div>

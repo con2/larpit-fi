@@ -19,29 +19,30 @@ const relatedLarpInclude = {
   },
 } as const;
 
-const include = {
-  links: true,
-  relatedLarpsLeft: {
-    include: { right: relatedLarpInclude },
-    orderBy: { right: { startsAt: "asc" } },
-  },
-  relatedLarpsRight: {
-    include: { left: relatedLarpInclude },
-    orderBy: { left: { startsAt: "asc" } },
-  },
-  relatedUsers: {
-    where: { role: "GAME_MASTER" },
-    select: { id: true },
-  },
-  municipality: {
-    select: { nameFi: true, nameOther: true, nameOtherLanguageCode: true },
-  },
-} as const;
-
 export async function getLarpPageData(
   where: { id: string } | { alias: string }
 ) {
-  return prisma.larp.findUnique({ where, include });
+  return prisma.larp.findUnique({
+    where,
+    include: {
+      links: true,
+      relatedLarpsLeft: {
+        include: { right: relatedLarpInclude },
+        orderBy: { right: { startsAt: "asc" } },
+      },
+      relatedLarpsRight: {
+        include: { left: relatedLarpInclude },
+        orderBy: { left: { startsAt: "asc" } },
+      },
+      relatedUsers: {
+        where: { role: "GAME_MASTER" },
+        select: { id: true },
+      },
+      municipality: {
+        select: { nameFi: true, nameOther: true, nameOtherLanguageCode: true },
+      },
+    },
+  });
 }
 
 type LarpPageLarp = NonNullable<Awaited<ReturnType<typeof getLarpPageData>>>;
@@ -166,7 +167,15 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
           </p>
           {larp.type !== LarpType.ONE_SHOT ? (
             <p className="text-muted">
-              {larpT.attributes.type.choices[larp.type].label}
+              {larpT.attributes.type.choices[larp.type].title}
+            </p>
+          ) : null}
+          {larp.numPlayerCharacters || larp.numTotalParticipants ? (
+            <p className="text-muted">
+              {larpT.attributes.numParticipants(
+                larp.numPlayerCharacters,
+                larp.numTotalParticipants
+              )}
             </p>
           ) : null}
           <div className="mb-3">

@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LarpDetailsFormComponent } from "@/components/LarpDetailsFormComponent";
+import { LarpBasicInfoFormComponent } from "@/components/LarpBasicInfoFormComponent";
 import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
 import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import MainHeading from "@/components/MainHeading";
@@ -17,6 +17,9 @@ import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { editLarp } from "./actions";
 import LoginRequired from "@/components/LoginRequired";
+import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
+import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
+import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
 
 interface Props {
   params: Promise<{
@@ -89,12 +92,27 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
           role={role}
           translations={translations}
         />
-        <LarpDetailsFormComponent
+        <LarpBasicInfoFormComponent
+          translations={translations}
+          locale={locale}
+          larp={larp}
+        />
+        <LarpTimeFormComponent
           translations={translations}
           locale={locale}
           larp={larp}
         />
         <LarpLocationFormComponent
+          translations={translations}
+          locale={locale}
+          larp={larp}
+        />
+        <LarpSignupInfoFormComponent
+          translations={translations}
+          locale={locale}
+          larp={larp}
+        />
+        <LarpPageContentFormComponent
           translations={translations}
           locale={locale}
           larp={larp}

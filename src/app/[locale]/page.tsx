@@ -20,20 +20,15 @@ async function getHomePageData() {
       startsAt: {
         not: null,
       },
-      type: {
-        not: {
-          in: [LarpType.OTHER_EVENT, LarpType.OTHER_EVENT_SERIES],
-        },
-      },
-      openness: {
-        not: {
-          equals: Openness.INVITE_ONLY,
-        },
-      },
+      // XXX Prisma does not support the SQL IS NOT DISTINCT FROM operator
+      // openness: {
+      //   isNotDistinctFrom: Openness.INVITE_ONLY,
+      // },
     },
     orderBy: { startsAt: "asc" },
     select: {
       id: true,
+      type: true,
       startsAt: true,
       endsAt: true,
       name: true,
@@ -89,6 +84,9 @@ export default async function HomePage({ params }: Props) {
   const t = translations.HomePage;
   const now = new Date();
 
+  // TODO currently gets all larps, then filters in memory
+  // still plenty fast enough, but should be optimized later
+
   const [larps, page] = await Promise.all([
     getHomePageData(),
     prisma.page.findUnique({
@@ -96,13 +94,22 @@ export default async function HomePage({ params }: Props) {
     }),
   ]);
 
-  const larpsWithStartDates = larps.filter((larp) => larp.startsAt);
-  const [pastLarps, futureLarps] = partition(
-    larpsWithStartDates,
+  const candidateLarps = larps.filter(
+    (larp) => larp.openness !== Openness.INVITE_ONLY && !!larp.startsAt
+  );
+  const [otherEvents, actualLarps] = partition(
+    candidateLarps,
+    (larp) => larp.type === LarpType.OTHER_EVENT
+  );
+  const upcomingOtherEvents = otherEvents.filter(
+    (larp) => ensureEndsAt(larp)! >= now
+  );
+  const [pastLarps, upcomingLarps] = partition(
+    actualLarps,
     (larp) => ensureEndsAt(larp)! < now
   );
-  const [ongoingSignupLarps, otherFutureLarps] = partition(
-    futureLarps,
+  const [ongoingSignupLarps, otherUpcomingLarps] = partition(
+    upcomingLarps,
     (larp) => isSignupOpenOrOpeningSoon(larp) // avoid index at 2nd arg
   );
   pastLarps.reverse().splice(limitPastLarps, pastLarps.length - limitPastLarps);
@@ -132,7 +139,7 @@ export default async function HomePage({ params }: Props) {
           messages={translations.Larp}
         />
       )}
-      {otherFutureLarps.length > 0 && (
+      {otherUpcomingLarps.length > 0 && (
         <Section
           title={
             // some may call it overkill
@@ -141,7 +148,15 @@ export default async function HomePage({ params }: Props) {
               ? t.sections.upcomingWhenOngoingSignupPresent
               : t.sections.upcomingWhenNoOngoingSignupPresent
           }
-          larps={otherFutureLarps}
+          larps={otherUpcomingLarps}
+          locale={locale}
+          messages={translations.Larp}
+        />
+      )}
+      {upcomingOtherEvents.length > 0 && (
+        <Section
+          title={t.sections.upcomingOtherEvents}
+          larps={upcomingOtherEvents}
           locale={locale}
           messages={translations.Larp}
         />
