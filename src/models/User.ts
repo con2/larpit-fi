@@ -95,6 +95,7 @@ export async function getUserFromSession(
 
 const rolesHierarchy = [
   RelatedUserRole.GAME_MASTER,
+  RelatedUserRole.TEAM_MEMBER,
   RelatedUserRole.VOLUNTEER,
   RelatedUserRole.PLAYER,
 ];

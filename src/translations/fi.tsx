@@ -670,11 +670,18 @@ const translations: Translations = {
         choices: {
           GAME_MASTER: {
             title: "Pelinjohtaja",
-            label: "Olen tämän larpin pelinjohtaja tai pelinjohtotiimin jäsen",
+            label:
+              "Olen tämän larpin pelinjohtaja tai tapahtuman pääjärjestäjä",
+          },
+          TEAM_MEMBER: {
+            title: "Tiimin jäsen",
+            label:
+              "Olen pelinjohto-/järjestelytiimin jäsen (työskentelen ennen tapahtumaa)",
           },
           VOLUNTEER: {
             title: "Vapaaehtoinen",
-            label: "Olen vapaaehtoinen, apulainen tai NPC tässä larpissa",
+            label:
+              "Olen vapaaehtoinen, avustaja tai NPC (työskentelen tapahtuman aikana)",
           },
           PLAYER: {
             title: "Pelaaja",
@@ -913,6 +920,9 @@ const translations: Translations = {
           },
           GAME_MASTER: {
             title: "Pelinjohtaja",
+          },
+          TEAM_MEMBER: {
+            title: "Tiimin jäsen",
           },
           VOLUNTEER: {
             title: "Vapaaehtoinen",

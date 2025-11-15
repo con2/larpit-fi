@@ -143,10 +143,7 @@ async function handleRequestSubmitter(
     });
   }
 
-  if (
-    submitterRole === SubmitterRole.GAME_MASTER ||
-    submitterRole === SubmitterRole.VOLUNTEER
-  ) {
+  if (submitterRole !== SubmitterRole.NONE) {
     roles.push({
       larpId,
       userId: submitterId,

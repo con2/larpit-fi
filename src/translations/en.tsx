@@ -662,11 +662,17 @@ const translations = {
         choices: {
           GAME_MASTER: {
             title: "Game Master",
-            label: "I am a Game Master of this larp or organizer of this event",
+            label:
+              "I am a Game Master of this larp or a main organizer of this event",
+          },
+          TEAM_MEMBER: {
+            title: "Team member",
+            label:
+              "I am a member of the organizing team (working before the event)",
           },
           VOLUNTEER: {
             title: "Volunteer",
-            label: "I am a volunteer, helper or NPC at this larp or event",
+            label: "I am a volunteer, helper or NPC (working during the event)",
           },
           PLAYER: {
             title: "Player",
@@ -894,6 +900,9 @@ const translations = {
           },
           GAME_MASTER: {
             title: "Game Master",
+          },
+          TEAM_MEMBER: {
+            title: "Team member",
           },
           VOLUNTEER: {
             title: "Volunteer",

@@ -222,6 +222,7 @@ enum RelatedUserRole {
   EDITOR
   CREATED_BY
   GAME_MASTER
+  TEAM_MEMBER
   VOLUNTEER
   PLAYER
   FAVORITE
@@ -267,6 +268,7 @@ model LarpLink {
 enum SubmitterRole {
   NONE
   GAME_MASTER
+  TEAM_MEMBER
   VOLUNTEER
   PLAYER
 }
