@@ -625,8 +625,12 @@ const translations: Translations = {
     filters: {
       type: {
         title: "Tyyppi",
-        default: "Oletus (one-shotit ja kampanjapelit)",
-        all: "Kaikki",
+        default: "Oletustyypit (one-shotit ja kampanjapelit)",
+        all: "Kaikki tyypit",
+      },
+      language: {
+        title: "Kieli",
+        all: "Kaikki kielet",
       },
     },
     tableFooter: (count: number, totalCount: number) => (

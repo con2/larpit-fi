@@ -22,6 +22,7 @@ interface Props {
   dimensions: Dimension[];
   messages?: {
     searchPlaceholder?: string;
+    filter?: string;
   };
 }
 
@@ -142,7 +143,7 @@ export function DimensionFilters(props: Props) {
       )}
       <noscript>
         <button type="submit" className="btn btn-sm btn-primary">
-          Suodata
+          {messages?.filter || "Submit"}
         </button>
       </noscript>
     </form>

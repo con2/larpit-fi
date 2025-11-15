@@ -2,7 +2,7 @@ import { Column, DataTable } from "@/components/DataTable";
 import { DimensionFilters } from "@/components/DimensionFilters";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import MainHeading from "@/components/MainHeading";
-import { LarpType } from "@/generated/prisma";
+import { Language, LarpType } from "@/generated/prisma";
 import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -11,12 +11,12 @@ import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ type?: string[] }>;
+  searchParams: Promise<{ type?: string[]; language?: string[] }>;
 }
 
 const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
-async function getData(types: LarpType[]) {
+async function getData(types: LarpType[], languages: Language[]) {
   return prisma.larp.findMany({
     orderBy: {
       startsAt: {
@@ -27,6 +27,9 @@ async function getData(types: LarpType[]) {
     where: {
       type: {
         in: types,
+      },
+      language: {
+        in: languages,
       },
     },
     include: {
@@ -67,15 +70,18 @@ function LarpTable({
       getCellContents: (row) => row.municipality?.nameFi,
     },
     {
+      slug: "language",
+      title: t.attributes.language.title,
+      getCellContents: (row) => t.attributes.language.choices[row.language],
+    },
+    {
       slug: "type",
       title: t.attributes.type.title,
-      className: "col-2",
       getCellContents: (row) => t.attributes.type.choices[row.type].title,
     },
     {
       slug: "dateRange",
       title: <>{t.attributes.dateRange.title} 🔼</>,
-      className: "col-2",
       getCellContents: (row) => (
         <FormattedDateRange
           start={row.startsAt}
@@ -108,6 +114,19 @@ function LarpTable({
 function getLarpFilters(t: Translations["Larp"]) {
   return [
     {
+      slug: "language",
+      title: t.attributes.language.title,
+      values: [
+        { slug: "", title: t.filters.language.all },
+        ...Object.entries(t.attributes.language.choices).map(
+          ([slug, title]) => ({
+            slug,
+            title,
+          })
+        ),
+      ],
+    },
+    {
       slug: "type",
       title: t.filters.type.title,
       values: [
@@ -130,7 +149,8 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   const t = translations.Larp;
 
   const filters = getLarpFilters(t);
-  let { type: types } = await searchParams;
+  let { type: types, language: languages } = await searchParams;
+
   if (typeof types === "string") {
     types = [types];
   }
@@ -140,8 +160,23 @@ export default async function LarpListPage({ params, searchParams }: Props) {
     types = Object.values(LarpType);
   }
   types = types.filter((type) => LarpType[type as keyof typeof LarpType]);
+
+  if (typeof languages === "string") {
+    languages = [languages];
+  }
+  if (!languages || languages.length === 0 || languages.includes("")) {
+    languages = Object.keys(t.attributes.language.choices);
+  } else {
+    languages = languages.filter(
+      (language) =>
+        t.attributes.language.choices[
+          language as keyof typeof t.attributes.language.choices
+        ]
+    );
+  }
+
   const [larps, totalCount] = await Promise.all([
-    getData(types as LarpType[]),
+    getData(types as LarpType[], languages as Language[]),
     prisma.larp.count(),
   ]);
 

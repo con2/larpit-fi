@@ -618,8 +618,12 @@ const translations = {
     filters: {
       type: {
         title: "Type",
-        default: "Default (one shots and campaign larps)",
+        default: "Default types (one shots and campaign larps)",
         all: "All types",
+      },
+      language: {
+        title: "Language",
+        all: "All languages",
       },
     },
     tableFooter: (count: number, totalCount: number) => (
