@@ -923,6 +923,13 @@ const translations = {
         },
       },
     },
+    filters: {
+      role: {
+        title: "Role",
+        default: "Default (GM, team member, volunteer or player)",
+        all: "Any role",
+      },
+    },
   },
   Page: {
     listTitle: "Content pages",

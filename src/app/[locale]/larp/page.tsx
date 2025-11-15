@@ -7,9 +7,7 @@ import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
-import Link from "next/link";
 import { Container } from "react-bootstrap";
-import { get } from "underscore";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -107,7 +105,7 @@ function LarpTable({
   );
 }
 
-export function getLarpFilters(t: Translations["Larp"]) {
+function getLarpFilters(t: Translations["Larp"]) {
   return [
     {
       slug: "type",

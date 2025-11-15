@@ -943,6 +943,14 @@ const translations: Translations = {
         },
       },
     },
+    filters: {
+      role: {
+        title: "Rooli",
+        default:
+          "Oletus (pelinjohtaja, tiimin jäsen, vapaaehtoinen tai pelaaja)",
+        all: "Mikä tahansa rooli",
+      },
+    },
   },
   Page: {
     listTitle: "Sisältösivut",
