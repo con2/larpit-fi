@@ -17,20 +17,13 @@ const translations = {
   },
   LarpPage: {
     actions: {
+      edit: "Edit this page",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element
       ) => (
         <>
           Are you the GM or organizer? <ClaimLink>Claim this page</ClaimLink> to
           edit the details!
-        </>
-      ),
-      suggestEdit: (
-        EditLink: ({ children }: { children: ReactNode }) => JSX.Element
-      ) => (
-        <>
-          Is there something wrong on this page? Is there public info missing?{" "}
-          <EditLink>Suggest an edit</EditLink>!
         </>
       ),
     },
@@ -266,6 +259,7 @@ const translations = {
       ),
     },
     editPolicy: {
+      LOG_IN_TO_EDIT: <>You need to log in to edit this page.</>,
       VERIFIED: (
         <>
           Your edits will be reviewed by a moderator or the GM before being
@@ -574,7 +568,8 @@ const translations = {
       },
       isClaimedByGm: {
         title: "Claimed by Game Master",
-        message: <>The Game Master is managing the content of this page.</>,
+        message: <>The GM is managing the content of this page.</>,
+        youAreTheGm: <>You are managing the content of this page as the GM.</>,
       },
       numPlayerCharacters: {
         title: "Number of player characters",

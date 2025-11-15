@@ -18,20 +18,13 @@ const translations: Translations = {
   },
   LarpPage: {
     actions: {
+      edit: "Muokkaa tätä sivua",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element
       ) => (
         <>
           Oletko tämän larpin pelinjohtaja tai tapahtuman järjestäjä?{" "}
           <ClaimLink>Ota sivu hallintaasi</ClaimLink> muokataksesi tietoja!
-        </>
-      ),
-      suggestEdit: (
-        EditLink: ({ children }: { children: ReactNode }) => JSX.Element
-      ) => (
-        <>
-          Onko tällä sivulla jotain pielessä? Puuttuuko julkisia tietoja?{" "}
-          <EditLink>Ehdota muutosta</EditLink>!
         </>
       ),
     },
@@ -276,6 +269,9 @@ const translations: Translations = {
       ),
     },
     editPolicy: {
+      LOG_IN_TO_EDIT: (
+        <>Sinun täytyy kirjautua sisään muokataksesi tätä sivua.</>
+      ),
       VERIFIED: (
         <>
           Muokkauksesi tarkistetaan ennen julkaisua moderaattorin tai
@@ -284,11 +280,11 @@ const translations: Translations = {
       ),
       AUTO_APPROVED: (
         <>
-          Voit muokata tätä sivua suoraan ilman ennakkotarkistusta. Muokkauksesi
+          Voit muokata tätä sivua ilman ennakkotarkistusta. Muokkauksesi
           tarkistetaan jälkikäteen moderaattorin toimesta.
         </>
       ),
-      APPROVED: <>Voit muokata tätä sivua suoraan ilman ennakkotarkistusta.</>,
+      APPROVED: <>Voit muokata tätä sivua ilman ennakkotarkistusta.</>,
     },
   },
   ClaimLarpPage: {
@@ -584,6 +580,7 @@ const translations: Translations = {
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
         message: <>Pelinjohtaja hallinnoi tämän sivun sisältöä.</>,
+        youAreTheGm: <>Hallinnoit tämän sivun sisältöä pelinjohtajan.</>,
       },
       numPlayerCharacters: {
         title: "Pelaajahahmojen lukumäärä",

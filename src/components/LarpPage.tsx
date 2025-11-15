@@ -1,5 +1,10 @@
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { LarpLink, LarpType, PrismaClient } from "@/generated/prisma";
+import {
+  LarpLink,
+  LarpType,
+  PrismaClient,
+  RelatedUserRole,
+} from "@/generated/prisma";
 import getLarpHref, { ensureLocation } from "@/models/Larp";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
@@ -8,6 +13,11 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
+import { auth } from "@/auth";
+import {
+  getEditLarpInitialStatusForUserAndLarp,
+  getUserFromSession,
+} from "@/models/User";
 
 const prisma = new PrismaClient();
 
@@ -36,7 +46,7 @@ export async function getLarpPageData(
       },
       relatedUsers: {
         where: { role: "GAME_MASTER" },
-        select: { id: true },
+        select: { userId: true, role: true },
       },
       municipality: {
         select: { nameFi: true, nameOther: true, nameOtherLanguageCode: true },
@@ -116,7 +126,11 @@ interface Props {
 }
 
 export default async function LarpPage({ larpPromise, locale }: Props) {
-  const larp = await larpPromise;
+  const session = await auth();
+  const [user, larp] = await Promise.all([
+    getUserFromSession(session),
+    larpPromise,
+  ]);
   if (!larp) {
     notFound();
   }
@@ -124,6 +138,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
   const translations = getTranslations(locale);
   const t = translations.LarpPage;
   const larpT = translations.Larp;
+  const ediT = translations.EditLarpPage;
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
@@ -144,8 +159,27 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
     );
   }
 
-  const isClaimedByGm = larp.relatedUsers.length > 0;
+  let gmity: ReactNode;
+  if (
+    larp.relatedUsers.some(
+      (related) =>
+        related.userId === user?.id &&
+        related.role === RelatedUserRole.GAME_MASTER
+    )
+  ) {
+    gmity = <>✅ {larpT.attributes.isClaimedByGm.youAreTheGm}</>;
+  } else if (
+    larp.relatedUsers.some(
+      (related) => related.role === RelatedUserRole.GAME_MASTER
+    )
+  ) {
+    gmity = <>✅ {larpT.attributes.isClaimedByGm.message}</>;
+  } else {
+    gmity = <>⚠️ {t.actions.claim(ClaimLink)}</>;
+  }
+
   const location = ensureLocation(larp);
+  const policy = getEditLarpInitialStatusForUserAndLarp(user, larp);
 
   return (
     <>
@@ -216,15 +250,10 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
             <Markdown input={larp.description} />
           </div>
         )}
+        <div className="mb-2 form-text">{gmity}</div>
         <div className="mb-2 form-text">
-          {isClaimedByGm ? (
-            <>✅ {larpT.attributes.isClaimedByGm.message}</>
-          ) : (
-            <>⚠️ {t.actions.claim(ClaimLink)}</>
-          )}
-        </div>
-        <div className="mb-2 form-text">
-          ⚠️ {t.actions.suggestEdit(EditLink)}
+          ✏️ {policy && <EditLink>{t.actions.edit}</EditLink>}:{" "}
+          {ediT.editPolicy[policy ?? "LOG_IN_TO_EDIT"]}
         </div>
       </div>
     </>
