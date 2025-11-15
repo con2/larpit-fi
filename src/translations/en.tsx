@@ -953,6 +953,12 @@ const translations = {
       },
     },
   },
+  ContactPage: {
+    title: "Contact us",
+    teamConsistsOf: (
+      <>The team behind Larpit.fi consists of the following people:</>
+    ),
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",

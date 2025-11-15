@@ -973,6 +973,10 @@ const translations: Translations = {
       },
     },
   },
+  ContactPage: {
+    title: "Ota yhteyttä",
+    teamConsistsOf: <>Larpit.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
