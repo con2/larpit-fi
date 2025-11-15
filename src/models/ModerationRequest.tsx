@@ -151,18 +151,17 @@ async function handleRequestSubmitter(
     });
   }
 
-  await Promise.all([
-    prisma.relatedUser.createMany({
-      data: roles,
-    }),
+  await prisma.relatedUser.createMany({
+    data: roles,
+    skipDuplicates: true,
+  });
 
-    // Verify the user if they are not yet verified
-    // so that they may create further larps without pre-moderation
-    prisma.user.updateMany({
-      where: { id: submitterId, role: UserRole.NOT_VERIFIED },
-      data: { role: UserRole.VERIFIED },
-    }),
-  ]);
+  // Verify the user if they are not yet verified
+  // so that they may create further larps without pre-moderation
+  await prisma.user.updateMany({
+    where: { id: submitterId, role: UserRole.NOT_VERIFIED },
+    data: { role: UserRole.VERIFIED },
+  });
 }
 
 export async function approveCreateLarpRequest(
