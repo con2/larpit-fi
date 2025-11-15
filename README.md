@@ -107,8 +107,8 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Subscribeable calendar resource (ICS)
 - [ ] Public data API (REST/JSON)
 - [ ] Own larps
-  - [ ] Deduplicate roles
-    - [ ] Make `(larp_id, user_id, role)` primary key and remove `id`
+  - [x] Deduplicate roles
+    - [x] Make `(larp_id, user_id, role)` primary key and remove `id`
   - [ ] Filter own larps list by role
   - [ ] "I played this larp" button on larp page for logged in users
   - [ ] Favorite button on larp page for logged in users
@@ -123,7 +123,9 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] English translation of privacy policy
 - [ ] Enhanced larp list view
   - [ ] Sort and filter
-    - [ ] As first step, steal Kompassi `<DimensionFilters>`?
+    - [x] As first step, steal Kompassi `<DimensionFilters>`?
+    - [x] Filter by type
+    - [ ] Other filters?
   - [ ] Group by year (other groupings?)
   - [ ] Language, number of characters/participants, openness
 - [ ] Tagging, hierarchy of categories

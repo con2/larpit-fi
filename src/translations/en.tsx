@@ -615,6 +615,13 @@ const translations = {
         inactive: "Showing only actual larps.",
       },
     },
+    filters: {
+      type: {
+        title: "Type",
+        default: "Default (one shots and campaign larps)",
+        all: "All types",
+      },
+    },
     tableFooter: (count: number, totalCount: number) => (
       <>
         Showing {count} larp{count === 1 ? "" : "s"} (total {totalCount}).

@@ -1,4 +1,5 @@
 import { Column, DataTable } from "@/components/DataTable";
+import { DimensionFilters } from "@/components/DimensionFilters";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import MainHeading from "@/components/MainHeading";
 import { LarpType } from "@/generated/prisma";
@@ -8,6 +9,7 @@ import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
+import { get } from "underscore";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -105,19 +107,38 @@ function LarpTable({
   );
 }
 
+export function getLarpFilters(t: Translations["Larp"]) {
+  return [
+    {
+      slug: "type",
+      title: t.filters.type.title,
+      values: [
+        { slug: "", title: t.filters.type.default },
+        { slug: "ALL", title: t.filters.type.all },
+        ...Object.entries(t.attributes.type.choices).map(
+          ([slug, { title }]) => ({
+            slug,
+            title,
+          })
+        ),
+      ],
+    },
+  ];
+}
+
 export default async function LarpListPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
   const t = translations.Larp;
 
+  const filters = getLarpFilters(t);
   let { type: types } = await searchParams;
   if (typeof types === "string") {
     types = [types];
   }
-  if (!types || types.length === 0) {
+  if (!types || types.length === 0 || types.includes("")) {
     types = defaultTypes;
-  }
-  if (types.includes("ALL")) {
+  } else if (types.includes("ALL")) {
     types = Object.values(LarpType);
   }
   types = types.filter((type) => LarpType[type as keyof typeof LarpType]);
@@ -125,24 +146,11 @@ export default async function LarpListPage({ params, searchParams }: Props) {
     getData(types as LarpType[]),
     prisma.larp.count(),
   ]);
-  const isShowingAll = Object.values(LarpType).every((status) =>
-    types.includes(status)
-  );
 
   return (
     <Container>
       <MainHeading>{t.listTitle}</MainHeading>
-      {isShowingAll ? (
-        <p className="text-muted text-center">{t.actions.showAll.active}</p>
-      ) : (
-        <p className="text-muted text-center">
-          {t.actions.showAll.inactive}{" "}
-          <Link className="link-subtle" href="/larp?type=ALL">
-            {t.actions.showAll.title}
-          </Link>
-          .
-        </p>
-      )}
+      <DimensionFilters dimensions={filters} />
       <LarpTable
         larps={larps}
         messages={t}

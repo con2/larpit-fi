@@ -386,7 +386,7 @@ const translations: Translations = {
             label: <>Kampanja (joka sisältää useita pelejä)</>,
           },
           MULTIPLE_RUNS: {
-            title: "Useita pelautuksia",
+            title: "Larppi, josta on useita pelautuksia",
             label: <>Larppi, josta on useita pelautuksia</>,
           },
           OTHER_EVENT: {
@@ -620,6 +620,13 @@ const translations: Translations = {
         active: "Näytetään ihan kaikki (ml. kampanjasivut, miitit ym).",
         inactive:
           "Näytetään vain varsinaiset pelautukset (ei kampanjasivuja, miittejä ym).",
+      },
+    },
+    filters: {
+      type: {
+        title: "Tyyppi",
+        default: "Oletus (one-shotit ja kampanjapelit)",
+        all: "Kaikki",
       },
     },
     tableFooter: (count: number, totalCount: number) => (
