@@ -87,7 +87,7 @@ function TypeLabel({
   switch (larp.type) {
     case LarpType.CAMPAIGN_LARP:
       return (
-        <Badge bg="success" className="me-2">
+        <Badge bg="primary" className="me-2">
           {t.CAMPAIGN_LARP.title}
         </Badge>
       );
