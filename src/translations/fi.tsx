@@ -580,7 +580,7 @@ const translations: Translations = {
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
         message: <>Pelinjohtaja hallinnoi tämän sivun sisältöä.</>,
-        youAreTheGm: <>Hallinnoit tämän sivun sisältöä pelinjohtajan.</>,
+        youAreTheGm: <>Hallinnoit tämän sivun sisältöä pelinjohtajana.</>,
       },
       numPlayerCharacters: {
         title: "Pelaajahahmojen lukumäärä",
