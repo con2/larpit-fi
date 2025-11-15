@@ -21,13 +21,8 @@ async function getData(userId: string) {
     },
     include: {
       larp: {
-        select: {
-          id: true,
-          name: true,
-          locationText: true,
-          startsAt: true,
-          endsAt: true,
-          alias: true,
+        include: {
+          municipality: true,
         },
       },
     },
@@ -77,6 +72,11 @@ function OwnLarpsTable({
       slug: "locationText",
       title: larpT.attributes.locationText.title,
       getCellContents: (row) => row.locationText,
+    },
+    {
+      slug: "municipalityName",
+      title: larpT.attributes.municipality.title,
+      getCellContents: (row) => row.municipality?.nameFi,
     },
     {
       slug: "role",
