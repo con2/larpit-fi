@@ -31,9 +31,13 @@ async function getData(userId: string) {
         },
       },
     },
-    orderBy: {
-      larpId: "asc",
-    },
+    orderBy: [
+      {
+        larp: {
+          startsAt: "desc",
+        },
+      },
+    ],
   });
 
   const rows = Object.entries(groupBy(relatedUsers, (row) => row.larpId)).map(
@@ -46,7 +50,7 @@ async function getData(userId: string) {
     }
   );
 
-  return sortBy(rows, (row) => row.startsAt);
+  return sortBy(rows, (row) => row.startsAt).reverse();
 }
 
 type OwnLarp = Awaited<ReturnType<typeof getData>>[number];
