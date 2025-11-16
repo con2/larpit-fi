@@ -131,10 +131,7 @@ export default async function HomePage({ params }: Props) {
 
   // We only show a fixed number of past larps
   // For past larps, most recent first is more useful
-  pastLarps
-    .reverse()
-    .splice(limitPastLarps, pastLarps.length - limitPastLarps)
-    .reverse();
+  pastLarps.reverse().splice(limitPastLarps);
 
   return (
     <div className="container">
