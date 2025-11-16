@@ -37,18 +37,12 @@ async function getHomePageData() {
         },
       },
     ],
-    select: {
-      id: true,
-      type: true,
-      startsAt: true,
-      endsAt: true,
-      name: true,
-      tagline: true,
-      signupStartsAt: true,
-      signupEndsAt: true,
-      language: true,
-      alias: true,
-      openness: true,
+    include: {
+      municipality: {
+        select: {
+          nameFi: true,
+        },
+      },
     },
     take,
   });

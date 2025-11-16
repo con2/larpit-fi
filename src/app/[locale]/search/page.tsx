@@ -28,6 +28,13 @@ export default async function SearchPage({ params, searchParams }: Props) {
             in: matchingLarpIds.map((l) => l.id),
           },
         },
+        include: {
+          municipality: {
+            select: {
+              nameFi: true,
+            },
+          },
+        },
         orderBy: {
           startsAt: "desc",
         },

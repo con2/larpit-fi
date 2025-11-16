@@ -1,6 +1,6 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { Larp, LarpType, Openness } from "@/generated/prisma";
+import { Larp, LarpType, Municipality, Openness } from "@/generated/prisma";
 import getLarpHref, { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -14,20 +14,9 @@ import {
 } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 
-type LarpCardLarp = Pick<
-  Larp,
-  | "id"
-  | "name"
-  | "startsAt"
-  | "endsAt"
-  | "tagline"
-  | "signupStartsAt"
-  | "signupEndsAt"
-  | "language"
-  | "alias"
-  | "openness"
-  | "type"
->;
+type LarpCardLarp = Larp & {
+  municipality: Pick<Municipality, "nameFi"> | null;
+};
 
 function SignupLabel({
   larp,
@@ -124,7 +113,8 @@ export default function LarpCard({ larp, locale, messages: t }: Props) {
               locale={locale}
               start={larp.startsAt}
               end={larp.endsAt}
-            />
+            />{" "}
+            {larp.municipality?.nameFi}
           </CardText>
           <CardText className="fst-italic" style={{ fontSize: "0.9rem" }}>
             {larp.tagline}
