@@ -92,6 +92,19 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [ ] Edit history (shown to moderators & GM)
   - [ ] "You have 2 edits to this larp page pending moderation."
     - [ ] "Show page as it will be once these edits are approved"
+- [ ] Enhanced larp list view
+  - [ ] Sort and filter
+    - [x] As first step, steal Kompassi `<DimensionFilters>`?
+    - [x] Filter by type
+    - [ ] Other filters?
+  - [ ] Group by year (other groupings?)
+  - [ ] Number of characters/participants
+  - [x] Language
+  - [ ] Openness
+  - [ ] Pagination
+- [ ] Tagging, hierarchy of categories
+  - [ ] Freeform tags
+  - [ ] Promoting freeform tags into a curated hierarchy
 - [ ] Create re-run of a larp, or run of multi-run larp, prefilling details
 - [ ] Enhanced user management
   - [ ] List of requests by the user
@@ -121,16 +134,6 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Contact GM button?
   - [ ] GM preference
 - [ ] English translation of privacy policy
-- [ ] Enhanced larp list view
-  - [ ] Sort and filter
-    - [x] As first step, steal Kompassi `<DimensionFilters>`?
-    - [x] Filter by type
-    - [ ] Other filters?
-  - [ ] Group by year (other groupings?)
-  - [ ] Language, number of characters/participants, openness
-- [ ] Tagging, hierarchy of categories
-  - [ ] Freeform tags
-  - [ ] Promoting freeform tags into a curated hierarchy
 - [ ] Email notifications
   - [ ] To GM
     - [ ] An edit is suggested that ought to be moderated by the GM

@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { Column, DataTable } from "@/components/DataTable";
+import { Column, DataTable, TableFooter } from "@/components/DataTable";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import LoginRequired from "@/components/LoginRequired";
@@ -109,9 +109,10 @@ export default async function ModerationPage({ params, searchParams }: Props) {
       title: t.attributes.status.title,
       getCellContents: (row) => (
         <>
-          {t.attributes.status.choices[row.status].title}{" "}
-          {<FormattedDateTime value={row.resolvedAt} locale={locale} />}
-          {row.resolvedBy?.name && <> ({row.resolvedBy.name})</>}
+          <div className="small">
+            {t.attributes.status.choices[row.status].title}{" "}
+            {<FormattedDateTime value={row.resolvedAt} locale={locale} />}
+          </div>
         </>
       ),
     },
@@ -135,7 +136,11 @@ export default async function ModerationPage({ params, searchParams }: Props) {
         columns={columns}
         rows={requests}
         getRowHref={(row) => `/moderate/${row.id}`}
-      />
+      >
+        <TableFooter colSpan={columns.length}>
+          {t.tableFooter(requests.length, requests.length)}
+        </TableFooter>
+      </DataTable>
     </Container>
   );
 }

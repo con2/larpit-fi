@@ -101,6 +101,22 @@ function defaultHeaderContents<Row>(this: Column<Row>) {
   return this.title;
 }
 
+export function TableFooter({
+  colSpan,
+  children,
+}: {
+  colSpan: number;
+  children?: ReactNode;
+}) {
+  return (
+    <tfoot>
+      <tr>
+        <td colSpan={colSpan}>{children}</td>
+      </tr>
+    </tfoot>
+  );
+}
+
 export function DataTable<Row>(props: DataTableProps<Row>) {
   const { rows, getTotalMessage, responsive, children, getRowHref } = props;
 
@@ -149,3 +165,5 @@ export function DataTable<Row>(props: DataTableProps<Row>) {
     </ResponsiveWrapper>
   );
 }
+
+export default DataTable;

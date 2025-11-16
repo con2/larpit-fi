@@ -1,5 +1,5 @@
 import { UserRole } from "@/generated/prisma";
-import { JSX, ReactNode } from "react";
+import React, { JSX, ReactNode } from "react";
 
 const translations = {
   title: "Larpit.fi",
@@ -635,6 +635,11 @@ const translations = {
   ModerationRequest: {
     listTitle: "Moderation requests",
     singleTitle: "Moderation request",
+    tableFooter: (count: number, totalCount: number) => (
+      <>
+        Showing {count} request{count === 1 ? "" : "s"} (total {totalCount}).
+      </>
+    ),
     attributes: {
       createdAt: {
         title: "Request date",
@@ -643,13 +648,13 @@ const translations = {
         title: "Request action",
         choices: {
           CREATE: {
-            title: "Create a new larp page",
+            title: "Create page",
           },
           UPDATE: {
-            title: "Suggest changes to a larp page",
+            title: "Suggest changes",
           },
           CLAIM: {
-            title: "Claim a larp page",
+            title: "Claim page",
           },
         },
       },

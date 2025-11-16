@@ -14,6 +14,10 @@ interface Props {
   params: Promise<{ locale: string }>;
 }
 
+// We show all upcoming larps and 8 past larps on the front page.
+// This is a reasonable guess as there are usually not that many upcoming larps.
+const take = 100;
+
 async function getHomePageData() {
   return prisma.larp.findMany({
     where: {
@@ -39,6 +43,7 @@ async function getHomePageData() {
       alias: true,
       openness: true,
     },
+    take,
   });
 }
 

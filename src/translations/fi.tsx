@@ -1,4 +1,4 @@
-import { JSX, ReactNode } from "react";
+import React, { JSX, ReactNode } from "react";
 import type { Translations } from "./en";
 import { UserRole } from "@/generated/prisma";
 
@@ -643,6 +643,12 @@ const translations: Translations = {
   ModerationRequest: {
     listTitle: "Moderointipyynnöt",
     singleTitle: "Moderointipyyntö",
+    tableFooter: (count: number, totalCount: number) => (
+      <>
+        Näytetään {count} pyyntö{count === 1 ? "" : "ä"} (yhteensä {totalCount}
+        ).
+      </>
+    ),
     attributes: {
       createdAt: {
         title: "Pyynnön ajankohta",
@@ -651,13 +657,13 @@ const translations: Translations = {
         title: "Pyydetty muokkaus",
         choices: {
           CREATE: {
-            title: "Uuden larppisivun luominen",
+            title: "Uusi sivu",
           },
           UPDATE: {
-            title: "Ehdotettu muokkaus",
+            title: "Muokkaus",
           },
           CLAIM: {
-            title: "Pyyntö ottaa sivu hallintaan",
+            title: "Haltuunotto",
           },
         },
       },
