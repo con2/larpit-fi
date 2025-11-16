@@ -29,7 +29,14 @@ async function getHomePageData() {
       //   isNotDistinctFrom: Openness.INVITE_ONLY,
       // },
     },
-    orderBy: { startsAt: "asc" },
+    orderBy: [
+      {
+        startsAt: {
+          sort: "desc",
+          nulls: "last",
+        },
+      },
+    ],
     select: {
       id: true,
       type: true,
@@ -117,7 +124,7 @@ export default async function HomePage({ params }: Props) {
     upcomingLarps,
     (larp) => isSignupOpenOrOpeningSoon(larp) // avoid index at 2nd arg
   );
-  pastLarps.reverse().splice(limitPastLarps, pastLarps.length - limitPastLarps);
+  pastLarps.splice(limitPastLarps, pastLarps.length - limitPastLarps);
 
   return (
     <div className="container">

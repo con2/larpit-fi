@@ -18,12 +18,6 @@ const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
 async function getData(types: LarpType[], languages: Language[]) {
   return prisma.larp.findMany({
-    orderBy: {
-      startsAt: {
-        sort: "desc",
-        nulls: "last",
-      },
-    },
     where: {
       type: {
         in: types,
@@ -39,6 +33,14 @@ async function getData(types: LarpType[], languages: Language[]) {
         },
       },
     },
+    orderBy: [
+      {
+        startsAt: {
+          sort: "desc",
+          nulls: "last",
+        },
+      },
+    ],
   });
 }
 

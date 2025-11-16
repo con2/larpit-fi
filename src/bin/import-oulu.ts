@@ -136,5 +136,5 @@ async function main() {
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  prisma.$transaction(main);
+  prisma.$transaction(main, { timeout: 120 * 1000 });
 }
