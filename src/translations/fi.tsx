@@ -914,6 +914,11 @@ const translations: Translations = {
         label: "Oma rooli tässä larpissa",
       },
     },
+    tableFooter: (showing: number, total: number) => (
+      <>
+        Näytetään {showing} larppi{showing === 1 ? "" : "a"} (yhteensä {total}).
+      </>
+    ),
   },
   RelatedUser: {
     title: "Liitetyt käyttäjät",

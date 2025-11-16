@@ -359,19 +359,19 @@ const translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
-            label: <>A one-shot larp (or a run of a larp with multiple runs)</>,
+            label: <>One-shot larp (or a run of a larp with multiple runs)</>,
           },
           CAMPAIGN_LARP: {
             title: "Campaign larp",
-            label: <>A larp in a campaign</>,
+            label: <>Campaign larp (a single larp in a campaign)</>,
           },
           CAMPAIGN: {
             title: "Campaign",
-            label: <>A campaign of multiple larps</>,
+            label: <>Campaign (of multiple larps)</>,
           },
           MULTIPLE_RUNS: {
             title: "Multiple runs",
-            label: <>A larp with multiple runs</>,
+            label: <>Larp with multiple runs</>,
           },
           OTHER_EVENT: {
             title: "Other event",
@@ -384,7 +384,7 @@ const translations = {
           },
           OTHER_EVENT_SERIES: {
             title: "Other event series",
-            label: <>A series of other events</>,
+            label: <>Other event series</>,
           },
         },
       },
@@ -894,6 +894,11 @@ const translations = {
         label: "Own role in this larp",
       },
     },
+    tableFooter: (showing: number, total: number) => (
+      <>
+        Showing {showing} larp{showing === 1 ? "" : "s"} (total {total}).
+      </>
+    ),
   },
   RelatedUser: {
     title: "Related users",

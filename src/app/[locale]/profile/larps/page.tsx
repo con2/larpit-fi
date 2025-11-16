@@ -123,7 +123,15 @@ function OwnLarpsTable({
       columns={columns}
       rows={rows}
       getRowHref={(row) => getLarpHref(row)}
-    />
+    >
+      <tfoot>
+        <tr>
+          <td colSpan={columns.length}>
+            {t.tableFooter(rows.length, rows.length)}
+          </td>
+        </tr>
+      </tfoot>
+    </DataTable>
   );
 }
 
