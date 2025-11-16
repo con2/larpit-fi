@@ -109,6 +109,10 @@ export default async function HomePage({ params }: Props) {
   const candidateLarps = larps.filter(
     (larp) => larp.openness !== Openness.INVITE_ONLY && !!larp.startsAt
   );
+
+  // For upcoming events, earliest first is more useful
+  candidateLarps.reverse();
+
   const [otherEvents, actualLarps] = partition(
     candidateLarps,
     (larp) => larp.type === LarpType.OTHER_EVENT
@@ -124,7 +128,13 @@ export default async function HomePage({ params }: Props) {
     upcomingLarps,
     (larp) => isSignupOpenOrOpeningSoon(larp) // avoid index at 2nd arg
   );
-  pastLarps.splice(limitPastLarps, pastLarps.length - limitPastLarps);
+
+  // We only show a fixed number of past larps
+  // For past larps, most recent first is more useful
+  pastLarps
+    .reverse()
+    .splice(limitPastLarps, pastLarps.length - limitPastLarps)
+    .reverse();
 
   return (
     <div className="container">
