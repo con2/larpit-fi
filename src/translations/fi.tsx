@@ -604,12 +604,15 @@ const translations: Translations = {
         numPlayerCharacters: number | null,
         numTotalParticipants: number | null
       ) {
+        const aPlayerCharacters = numPlayerCharacters === 1 ? "" : "a";
+        const aTotalParticipants = numTotalParticipants === 1 ? "" : "a";
+
         if (numPlayerCharacters && numTotalParticipants) {
-          return `${numPlayerCharacters} pelaajahahmoa, ${numTotalParticipants} osallistujaa yhteensä`;
+          return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}, ${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
         } else if (numTotalParticipants) {
-          return `${numTotalParticipants} osallistujaa yhteensä`;
+          return `${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
         } else if (numPlayerCharacters) {
-          return `${numPlayerCharacters} pelaajahahmoa`;
+          return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}`;
         } else {
           return null;
         }

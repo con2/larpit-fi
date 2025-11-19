@@ -597,12 +597,15 @@ const translations = {
         numPlayerCharacters: number | null,
         numTotalParticipants: number | null
       ) {
+        const sPlayerCharacters = numPlayerCharacters === 1 ? "" : "s";
+        const sTotalParticipants = numTotalParticipants === 1 ? "" : "s";
+
         if (numPlayerCharacters && numTotalParticipants) {
-          return `${numPlayerCharacters} player character, ${numTotalParticipants} total participants`;
+          return `${numPlayerCharacters} player character${sPlayerCharacters}, ${numTotalParticipants} total participant${sTotalParticipants}`;
         } else if (numTotalParticipants) {
-          return `${numTotalParticipants} total participants`;
+          return `${numTotalParticipants} total participant${sTotalParticipants}`;
         } else if (numPlayerCharacters) {
-          return `${numPlayerCharacters} player characters`;
+          return `${numPlayerCharacters} player character${sPlayerCharacters}`;
         } else {
           return null;
         }
