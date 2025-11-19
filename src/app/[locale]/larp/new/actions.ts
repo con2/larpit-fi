@@ -38,7 +38,6 @@ export async function createLarp(
     submitterEmail = user?.email,
     submitterRole,
     message,
-    cat,
     ...newContent
   } = larpForm;
 
@@ -46,6 +45,7 @@ export async function createLarp(
     throw new Error("Missing submitter information");
   }
 
+  const cat = larpForm.cat?.toLowerCase() ?? "";
   if (
     !user &&
     !(cat && acceptableFelines.some((feline) => cat.includes(feline)))

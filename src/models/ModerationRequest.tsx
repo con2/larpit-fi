@@ -74,7 +74,7 @@ export const ModerationRequestForm = ModerationRequestContent.extend({
   submitterName: z.string().min(1).max(100).optional(),
   submitterEmail: z.email().optional(),
   submitterRole: zSubmitterRole,
-  cat: z.coerce.string().lowercase().optional(),
+  cat: z.coerce.string().optional(),
   message: z.string().max(2000).optional(),
 });
 
