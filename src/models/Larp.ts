@@ -41,9 +41,17 @@ export function isSignupOpenOrOpeningSoon(
 ): boolean {
   return isSignupOpen(larp) || isSignupOpeningSoon(larp, deltaDays);
 }
+
+export function isSignupOver(larp: LarpDates): boolean {
+  const now = new Date();
+
+  return !!(larp.signupEndsAt && larp.signupEndsAt < now);
+}
+
 export default function getLarpHref(larp: Pick<Larp, "id" | "alias">): string {
   return larp.alias ? `/${larp.alias}` : `/larp/${larp.id}`;
 }
+
 export function hasEditors(larp: { relatedUsers: RelatedUser[] }): boolean {
   return larp.relatedUsers.some((user) => user.role === RelatedUserRole.EDITOR);
 }

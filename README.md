@@ -70,6 +70,9 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 
 ### Next priorities (as of 2025-11-15)
 
+- [ ] Low-hanging fruit improvements of low effort, high impact
+  - [x] Show "signup over" on front page larp cards
+  - [ ] Put signup starts/ends on larp page
 - [ ] List moderators and admins
 - [ ] Support requests / contact form
   - [ ] There is a problem with this page that cannot be rectified by suggesting an edit
@@ -79,9 +82,14 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Enhanced moderation (show what was changed)
 - [ ] Related larps
 
+### Known bugs / good first issues :)
+
+- [ ] Add/edit larp: Fluff text has a relatively low length limit of 2000 characters and there is no physical limitation on the form field. If the length is exceeded, a nondescript error message (”An application error has occurred…”) will be shown. Solve by creating a `<TextArea>` component that has a JavaScript-based length limit (and possibly a `1337/2000` character count display). Bonus points for `setCustomValidity`.
+
 ### Unsorted feature list
 
 - [ ] Enhanced larp page
+  - [ ] Visual layout of larp page: How to show all the data but at the same time make the page aesthetically pleasing and readable?
   - [ ] Author (as opposed to organizer)
   - [ ] Age limits
   - [ ] Intended audience? (-> tagging/categories?)

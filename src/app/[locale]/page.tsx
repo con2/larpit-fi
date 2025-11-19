@@ -56,12 +56,14 @@ function Section({
   locale,
   messages,
   children,
+  past,
 }: {
   title: string;
   larps: HomePageLarp[];
   locale: string;
   messages: Translations["Larp"];
   children?: React.ReactNode;
+  past?: boolean;
 }) {
   return (
     <div className="mb-5">
@@ -73,6 +75,7 @@ function Section({
             locale={locale}
             key={larp.id}
             messages={messages}
+            past={past}
           />
         ))}
       </div>
@@ -180,6 +183,7 @@ export default async function HomePage({ params }: Props) {
           larps={pastLarps}
           locale={locale}
           messages={translations.Larp}
+          past={true}
         >
           <Link href="/larp" className="link-subtle">
             {translations.Larp.listTitle}…

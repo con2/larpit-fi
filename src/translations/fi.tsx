@@ -574,6 +574,7 @@ const translations: Translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Ilmoittautuminen avautuu {formattedDate}</>
         ),
+        over: <>Ilmoittautuminen päättynyt</>,
         inviteOnly: <>Kutsupeli</>,
         lookingForReservePlayers: <>Hakee varapelaajia</>,
       },

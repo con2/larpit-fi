@@ -563,6 +563,7 @@ const translations = {
         opensAt: (formattedDate: ReactNode) => (
           <>Signup opening at {formattedDate}</>
         ),
+        over: <>Signup over</>,
         inviteOnly: <>Invite only</>,
         lookingForReservePlayers: <>Looking for reserve players</>,
       },

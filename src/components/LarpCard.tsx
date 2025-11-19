@@ -1,7 +1,11 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import { Larp, LarpType, Municipality, Openness } from "@/generated/prisma";
-import getLarpHref, { isSignupOpen, isSignupOpeningSoon } from "@/models/Larp";
+import getLarpHref, {
+  isSignupOpen,
+  isSignupOpeningSoon,
+  isSignupOver,
+} from "@/models/Larp";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -51,6 +55,9 @@ function SignupLabel({
         )}
       </>
     );
+  } else if (isSignupOver(larp)) {
+    variant = "danger";
+    content = t.over;
   }
 
   if (content) {
@@ -95,9 +102,15 @@ interface Props {
   larp: LarpCardLarp;
   messages: Translations["Larp"];
   locale: string;
+  past?: boolean;
 }
 
-export default function LarpCard({ larp, locale, messages: t }: Props) {
+export default function LarpCard({
+  larp,
+  locale,
+  messages: t,
+  past: isPast,
+}: Props) {
   return (
     <div className="col-xl-3 col-lg-4 mb-4">
       <Card
@@ -120,7 +133,9 @@ export default function LarpCard({ larp, locale, messages: t }: Props) {
             {larp.tagline}
           </CardText>
           <TypeLabel larp={larp} messages={t} />
-          <SignupLabel larp={larp} messages={t} locale={locale} />
+          {isPast ? null : (
+            <SignupLabel larp={larp} messages={t} locale={locale} />
+          )}
         </CardBody>
       </Card>
     </div>
