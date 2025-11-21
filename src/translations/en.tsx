@@ -56,7 +56,7 @@ const translations = {
           ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element
         ) => (
           <p>
-            You are logged in as the user displayed below. If you are not this
+            You are logged in as the user displayed here. If you are not this
             person, please <LogoutLink>log out</LogoutLink>. If there are errors
             in the information displayed, please correct them in your{" "}
             <ProfileLink>Kompassi profile</ProfileLink>. Then log out and back
@@ -989,6 +989,27 @@ const translations = {
     title: "Contact us",
     teamConsistsOf: (
       <>The team behind Larpit.fi consists of the following people:</>
+    ),
+    contactForm: (
+      <p>
+        To contact the site administrator, please use the form below or send
+        email to <em>larpit-fi ät tracon.fi</em>.
+      </p>
+    ),
+    administrative: (
+      <p>
+        Larpit.fi is managed by Tracon ry (2886274-5). To contact Tracon ry, see
+        the{" "}
+        <a
+          href="https://ry.tracon.fi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="link-subtle"
+        >
+          home page of Tracon ry
+        </a>
+        .
+      </p>
     ),
   },
   StatsPage: {

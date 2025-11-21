@@ -58,7 +58,7 @@ const translations: Translations = {
           ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element
         ) => (
           <p>
-            Olet kirjautunut sisään alla näkyvällä käyttäjätunnuksella. Jos et
+            Olet kirjautunut sisään tässä näkyvällä käyttäjätunnuksella. Jos et
             ole tässä mainittu henkilö, ole hyvä ja{" "}
             <LogoutLink>kirjaudu ulos</LogoutLink>. Jos tiedoissa on virheitä,
             korjaa virheet <ProfileLink>Kompassin profiilissasi</ProfileLink> ja
@@ -1010,6 +1010,28 @@ const translations: Translations = {
   ContactPage: {
     title: "Ota yhteyttä",
     teamConsistsOf: <>Larpit.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
+    contactForm: (
+      <p>
+        Larpit.fi:n ylläpitäjän tavoitat alla olevalla yhteydenottolomakkeella
+        tai sähköpostitse osoitteesta <em>larpit-fi ät tracon.fi</em>.
+      </p>
+    ),
+    administrative: (
+      <p>
+        Hallinnollisesti Larpit.fi:stä vastaa Tracon ry (2886274-5). Tracon ry:n
+        yhteystiedot löydät{" "}
+        <a
+          href="https://ry.tracon.fi"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Tracon ry:n kotisivut"
+          className="link-subtle"
+        >
+          yhdistyksen kotisivuilta
+        </a>
+        .
+      </p>
+    ),
   },
   StatsPage: {
     title: "Tilastoja",
