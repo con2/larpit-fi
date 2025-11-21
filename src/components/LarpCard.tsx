@@ -35,7 +35,7 @@ function SignupLabel({
   let content: ReactNode | null = null;
   let variant: BadgeProps["bg"] = "secondary";
   if (larp.openness === Openness.INVITE_ONLY) {
-    variant = "danger";
+    variant = "secondary";
     content = t.inviteOnly;
   } else if (isSignupOpen(larp)) {
     variant = "success";
@@ -56,7 +56,7 @@ function SignupLabel({
       </>
     );
   } else if (isSignupOver(larp)) {
-    variant = "danger";
+    variant = "secondary";
     content = t.over;
   }
 
