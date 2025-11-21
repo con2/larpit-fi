@@ -119,7 +119,7 @@ export default function LarpCard({
         href={getLarpHref(larp)}
         lang={larp.language}
       >
-        <CardBody>
+        <CardBody className="d-flex flex-column">
           <CardTitle>{larp.name}</CardTitle>
           <CardText>
             <FormattedDateRange
@@ -132,10 +132,12 @@ export default function LarpCard({
           <CardText className="fst-italic" style={{ fontSize: "0.9rem" }}>
             {larp.tagline}
           </CardText>
-          <TypeLabel larp={larp} messages={t} />
-          {isPast ? null : (
-            <SignupLabel larp={larp} messages={t} locale={locale} />
-          )}
+          <div className="mt-auto">
+            <TypeLabel larp={larp} messages={t} />
+            {isPast ? null : (
+              <SignupLabel larp={larp} messages={t} locale={locale} />
+            )}
+          </div>
         </CardBody>
       </Card>
     </div>
