@@ -1011,6 +1011,74 @@ const translations: Translations = {
     title: "Ota yhteyttä",
     teamConsistsOf: <>Larpit.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
   },
+  StatsPage: {
+    title: "Tilastoja",
+    message: (
+      <>
+        <p>
+          Tämä sivu sisältää hauskoja ja ehkä hyödyllisiäkin tilastoja
+          larppaamisesta Suomessa.
+        </p>{" "}
+        <p>
+          Huomaathan, että kaikkia koskaan pelattuja pelejä ei ole vieläkään
+          lisätty Larpit.fi:hin, ja todelliset peli- ja osallistujamäärät ovat
+          siksi varmasti suurempia.
+        </p>
+      </>
+    ),
+    attributes: {
+      count: {
+        title: "Lukumäärä",
+      },
+      total: {
+        title: "Yhteensä",
+      },
+      year: {
+        title: "Vuosi",
+      },
+    },
+    reports: {
+      type: {
+        title: "Sivujen määrä tyypeittäin",
+      },
+      year: {
+        title: "Larppien määrä vuosittain",
+        description: (
+          <>
+            Sisältää larpit, joille on määritetty alkamispäivä. Ei sisällä muita
+            tapahtumia kuin larppeja.
+          </>
+        ),
+      },
+      municipality: {
+        title: "Larppien määrä kunnittain",
+        description: (
+          <>
+            Sisältää larpit, joille on määritetty kunta ja alkamispäivä. Ei
+            sisällä muita tapahtumia kuin larppeja. Tilastossa on vinouma, koska
+            pohjoisen larppaajat ovat ahkeria dokumentoimaan larppejaan :)
+          </>
+        ),
+        attributes: {
+          municipalityName: {
+            title: "Paikkakunta",
+          },
+        },
+      },
+      players: {
+        title: "Osallistujien määrä vuosittain",
+        description: (
+          <>
+            Pelaajahahmojen määrä ja kokonaisosallistujamäärä larpeissa, joille
+            on määritetty alkamispäivä. Ei sisällä muita tapahtumia kuin
+            larppeja. Huomaathan, että osallistujamäärätiedot puuttuvat useilta
+            larpeilta, joten todelliset osallistujamäärät ovat varmasti
+            suurempia.
+          </>
+        ),
+      },
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",

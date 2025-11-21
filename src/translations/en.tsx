@@ -991,6 +991,73 @@ const translations = {
       <>The team behind Larpit.fi consists of the following people:</>
     ),
   },
+  StatsPage: {
+    title: "Statistics",
+    message: (
+      <>
+        <p>
+          This page contains fun and maybe useful statistics about larping in
+          Finland.
+        </p>{" "}
+        <p>
+          Please note that not all games ever played have been added to
+          Larpit.fi yet, so the actual number of games and participants is
+          certainly higher.
+        </p>
+      </>
+    ),
+    attributes: {
+      count: {
+        title: "Count",
+      },
+      total: {
+        title: "Total",
+      },
+      year: {
+        title: "Year",
+      },
+    },
+    reports: {
+      type: {
+        title: "Pages by type",
+      },
+      year: {
+        title: "Larps by year",
+        description: (
+          <>
+            Includes larps with known municipality and start date. Events other
+            than larps are excluded.
+          </>
+        ),
+      },
+      municipality: {
+        title: "Larps by municipality",
+        description: (
+          <>
+            Includes larps with known municipality and start date. Events other
+            than larps are excluded.
+          </>
+        ),
+        attributes: {
+          municipalityName: {
+            title: "Municipality",
+          },
+        },
+      },
+      players: {
+        title: "Number of participants by year",
+        description: (
+          <>
+            Sum of the number of player characters and total participants in
+            larps with known number of total participants and known start date.
+            Events other than larps are excluded. Please note that not all larps
+            have this information available, so the actual number of
+            participants is certainly higher.
+          </>
+        ),
+      },
+    },
+  },
   LoginRequired: {
     title: "Login required",
     message: "You need to be logged in to see this page.",

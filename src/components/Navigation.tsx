@@ -61,6 +61,9 @@ export async function Navigation({ locale }: Props) {
             <NavLink as={Link} href="/larp">
               {translations.Larp.listTitle}
             </NavLink>
+            <NavLink as={Link} href="/stats">
+              {translations.StatsPage.title}
+            </NavLink>
             {canEditPages(user) && (
               <NavLink as={Link} href="/page">
                 {t.actions.pages}
