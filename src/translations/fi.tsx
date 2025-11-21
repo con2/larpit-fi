@@ -569,7 +569,7 @@ const translations: Translations = {
       signupOpen: {
         openIndefinitely: <>Ilmoittautuminen auki</>,
         openUntil: (formattedDate: ReactNode) => (
-          <>Ilmoittautuminen auki {formattedDate} asti</>
+          <>Ilmo auki {formattedDate} asti</>
         ),
         opensAt: (formattedDate: ReactNode) => (
           <>Ilmoittautuminen avautuu {formattedDate}</>
