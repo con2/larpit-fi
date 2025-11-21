@@ -25,7 +25,7 @@ interface MuniRow {
 }
 
 interface YearRow {
-  year: string;
+  year: bigint;
   count: bigint;
 }
 
@@ -193,18 +193,32 @@ export default async function StatsPage({ params }: Props) {
     },
   ];
 
+  // some larps have 0 for numTotalParticipants denoting unknown total participants
+  // some larps have null for numTotalParticipants denoting unknown total participants
+  // either way, default them to numPlayerCharacters for normalization
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
+    with normalized_data_points as (
+      select
+        extract(year from starts_at) as year,
+        num_player_characters,
+        case
+          when num_total_participants = 0 then num_player_characters
+          when num_total_participants is null then num_player_characters
+          else num_total_participants
+        end as num_total_participants
+      from larpit.larp
+      where
+        starts_at is not null
+        and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+    )
     select
-      extract(year from l.starts_at)::text as year,
-      coalesce(sum(l.num_player_characters), 0) as "numPlayerCharacters",
-      coalesce(sum(l.num_total_participants), 0) as "numTotalParticipants"
+      year,
+      coalesce(sum(num_player_characters), 0) as "numPlayerCharacters",
+      coalesce(sum(num_total_participants), 0) as "numTotalParticipants"
     from
-      larpit.larp l
-    where
-      l.starts_at is not null
-      and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+      normalized_data_points
     group by year
-    having sum(l.num_total_participants) > 0 or sum(l.num_player_characters) > 0
+    having sum(num_player_characters) > 0 or sum(num_total_participants) > 0
     order by year asc
   `;
   const playerCharactersTotal = playersRows.reduce(
