@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import LoginLink, {
+import {
   LogoutLink,
   PrivacyPolicyLink,
   ProfileLink,
