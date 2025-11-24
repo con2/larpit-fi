@@ -64,8 +64,6 @@ export default async function ContactPage({ params }: Props) {
     orderBy: [{ role: "desc" }, { name: "asc" }],
   });
 
-  console.log({ roles });
-
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
