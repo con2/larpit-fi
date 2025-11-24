@@ -1,6 +1,6 @@
 import LarpCard from "@/components/LarpCard";
 import Markdown from "@/components/Markdown";
-import { LarpType, Openness } from "@/generated/prisma";
+import { LarpType, Openness } from "@/generated/prisma/client";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";

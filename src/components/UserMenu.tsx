@@ -6,7 +6,7 @@ import Link from "next/link";
 import Nav from "react-bootstrap/Nav";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
-import { User } from "@/generated/prisma";
+import { User } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";
 
 interface Props {

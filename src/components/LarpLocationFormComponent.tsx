@@ -1,4 +1,4 @@
-import { Larp, Municipality } from "@/generated/prisma";
+import { Larp, Municipality } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";

@@ -1,4 +1,4 @@
-import { EditAction, EditStatus } from "@/generated/prisma";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
 import {
   approveRequest,
   ModerationRequestContent,
@@ -53,7 +53,7 @@ function parseDateFi(dateStr: string): string | null {
 async function alreadyExists(larp: { name: string }): Promise<boolean> {
   const search = larp.name;
   const matchingLarpIds = await prisma.$queryRaw<{ id: string }[]>`
-    select id from larpit.larp
+    select id from larp
     where to_tsvector('finnish', name) @@ phraseto_tsquery('finnish', ${search})
   `;
   return matchingLarpIds.length > 0;

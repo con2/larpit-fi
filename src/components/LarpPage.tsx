@@ -1,11 +1,12 @@
+import { auth } from "@/auth";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import {
-  LarpLink,
-  LarpType,
-  PrismaClient,
-  RelatedUserRole,
-} from "@/generated/prisma";
+import { LarpLink, LarpType, RelatedUserRole } from "@/generated/prisma/client";
 import getLarpHref, { ensureLocation } from "@/models/Larp";
+import {
+  getEditLarpInitialStatusForUserAndLarp,
+  getUserFromSession,
+} from "@/models/User";
+import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -13,13 +14,6 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
-import { auth } from "@/auth";
-import {
-  getEditLarpInitialStatusForUserAndLarp,
-  getUserFromSession,
-} from "@/models/User";
-
-const prisma = new PrismaClient();
 
 const relatedLarpInclude = {
   select: {

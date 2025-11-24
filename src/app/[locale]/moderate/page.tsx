@@ -4,7 +4,7 @@ import FormattedDateTime from "@/components/FormattedDateTime";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
-import { EditStatus } from "@/generated/prisma";
+import { EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import { canModerate } from "@/models/User";

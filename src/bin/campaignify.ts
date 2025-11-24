@@ -1,4 +1,8 @@
-import { LarpType, RelatedLarp, RelatedLarpType } from "@/generated/prisma";
+import {
+  LarpType,
+  RelatedLarp,
+  RelatedLarpType,
+} from "@/generated/prisma/client";
 import prisma from "@/prisma";
 
 async function campaignify(

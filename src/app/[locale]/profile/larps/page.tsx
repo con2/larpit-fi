@@ -4,7 +4,7 @@ import { DimensionFilters } from "@/components/DimensionFilters";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
-import { RelatedUserRole } from "@/generated/prisma";
+import { RelatedUserRole } from "@/generated/prisma/client";
 import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";

@@ -1,11 +1,9 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
-import { PrismaClient } from "@/generated/prisma";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate as uuidValidate } from "uuid";
-
-const prisma = new PrismaClient();
+import prisma from "@/prisma";
 
 interface Props {
   params: Promise<{

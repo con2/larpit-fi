@@ -16,7 +16,7 @@ import {
   SubmitterRole,
   User,
   UserRole,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 import {
   fromEveningNull,
   fromJustBeforeMidnightNull,

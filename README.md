@@ -24,7 +24,7 @@ npm install
 Create an `.env` file not unlike the following:
 
 ```ini
-DATABASE_URL=postgresql://japsu@localhost/larpit?schema=larpit
+DATABASE_URL=postgresql://japsu@localhost/larpit
 NEXTAUTH_URL=http://localhost:3158
 AUTH_SECRET=eeeee
 SMTP_HOSTNAME=smtp.ethereal.email
@@ -34,7 +34,7 @@ SMTP_PASSWORD=yourpassword
 
 See `src/config.ts` for available environment variables.
 
-Note that `?schema=larpit` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely.
+Note that `` is mandatory (Prisma hardcodes it in migrations). Otherwise you may pick the database name, username etc. freely.
 
 If you want to see how the HTML email messages look like, get a throwaway SMTP account at [ethereal.email](https://ethereal.email). If you leave `SMTP_HOSTNAME` unset, email text content is logged at the terminal.
 

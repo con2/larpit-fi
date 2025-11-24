@@ -1,4 +1,4 @@
-import { UserRole } from "@/generated/prisma";
+import { UserRole } from "@/generated/prisma/client";
 import React, { JSX, ReactNode } from "react";
 
 const translations = {

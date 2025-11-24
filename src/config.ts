@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { SendMailOptions } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 

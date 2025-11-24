@@ -18,7 +18,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   // TODO index for search
   // https://github.com/prisma/prisma/issues/8950
   const matchingLarpIds = await prisma.$queryRaw<{ id: string }[]>`
-    select id from larpit.larp
+    select id from larp
     where to_tsvector('finnish', name) @@ phraseto_tsquery('finnish', ${search || ""})
   `;
   const larps = search

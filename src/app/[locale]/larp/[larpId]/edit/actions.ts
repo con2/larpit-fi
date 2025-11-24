@@ -1,7 +1,11 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditAction, EditStatus, RelatedUserRole } from "@/generated/prisma";
+import {
+  EditAction,
+  EditStatus,
+  RelatedUserRole,
+} from "@/generated/prisma/client";
 import compactObject from "@/helpers/compactObject";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {

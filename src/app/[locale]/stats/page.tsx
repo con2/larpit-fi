@@ -1,6 +1,6 @@
 import DataTable, { Column } from "@/components/DataTable";
 import MainHeading from "@/components/MainHeading";
-import { LarpType } from "@/generated/prisma";
+import { LarpType } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -87,8 +87,8 @@ export default async function StatsPage({ params }: Props) {
       m.name_fi as "municipalityName",
       count(l.id) as count
     from
-      larpit.municipality m
-      join larpit.larp l on l.municipality_id = m.id
+      municipality m
+      join larp l on l.municipality_id = m.id
     where
       l.starts_at is not null
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
@@ -129,7 +129,7 @@ export default async function StatsPage({ params }: Props) {
       extract(year from l.starts_at)::text as year,
       count(l.id) as count
     from
-      larpit.larp l
+      larp l
     where
       l.starts_at is not null
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
@@ -170,7 +170,7 @@ export default async function StatsPage({ params }: Props) {
       l.type as type,
       count(l.id) as count
     from
-      larpit.larp l
+      larp l
     group by l.type
     having count(l.id) > 0
     order by count desc, l.type asc
@@ -206,7 +206,7 @@ export default async function StatsPage({ params }: Props) {
           when num_total_participants is null then num_player_characters
           else num_total_participants
         end as num_total_participants
-      from larpit.larp
+      from larp
       where
         starts_at is not null
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')

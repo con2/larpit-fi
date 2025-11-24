@@ -6,7 +6,7 @@ import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
-import { EditStatus } from "@/generated/prisma";
+import { EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import getLarpHref from "@/models/Larp";
 import { LarpLinkUpsertable } from "@/models/LarpLink";

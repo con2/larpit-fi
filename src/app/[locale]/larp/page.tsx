@@ -2,7 +2,7 @@ import { Column, DataTable } from "@/components/DataTable";
 import { DimensionFilters } from "@/components/DimensionFilters";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import MainHeading from "@/components/MainHeading";
-import { Language, LarpType } from "@/generated/prisma";
+import { Language, LarpType } from "@/generated/prisma/client";
 import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";

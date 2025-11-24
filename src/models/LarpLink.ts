@@ -1,4 +1,4 @@
-import { LarpLinkType } from "@/generated/prisma";
+import { LarpLinkType } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import z from "zod";
 

@@ -4,7 +4,7 @@ import {
   RelatedUserRole,
   User,
   UserRole,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 import prisma from "@/prisma";
 
 export function canModerate(user: Pick<User, "role"> | null): boolean {

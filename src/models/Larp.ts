@@ -3,7 +3,7 @@ import {
   Municipality,
   RelatedUser,
   RelatedUserRole,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 
 type LarpDates = Pick<
   Larp,

@@ -1,6 +1,6 @@
 "use server";
 
-import { EditStatus } from "@/generated/prisma";
+import { EditStatus } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";

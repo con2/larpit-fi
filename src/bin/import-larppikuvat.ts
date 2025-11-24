@@ -3,7 +3,7 @@ import {
   LarpLinkType,
   RelatedUserRole,
   User,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 import {
   fromEveningNull,
   fromMorningNull,

@@ -6,7 +6,7 @@ import {
   LarpType,
   RelatedLarpType,
   RelatedUserRole,
-} from "@/generated/prisma";
+} from "@/generated/prisma/client";
 import prisma from "@/prisma";
 
 async function main() {

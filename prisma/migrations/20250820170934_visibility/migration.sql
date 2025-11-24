@@ -1,2 +1,2 @@
 -- CreateEnum
-CREATE TYPE "larpit"."Visibility" AS ENUM ('PUBLIC', 'GAME_MASTER', 'PRIVATE');
+CREATE TYPE "Visibility" AS ENUM ('PUBLIC', 'GAME_MASTER', 'PRIVATE');

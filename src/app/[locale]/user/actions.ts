@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { UserRole } from "@/generated/prisma";
+import { UserRole } from "@/generated/prisma/client";
 import { canManageUsers } from "@/models/User";
 import prisma from "@/prisma";
 import { revalidatePath } from "next/cache";

@@ -1,6 +1,11 @@
 import { FormattedDate } from "@/components/FormattedDate";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { Larp, LarpType, Municipality, Openness } from "@/generated/prisma";
+import {
+  Larp,
+  LarpType,
+  Municipality,
+  Openness,
+} from "@/generated/prisma/client";
 import getLarpHref, {
   isSignupOpen,
   isSignupOpeningSoon,

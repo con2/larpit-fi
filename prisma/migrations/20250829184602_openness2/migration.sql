@@ -5,5 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "larpit"."larp" DROP COLUMN "signupOpenness",
-ADD COLUMN     "openness" "larpit"."Openness";
+ALTER TABLE "larp" DROP COLUMN "signupOpenness",
+ADD COLUMN     "openness" "Openness";

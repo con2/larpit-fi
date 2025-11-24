@@ -1,7 +1,7 @@
 import FormattedDateTime from "@/components/FormattedDateTime";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
-import { EditAction, EditStatus } from "@/generated/prisma";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import prisma from "@/prisma";

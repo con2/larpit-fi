@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import MainHeading from "@/components/MainHeading";
 import Markdown from "@/components/Markdown";
-import { Page } from "@/generated/prisma";
+import { Page } from "@/generated/prisma/client";
 import { canEditPages } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";

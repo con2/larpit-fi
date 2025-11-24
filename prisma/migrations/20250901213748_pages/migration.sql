@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "larpit"."page" (
+CREATE TABLE "page" (
     "slug" TEXT NOT NULL DEFAULT 'front-page',
     "language" TEXT NOT NULL,
     "title" TEXT NOT NULL,

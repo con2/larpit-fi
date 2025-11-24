@@ -15,7 +15,7 @@ import UserMenu from "./UserMenu";
 import { isStaging } from "@/config";
 import { auth } from "@/auth";
 import prisma from "@/prisma";
-import { EditStatus } from "@/generated/prisma";
+import { EditStatus } from "@/generated/prisma/client";
 import { canEditPages, canManageUsers, canModerate } from "@/models/User";
 
 interface Props {

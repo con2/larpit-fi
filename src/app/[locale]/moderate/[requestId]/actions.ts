@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditStatus } from "@/generated/prisma";
+import { EditStatus } from "@/generated/prisma/client";
 import { canModerate } from "@/models/User";
 import {
   approveRequest,

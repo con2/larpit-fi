@@ -3,7 +3,7 @@ import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
 import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
-import { Larp } from "@/generated/prisma";
+import { Larp } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";
 
 interface Props {
