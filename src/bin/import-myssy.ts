@@ -8,10 +8,10 @@ import { parse } from "csv/sync";
 import { readFileSync } from "fs";
 import { zip } from "underscore";
 
-const filename = "data/oulu.csv";
+const filename = "data/myssy.csv";
 
 // attribute the imports to this user
-const userId = "38fa7fe5-d17c-4cdc-8992-b51f44633c72";
+const userId = "4d706c72-4a87-4d8d-8e41-a01544293cb7";
 
 const headerMapping = {
   name: "Name of the larp",
@@ -89,7 +89,7 @@ async function main() {
       mappedRow[key] = value;
     }
 
-    const content = ModerationRequestContent.parse({
+    const rawContent = {
       ...mappedRow,
       municipality:
         municipalityMapping[mappedRow.municipality?.toLowerCase() || ""] ||
@@ -98,7 +98,8 @@ async function main() {
       endsAt: parseDateFi(mappedRow.endsAt || ""),
       signupStartsAt: parseDateFi(mappedRow.signupStartsAt || ""),
       signupEndsAt: parseDateFi(mappedRow.signupEndsAt || ""),
-    });
+    };
+    const content = ModerationRequestContent.parse(rawContent);
 
     if (await alreadyExists(content)) {
       console.log("ALREADY EXISTS: " + content.name);
@@ -116,8 +117,9 @@ async function main() {
   }
 
   for (const larp of larps) {
+    console.log("Importing: " + larp.name);
     const status = EditStatus.APPROVED;
-    const message = "Tuotu Suuresta pohjoissuomalaisesta larppitaulukosta";
+    const message = "Tuotu Myssyn larppitaulukosta";
 
     const request = await prisma.moderationRequest.create({
       data: {
@@ -131,10 +133,9 @@ async function main() {
       },
     });
     await approveRequest(request, user, message, status);
-    console.log("Imported: " + larp.name);
   }
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  prisma.$transaction(main, { timeout: 120 * 1000 });
+  main();
 }
