@@ -16,7 +16,14 @@ import {
 interface Props {
   translations: Translations;
   locale: string;
-  larp: Pick<Larp, "openness" | "signupStartsAt" | "signupEndsAt"> | null;
+  larp: Pick<
+    Larp,
+    | "openness"
+    | "signupStartsAt"
+    | "signupEndsAt"
+    | "numPlayerCharacters"
+    | "numTotalParticipants"
+  > | null;
   readOnly?: boolean;
   compact?: boolean;
 }
@@ -65,9 +72,9 @@ export function LarpSignupInfoFormComponent({
           >
             <option value=""></option>
             {Object.entries(t.attributes.openness.choices).map(
-              ([key, label]) => (
+              ([key, { title, description }]) => (
                 <option key={key} value={key}>
-                  {label}
+                  {title}: {description}
                 </option>
               )
             )}
@@ -107,6 +114,41 @@ export function LarpSignupInfoFormComponent({
             />
             {showHelpText && (
               <FormText>{t.attributes.signupEndsAt.helpText}</FormText>
+            )}
+          </div>
+        </Row>
+
+        <Row>
+          <div className="form-group mb-3 col-md-6">
+            <FormLabel htmlFor="LarpBasicInfoFormComponent-numPlayerCharacters">
+              {t.attributes.numPlayerCharacters.label}
+            </FormLabel>
+            <FormControl
+              type="number"
+              id="LarpBasicInfoFormComponent-numPlayerCharacters"
+              name="numPlayerCharacters"
+              min={0}
+              defaultValue={larp?.numPlayerCharacters || ""}
+              readOnly={readOnly}
+            />
+            {showHelpText && (
+              <FormText>{t.attributes.numPlayerCharacters.helpText}</FormText>
+            )}
+          </div>
+          <div className="form-group mb-3 col-md-6">
+            <FormLabel htmlFor="LarpBasicInfoFormComponent-numTotalParticipants">
+              {t.attributes.numTotalParticipants.label}
+            </FormLabel>
+            <FormControl
+              type="number"
+              id="LarpBasicInfoFormComponent-numTotalParticipants"
+              name="numTotalParticipants"
+              min={0}
+              defaultValue={larp?.numTotalParticipants || ""}
+              readOnly={readOnly}
+            />
+            {showHelpText && (
+              <FormText>{t.attributes.numTotalParticipants.helpText}</FormText>
             )}
           </div>
         </Row>

@@ -1,5 +1,5 @@
 import { UserRole } from "@/generated/prisma/client";
-import React, { JSX, ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 const translations = {
   title: "Larpit.fi",
@@ -348,9 +348,19 @@ const translations = {
           </>
         ),
         choices: {
-          OPEN: "Open signup",
-          TARGETED: "Targeted signup",
-          INVITE_ONLY: "Invite only",
+          OPEN: {
+            title: "Open signup",
+            description: "Anyone can sign up for this larp.",
+          },
+          TARGETED: {
+            title: "Targeted signup",
+            description:
+              "Members of a certain group or community can sign up for this larp.",
+          },
+          INVITE_ONLY: {
+            title: "Invite only",
+            description: "Only invited participants can attend this larp.",
+          },
         },
       },
       type: {
@@ -358,33 +368,34 @@ const translations = {
         label: "What type of larp is this?",
         choices: {
           ONE_SHOT: {
-            title: "One-shot",
-            label: <>One-shot larp (or a run of a larp with multiple runs)</>,
+            title: "One-shot larp",
+            description:
+              "This larp can be attended without expectation of having attended previous related larps or attending future related larps.",
           },
           CAMPAIGN_LARP: {
             title: "Campaign larp",
-            label: <>Campaign larp (a single larp in a campaign)</>,
+            description:
+              "This larp is part of a larger campaign, and at least a significant portion of its participants are expected to have attended previous larps or attend future larps in the campaign.",
           },
           CAMPAIGN: {
             title: "Campaign",
-            label: <>Campaign (of multiple larps)</>,
+            description:
+              "This is the top-level page of a campaign consisting of multiple larps. Each larp in the campaign should have its own page of the type Campaign larp.",
           },
           MULTIPLE_RUNS: {
             title: "Multiple runs",
-            label: <>Larp with multiple runs</>,
+            description:
+              "This is the top-level page of a larp with multiple runs. Each run should have its own page of the type One-shot larp.",
           },
           OTHER_EVENT: {
             title: "Other event",
-            label: (
-              <>
-                Other event (such as a meet-up, convention, or scenario
-                festival)
-              </>
-            ),
+            description:
+              "This is an event related to larping but not a larp itself, such as a meet-up, convention, or scenario festival.",
           },
           OTHER_EVENT_SERIES: {
             title: "Other event series",
-            label: <>Other event series</>,
+            description:
+              "This is a series of events related to larping but not larps themselves.",
           },
         },
       },

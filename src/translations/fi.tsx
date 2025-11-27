@@ -362,9 +362,20 @@ const translations: Translations = {
           </>
         ),
         choices: {
-          OPEN: "Avoin pelaajahaku",
-          TARGETED: "Kohdennettu pelaajahaku",
-          INVITE_ONLY: "Kutsupeli",
+          OPEN: {
+            title: "Avoin pelaajahaku",
+            description: "Kuka tahansa voi hakea tähän larppiin.",
+          },
+          TARGETED: {
+            title: "Kohdennettu pelaajahaku",
+            description:
+              "Tämä larppi on suunnattu tietyn yhdistyksen tai yhteisön jäsenille.",
+          },
+          INVITE_ONLY: {
+            title: "Kutsupeli",
+            description:
+              "Vain pelinjohtajan kutsumat henkilöt voivat osallistua.",
+          },
         },
       },
       type: {
@@ -373,31 +384,33 @@ const translations: Translations = {
         choices: {
           ONE_SHOT: {
             title: "One-shot",
-            label: (
-              <>One-shot (tai pelautus larpista, josta on useita pelautuksia)</>
-            ),
+            description:
+              "Itsenäinen larppi, johon voi osallistua ilman odotusta siitä, että pelaaja olisi välttämättä osallistunut tiettyihin aiempiin larppeihin tai osallistuisi tuleviin.",
           },
           CAMPAIGN_LARP: {
-            title: "Kampanjapeli",
-            label: <>Kampanjapeli (yksittäinen peli kampanjassa)</>,
+            title: "Kampanjalarppi",
+            description:
+              "Tämä larppi on osa suurempaa kampanjaa, ja vähintään merkittävän osan sen osallistujista odotetaan osallistuneen aiempiin kampanjan larpppeihin tai osallistuvan tuleviin.",
           },
           CAMPAIGN: {
             title: "Kampanja",
-            label: <>Kampanja (joka sisältää useita pelejä)</>,
+            description:
+              "Tämä on pääsivu kampanjalle, joka koostuu useista larpeista. Jokaisella kampanjan larpilla tulisi olla oma sivunsa (tyyppiä Kampanjalarppi).",
           },
           MULTIPLE_RUNS: {
-            title: "Larppi, josta on useita pelautuksia",
-            label: <>Larppi, josta on useita pelautuksia</>,
+            title: "Useita pelautuksia",
+            description:
+              "Tämä on pääsivu larpille, jolla on useita pelautuksia. Jokaisella pelautuksella tulisi olla oma sivunsa (tyyppiä One-shot).",
           },
           OTHER_EVENT: {
             title: "Muu tapahtuma",
-            label: (
-              <>Muu tapahtuma (kuten miitti, coni tai skenaariofestivaali)</>
-            ),
+            description:
+              "Tämä on larppaamiseen liittyvä tapahtuma, joka ei itsessään ole larppi. Tällaisia tapahtumia voivat olla esimerkiksi conit, miitit ja skenaariofestivaalit.",
           },
           OTHER_EVENT_SERIES: {
             title: "Muiden tapahtumien sarja",
-            label: <>Tapahtumasarja</>,
+            description:
+              "Tämä on sarja larppaamiseen liittyviä tapahtumia, jotka eivät itsessään ole larppeja.",
           },
         },
       },

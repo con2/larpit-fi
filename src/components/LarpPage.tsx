@@ -12,11 +12,19 @@ import { Translations } from "@/translations/en";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
-import { Card, CardBody, Container, Row } from "react-bootstrap";
+import {
+  Card,
+  CardBody,
+  Container,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import { Column } from "./DataTable";
 import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
+import InfoCircle from "./google-material-symbols/InfoCircle";
 
 const relatedLarpInclude = {
   select: {
@@ -96,6 +104,30 @@ function LeftRelatedLarpComponent({
   );
 }
 
+function ChoiceWithDescription({
+  choices,
+  value,
+}: {
+  choices: Record<string, { title: string; description: string }>;
+  value: string;
+}) {
+  const title = choices[value]?.title || value;
+  const description = choices[value]?.description;
+  return (
+    <div>
+      {title}
+      {description && (
+        <>
+          {" "}
+          <OverlayTrigger overlay={<Tooltip>{description}</Tooltip>}>
+            <InfoCircle />
+          </OverlayTrigger>
+        </>
+      )}
+    </div>
+  );
+}
+
 function RightRelatedLarpComponent({
   relatedLarp,
   messages: t,
@@ -156,8 +188,12 @@ function LarpInfoCard({
     {
       slug: "type",
       title: t.attributes.type.title,
-      getCellContents: (larp) =>
-        t.attributes.type.choices[larp.type]?.title || larp.type,
+      getCellContents: (larp) => (
+        <ChoiceWithDescription
+          choices={t.attributes.type.choices}
+          value={larp.type}
+        />
+      ),
     },
     {
       slug: "language",
@@ -171,8 +207,12 @@ function LarpInfoCard({
     fields.push({
       slug: "openness",
       title: t.attributes.openness.title,
-      getCellContents: (larp) =>
-        t.attributes.openness.choices[larp.openness!] || larp.openness,
+      getCellContents: (larp) => (
+        <ChoiceWithDescription
+          choices={t.attributes.openness.choices}
+          value={larp.openness!}
+        />
+      ),
     });
   }
 

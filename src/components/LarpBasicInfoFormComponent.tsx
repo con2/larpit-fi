@@ -8,21 +8,12 @@ import {
   FormLabel,
   FormSelect,
   FormText,
-  Row,
 } from "react-bootstrap";
 
 interface Props {
   translations: Translations;
   locale: string;
-  larp: Pick<
-    Larp,
-    | "name"
-    | "tagline"
-    | "type"
-    | "language"
-    | "numPlayerCharacters"
-    | "numTotalParticipants"
-  > | null;
+  larp: Pick<Larp, "name" | "tagline" | "type" | "language"> | null;
   readOnly?: boolean;
   compact?: boolean;
 }
@@ -76,89 +67,63 @@ export function LarpBasicInfoFormComponent({
           {showHelpText && <FormText>{t.attributes.tagline.helpText}</FormText>}
         </div>
 
-        <Row>
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpBasicInfoFormComponent-type">
-              {t.attributes.type.label}*
-            </FormLabel>
-            <FormSelect
-              id="LarpBasicInfoFormComponent-type"
-              name="type"
-              required
-              defaultValue={larp?.type ?? locale}
-              disabled={readOnly}
-            >
-              <option value=""></option>
-              {Object.entries(t.attributes.type.choices).map(
-                ([key, { label }]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                )
-              )}
-            </FormSelect>
-            {/* {showHelpText && <FormText>{t.attributes.type.helpText}</FormText>} */}
-          </div>
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpBasicInfoFormComponent-language">
-              {t.attributes.language.label}*
-            </FormLabel>
-            <FormSelect
-              id="LarpBasicInfoFormComponent-language"
-              name="language"
-              required
-              defaultValue={larp?.language ?? locale}
-              disabled={readOnly}
-            >
-              <option value=""></option>
-              {Object.entries(t.attributes.language.choices).map(
-                ([key, label]) => (
-                  <option key={key} value={key}>
-                    {label}
-                  </option>
-                )
-              )}
-            </FormSelect>
-            {showHelpText && (
-              <FormText>{t.attributes.language.helpText}</FormText>
+        <div className="form-group mb-3">
+          <FormLabel htmlFor="LarpBasicInfoFormComponent-language">
+            {t.attributes.language.label}*
+          </FormLabel>
+          <FormSelect
+            id="LarpBasicInfoFormComponent-language"
+            name="language"
+            required
+            defaultValue={larp?.language ?? locale}
+            disabled={readOnly}
+          >
+            <option value=""></option>
+            {Object.entries(t.attributes.language.choices).map(
+              ([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              )
             )}
-          </div>
-        </Row>
+          </FormSelect>
+          {showHelpText && (
+            <FormText>{t.attributes.language.helpText}</FormText>
+          )}
+        </div>
 
-        <Row>
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpBasicInfoFormComponent-numPlayerCharacters">
-              {t.attributes.numPlayerCharacters.label}
-            </FormLabel>
-            <FormControl
-              type="number"
-              id="LarpBasicInfoFormComponent-numPlayerCharacters"
-              name="numPlayerCharacters"
-              min={0}
-              defaultValue={larp?.numPlayerCharacters || ""}
-              readOnly={readOnly}
-            />
-            {showHelpText && (
-              <FormText>{t.attributes.numPlayerCharacters.helpText}</FormText>
+        <div className="form-group mb-3">
+          <FormLabel htmlFor="LarpBasicInfoFormComponent-type">
+            {t.attributes.type.label}*
+          </FormLabel>
+          <FormSelect
+            id="LarpBasicInfoFormComponent-type"
+            name="type"
+            required
+            defaultValue={larp?.type ?? locale}
+            disabled={readOnly}
+          >
+            <option value=""></option>
+            {Object.entries(t.attributes.type.choices).map(
+              ([key, { title }]) => (
+                <option key={key} value={key}>
+                  {title}
+                </option>
+              )
             )}
-          </div>
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpBasicInfoFormComponent-numTotalParticipants">
-              {t.attributes.numTotalParticipants.label}
-            </FormLabel>
-            <FormControl
-              type="number"
-              id="LarpBasicInfoFormComponent-numTotalParticipants"
-              name="numTotalParticipants"
-              min={0}
-              defaultValue={larp?.numTotalParticipants || ""}
-              readOnly={readOnly}
-            />
-            {showHelpText && (
-              <FormText>{t.attributes.numTotalParticipants.helpText}</FormText>
-            )}
-          </div>
-        </Row>
+          </FormSelect>
+          {showHelpText && (
+            <FormText>
+              {Object.entries(t.attributes.type.choices).map(
+                ([key, { title, description }]) => (
+                  <div className="mt-1" key={key}>
+                    <strong>{title}:</strong> {description}
+                  </div>
+                )
+              )}
+            </FormText>
+          )}
+        </div>
       </CardBody>
     </Card>
   );
