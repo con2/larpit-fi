@@ -8,16 +8,22 @@ CREATE TYPE "LarpType" AS ENUM ('ONE_SHOT', 'CAMPAIGN_LARP', 'CAMPAIGN', 'MULTIP
 CREATE TYPE "Language" AS ENUM ('fi', 'en', 'sv', 'OTHER');
 
 -- CreateEnum
+CREATE TYPE "Openness" AS ENUM ('OPEN', 'TARGETED', 'INVITE_ONLY');
+
+-- CreateEnum
 CREATE TYPE "RelatedLarpType" AS ENUM ('SEQUEL', 'SPINOFF', 'IN_CAMPAIGN', 'IN_SERIES', 'RUN_OF', 'RERUN_OF', 'PLAYED_AT');
 
 -- CreateEnum
-CREATE TYPE "RelatedUserRole" AS ENUM ('EDITOR', 'CREATED_BY', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER', 'FAVORITE');
+CREATE TYPE "RelatedUserRole" AS ENUM ('EDITOR', 'CREATED_BY', 'GAME_MASTER', 'TEAM_MEMBER', 'VOLUNTEER', 'PLAYER', 'FAVORITE');
+
+-- CreateEnum
+CREATE TYPE "Visibility" AS ENUM ('PUBLIC', 'GAME_MASTER', 'PRIVATE');
 
 -- CreateEnum
 CREATE TYPE "LarpLinkType" AS ENUM ('HOMEPAGE', 'PHOTOS', 'SOCIAL_MEDIA', 'PLAYER_GUIDE');
 
 -- CreateEnum
-CREATE TYPE "SubmitterRole" AS ENUM ('NONE', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER');
+CREATE TYPE "SubmitterRole" AS ENUM ('NONE', 'GAME_MASTER', 'TEAM_MEMBER', 'VOLUNTEER', 'PLAYER');
 
 -- CreateEnum
 CREATE TYPE "EditStatus" AS ENUM ('PENDING_VERIFICATION', 'VERIFIED', 'AUTO_APPROVED', 'APPROVED', 'REJECTED', 'WITHDRAWN');
@@ -32,6 +38,8 @@ CREATE TABLE "user" (
     "email" TEXT NOT NULL,
     "email_verified" TIMESTAMP(3),
     "image" TEXT,
+    "title_fi" TEXT,
+    "title_en" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "role" "UserRole" NOT NULL DEFAULT 'NOT_VERIFIED',
@@ -91,6 +99,31 @@ CREATE TABLE "authenticator" (
 );
 
 -- CreateTable
+CREATE TABLE "country" (
+    "id" TEXT NOT NULL,
+    "code" TEXT,
+    "name_fi" TEXT,
+    "name_sv" TEXT,
+    "name_en" TEXT,
+
+    CONSTRAINT "country_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "municipality" (
+    "id" TEXT NOT NULL,
+    "name_fi" TEXT,
+    "name_sv" TEXT,
+    "name_other" TEXT,
+    "name_other_language_code" TEXT,
+    "country_code" TEXT NOT NULL DEFAULT 'wd:Q33',
+    "lat" DOUBLE PRECISION NOT NULL,
+    "long" DOUBLE PRECISION NOT NULL,
+
+    CONSTRAINT "municipality_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "larp" (
     "id" UUID NOT NULL,
     "name" TEXT NOT NULL,
@@ -99,6 +132,9 @@ CREATE TABLE "larp" (
     "tagline" TEXT,
     "alias" TEXT,
     "location_text" TEXT,
+    "municipality_id" TEXT,
+    "num_player_characters" INTEGER,
+    "num_total_participants" INTEGER,
     "fluff_text" TEXT,
     "description" TEXT,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -106,6 +142,7 @@ CREATE TABLE "larp" (
     "ends_at" TIMESTAMP(3),
     "signup_starts_at" TIMESTAMP(3),
     "signup_ends_at" TIMESTAMP(3),
+    "openness" "Openness",
 
     CONSTRAINT "larp_pkey" PRIMARY KEY ("id")
 );
@@ -121,12 +158,11 @@ CREATE TABLE "related_larp" (
 
 -- CreateTable
 CREATE TABLE "related_user" (
-    "id" UUID NOT NULL,
     "larp_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "role" "RelatedUserRole" NOT NULL,
 
-    CONSTRAINT "related_user_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "related_user_pkey" PRIMARY KEY ("larp_id","user_id","role")
 );
 
 -- CreateTable
@@ -148,7 +184,7 @@ CREATE TABLE "moderation_request" (
     "status" "EditStatus" NOT NULL,
     "resolved_by_id" UUID,
     "resolved_at" TIMESTAMP(3),
-    "resolvedMessage" TEXT,
+    "resolved_message" TEXT,
     "submitter_name" TEXT NOT NULL,
     "submitter_email" TEXT NOT NULL,
     "submitter_id" UUID,
@@ -157,9 +193,23 @@ CREATE TABLE "moderation_request" (
     "verified_at" TIMESTAMP(3),
     "old_content" JSONB NOT NULL DEFAULT '{}',
     "new_content" JSONB NOT NULL DEFAULT '{}',
+    "remove_links" JSONB NOT NULL DEFAULT '[]',
+    "add_links" JSONB NOT NULL DEFAULT '[]',
     "message" TEXT,
 
     CONSTRAINT "moderation_request_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "page" (
+    "slug" TEXT NOT NULL DEFAULT 'front-page',
+    "language" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "page_pkey" PRIMARY KEY ("slug","language")
 );
 
 -- CreateIndex
@@ -170,6 +220,9 @@ CREATE UNIQUE INDEX "session_session_token_key" ON "session"("session_token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "authenticator_credential_id_key" ON "authenticator"("credential_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "country_code_key" ON "country"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "larp_alias_key" ON "larp"("alias");
@@ -185,6 +238,12 @@ ALTER TABLE "session" ADD CONSTRAINT "session_user_id_fkey" FOREIGN KEY ("user_i
 
 -- AddForeignKey
 ALTER TABLE "authenticator" ADD CONSTRAINT "authenticator_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "municipality" ADD CONSTRAINT "municipality_country_code_fkey" FOREIGN KEY ("country_code") REFERENCES "country"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "larp" ADD CONSTRAINT "larp_municipality_id_fkey" FOREIGN KEY ("municipality_id") REFERENCES "municipality"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "related_larp" ADD CONSTRAINT "related_larp_left_id_fkey" FOREIGN KEY ("left_id") REFERENCES "larp"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -209,3 +268,4 @@ ALTER TABLE "moderation_request" ADD CONSTRAINT "moderation_request_resolved_by_
 
 -- AddForeignKey
 ALTER TABLE "moderation_request" ADD CONSTRAINT "moderation_request_submitter_id_fkey" FOREIGN KEY ("submitter_id") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
