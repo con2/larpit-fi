@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { LarpLink, LarpType, RelatedUserRole } from "@/generated/prisma/client";
+import { LarpLink, RelatedUserRole } from "@/generated/prisma/client";
 import getLarpHref, { ensureLocation } from "@/models/Larp";
 import {
   getEditLarpInitialStatusForUserAndLarp,
@@ -12,12 +12,11 @@ import { Translations } from "@/translations/en";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
-import Markdown from "./Markdown";
-import Paragraphs from "./Paragraphs";
 import { Card, CardBody, Container, Row } from "react-bootstrap";
-import { info } from "console";
 import { Column } from "./DataTable";
 import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
+import Markdown from "./Markdown";
+import Paragraphs from "./Paragraphs";
 
 const relatedLarpInclude = {
   select: {
