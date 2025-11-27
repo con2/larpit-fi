@@ -68,9 +68,11 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 
 ### Next priorities (as of 2025-11-15)
 
-- [ ] Low-hanging fruit improvements of low effort, high impact
-  - [x] Show "signup over" on front page larp cards
-  - [ ] Put signup starts/ends on larp page
+- [x] Upgrade to Prisma 7
+- [ ] Import kalenteri.larp.fi content
+- [x] Import Myssy megatable
+- [x] Arrange larp details on larp page as some sort of details/properties card
+  - [x] Put signup starts/ends on larp page
 - [ ] List moderators and admins
 - [ ] Support requests / contact form
   - [ ] There is a problem with this page that cannot be rectified by suggesting an edit
@@ -100,9 +102,9 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
     - [ ] "Show page as it will be once these edits are approved"
 - [ ] Enhanced larp list view
   - [ ] Sort and filter
-    - [x] As first step, steal Kompassi `<DimensionFilters>`?
-    - [x] Filter by type
-    - [ ] Other filters?
+    - [x] Type
+    - [x] Language
+    - [ ] Year
   - [ ] Group by year (other groupings?)
   - [ ] Number of characters/participants
   - [x] Language
@@ -126,16 +128,10 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] Subscribeable calendar resource (ICS)
 - [ ] Public data API (REST/JSON)
 - [ ] Own larps
-  - [x] Deduplicate roles
-    - [x] Make `(larp_id, user_id, role)` primary key and remove `id`
   - [ ] Filter own larps list by role
   - [ ] "I played this larp" button on larp page for logged in users
   - [ ] Favorite button on larp page for logged in users
   - [ ] Public player list (if set as public by GM)
-- [ ] Import larps en masse
-  - [ ] Import larppi.xlsx
-  - [ ] Ask Rai if we can scrape or emfederate kalenteri.larp.fi
-  - [ ] Import the Oulu sheet
 - [ ] GM preference: edits handled by GM or by moderator
 - [ ] Contact GM button?
   - [ ] GM preference
