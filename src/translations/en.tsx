@@ -459,6 +459,21 @@ const translations = {
           </>
         ),
       },
+      signupStatus: {
+        title: "Signup status",
+        choices: {
+          openIndefinitely: <>Signup open</>,
+          openUntil: (formattedDate: ReactNode) => (
+            <>Signup open until {formattedDate}</>
+          ),
+          opensAt: (formattedDate: ReactNode) => (
+            <>Signup opening at {formattedDate}</>
+          ),
+          over: <>Signup over</>,
+          inviteOnly: <>Invite only</>,
+          lookingForReservePlayers: <>Looking for reserve players</>,
+        },
+      },
       locationText: {
         title: "Location",
         label: "At which venue is the larp played?",
@@ -568,18 +583,6 @@ const translations = {
           RERUN_OF: "is a rerun of this larp",
           PLAYED_AT: "was played at this event",
         },
-      },
-      signupOpen: {
-        openIndefinitely: <>Signup open</>,
-        openUntil: (formattedDate: ReactNode) => (
-          <>Signup open until {formattedDate}</>
-        ),
-        opensAt: (formattedDate: ReactNode) => (
-          <>Signup opening at {formattedDate}</>
-        ),
-        over: <>Signup over</>,
-        inviteOnly: <>Invite only</>,
-        lookingForReservePlayers: <>Looking for reserve players</>,
       },
       isClaimedByGm: {
         title: "Claimed by Game Master",

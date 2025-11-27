@@ -25,6 +25,7 @@ import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
 import InfoCircle from "./google-material-symbols/InfoCircle";
+import { getSignupStatus } from "./LarpCard";
 
 const relatedLarpInclude = {
   select: {
@@ -181,6 +182,30 @@ function LarpInfoCard({
           end={larp.endsAt}
         />
       ),
+    });
+  }
+
+  const signupStatus = getSignupStatus(larp, t, locale);
+  if (signupStatus.content) {
+    fields.push({
+      slug: "signupStatus",
+      title: t.attributes.signupStatus.title,
+      getCellContents: () => {
+        switch (signupStatus.variant) {
+          case "danger":
+          case "warning":
+          case "info":
+          case "primary":
+          case "success":
+            return (
+              <span className={`fw-bold text-${signupStatus.variant}`}>
+                {signupStatus.content}
+              </span>
+            );
+          default:
+            return <span>{signupStatus.content}</span>;
+        }
+      },
     });
   }
 

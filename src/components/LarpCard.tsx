@@ -27,18 +27,23 @@ type LarpCardLarp = Larp & {
   municipality: Pick<Municipality, "nameFi"> | null;
 };
 
-function SignupLabel({
-  larp,
-  messages,
-  locale,
-}: {
-  larp: LarpCardLarp;
-  messages: Translations["Larp"];
-  locale: string;
-}) {
-  const t = messages.attributes.signupOpen;
+interface SignupStatus {
+  content: ReactNode;
+  variant: BadgeProps["bg"];
+}
+
+export function getSignupStatus(
+  larp: Pick<
+    Larp,
+    "openness" | "signupStartsAt" | "signupEndsAt" | "startsAt" | "endsAt"
+  >,
+  messages: Translations["Larp"],
+  locale: string
+): SignupStatus {
   let content: ReactNode | null = null;
   let variant: BadgeProps["bg"] = "secondary";
+  const t = messages.attributes.signupStatus.choices;
+
   if (larp.openness === Openness.INVITE_ONLY) {
     variant = "secondary";
     content = t.inviteOnly;
@@ -64,6 +69,20 @@ function SignupLabel({
     variant = "secondary";
     content = t.over;
   }
+
+  return { content, variant };
+}
+
+function SignupLabel({
+  larp,
+  messages,
+  locale,
+}: {
+  larp: LarpCardLarp;
+  messages: Translations["Larp"];
+  locale: string;
+}) {
+  const { content, variant } = getSignupStatus(larp, messages, locale);
 
   if (content) {
     return (

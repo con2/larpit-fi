@@ -474,6 +474,21 @@ const translations: Translations = {
           </>
         ),
       },
+      signupStatus: {
+        title: "Ilmoittautumisen tila",
+        choices: {
+          openIndefinitely: <>Ilmoittautuminen auki</>,
+          openUntil: (formattedDate: ReactNode) => (
+            <>Ilmo auki {formattedDate} asti</>
+          ),
+          opensAt: (formattedDate: ReactNode) => (
+            <>Ilmoittautuminen avautuu {formattedDate}</>
+          ),
+          over: <>Ilmoittautuminen ohi</>,
+          inviteOnly: <>Kutsupeli</>,
+          lookingForReservePlayers: <>Hakee varapelaajia</>,
+        },
+      },
       locationText: {
         title: "Pelipaikka",
         label: "Mikä on pelipaikan nimi?",
@@ -582,18 +597,7 @@ const translations: Translations = {
           PLAYED_AT: "pelattiin tässä tapahtumassa",
         },
       },
-      signupOpen: {
-        openIndefinitely: <>Ilmoittautuminen auki</>,
-        openUntil: (formattedDate: ReactNode) => (
-          <>Ilmo auki {formattedDate} asti</>
-        ),
-        opensAt: (formattedDate: ReactNode) => (
-          <>Ilmoittautuminen avautuu {formattedDate}</>
-        ),
-        over: <>Ilmoittautuminen ohi</>,
-        inviteOnly: <>Kutsupeli</>,
-        lookingForReservePlayers: <>Hakee varapelaajia</>,
-      },
+
       isClaimedByGm: {
         title: "Pelinjohtajan hallinnassa",
         message: <>Pelinjohtaja hallinnoi tämän sivun sisältöä.</>,
