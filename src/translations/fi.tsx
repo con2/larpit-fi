@@ -516,7 +516,7 @@ const translations: Translations = {
         ),
       },
       links: {
-        title: "Links",
+        title: "Linkit",
         types: {
           HOMEPAGE: {
             title: "Pelin kotisivu",
@@ -542,20 +542,23 @@ const translations: Translations = {
           },
         },
       },
+      relatedLarps: {
+        title: "Suhde muihin larppeihin",
+      },
       leftRelatedLarps: {
-        title: "Tähän larppiin liittyvät larpit",
+        title: "Tähän larppiin liittyvät larpit (relaation vasen puoli)",
         types: {
-          SEQUEL: "Jatko-osa larpille",
-          SPINOFF: "Spinoff larpista",
-          IN_CAMPAIGN: "Larppi kampanjassa",
-          IN_SERIES: "Tapahtuma sarjassa",
-          RUN_OF: "Pelautus larpista",
-          RERUN_OF: "Uudelleenpelautus larpista",
-          PLAYED_AT: "Pelattu tapahtumassa",
+          SEQUEL: "Tämä on jatko-osa larpille",
+          SPINOFF: "Tämä on spin-off larpista",
+          IN_CAMPAIGN: "Tämä larppi kuuluu kampanjaan",
+          IN_SERIES: "Tämä tapahtuma kuuluu sarjaan",
+          RUN_OF: "Tämä on pelautus larpista",
+          RERUN_OF: "Tämä on uudelleenpelautus larpista",
+          PLAYED_AT: "Tämä larppi pelattiin tapahtumassa",
         },
       },
       rightRelatedLarps: {
-        title: "Related larps (right side of the relation)",
+        title: "Tähän larppiin liittyvät larpit (relaation oikea puoli)",
         types: {
           SEQUEL: "on jatko-osa tälle larpille",
           SPINOFF: "on tämän larpin spinoff",
@@ -600,22 +603,25 @@ const translations: Translations = {
           <>Sisältäen pelaajat, pelinjohtajat, järjestäjät, apulaiset ym.</>
         ),
       },
-      numParticipants(
-        numPlayerCharacters: number | null,
-        numTotalParticipants: number | null
-      ) {
-        const aPlayerCharacters = numPlayerCharacters === 1 ? "" : "a";
-        const aTotalParticipants = numTotalParticipants === 1 ? "" : "a";
+      numParticipants: {
+        title: "Osallistujamäärä",
+        format(
+          numPlayerCharacters: number | null,
+          numTotalParticipants: number | null
+        ) {
+          const aPlayerCharacters = numPlayerCharacters === 1 ? "" : "a";
+          const aTotalParticipants = numTotalParticipants === 1 ? "" : "a";
 
-        if (numPlayerCharacters && numTotalParticipants) {
-          return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}, ${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
-        } else if (numTotalParticipants) {
-          return `${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
-        } else if (numPlayerCharacters) {
-          return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}`;
-        } else {
-          return null;
-        }
+          if (numPlayerCharacters && numTotalParticipants) {
+            return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}, ${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
+          } else if (numTotalParticipants) {
+            return `${numTotalParticipants} osallistuja${aTotalParticipants} yhteensä`;
+          } else if (numPlayerCharacters) {
+            return `${numPlayerCharacters} pelaajahahmo${aPlayerCharacters}`;
+          } else {
+            return null;
+          }
+        },
       },
     },
     actions: {

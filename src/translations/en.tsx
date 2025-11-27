@@ -531,16 +531,19 @@ const translations = {
           },
         },
       },
+      relatedLarps: {
+        title: "Related larps",
+      },
       leftRelatedLarps: {
         title: "Related larps (left side of the relation)",
         types: {
-          SEQUEL: "A sequel to",
-          SPINOFF: "A spinoff of",
-          IN_CAMPAIGN: "A larp in campaign",
-          IN_SERIES: "An event in series",
-          RUN_OF: "A run of",
-          RERUN_OF: "A rerun of",
-          PLAYED_AT: "Played at",
+          SEQUEL: "This is a sequel to",
+          SPINOFF: "This is a spinoff of",
+          IN_CAMPAIGN: "This is a larp in campaign",
+          IN_SERIES: "This is an event in series",
+          RUN_OF: "This is a run of",
+          RERUN_OF: "This is a rerun of",
+          PLAYED_AT: "This is played at",
         },
       },
       rightRelatedLarps: {
@@ -593,22 +596,25 @@ const translations = {
           </>
         ),
       },
-      numParticipants(
-        numPlayerCharacters: number | null,
-        numTotalParticipants: number | null
-      ) {
-        const sPlayerCharacters = numPlayerCharacters === 1 ? "" : "s";
-        const sTotalParticipants = numTotalParticipants === 1 ? "" : "s";
+      numParticipants: {
+        title: "Participants",
+        format(
+          numPlayerCharacters: number | null,
+          numTotalParticipants: number | null
+        ) {
+          const sPlayerCharacters = numPlayerCharacters === 1 ? "" : "s";
+          const sTotalParticipants = numTotalParticipants === 1 ? "" : "s";
 
-        if (numPlayerCharacters && numTotalParticipants) {
-          return `${numPlayerCharacters} player character${sPlayerCharacters}, ${numTotalParticipants} total participant${sTotalParticipants}`;
-        } else if (numTotalParticipants) {
-          return `${numTotalParticipants} total participant${sTotalParticipants}`;
-        } else if (numPlayerCharacters) {
-          return `${numPlayerCharacters} player character${sPlayerCharacters}`;
-        } else {
-          return null;
-        }
+          if (numPlayerCharacters && numTotalParticipants) {
+            return `${numPlayerCharacters} player character${sPlayerCharacters}, ${numTotalParticipants} total participant${sTotalParticipants}`;
+          } else if (numTotalParticipants) {
+            return `${numTotalParticipants} total participant${sTotalParticipants}`;
+          } else if (numPlayerCharacters) {
+            return `${numPlayerCharacters} player character${sPlayerCharacters}`;
+          } else {
+            return null;
+          }
+        },
       },
     },
     actions: {

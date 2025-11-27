@@ -14,6 +14,10 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
+import { Card, CardBody, Container, Row } from "react-bootstrap";
+import { info } from "console";
+import { Column } from "./DataTable";
+import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
 
 const relatedLarpInclude = {
   select: {
@@ -68,7 +72,8 @@ function LarpLinkComponent({
         rel="noopener noreferrer"
         target="_blank"
       >
-        {link.title || t.attributes.links.types[link.type]?.title || link.type}
+        {link.title || t.attributes.links.types[link.type]?.title || link.type}{" "}
+        <OpenInNewTab />
       </a>
     </div>
   );
@@ -83,10 +88,8 @@ function LeftRelatedLarpComponent({
 }) {
   return (
     <div className="mb-1">
-      <span className="text-muted">
-        {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
-          relatedLarp.type}
-      </span>{" "}
+      {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
+        relatedLarp.type}{" "}
       <Link href={getLarpHref(relatedLarp.right)} className="link-subtle">
         {relatedLarp.right?.name}
       </Link>
@@ -106,11 +109,140 @@ function RightRelatedLarpComponent({
       <Link href={getLarpHref(relatedLarp.left)} className="link-subtle">
         {relatedLarp.left?.name}
       </Link>{" "}
-      <span className="text-muted">
-        {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
-          relatedLarp.type}
-      </span>
+      {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
+        relatedLarp.type}
     </div>
+  );
+}
+
+function LarpInfoCard({
+  larp,
+  className = "",
+  messages: t,
+  locale,
+}: {
+  larp: LarpPageLarp;
+  className: string;
+  messages: Translations["Larp"];
+  locale: string;
+}) {
+  const fields: Column<LarpPageLarp>[] = [];
+
+  const location = ensureLocation(larp);
+  if (location) {
+    fields.push({
+      slug: "location",
+      title: t.attributes.locationText.title,
+      getCellContents: () => (
+        <span lang={location.language}>{location.location}</span>
+      ),
+    });
+  }
+
+  if (larp.startsAt || larp.endsAt) {
+    fields.push({
+      slug: "dates",
+      title: t.attributes.dateRange.title,
+      getCellContents: (larp) => (
+        <FormattedDateRange
+          locale={locale}
+          start={larp.startsAt}
+          end={larp.endsAt}
+        />
+      ),
+    });
+  }
+
+  fields.push(
+    {
+      slug: "type",
+      title: t.attributes.type.title,
+      getCellContents: (larp) =>
+        t.attributes.type.choices[larp.type]?.title || larp.type,
+    },
+    {
+      slug: "language",
+      title: t.attributes.language.title,
+      getCellContents: (larp) =>
+        t.attributes.language.choices[larp.language] || larp.language,
+    }
+  );
+
+  if (larp.openness) {
+    fields.push({
+      slug: "openness",
+      title: t.attributes.openness.title,
+      getCellContents: (larp) =>
+        t.attributes.openness.choices[larp.openness!] || larp.openness,
+    });
+  }
+
+  const numParticipants = t.attributes.numParticipants.format(
+    larp.numPlayerCharacters,
+    larp.numTotalParticipants
+  );
+  if (numParticipants) {
+    fields.push({
+      slug: "numParticipants",
+      title: t.attributes.numParticipants.title,
+      getCellContents: () => numParticipants,
+    });
+  }
+
+  if (larp.links.length > 0) {
+    fields.push({
+      slug: "links",
+      title: t.attributes.links.title,
+      getCellContents: (larp) => (
+        <div>
+          {larp.links.map((link) => (
+            <LarpLinkComponent key={link.id} link={link} messages={t} />
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  if (larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0) {
+    fields.push({
+      slug: "relatedLarps",
+      title: t.attributes.relatedLarps.title,
+      getCellContents: (larp) => (
+        <div>
+          {larp.relatedLarpsLeft.map((relatedLarp) => (
+            <LeftRelatedLarpComponent
+              key={relatedLarp.rightId}
+              relatedLarp={relatedLarp}
+              messages={t}
+            />
+          ))}
+          {larp.relatedLarpsRight.map((relatedLarp) => (
+            <RightRelatedLarpComponent
+              key={relatedLarp.leftId}
+              relatedLarp={relatedLarp}
+              messages={t}
+            />
+          ))}
+        </div>
+      ),
+    });
+  }
+
+  return (
+    <Container className={className} style={{ maxWidth: "800px" }}>
+      <Card>
+        <CardBody className="pb-2 small">
+          {fields.map(({ slug, title, getCellContents }) => (
+            <Row key={slug} className="mb-1">
+              <div className="col-sm-3 fw-bold">{title}</div>
+              <div className="col-sm-9">
+                {getCellContents ? getCellContents(larp) : (larp as any)[slug]}
+              </div>
+            </Row>
+          ))}
+        </CardBody>
+      </Card>
+    </Container>
   );
 }
 
@@ -172,68 +304,23 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
     gmity = <>⚠️ {t.actions.claim(ClaimLink)}</>;
   }
 
-  const location = ensureLocation(larp);
   const policy = getEditLarpInitialStatusForUserAndLarp(user, larp);
 
   return (
     <>
-      <div className="container">
-        <div className="text-center">
-          <div lang={larp.language}>
-            <h2 className="mt-5">{larp.name}</h2>
-            <p className="fs-5 fst-italic h-float">{larp.tagline}</p>
-          </div>
-          <p className="fs-5">
-            <FormattedDateRange
-              locale={locale}
-              start={larp.startsAt}
-              end={larp.endsAt}
-            />{" "}
-            {location && (
-              <span lang={location.language}> {location.location}</span>
-            )}
-          </p>
-          {larp.type !== LarpType.ONE_SHOT ? (
-            <p className="text-muted">
-              {larpT.attributes.type.choices[larp.type].title}
-            </p>
-          ) : null}
-          {larp.numPlayerCharacters || larp.numTotalParticipants ? (
-            <p className="text-muted">
-              {larpT.attributes.numParticipants(
-                larp.numPlayerCharacters,
-                larp.numTotalParticipants
-              )}
-            </p>
-          ) : null}
-          <div className="mb-3">
-            {larp.relatedLarpsLeft.map((relatedLarp) => (
-              <LeftRelatedLarpComponent
-                key={relatedLarp.rightId}
-                relatedLarp={relatedLarp}
-                messages={translations.Larp}
-              />
-            ))}
-            {larp.relatedLarpsRight.map((relatedLarp) => (
-              <RightRelatedLarpComponent
-                key={relatedLarp.leftId}
-                relatedLarp={relatedLarp}
-                messages={translations.Larp}
-              />
-            ))}
-          </div>
-          <div className="mb-5">
-            {larp.links.map((link) => (
-              <LarpLinkComponent
-                key={link.id}
-                link={link}
-                messages={translations.Larp}
-              />
-            ))}
-          </div>
+      <Container className="mb-5">
+        <div className="text-center" lang={larp.language}>
+          <h2 className="mt-5 mb-3">{larp.name}</h2>
+          <p className="fs-5 fst-italic h-float">{larp.tagline}</p>
         </div>
-      </div>
-      <div className="container mb-5" style={{ maxWidth: "800px" }}>
+      </Container>
+      <LarpInfoCard
+        larp={larp}
+        className="mb-5"
+        messages={translations.Larp}
+        locale={locale}
+      />
+      <Container className="mb-5" style={{ maxWidth: "800px" }}>
         {larp.fluffText && (
           <div className="mb-5 fst-italic">
             <Paragraphs text={larp.fluffText} />
@@ -249,7 +336,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
           ✏️ {policy && <EditLink>{t.actions.edit}</EditLink>}:{" "}
           {ediT.editPolicy[policy ?? "LOG_IN_TO_EDIT"]}
         </div>
-      </div>
+      </Container>
     </>
   );
 }
