@@ -60,6 +60,46 @@ export function toPlainDateNull(
   return toPlainDate(date);
 }
 
+// 2025-11-23
+export function toISODate(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+): string {
+  return toPlainDate(date).toString().slice(0, 10);
+}
+
+export function toISODateNull(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+    | null
+    | undefined
+): string | null {
+  if (!date) return null;
+  return toISODate(date);
+}
+
+export function toISODateEmpty(
+  date:
+    | Temporal.ZonedDateTime
+    | Temporal.Instant
+    | Temporal.PlainDate
+    | Date
+    | string
+    | null
+    | undefined
+): string {
+  if (!date) return "";
+  return toISODate(date);
+}
+
 export const morning: Temporal.PlainTime = Temporal.PlainTime.from({
   hour: 8,
   minute: 0,

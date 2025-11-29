@@ -153,3 +153,10 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 - [ ] User profile page with visibility toggle
 - [ ] Move backlog to GitHub Projects
 - [ ] Spike of Drizzle as DB layer instead of Prisma
+- [ ] Larppikuvat.fi integration
+  - [x] Public API in larpit.fi providing basic public information of larp
+  - [ ] In larppikuvat.fi, introduce a field for external metadata URL in album
+    - [ ] If it's a larpit.fi page, generate album body from meowth (name of larp, fluff text, description, homepage url, larpit.fi url)
+  - [ ] When a public photo album of a larp is added in larppikuvat.fi: Add it as a photo link in larpit.fi
+  - [ ] When description, fluff text or home page are updated in larpit.fi: Update meowth in larppikuvat.fi
+  - [ ] `<link rel="???">` JSON/LD / Schema.org Event

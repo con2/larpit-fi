@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate as uuidValidate } from "uuid";
 import prisma from "@/prisma";
+import { publicUrl } from "@/config";
 
 interface Props {
   params: Promise<{
@@ -32,6 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${larp.name} – ${translations.title}`,
     description: larp.tagline,
+    alternates: {
+      types: {
+        "application/json": `${publicUrl}/api/larp/${larp.id}`,
+      },
+    },
   };
 }
 
