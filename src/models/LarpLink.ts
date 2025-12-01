@@ -71,7 +71,10 @@ export function socialMediaLinkTitleFromHref(href: string) {
   href = href.trim();
 
   // NOTE none of these should point to the root of the service
-  if (href.startsWith("https://instagram.com/")) {
+  if (
+    href.startsWith("https://instagram.com/") ||
+    href.startsWith("https://www.instagram.com/")
+  ) {
     return "Instagram";
   } else if (
     href.startsWith("https://x.com/") ||
