@@ -388,7 +388,7 @@ const translations: Translations = {
               "Itsenäinen larppi, johon voi osallistua ilman odotusta siitä, että pelaaja olisi välttämättä osallistunut tiettyihin aiempiin larppeihin tai osallistuisi tuleviin.",
           },
           CAMPAIGN_LARP: {
-            title: "Kampanjalarppi",
+            title: "Kampanjapeli",
             description:
               "Tämä larppi on osa suurempaa kampanjaa, ja vähintään merkittävän osan sen osallistujista odotetaan osallistuneen aiempiin kampanjan larpppeihin tai osallistuvan tuleviin.",
           },
