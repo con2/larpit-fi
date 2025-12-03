@@ -4,6 +4,10 @@ import {
   RelatedUser,
   RelatedUserRole,
 } from "@/generated/prisma/client";
+import { ModerationRequestContent } from "./ModerationRequest";
+import { string } from "zod";
+import prisma from "@/prisma";
+import { fromMorningNull } from "@/helpers/temporal";
 
 type LarpDates = Pick<
   Larp,
@@ -99,4 +103,46 @@ export function ensureLocation(
     }
   }
   return null;
+}
+
+export async function findExistingLarpsForFillIn(
+  name: string,
+  startsAt: Date | null
+) {
+  const rows = await prisma.$queryRaw<{ id: string }[]>`
+    select
+      id
+    from
+      larp
+    where
+      -- only consider actual larps
+      type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+      -- remove everything else than letters and numbers and lowercase for comparison
+      and regexp_replace(lower(name), '[^a-z0-9]', '', 'g') = regexp_replace(lower(${name}), '[^a-z0-9]', '', 'g')
+      -- either start date matches or start date is between existing larp's start and end date inclusive
+      and (
+        (starts_at is not null and starts_at::date = ${startsAt}::date)
+        or
+        (starts_at is not null and ends_at is not null and ${startsAt}::date >= starts_at::date and ${startsAt}::date <= ends_at::date)
+      )
+  `;
+
+  return prisma.larp.findMany({
+    where: {
+      id: {
+        in: rows.map((r) => r.id),
+      },
+    },
+  });
+}
+
+/// enhanced upsert for use with importing external sources
+export async function createLarpOrFillInMissingDetails(
+  // we use this class for convenience, not really a moderation request though
+  content: ModerationRequestContent
+) {
+  const existingLarps = await findExistingLarpsForFillIn(
+    content.name,
+    fromMorningNull(content.startsAt)
+  );
 }

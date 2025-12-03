@@ -334,3 +334,22 @@ model Page {
   @@id([slug, language])
   @@map("page")
 }
+
+// enum WebhookEvent {
+//   LARP_CREATED
+//   LARP_UPDATED
+//   LARP_DELETED
+
+//   @@map("webhook_event")
+// }
+
+// model Webhook {
+//   id            String       @id @default(uuid(7)) @db.Uuid
+//   url           String
+//   event         WebhookEvent
+//   secret        String
+//   active        Boolean      @default(true)
+//   lastUpdatedAt DateTime     @default(now()) @updatedAt @map("last_updated_at")
+
+//   @@map("webhook")
+// }
