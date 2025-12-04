@@ -42,7 +42,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@react-email/preview-server": "^4.2.8",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.9.1",
     "@types/nodemailer": "^7.0.0",
