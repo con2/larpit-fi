@@ -590,7 +590,7 @@ const translations = {
         youAreTheGm: <>You are managing the content of this page as the GM.</>,
       },
       numPlayerCharacters: {
-        title: "Number of player characters",
+        title: <>Player characters</>,
         label: "How many player characters are there in this larp?",
         helpText: (
           <>
@@ -601,7 +601,7 @@ const translations = {
         ),
       },
       numTotalParticipants: {
-        title: "Total number of participants",
+        title: <>Total participants</>,
         label: "How many total participants are there in this larp?",
         helpText: (
           <>

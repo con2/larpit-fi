@@ -604,7 +604,7 @@ const translations: Translations = {
         youAreTheGm: <>Hallinnoit tämän sivun sisältöä pelinjohtajana.</>,
       },
       numPlayerCharacters: {
-        title: "Pelaajahahmojen lukumäärä",
+        title: <>Pelaaja&shy;hahmoja</>,
         label: "Kuinka monta pelaajahahmoa tässä larpissa on?",
         helpText: (
           <>
@@ -614,7 +614,7 @@ const translations: Translations = {
         ),
       },
       numTotalParticipants: {
-        title: "Osallistujien kokonaismäärä",
+        title: <>Osallistujia yhteensä</>,
         label: "Kuinka monta osallistujaa tässä larpissa on yhteensä?",
         helpText: (
           <>Sisältäen pelaajat, pelinjohtajat, järjestäjät, apulaiset ym.</>

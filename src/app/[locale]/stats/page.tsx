@@ -112,12 +112,12 @@ export default async function StatsPage({ params }: Props) {
     {
       slug: "count",
       title: t.attributes.count.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
     },
     {
       slug: "graph",
       title: "",
-      className: "col-md-8 align-middle",
+      className: "col-md-9 align-middle",
       getCellContents: (row) => {
         return <ProgressBar now={Number(row.count)} max={muniMaxCount} />;
       },
@@ -125,17 +125,22 @@ export default async function StatsPage({ params }: Props) {
   ];
 
   const yearRows = await prisma.$queryRaw<YearRow[]>`
+    with year_range as (
+      select generate_series(
+        (select extract(year from min(starts_at))::int from larp where starts_at is not null),
+        (select extract(year from max(starts_at))::int from larp where starts_at is not null)
+      ) as year
+    )
     select
-      extract(year from l.starts_at)::text as year,
-      count(l.id) as count
+      yr.year::bigint as year,
+      coalesce(count(l.id), 0) as count
     from
-      larp l
-    where
-      l.starts_at is not null
-      and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-    group by year
-    having count(l.id) > 0
-    order by year asc
+      year_range yr
+      left join larp l on extract(year from l.starts_at) = yr.year
+        and l.starts_at is not null
+        and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+    group by yr.year
+    order by yr.year asc
   `;
   const yearTotal = yearRows.reduce((sum, row) => sum + row.count, BigInt(0));
   const yearMaxCount = Number(
@@ -144,11 +149,12 @@ export default async function StatsPage({ params }: Props) {
       BigInt(0)
     )
   );
+  yearRows.sort((a, b) => Number(a.year - b.year));
   const yearColumns: Column<YearRow>[] = [
     {
       slug: "year",
       title: t.attributes.year.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
     },
     {
       slug: "count",
@@ -158,7 +164,7 @@ export default async function StatsPage({ params }: Props) {
     {
       slug: "graph",
       title: "",
-      className: "col-md-8 align-middle",
+      className: "col-md-9 align-middle",
       getCellContents: (row) => {
         return <ProgressBar now={Number(row.count)} max={yearMaxCount} />;
       },
@@ -197,7 +203,13 @@ export default async function StatsPage({ params }: Props) {
   // some larps have null for numTotalParticipants denoting unknown total participants
   // either way, default them to numPlayerCharacters for normalization
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
-    with normalized_data_points as (
+    with year_range as (
+      select generate_series(
+        (select extract(year from min(starts_at))::int from larp where starts_at is not null),
+        (select extract(year from max(starts_at))::int from larp where starts_at is not null)
+      ) as year
+    ),
+    normalized_data_points as (
       select
         extract(year from starts_at) as year,
         num_player_characters,
@@ -212,14 +224,14 @@ export default async function StatsPage({ params }: Props) {
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
     )
     select
-      year,
-      coalesce(sum(num_player_characters), 0) as "numPlayerCharacters",
-      coalesce(sum(num_total_participants), 0) as "numTotalParticipants"
+      yr.year::varchar as year,
+      coalesce(sum(ndp.num_player_characters), 0) as "numPlayerCharacters",
+      coalesce(sum(ndp.num_total_participants), 0) as "numTotalParticipants"
     from
-      normalized_data_points
-    group by year
-    having sum(num_player_characters) > 0 or sum(num_total_participants) > 0
-    order by year asc
+      year_range yr
+      left join normalized_data_points ndp on yr.year = ndp.year
+    group by yr.year
+    order by yr.year asc
   `;
   const playerCharactersTotal = playersRows.reduce(
     (sum, row) => sum + row.numPlayerCharacters,
@@ -229,21 +241,49 @@ export default async function StatsPage({ params }: Props) {
     (sum, row) => sum + row.numTotalParticipants,
     BigInt(0)
   );
+  const maxTotalParticipants = Math.max(
+    ...playersRows.map((row) => Number(row.numTotalParticipants))
+  );
   const playersColumns: Column<PlayersRow>[] = [
     {
       slug: "year",
       title: t.attributes.year.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
     },
     {
       slug: "numPlayerCharacters",
       title: larpT.attributes.numPlayerCharacters.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
     },
     {
       slug: "numTotalParticipants",
       title: larpT.attributes.numTotalParticipants.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
+    },
+    {
+      slug: "graph",
+      title: "",
+      className: "col-md-9 align-middle",
+      getCellContents: (row) => {
+        return (
+          <ProgressBar max={maxTotalParticipants}>
+            <ProgressBar
+              now={Number(row.numPlayerCharacters)}
+              max={maxTotalParticipants}
+              variant="info"
+            />
+            <ProgressBar
+              now={
+                Number(row.numTotalParticipants) -
+                Number(row.numPlayerCharacters)
+              }
+              max={maxTotalParticipants}
+              variant="secondary"
+              striped
+            />
+          </ProgressBar>
+        );
+      },
     },
   ];
 
@@ -275,6 +315,7 @@ export default async function StatsPage({ params }: Props) {
                 <th>{t.attributes.total.title}</th>
                 <td>{playerCharactersTotal}</td>
                 <td>{totalParticipantsTotal}</td>
+                <td></td>
               </tr>
             </tfoot>
           </DataTable>
