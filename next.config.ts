@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
       "import",
       "global-builtin",
       "color-functions",
+      "if-function",
     ],
   },
 };
