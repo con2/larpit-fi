@@ -1,6 +1,6 @@
 import DataTable, { Column } from "@/components/DataTable";
 import MainHeading from "@/components/MainHeading";
-import { LarpType } from "@/generated/prisma/client";
+import { Language, LarpType } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -31,6 +31,11 @@ interface YearRow {
 
 interface TypeRow {
   type: string;
+  count: bigint;
+}
+
+interface LanguageRow {
+  language: Language;
   count: bigint;
 }
 
@@ -193,10 +198,47 @@ export default async function StatsPage({ params }: Props) {
             row.type}
         </Link>
       ),
+      className: "col-md-3 align-middle",
     },
     {
       slug: "count",
       title: t.attributes.count.title,
+      className: "col-md-9 align-middle",
+    },
+  ];
+
+  const languageRows = await prisma.$queryRaw<LanguageRow[]>`
+    select
+      l.language as language,
+      count(l.id) as count
+    from
+      larp l
+    where
+      l.language is not null
+      and l.type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+    group by l.language
+    having count(l.id) > 0
+    order by count desc, l.language asc
+  `;
+  const languageTotal = languageRows.reduce(
+    (sum, row) => sum + row.count,
+    BigInt(0)
+  );
+  const languageColumns: Column<LanguageRow>[] = [
+    {
+      slug: "language",
+      title: larpT.attributes.language.title,
+      getCellContents: (row) => (
+        <Link href={`/larp?language=${row.language}`} className="link-subtle">
+          {larpT.attributes.language.choices[row.language] || row.language}
+        </Link>
+      ),
+      className: "col-md-3 align-middle",
+    },
+    {
+      slug: "count",
+      title: t.attributes.count.title,
+      className: "col-md-9 align-middle",
     },
   ];
 
@@ -299,6 +341,14 @@ export default async function StatsPage({ params }: Props) {
         columns={typeColumns}
         messages={t}
         total={typeTotal}
+      />
+      <Report
+        title={t.reports.language.title}
+        description={t.reports.language.description}
+        rows={languageRows}
+        columns={languageColumns}
+        messages={t}
+        total={languageTotal}
       />
       <Report
         title={t.reports.year.title}

@@ -1062,6 +1062,15 @@ const translations = {
       type: {
         title: "Pages by type",
       },
+      language: {
+        title: "Larps by language",
+        description: (
+          <>
+            Includes one-shot and campaign larps. Events other than larps are
+            excluded.
+          </>
+        ),
+      },
       year: {
         title: "Larps by year",
         description: (

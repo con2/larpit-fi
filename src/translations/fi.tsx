@@ -1086,6 +1086,15 @@ const translations: Translations = {
       type: {
         title: "Sivujen määrä tyypeittäin",
       },
+      language: {
+        title: "Larppien määrä kielittäin",
+        description: (
+          <>
+            Sisältää one-shot- ja kampanjalarpit. Ei sisällä muita sivuja (esim.
+            kampanjasivuja tai muita tapahtumia).
+          </>
+        ),
+      },
       year: {
         title: "Larppien määrä vuosittain",
         description: (
