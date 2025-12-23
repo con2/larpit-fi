@@ -127,8 +127,9 @@ export default async function StatsPage({ params }: Props) {
   const yearRows = await prisma.$queryRaw<YearRow[]>`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at is not null),
-        (select extract(year from max(starts_at))::int from larp where starts_at is not null)
+        -- sanity bounds to prevent trivial DOS via extreme years
+        greatest(1960, (select extract(year from min(starts_at))::int from larp where starts_at is not null)),
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at is not null))
       ) as year
     )
     select
@@ -136,8 +137,8 @@ export default async function StatsPage({ params }: Props) {
       coalesce(count(l.id), 0) as count
     from
       year_range yr
-      left join larp l on extract(year from l.starts_at) = yr.year
-        and l.starts_at is not null
+      left join larp l on
+        extract(year from l.starts_at) = yr.year
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
     group by yr.year
     order by yr.year asc
@@ -205,8 +206,9 @@ export default async function StatsPage({ params }: Props) {
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at is not null),
-        (select extract(year from max(starts_at))::int from larp where starts_at is not null)
+        -- sanity bounds to prevent trivial DOS via extreme years
+        greatest(1960, (select extract(year from min(starts_at))::int from larp where starts_at is not null)),
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at is not null))
       ) as year
     ),
     normalized_data_points as (
