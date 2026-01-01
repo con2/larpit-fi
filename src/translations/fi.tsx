@@ -572,9 +572,33 @@ const translations: Translations = {
       },
       relatedLarps: {
         title: "Suhde muihin larppeihin",
+        actions: {
+          add: {
+            title: "Lisää suhde toiseen larppiin",
+            actions: {
+              submit: "Lisää suhde",
+              swap: "Käännä suunta",
+            },
+          },
+        },
+        attributes: {
+          type: {
+            title: "Suhteen tyyppi",
+            choices: {
+              SEQUEL: "on jatko-osa larpille",
+              SPINOFF: "on spin-off larpista",
+              IN_CAMPAIGN: "kuuluu kampanjaan",
+              IN_SERIES: "kuuluu sarjaan",
+              RUN_OF: "on pelautus larpista",
+              RERUN_OF: "on uudelleenpelautus larpista",
+              PLAYED_AT: "pelattiin tapahtumassa",
+            },
+          },
+        },
       },
       leftRelatedLarps: {
         title: "Tähän larppiin liittyvät larpit (relaation vasen puoli)",
+        label: "Suhteen vasen puoli",
         types: {
           SEQUEL: "Tämä on jatko-osa larpille",
           SPINOFF: "Tämä on spin-off larpista",
@@ -587,6 +611,7 @@ const translations: Translations = {
       },
       rightRelatedLarps: {
         title: "Tähän larppiin liittyvät larpit (relaation oikea puoli)",
+        label: "Suhteen oikea puoli",
         types: {
           SEQUEL: "on jatko-osa tälle larpille",
           SPINOFF: "on tämän larpin spinoff",

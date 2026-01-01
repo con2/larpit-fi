@@ -2,7 +2,7 @@ import { timezone } from "@/config";
 import { toSupportedLanguage } from "@/translations";
 import { Temporal } from "@js-temporal/polyfill";
 
-function formatDate(date: Temporal.PlainDate, locale: string): string {
+export function formatDate(date: Temporal.PlainDate, locale: string): string {
   return date.toLocaleString(toSupportedLanguage(locale), {
     year: "numeric",
     month: "numeric",
@@ -13,9 +13,12 @@ function formatDate(date: Temporal.PlainDate, locale: string): string {
 interface Props {
   locale: string;
   date: Date | Temporal.PlainDate | string | null | undefined;
+  /// pass React.Fragment to avoid wrapping in <time>
+  /// useful eg. inside <option> elements
+  as?: React.ElementType;
 }
 
-export function FormattedDate({ locale, date }: Props) {
+export function FormattedDate({ locale, date, as: Component = "time" }: Props) {
   if (!date) return null;
 
   if (typeof date === "string") {
@@ -26,5 +29,7 @@ export function FormattedDate({ locale, date }: Props) {
       .toPlainDate();
   }
 
-  return <time dateTime={date.toString()}>{formatDate(date, locale)}</time>;
+  return (
+    <Component dateTime={date.toString()}>{formatDate(date, locale)}</Component>
+  );
 }

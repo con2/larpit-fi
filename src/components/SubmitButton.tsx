@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, type ReactNode } from "react";
+import { Button, ButtonProps } from "react-bootstrap";
 import { useFormStatus } from "react-dom";
 
 interface SubmitButtonProps {
@@ -10,6 +11,7 @@ interface SubmitButtonProps {
   name?: string;
   value?: string;
   confirmationMessage?: string;
+  variant?: ButtonProps["variant"];
 }
 
 export default function SubmitButton({
@@ -18,6 +20,7 @@ export default function SubmitButton({
   name,
   value,
   className = "btn btn-primary",
+  variant = "primary",
   confirmationMessage,
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
@@ -31,8 +34,9 @@ export default function SubmitButton({
   );
 
   return (
-    <button
+    <Button
       type="submit"
+      variant={variant}
       name={name}
       value={value}
       className={className}
@@ -40,6 +44,6 @@ export default function SubmitButton({
       onClick={confirmationMessage ? onClick : undefined}
     >
       {children}
-    </button>
+    </Button>
   );
 }

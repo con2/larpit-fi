@@ -559,9 +559,33 @@ const translations = {
       },
       relatedLarps: {
         title: "Related larps",
+        actions: {
+          add: {
+            title: "Add related larp",
+            actions: {
+              submit: "Add relation",
+              swap: "Swap direction",
+            },
+          },
+        },
+        attributes: {
+          type: {
+            title: "Type of relation",
+            choices: {
+              SEQUEL: "is a sequel to",
+              SPINOFF: "is a spinoff of",
+              IN_CAMPAIGN: "is a larp in campaign",
+              IN_SERIES: "is an event in series",
+              RUN_OF: "is a run of",
+              RERUN_OF: "is a rerun of",
+              PLAYED_AT: "is played at",
+            },
+          },
+        },
       },
       leftRelatedLarps: {
         title: "Related larps (left side of the relation)",
+        label: "Left side of the relation",
         types: {
           SEQUEL: "This is a sequel to",
           SPINOFF: "This is a spinoff of",
@@ -574,6 +598,7 @@ const translations = {
       },
       rightRelatedLarps: {
         title: "Related larps (right side of the relation)",
+        label: "Right side of the relation",
         types: {
           SEQUEL: "is a sequel to this larp",
           SPINOFF: "is a spinoff of this larp",

@@ -6,6 +6,10 @@ interface Props {
   locale: string;
   start: Date | null | undefined;
   end: Date | null | undefined;
+  /// passed as-is to FormattedDate
+  /// pass React.Fragment to avoid wrapping in <time>
+  /// useful eg. inside <option> elements
+  as?: React.ElementType;
 }
 
 function isSameDay(start: Date, end: Date): boolean {
@@ -20,20 +24,25 @@ function isSameDay(start: Date, end: Date): boolean {
   return startDay.equals(endDay);
 }
 
-export function FormattedDateRange({ locale, start, end }: Props) {
+export function FormattedDateRange({
+  locale,
+  start,
+  end,
+  as: Component = "time",
+}: Props) {
   if (start && !end) {
-    return <FormattedDate locale={locale} date={start} />;
+    return <FormattedDate locale={locale} date={start} as={Component} />;
   } else if (!start && end) {
-    return <FormattedDate locale={locale} date={end} />;
+    return <FormattedDate locale={locale} date={end} as={Component} />;
   } else if (start && end) {
     if (isSameDay(start, end)) {
-      return <FormattedDate locale={locale} date={start} />;
+      return <FormattedDate locale={locale} date={start} as={Component} />;
     } else {
       return (
-        <span>
-          <FormattedDate locale={locale} date={start} /> –{" "}
-          <FormattedDate locale={locale} date={end} />
-        </span>
+        <>
+          <FormattedDate locale={locale} date={start} as={Component} /> –{" "}
+          <FormattedDate locale={locale} date={end} as={Component} />
+        </>
       );
     }
   } else {

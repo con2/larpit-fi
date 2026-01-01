@@ -1,4 +1,4 @@
-import { Larp } from "@/generated/prisma/client";
+import { Larp, LarpType } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";
 import {
   Card,
@@ -100,7 +100,7 @@ export function LarpBasicInfoFormComponent({
             id="LarpBasicInfoFormComponent-type"
             name="type"
             required
-            defaultValue={larp?.type ?? locale}
+            defaultValue={larp?.type ?? LarpType.ONE_SHOT}
             disabled={readOnly}
           >
             <option value=""></option>
