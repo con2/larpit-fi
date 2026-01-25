@@ -55,7 +55,7 @@ jobs:
           path: build.json
 
   deploy_staging:
-    runs-on: self-hosted
+    runs-on: qb-arc-runners
     needs: build
     environment: staging
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -87,7 +87,7 @@ jobs:
       - run: skaffold deploy -n larpit-staging -a build.json
 
   deploy_production:
-    runs-on: self-hosted
+    runs-on: qb-arc-runners
     needs: build
     environment: production
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
