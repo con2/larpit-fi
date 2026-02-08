@@ -64,11 +64,11 @@ export async function Navigation({ locale }: Props) {
             <NavLink as={Link} href="/stats">
               {translations.StatsPage.title}
             </NavLink>
-            {canEditPages(user) && (
-              <NavLink as={Link} href="/page">
-                {t.actions.pages}
-              </NavLink>
-            )}
+            <NavLink as={Link} href="/contact">
+              {translations.ContactPage.title}
+            </NavLink>
+          </Nav>
+          <Nav className="ms-auto">
             {canModerate(user) && (
               <NavLink as={Link} href="/moderate">
                 {t.actions.moderate}{" "}
@@ -79,13 +79,16 @@ export async function Navigation({ locale }: Props) {
                 )}
               </NavLink>
             )}
+            {canEditPages(user) && (
+              <NavLink as={Link} href="/page">
+                {t.actions.pages}
+              </NavLink>
+            )}
             {canManageUsers(user) && (
               <NavLink as={Link} href="/user">
                 {t.actions.manageUsers}
               </NavLink>
             )}
-          </Nav>
-          <Nav className="ms-auto">
             <LanguageSwitcher
               locale={locale}
               messages={translations.LanguageSwitcher}

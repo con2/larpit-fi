@@ -20,7 +20,7 @@ const translations: Translations = {
     actions: {
       edit: "Muokkaa tätä sivua",
       claim: (
-        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element
+        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
         <>
           Oletko tämän larpin pelinjohtaja tai tapahtuman järjestäjä?{" "}
@@ -55,7 +55,7 @@ const translations: Translations = {
         title: "Kuka olet?",
         loggedIn: (
           LogoutLink: ({ children }: { children: ReactNode }) => JSX.Element,
-          ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element
+          ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element,
         ) => (
           <p>
             Olet kirjautunut sisään tässä näkyvällä käyttäjätunnuksella. Jos et
@@ -66,7 +66,7 @@ const translations: Translations = {
           </p>
         ),
         notLoggedIn: (
-          LoginLink: ({ children }: { children: ReactNode }) => JSX.Element
+          LoginLink: ({ children }: { children: ReactNode }) => JSX.Element,
         ) => (
           <>
             <p>
@@ -87,7 +87,7 @@ const translations: Translations = {
             children,
           }: {
             children: ReactNode;
-          }) => JSX.Element
+          }) => JSX.Element,
         ) => (
           <>
             <p>
@@ -649,7 +649,7 @@ const translations: Translations = {
         title: "Osallistujamäärä",
         format(
           numPlayerCharacters: number | null,
-          numTotalParticipants: number | null
+          numTotalParticipants: number | null,
         ) {
           const aPlayerCharacters = numPlayerCharacters === 1 ? "" : "a";
           const aTotalParticipants = numTotalParticipants === 1 ? "" : "a";
@@ -927,7 +927,7 @@ const translations: Translations = {
     singleTitle: "Käyttäjä",
     listTitle: "Käyttäjät",
     privacyWarning: (
-      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element,
     ) => (
       <>
         <strong>HUOM:</strong> Alla olevia tietoja saa käyttää{" "}
@@ -1058,6 +1058,12 @@ const translations: Translations = {
   ContactPage: {
     title: "Ota yhteyttä",
     teamConsistsOf: <>Larpit.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
+    contactAdministratorNoContactForm: (
+      <>
+        Larpit.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta{" "}
+        <em>larpit-fi ät tracon.fi</em>.
+      </>
+    ),
     contactForm: (
       <p>
         Larpit.fi:n ylläpitäjän tavoitat alla olevalla yhteydenottolomakkeella

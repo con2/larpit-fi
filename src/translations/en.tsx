@@ -19,7 +19,7 @@ const translations = {
     actions: {
       edit: "Edit this page",
       claim: (
-        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element
+        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
         <>
           Are you the GM or organizer? <ClaimLink>Claim this page</ClaimLink> to
@@ -53,7 +53,7 @@ const translations = {
         title: "Who are you?",
         loggedIn: (
           LogoutLink: ({ children }: { children: ReactNode }) => JSX.Element,
-          ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element
+          ProfileLink: ({ children }: { children: ReactNode }) => JSX.Element,
         ) => (
           <p>
             You are logged in as the user displayed here. If you are not this
@@ -64,7 +64,7 @@ const translations = {
           </p>
         ),
         notLoggedIn: (
-          LoginLink: ({ children }: { children: ReactNode }) => JSX.Element
+          LoginLink: ({ children }: { children: ReactNode }) => JSX.Element,
         ) => (
           <>
             <p>
@@ -84,7 +84,7 @@ const translations = {
             children,
           }: {
             children: ReactNode;
-          }) => JSX.Element
+          }) => JSX.Element,
         ) => (
           <>
             <p>
@@ -639,7 +639,7 @@ const translations = {
         title: "Participants",
         format(
           numPlayerCharacters: number | null,
-          numTotalParticipants: number | null
+          numTotalParticipants: number | null,
         ) {
           const sPlayerCharacters = numPlayerCharacters === 1 ? "" : "s";
           const sTotalParticipants = numTotalParticipants === 1 ? "" : "s";
@@ -904,7 +904,7 @@ const translations = {
     singleTitle: "User",
     listTitle: "Users",
     privacyWarning: (
-      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element
+      PrivacyPolicyLink: ({ children }: { children: ReactNode }) => JSX.Element,
     ) => (
       <>
         <strong>NOTE:</strong> The personal data displayed below may be used{" "}
@@ -1034,6 +1034,12 @@ const translations = {
     title: "Contact us",
     teamConsistsOf: (
       <>The team behind Larpit.fi consists of the following people:</>
+    ),
+    contactAdministratorNoContactForm: (
+      <>
+        You can contact the administrator via email at{" "}
+        <em>larpit-fi ät tracon.fi</em>.
+      </>
     ),
     contactForm: (
       <p>
