@@ -12,40 +12,61 @@ interface Props {
   as?: React.ElementType;
 }
 
-function isSameDay(start: Date, end: Date): boolean {
-  const startDateTime = Temporal.Instant.fromEpochMilliseconds(
-    start.getTime(),
-  ).toZonedDateTimeISO(timezone);
-  const endDateTime = Temporal.Instant.fromEpochMilliseconds(
-    end.getTime(),
-  ).toZonedDateTimeISO(timezone);
-  const startDay = startDateTime.toPlainDate();
-  const endDay = endDateTime.toPlainDate();
-  return startDay.equals(endDay);
-}
-
 export function FormattedDateRange({
   locale,
   start,
   end,
   as: Component = "time",
 }: Props) {
-  if (start && !end) {
+  if (!start && !end) {
+    return <></>;
+  } else if (start && !end) {
     return <FormattedDate locale={locale} date={start} as={Component} />;
   } else if (!start && end) {
     return <FormattedDate locale={locale} date={end} as={Component} />;
-  } else if (start && end) {
-    if (isSameDay(start, end)) {
-      return <FormattedDate locale={locale} date={start} as={Component} />;
-    } else {
+  }
+
+  const startDateTime = Temporal.Instant.fromEpochMilliseconds(
+    start!.getTime(),
+  ).toZonedDateTimeISO(timezone);
+  const endDateTime = Temporal.Instant.fromEpochMilliseconds(
+    end!.getTime(),
+  ).toZonedDateTimeISO(timezone);
+  const startDay = startDateTime.toPlainDate();
+  const endDay = endDateTime.toPlainDate();
+
+  if (startDay.equals(endDay)) {
+    return <FormattedDate locale={locale} date={start} as={Component} />;
+  }
+
+  if (locale === "fi" && startDay.year === endDay.year) {
+    if (startDay.month === endDay.month) {
+      // Same month and year: "1.–3.5.2024"
       return (
         <>
-          <FormattedDate locale={locale} date={start} as={Component} />–
+          <Component dateTime={startDay.toString()}>{startDay.day}.</Component>
+          –
+          <FormattedDate locale={locale} date={end} as={Component} />
+        </>
+      );
+    } else {
+      // Same year, different months: "28.4.–3.5.2024"
+      return (
+        <>
+          <Component dateTime={startDay.toString()}>
+            {startDay.day}.{startDay.month}.
+          </Component>
+          –
           <FormattedDate locale={locale} date={end} as={Component} />
         </>
       );
     }
-  } else {
-    return <></>;
   }
+
+  return (
+    <>
+      <FormattedDate locale={locale} date={start} as={Component} />–
+      <FormattedDate locale={locale} date={end} as={Component} />
+    </>
+  );
 }
