@@ -75,3 +75,8 @@ h4.h-float {
 .text-muted .link-subtle {
   color: $primary !important;
 }
+
+.table-hover tbody tr.no-hover:hover {
+  --bs-table-hover-bg: transparent;
+  --bs-table-accent-bg: var(--bs-table-bg);
+}

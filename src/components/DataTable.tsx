@@ -46,10 +46,10 @@ interface DataTableProps<Row> {
   children?: ReactNode;
 }
 
-function defaultCellElement<Row>(
+export function defaultCellElement<Row>(
   this: Column<Row>,
   _row: Row,
-  children?: ReactNode
+  children?: ReactNode,
 ) {
   const href = this.getHref?.(_row);
   if (href) {
@@ -79,7 +79,7 @@ function defaultCellElement<Row>(
   }
 }
 
-function defaultCellContents<Row>(this: Column<Row>, row: Row) {
+export function defaultCellContents<Row>(this: Column<Row>, row: Row) {
   const value = (row as any)[this.slug];
 
   if (typeof value === "undefined" || value === null) {

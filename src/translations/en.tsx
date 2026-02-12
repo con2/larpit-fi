@@ -675,6 +675,43 @@ const translations = {
         all: "All languages",
       },
     },
+    /** Serializable attributes for client-side LarpTable component */
+    clientAttributes: {
+      name: { title: "Name" },
+      locationText: { title: "Location" },
+      municipality: { title: "Municipality" },
+      language: {
+        title: "Language",
+        choices: {
+          fi: "Finnish",
+          en: "English",
+          sv: "Swedish",
+          OTHER: "Other",
+        },
+      },
+      type: {
+        title: "Type",
+        choices: {
+          ONE_SHOT: { title: "One-shot larp" },
+          CAMPAIGN_LARP: { title: "Campaign larp" },
+          CAMPAIGN: { title: "Campaign" },
+          MULTIPLE_RUNS: { title: "Multiple runs" },
+          OTHER_EVENT: { title: "Other event" },
+          OTHER_EVENT_SERIES: { title: "Other event series" },
+        },
+      },
+      dateRange: { title: "Dates" },
+      yearHeaders: {
+        upcoming: "(upcoming)",
+        past: "(past)",
+        noDate: "Date not set",
+      },
+    },
+    yearHeaders: {
+      upcoming: (year: number) => `Upcoming in ${year}`,
+      past: (year: number) => `Past in ${year}`,
+      noDate: "Date not set",
+    },
     tableFooter: (count: number, totalCount: number) => (
       <>
         Showing {count} larp{count === 1 ? "" : "s"} (total {totalCount}).

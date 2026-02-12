@@ -1,9 +1,7 @@
-import { Column, DataTable } from "@/components/DataTable";
 import { DimensionFilters } from "@/components/DimensionFilters";
-import { FormattedDateRange } from "@/components/FormattedDateRange";
+import { LarpTable } from "@/components/LarpTable";
 import MainHeading from "@/components/MainHeading";
 import { Language, LarpType } from "@/generated/prisma/client";
-import getLarpHref from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -44,75 +42,6 @@ async function getData(types: LarpType[], languages: Language[]) {
   });
 }
 
-type LarpListLarp = Awaited<ReturnType<typeof getData>>[number];
-
-function LarpTable({
-  larps,
-  messages: t,
-  locale,
-  totalCount,
-}: {
-  larps: LarpListLarp[];
-  messages: Translations["Larp"];
-  locale: string;
-  totalCount: number;
-}) {
-  const columns: Column<(typeof larps)[number]>[] = [
-    {
-      slug: "name",
-      title: t.attributes.name.title,
-    },
-    {
-      slug: "locationText",
-      title: t.attributes.locationText.title,
-    },
-    {
-      slug: "municipalityName",
-      title: t.attributes.municipality.title,
-      getCellContents: (row) => row.municipality?.nameFi,
-    },
-    {
-      slug: "language",
-      title: t.attributes.language.title,
-      getCellContents: (row) => t.attributes.language.choices[row.language],
-    },
-    {
-      slug: "type",
-      title: t.attributes.type.title,
-      getCellContents: (row) => t.attributes.type.choices[row.type].title,
-    },
-    {
-      slug: "dateRange",
-      title: <>{t.attributes.dateRange.title} 🔼</>,
-      getCellContents: (row) => (
-        <FormattedDateRange
-          start={row.startsAt}
-          end={row.endsAt}
-          locale={locale}
-        />
-      ),
-    },
-  ];
-
-  return (
-    <DataTable
-      // TODO rounded doesn't work on bootstrap .table?
-      className="table table-striped table-hover border rounded mb-5"
-      columns={columns}
-      rows={larps}
-      getRowHref={(row) => getLarpHref(row)}
-    >
-      <tfoot>
-        <tr>
-          <td colSpan={columns.length}>
-            {t.tableFooter(larps.length, totalCount)}
-          </td>
-        </tr>
-      </tfoot>
-    </DataTable>
-  );
-}
-
 function getLarpFilters(t: Translations["Larp"]) {
   return [
     {
@@ -124,7 +53,7 @@ function getLarpFilters(t: Translations["Larp"]) {
           ([slug, title]) => ({
             slug,
             title,
-          })
+          }),
         ),
       ],
     },
@@ -138,7 +67,7 @@ function getLarpFilters(t: Translations["Larp"]) {
           ([slug, { title }]) => ({
             slug,
             title,
-          })
+          }),
         ),
       ],
     },
@@ -173,7 +102,7 @@ export default async function LarpListPage({ params, searchParams }: Props) {
       (language) =>
         t.attributes.language.choices[
           language as keyof typeof t.attributes.language.choices
-        ]
+        ],
     );
   }
 
@@ -188,7 +117,7 @@ export default async function LarpListPage({ params, searchParams }: Props) {
       <DimensionFilters dimensions={filters} />
       <LarpTable
         larps={larps}
-        messages={t}
+        messages={t.clientAttributes}
         locale={locale}
         totalCount={totalCount}
       />

@@ -685,6 +685,43 @@ const translations: Translations = {
         all: "Kaikki kielet",
       },
     },
+    /** Serializable attributes for client-side LarpTable component */
+    clientAttributes: {
+      name: { title: "Nimi" },
+      locationText: { title: "Paikka" },
+      municipality: { title: "Kunta" },
+      language: {
+        title: "Kieli",
+        choices: {
+          fi: "suomi",
+          en: "englanti",
+          sv: "ruotsi",
+          OTHER: "muu",
+        },
+      },
+      type: {
+        title: "Tyyppi",
+        choices: {
+          ONE_SHOT: { title: "One-shot" },
+          CAMPAIGN_LARP: { title: "Kampanjapeli" },
+          CAMPAIGN: { title: "Kampanja" },
+          MULTIPLE_RUNS: { title: "Useita pelautuksia" },
+          OTHER_EVENT: { title: "Muu tapahtuma" },
+          OTHER_EVENT_SERIES: { title: "Muiden tapahtumien sarja" },
+        },
+      },
+      dateRange: { title: "Päivämäärät" },
+      yearHeaders: {
+        upcoming: "(tulossa)",
+        past: "(menneet)",
+        noDate: "Päivämäärä ei tiedossa",
+      },
+    },
+    yearHeaders: {
+      upcoming: (year: number) => `Tulossa ${year}`,
+      past: (year: number) => `Menneet ${year}`,
+      noDate: "Päivämäärä ei tiedossa",
+    },
     tableFooter: (count: number, totalCount: number) => (
       <>
         Näytetään {count} larppi{count === 1 ? "" : "a"} (yhteensä {totalCount}

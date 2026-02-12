@@ -1,5 +1,5 @@
 import { timezone } from "@/config";
-import { toSupportedLanguage } from "@/translations";
+import { toSupportedLanguage } from "@/i18n/locales";
 import { Temporal } from "@js-temporal/polyfill";
 
 export function formatDate(date: Temporal.PlainDate, locale: string): string {

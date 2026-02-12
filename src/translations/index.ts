@@ -8,30 +8,22 @@ import type { Translations } from "./en";
 import en from "./en";
 import fi from "./fi";
 
-export type SupportedLanguage = "en" | "fi";
-export const supportedLanguages: readonly SupportedLanguage[] = [
-  "en",
-  "fi",
-] as const;
-export const defaultLanguage: SupportedLanguage = "en";
-export const languages = { en, fi };
+// Re-export client-safe locale utilities
+export {
+  type SupportedLanguage,
+  supportedLanguages,
+  defaultLanguage,
+  isSupportedLanguage,
+  toSupportedLanguage,
+} from "@/i18n/locales";
 
-export function isSupportedLanguage(
-  language?: string
-): language is SupportedLanguage {
-  return (
-    typeof language === "string" &&
-    (supportedLanguages as string[]).includes(language)
-  );
-}
+import { defaultLanguage, isSupportedLanguage } from "@/i18n/locales";
+
+export const languages = { en, fi };
 
 export function getTranslations(language: string): Translations {
   const supportedLanguage = isSupportedLanguage(language)
     ? language
     : defaultLanguage;
   return languages[supportedLanguage];
-}
-
-export function toSupportedLanguage(language: string) {
-  return isSupportedLanguage(language) ? language : defaultLanguage;
 }
