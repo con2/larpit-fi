@@ -14,10 +14,10 @@ interface Props {
 
 function isSameDay(start: Date, end: Date): boolean {
   const startDateTime = Temporal.Instant.fromEpochMilliseconds(
-    start.getTime()
+    start.getTime(),
   ).toZonedDateTimeISO(timezone);
   const endDateTime = Temporal.Instant.fromEpochMilliseconds(
-    end.getTime()
+    end.getTime(),
   ).toZonedDateTimeISO(timezone);
   const startDay = startDateTime.toPlainDate();
   const endDay = endDateTime.toPlainDate();
@@ -40,7 +40,7 @@ export function FormattedDateRange({
     } else {
       return (
         <>
-          <FormattedDate locale={locale} date={start} as={Component} /> –{" "}
+          <FormattedDate locale={locale} date={start} as={Component} />–
           <FormattedDate locale={locale} date={end} as={Component} />
         </>
       );
