@@ -1,22 +1,29 @@
 import { auth } from "@/auth";
-import { Column, DataTable } from "@/components/DataTable";
 import { DimensionFilters } from "@/components/DimensionFilters";
-import { FormattedDateRange } from "@/components/FormattedDateRange";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
-import { RelatedUserRole } from "@/generated/prisma/client";
-import getLarpHref from "@/models/Larp";
+import { LarpRow } from "@/components/LarpTable";
+import { LarpType, RelatedUserRole } from "@/generated/prisma/client";
+import {
+  parseSearchParam,
+  createEnumValidator,
+} from "@/helpers/parseSearchParam";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Container } from "react-bootstrap";
+import OwnLarpsTableClient from "./OwnLarpsTableClient";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ role?: string[] }>;
+  searchParams: Promise<{ role?: string[]; type?: string[] }>;
 }
 
-async function getData(userId: string, roles: RelatedUserRole[]) {
+async function getData(
+  userId: string,
+  roles: RelatedUserRole[],
+  types: LarpType[],
+) {
   const relatedUsers = await prisma.relatedUser.findMany({
     where: {
       userId: userId,
@@ -34,6 +41,9 @@ async function getData(userId: string, roles: RelatedUserRole[]) {
     where: {
       id: {
         in: relatedUsers.map((relatedUser) => relatedUser.larpId),
+      },
+      type: {
+        in: types,
       },
     },
     include: {
@@ -58,96 +68,72 @@ async function getData(userId: string, roles: RelatedUserRole[]) {
   return larps;
 }
 
+/** Count total larps the user has any role in (unfiltered) */
+async function getTotalCount(userId: string): Promise<number> {
+  const result = await prisma.$queryRaw<[{ count: bigint }]>`
+    select count(distinct larp_id) as count
+    from related_user
+    where user_id = ${userId}
+  `;
+  return Number(result[0].count);
+}
+
 type OwnLarp = Awaited<ReturnType<typeof getData>>[number];
 
-function OwnLarpsTable({
-  rows,
-  translations,
-  locale,
-}: {
-  rows: OwnLarp[];
-  translations: Translations;
-  locale: string;
-}) {
-  const t = translations.OwnLarpsPage;
-  const larpT = translations.Larp;
-  const relaTed = translations.RelatedUser;
-  const columns: Column<OwnLarp>[] = [
-    {
-      slug: "name",
-      title: larpT.attributes.name.title,
-      getCellContents: (row) => row.name,
-    },
-    {
-      slug: "locationText",
-      title: larpT.attributes.locationText.title,
-      getCellContents: (row) => row.locationText,
-    },
-    {
-      slug: "municipalityName",
-      title: larpT.attributes.municipality.title,
-      getCellContents: (row) => row.municipality?.nameFi,
-    },
-    {
-      slug: "role",
-      title: t.attributes.role.label,
-      className: "col-2 align-middle",
-      getCellContents: (row) => (
-        <>
-          {row.relatedUsers.map((relatedUser) => (
-            <div key={relatedUser.role}>
-              {relaTed.attributes.role.choices[relatedUser.role].title}
-            </div>
-          ))}
-        </>
-      ),
-    },
-    {
-      slug: "dateRange",
-      title: <>{larpT.attributes.dateRange.title} 🔼</>,
-      className: "col-2 align-middle",
-      getCellContents: (row) => (
-        <FormattedDateRange
-          start={row.startsAt}
-          end={row.endsAt}
-          locale={locale}
-        />
-      ),
-    },
-  ];
+/** Serialize OwnLarp for client component */
+export type OwnLarpRow = LarpRow & {
+  /** Pre-resolved role titles */
+  roleTitles: string[];
+};
 
-  return (
-    <DataTable
-      // TODO rounded doesn't work on bootstrap .table?
-      className="table table-striped table-hover border rounded mb-5"
-      columns={columns}
-      rows={rows}
-      getRowHref={(row) => getLarpHref(row)}
-    >
-      <tfoot>
-        <tr>
-          <td colSpan={columns.length}>
-            {t.tableFooter(rows.length, rows.length)}
-          </td>
-        </tr>
-      </tfoot>
-    </DataTable>
-  );
+function serializeLarps(
+  larps: OwnLarp[],
+  roleChoices: Record<string, string>,
+): OwnLarpRow[] {
+  return larps.map((larp) => ({
+    id: larp.id,
+    name: larp.name,
+    alias: larp.alias,
+    locationText: larp.locationText,
+    startsAt: larp.startsAt,
+    endsAt: larp.endsAt,
+    language: larp.language,
+    type: larp.type,
+    municipality: larp.municipality,
+    roleTitles: larp.relatedUsers.map((ru) => roleChoices[ru.role] ?? ru.role),
+  }));
 }
 
 const unimplementedRoles = [RelatedUserRole.EDITOR, RelatedUserRole.FAVORITE];
+const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
-function getRoleFilters(t: Translations["RelatedUser"]) {
+function getFilters(translations: Translations) {
+  const roleT = translations.RelatedUser;
+  const larpT = translations.Larp;
   return [
     {
       slug: "role",
-      title: t.attributes.role.title,
+      title: roleT.attributes.role.title,
       values: [
-        { slug: "", title: t.filters.role.default },
-        { slug: "ALL", title: t.filters.role.all },
-        ...Object.entries(t.attributes.role.choices)
+        { slug: "", title: roleT.filters.role.default },
+        { slug: "ALL", title: roleT.filters.role.all },
+        ...Object.entries(roleT.attributes.role.choices)
           .filter(([slug]) => !(unimplementedRoles as string[]).includes(slug))
           .map(([slug, { title }]) => ({ slug, title })),
+      ],
+    },
+    {
+      slug: "type",
+      title: larpT.filters.type.title,
+      values: [
+        { slug: "", title: larpT.filters.type.default },
+        { slug: "ALL", title: larpT.filters.type.all },
+        ...Object.entries(larpT.attributes.type.choices).map(
+          ([slug, { title }]) => ({
+            slug,
+            title,
+          }),
+        ),
       ],
     },
   ];
@@ -177,26 +163,40 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
     return <LoginRequired messages={translations.LoginRequired} />;
   }
 
-  const filters = getRoleFilters(translations.RelatedUser);
-  let { role: roles } = await searchParams;
-  if (typeof roles === "string") {
-    roles = [roles];
-  }
-  if (!roles || roles.length === 0 || roles.includes("")) {
-    roles = defaultRoles;
-  } else if (roles.includes("ALL")) {
-    roles = Object.values(RelatedUserRole);
-  }
-  roles = roles.filter(
-    (role) => RelatedUserRole[role as keyof typeof RelatedUserRole]
+  const filters = getFilters(translations);
+  const { role: rolesParam, type: typesParam } = await searchParams;
+
+  const roles = parseSearchParam(rolesParam, {
+    defaults: defaultRoles,
+    allValues: Object.values(RelatedUserRole),
+    isValid: createEnumValidator(RelatedUserRole),
+  });
+
+  const types = parseSearchParam(typesParam, {
+    defaults: defaultTypes,
+    allValues: Object.values(LarpType),
+    isValid: createEnumValidator(LarpType),
+  });
+
+  const [rawLarps, totalCount] = await Promise.all([
+    getData(user.id, roles, types),
+    getTotalCount(user.id),
+  ]);
+  const larps = serializeLarps(
+    rawLarps,
+    translations.Larp.clientAttributes.role.choices,
   );
-  const rows = await getData(user.id, roles as RelatedUserRole[]);
 
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <DimensionFilters dimensions={filters} />
-      <OwnLarpsTable rows={rows} translations={translations} locale={locale} />
+      <OwnLarpsTableClient
+        larps={larps}
+        messages={translations.Larp.clientAttributes}
+        locale={locale}
+        totalCount={totalCount}
+      />
     </Container>
   );
 }

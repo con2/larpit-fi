@@ -706,6 +706,18 @@ const translations = {
         past: "(past)",
         noDate: "Date not set",
       },
+      role: {
+        title: "Own role",
+        choices: {
+          EDITOR: "Has editing rights",
+          CREATED_BY: "Created larp page",
+          GAME_MASTER: "Game Master",
+          TEAM_MEMBER: "Team member",
+          VOLUNTEER: "Volunteer",
+          PLAYER: "Player",
+          FAVORITE: "Marked as favorite",
+        },
+      },
     },
     yearHeaders: {
       upcoming: (year: number) => `Upcoming in ${year}`,
@@ -1026,8 +1038,8 @@ const translations = {
     filters: {
       role: {
         title: "Role",
-        default: "Default (GM, team member, volunteer or player)",
-        all: "Any role",
+        default: "Default roles (GM, team member, volunteer or player)",
+        all: "All roles",
       },
     },
   },

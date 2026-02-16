@@ -98,17 +98,16 @@ function groupLarpsByYear<Row extends LarpRow>(
   return groups;
 }
 
-export type LarpTableVariant = "default" | "profile";
-
 interface LarpTableProps<Row extends LarpRow> {
   larps: Row[];
-  variant?: LarpTableVariant;
+  /** Custom columns to use instead of the default columns */
+  columns?: Column<Row>[];
   messages: LarpTableMessages;
   locale: string;
   totalCount: number;
 }
 
-function larpCellElement<Row extends LarpRow>(
+export function larpCellElement<Row extends LarpRow>(
   row: Row,
   children?: ReactNode,
 ): ReactNode {
@@ -122,14 +121,11 @@ function larpCellElement<Row extends LarpRow>(
   );
 }
 
-function getColumns<Row extends LarpRow>(
-  variant: LarpTableVariant,
-  messages: LarpTableMessages,
+export function getDefaultColumns<Row extends LarpRow>(
+  t: LarpTableMessages,
   locale: string,
 ): Column<Row>[] {
-  const t = messages;
-
-  const defaultColumns: Column<Row>[] = [
+  return [
     {
       slug: "name",
       title: t.name.title,
@@ -173,25 +169,16 @@ function getColumns<Row extends LarpRow>(
       ),
     },
   ];
-
-  switch (variant) {
-    case "profile":
-      // TODO: customize for profile page if needed
-      return defaultColumns;
-    case "default":
-    default:
-      return defaultColumns;
-  }
 }
 
 export function LarpTable<Row extends LarpRow>({
   larps,
-  variant = "default",
+  columns: customColumns,
   messages,
   locale,
   totalCount,
 }: LarpTableProps<Row>) {
-  const columns = getColumns<Row>(variant, messages, locale);
+  const columns = customColumns ?? getDefaultColumns<Row>(messages, locale);
 
   // Apply defaults to columns
   const finalColumns = columns.map((column) => ({

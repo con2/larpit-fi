@@ -716,6 +716,18 @@ const translations: Translations = {
         past: "(menneet)",
         noDate: "Päivämäärä ei tiedossa",
       },
+      role: {
+        title: "Oma rooli",
+        choices: {
+          EDITOR: "Muokkausoikeutettu",
+          CREATED_BY: "Luonut sivun",
+          GAME_MASTER: "Pelinjohtaja",
+          TEAM_MEMBER: "Tiimin jäsen",
+          VOLUNTEER: "Vapaaehtoinen",
+          PLAYER: "Pelaaja",
+          FAVORITE: "Merkinnyt suosikiksi",
+        },
+      },
     },
     yearHeaders: {
       upcoming: (year: number) => `Tulossa ${year}`,
@@ -1050,9 +1062,8 @@ const translations: Translations = {
     filters: {
       role: {
         title: "Rooli",
-        default:
-          "Oletus (pelinjohtaja, tiimin jäsen, vapaaehtoinen tai pelaaja)",
-        all: "Mikä tahansa rooli",
+        default: "Oletusroolit (PJ, tiimin jäsen, vapaaehtoinen tai pelaaja)",
+        all: "Kaikki roolit",
       },
     },
   },

@@ -2,6 +2,10 @@ import { DimensionFilters } from "@/components/DimensionFilters";
 import { LarpTable } from "@/components/LarpTable";
 import MainHeading from "@/components/MainHeading";
 import { Language, LarpType } from "@/generated/prisma/client";
+import {
+  parseSearchParam,
+  createEnumValidator,
+} from "@/helpers/parseSearchParam";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -80,34 +84,22 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   const t = translations.Larp;
 
   const filters = getLarpFilters(t);
-  let { type: types, language: languages } = await searchParams;
+  const { type: typesParam, language: languagesParam } = await searchParams;
 
-  if (typeof types === "string") {
-    types = [types];
-  }
-  if (!types || types.length === 0 || types.includes("")) {
-    types = defaultTypes;
-  } else if (types.includes("ALL")) {
-    types = Object.values(LarpType);
-  }
-  types = types.filter((type) => LarpType[type as keyof typeof LarpType]);
+  const types = parseSearchParam(typesParam, {
+    defaults: defaultTypes,
+    allValues: Object.values(LarpType),
+    isValid: createEnumValidator(LarpType),
+  });
 
-  if (typeof languages === "string") {
-    languages = [languages];
-  }
-  if (!languages || languages.length === 0 || languages.includes("")) {
-    languages = Object.keys(t.attributes.language.choices);
-  } else {
-    languages = languages.filter(
-      (language) =>
-        t.attributes.language.choices[
-          language as keyof typeof t.attributes.language.choices
-        ],
-    );
-  }
+  const languages = parseSearchParam(languagesParam, {
+    defaults: Object.values(Language),
+    allValues: Object.values(Language),
+    isValid: createEnumValidator(Language),
+  });
 
   const [larps, totalCount] = await Promise.all([
-    getData(types as LarpType[], languages as Language[]),
+    getData(types, languages),
     prisma.larp.count(),
   ]);
 
