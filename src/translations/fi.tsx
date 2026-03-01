@@ -1150,6 +1150,17 @@ const translations: Translations = {
         </p>
       </>
     ),
+    filters: {
+      since: {
+        title: "Ajanjakso",
+        choices: {
+          ALL_TIME: "Aikojen alusta asti",
+          LAST_10_YEARS: "Viimeiset 10 kokonaista vuotta",
+          POST_COVID: "Koronapandemian jälkeinen aika (2022–)",
+          LAUNCH: "Larpit.fi:n lanseerauksesta alkaen (2026–)",
+        },
+      },
+    },
     attributes: {
       count: {
         title: "Lukumäärä",
@@ -1169,27 +1180,22 @@ const translations: Translations = {
         title: "Larppien määrä kielittäin",
         description: (
           <>
-            Sisältää one-shot- ja kampanjalarpit. Ei sisällä muita sivuja (esim.
-            kampanjasivuja tai muita tapahtumia).
+            Ei sisällä muita tapahtumia kuin larppeja (esim. kampanjasivuja tai
+            muita tapahtumia).
           </>
         ),
       },
       year: {
         title: "Larppien määrä vuosittain",
-        description: (
-          <>
-            Sisältää larpit, joille on määritetty alkamispäivä. Ei sisällä muita
-            tapahtumia kuin larppeja.
-          </>
-        ),
+        description: <>Ei sisällä muita tapahtumia kuin larppeja.</>,
       },
       municipality: {
         title: "Larppien määrä kunnittain",
         description: (
           <>
-            Sisältää larpit, joille on määritetty kunta ja alkamispäivä. Ei
-            sisällä muita tapahtumia kuin larppeja. Tilastossa on vinouma, koska
-            pohjoisen larppaajat ovat ahkeria dokumentoimaan larppejaan :)
+            Sisältää larpit, joille on määritetty kunta. Ei sisällä muita
+            tapahtumia kuin larppeja. Tilastossa on vinouma, koska pohjoisen
+            larppaajat ovat ahkeria dokumentoimaan larppejaan :)
           </>
         ),
         attributes: {
@@ -1202,11 +1208,9 @@ const translations: Translations = {
         title: "Osallistujien määrä vuosittain",
         description: (
           <>
-            Pelaajahahmojen määrä ja kokonaisosallistujamäärä larpeissa, joille
-            on määritetty alkamispäivä. Ei sisällä muita tapahtumia kuin
-            larppeja. Huomaathan, että osallistujamäärätiedot puuttuvat useilta
-            larpeilta, joten todelliset osallistujamäärät ovat varmasti
-            suurempia.
+            Ei sisällä muita tapahtumia kuin larppeja. Huomaathan, että
+            osallistujamäärätiedot puuttuvat useilta larpeilta, joten todelliset
+            osallistujamäärät ovat varmasti suurempia.
           </>
         ),
       },

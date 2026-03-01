@@ -1,4 +1,5 @@
 import DataTable, { Column } from "@/components/DataTable";
+import { DimensionFilters } from "@/components/DimensionFilters";
 import MainHeading from "@/components/MainHeading";
 import { Language, LarpType } from "@/generated/prisma/client";
 import prisma from "@/prisma";
@@ -16,6 +17,32 @@ import {
 
 interface Props {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ since?: string }>;
+}
+
+type SinceFilter = "ALL_TIME" | "LAST_10_YEARS" | "POST_COVID" | "LAUNCH";
+const sinceFilters: SinceFilter[] = [
+  "ALL_TIME",
+  "LAST_10_YEARS",
+  "POST_COVID",
+  "LAUNCH",
+];
+
+function getCutoffDate(since: SinceFilter): Date {
+  const now = new Date();
+  switch (since) {
+    case "LAST_10_YEARS": {
+      const year = now.getFullYear() - 10;
+      return new Date(`${year}-01-01`);
+    }
+    case "POST_COVID":
+      return new Date("2022-01-01");
+    case "LAUNCH":
+      return new Date("2026-01-01");
+    case "ALL_TIME":
+    default:
+      return new Date("1960-01-01");
+  }
 }
 
 interface MuniRow {
@@ -80,11 +107,29 @@ function Report<T>({
   );
 }
 
-export default async function StatsPage({ params }: Props) {
+export default async function StatsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
   const t = translations.StatsPage;
   const larpT = translations.Larp;
+
+  const { since: sinceParam } = await searchParams;
+  const since: SinceFilter =
+    sinceParam && sinceFilters.includes(sinceParam as SinceFilter)
+      ? (sinceParam as SinceFilter)
+      : "ALL_TIME";
+  const cutoff = getCutoffDate(since);
+
+  const filters = [
+    {
+      slug: "since",
+      title: t.filters.since.title,
+      values: sinceFilters.map((value) => ({
+        slug: value === "ALL_TIME" ? "" : value,
+        title: t.filters.since.choices[value],
+      })),
+    },
+  ];
 
   const muniRows = await prisma.$queryRaw<MuniRow[]>`
     select
@@ -95,7 +140,7 @@ export default async function StatsPage({ params }: Props) {
       municipality m
       join larp l on l.municipality_id = m.id
     where
-      l.starts_at is not null
+      l.starts_at >= ${cutoff}
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
     group by m.id, m.name_fi
     having count(l.id) > 0
@@ -105,8 +150,8 @@ export default async function StatsPage({ params }: Props) {
   const muniMaxCount = Number(
     muniRows.reduce(
       (max, row) => (row.count > max ? row.count : max),
-      BigInt(0)
-    )
+      BigInt(0),
+    ),
   );
   const muniColumns: Column<MuniRow>[] = [
     {
@@ -132,9 +177,8 @@ export default async function StatsPage({ params }: Props) {
   const yearRows = await prisma.$queryRaw<YearRow[]>`
     with year_range as (
       select generate_series(
-        -- sanity bounds to prevent trivial DOS via extreme years
-        greatest(1960, (select extract(year from min(starts_at))::int from larp where starts_at is not null)),
-        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at is not null))
+        extract(year from ${cutoff}::date)::int,
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     )
     select
@@ -152,8 +196,8 @@ export default async function StatsPage({ params }: Props) {
   const yearMaxCount = Number(
     yearRows.reduce(
       (max, row) => (row.count > max ? row.count : max),
-      BigInt(0)
-    )
+      BigInt(0),
+    ),
   );
   yearRows.sort((a, b) => Number(a.year - b.year));
   const yearColumns: Column<YearRow>[] = [
@@ -183,11 +227,13 @@ export default async function StatsPage({ params }: Props) {
       count(l.id) as count
     from
       larp l
+    where
+      (l.starts_at >= ${cutoff} or ${since === "ALL_TIME"} and l.starts_at is null)
     group by l.type
     having count(l.id) > 0
     order by count desc, l.type asc
   `;
-  const typeTotal = await prisma.larp.count();
+  const typeTotal = typeRows.reduce((sum, row) => sum + row.count, BigInt(0));
   const typeColumns: Column<TypeRow>[] = [
     {
       slug: "type",
@@ -216,13 +262,14 @@ export default async function StatsPage({ params }: Props) {
     where
       l.language is not null
       and l.type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+      and l.starts_at >= ${cutoff}
     group by l.language
     having count(l.id) > 0
     order by count desc, l.language asc
   `;
   const languageTotal = languageRows.reduce(
     (sum, row) => sum + row.count,
-    BigInt(0)
+    BigInt(0),
   );
   const languageColumns: Column<LanguageRow>[] = [
     {
@@ -248,9 +295,8 @@ export default async function StatsPage({ params }: Props) {
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
     with year_range as (
       select generate_series(
-        -- sanity bounds to prevent trivial DOS via extreme years
-        greatest(1960, (select extract(year from min(starts_at))::int from larp where starts_at is not null)),
-        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at is not null))
+        extract(year from ${cutoff}::date)::int,
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     ),
     normalized_data_points as (
@@ -264,7 +310,7 @@ export default async function StatsPage({ params }: Props) {
         end as num_total_participants
       from larp
       where
-        starts_at is not null
+        starts_at >= ${cutoff}
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
     )
     select
@@ -279,14 +325,14 @@ export default async function StatsPage({ params }: Props) {
   `;
   const playerCharactersTotal = playersRows.reduce(
     (sum, row) => sum + row.numPlayerCharacters,
-    BigInt(0)
+    BigInt(0),
   );
   const totalParticipantsTotal = playersRows.reduce(
     (sum, row) => sum + row.numTotalParticipants,
-    BigInt(0)
+    BigInt(0),
   );
   const maxTotalParticipants = Math.max(
-    ...playersRows.map((row) => Number(row.numTotalParticipants))
+    ...playersRows.map((row) => Number(row.numTotalParticipants)),
   );
   const playersColumns: Column<PlayersRow>[] = [
     {
@@ -334,7 +380,8 @@ export default async function StatsPage({ params }: Props) {
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
-      <div className="text-center mb-5">{t.message}</div>
+      <div className="text-center mb-4">{t.message}</div>
+      <DimensionFilters className="mb-4" dimensions={filters} />
       <Report
         title={t.reports.type.title}
         rows={typeRows}

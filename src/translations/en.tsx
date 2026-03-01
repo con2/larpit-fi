@@ -1127,6 +1127,17 @@ const translations = {
         </p>
       </>
     ),
+    filters: {
+      since: {
+        title: "Time period",
+        choices: {
+          ALL_TIME: "All time",
+          LAST_10_YEARS: "Last 10 full years",
+          POST_COVID: "Post-COVID era (2022–)",
+          LAUNCH: "Since Larpit.fi launch (2026–)",
+        },
+      },
+    },
     attributes: {
       count: {
         title: "Count",
@@ -1144,28 +1155,18 @@ const translations = {
       },
       language: {
         title: "Larps by language",
-        description: (
-          <>
-            Includes one-shot and campaign larps. Events other than larps are
-            excluded.
-          </>
-        ),
+        description: <>Events other than larps are excluded.</>,
       },
       year: {
         title: "Larps by year",
-        description: (
-          <>
-            Includes larps with known municipality and start date. Events other
-            than larps are excluded.
-          </>
-        ),
+        description: <>Events other than larps are excluded.</>,
       },
       municipality: {
         title: "Larps by municipality",
         description: (
           <>
-            Includes larps with known municipality and start date. Events other
-            than larps are excluded.
+            Includes larps with known municipality. Events other than larps are
+            excluded.
           </>
         ),
         attributes: {
@@ -1179,10 +1180,10 @@ const translations = {
         description: (
           <>
             Sum of the number of player characters and total participants in
-            larps with known number of total participants and known start date.
-            Events other than larps are excluded. Please note that not all larps
-            have this information available, so the actual number of
-            participants is certainly higher.
+            larps with known number of total participants. Events other than
+            larps are excluded. Please note that not all larps have this
+            information available, so the actual number of participants is
+            certainly higher.
           </>
         ),
       },
