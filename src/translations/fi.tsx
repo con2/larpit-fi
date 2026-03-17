@@ -15,6 +15,7 @@ const translations: Translations = {
       upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",
       past: "Viimeaikaisia larppeja",
     },
+    otherEvent: { singular: "tapahtuma", plural: "tapahtumaa" },
   },
   LarpPage: {
     actions: {

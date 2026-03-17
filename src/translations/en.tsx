@@ -14,6 +14,7 @@ const translations = {
       upcomingWhenOngoingSignupPresent: "Other upcoming larps",
       past: "Some past larps",
     },
+    otherEvent: { singular: "event", plural: "events" },
   },
   LarpPage: {
     actions: {

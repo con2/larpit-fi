@@ -57,6 +57,7 @@ function Section({
   messages,
   children,
   past,
+  countWord,
 }: {
   title: string;
   larps: HomePageLarp[];
@@ -64,10 +65,23 @@ function Section({
   messages: Translations["Larp"];
   children?: React.ReactNode;
   past?: boolean;
+  countWord?: { singular: string; plural: string };
 }) {
+  const count = larps.length;
+  const word = countWord ?? messages.clientAttributes.yearHeaders.larp;
+  const countLabel = count === 1 ? word.singular : word.plural;
+
   return (
     <div className="mb-5">
-      <h4 className="h-float mb-4">{title}</h4>
+      <h4 className="h-float mb-4">
+        {title}
+        {!past && (
+          <>
+            {" "}
+            ({count} {countLabel})
+          </>
+        )}
+      </h4>
       <div className="row">
         {larps.map((larp) => (
           <LarpCard
@@ -104,7 +118,7 @@ export default async function HomePage({ params }: Props) {
   ]);
 
   const candidateLarps = larps.filter(
-    (larp) => larp.openness !== Openness.INVITE_ONLY && !!larp.startsAt
+    (larp) => larp.openness !== Openness.INVITE_ONLY && !!larp.startsAt,
   );
 
   // For upcoming events, earliest first is more useful
@@ -112,18 +126,18 @@ export default async function HomePage({ params }: Props) {
 
   const [otherEvents, actualLarps] = partition(
     candidateLarps,
-    (larp) => larp.type === LarpType.OTHER_EVENT
+    (larp) => larp.type === LarpType.OTHER_EVENT,
   );
   const upcomingOtherEvents = otherEvents.filter(
-    (larp) => ensureEndsAt(larp)! >= now
+    (larp) => ensureEndsAt(larp)! >= now,
   );
   const [pastLarps, upcomingLarps] = partition(
     actualLarps,
-    (larp) => ensureEndsAt(larp)! < now
+    (larp) => ensureEndsAt(larp)! < now,
   );
   const [ongoingSignupLarps, otherUpcomingLarps] = partition(
     upcomingLarps,
-    (larp) => isSignupOpenOrOpeningSoon(larp) // avoid index at 2nd arg
+    (larp) => isSignupOpenOrOpeningSoon(larp), // avoid index at 2nd arg
   );
 
   // We only show a fixed number of past larps
@@ -175,6 +189,7 @@ export default async function HomePage({ params }: Props) {
           larps={upcomingOtherEvents}
           locale={locale}
           messages={translations.Larp}
+          countWord={t.otherEvent}
         />
       )}
       {pastLarps.length > 0 && (
