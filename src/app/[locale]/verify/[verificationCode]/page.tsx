@@ -77,6 +77,10 @@ export default async function VerificationCodePage({ params }: Props) {
       title = translations.ClaimLarpPage.title;
       break;
 
+    case EditAction.DELETE:
+      title = translations.DeleteLarpPage.title;
+      break;
+
     default:
       const exhaustiveCheck: never = request.action;
       throw new Error(`EditAction not implemented: ${exhaustiveCheck}`);

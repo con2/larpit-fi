@@ -32,7 +32,7 @@ export async function deleteLarp(
 
   const larp = await prisma.larp.findUnique({
     where: { id: larpId },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true },
   });
 
   if (!larp?.id) {
