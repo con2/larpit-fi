@@ -29,7 +29,7 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -46,7 +46,7 @@ jobs:
     env:
       SKAFFOLD_DEFAULT_REPO: ghcr.io/con2
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: docker/login-action@v3
         with:
@@ -87,7 +87,7 @@ jobs:
     environment: staging
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v5
         with:
           name: build-json
@@ -119,7 +119,7 @@ jobs:
     environment: production
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/download-artifact@v5
         with:
           name: build-json
