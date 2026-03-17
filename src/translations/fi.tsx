@@ -20,6 +20,8 @@ const translations: Translations = {
   LarpPage: {
     actions: {
       edit: "Muokkaa tätä sivua",
+      delete: "Pyydä poistamista",
+      adminDelete: "Poista tämä sivu",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -260,16 +262,7 @@ const translations: Translations = {
   },
   EditLarpPage: {
     title: "Muokkaa larppia",
-    underConstruction: {
-      title: "Rakenteilla",
-      message: (
-        <>
-          Muokkaussivu on vielä rakenteilla (melkein valmis!). Sillä välin, jos
-          jotain tarvitsee korjata saman tien, laita viesti Japsulle.
-        </>
-      ),
-    },
-    editPolicy: {
+    policy: {
       LOG_IN_TO_EDIT: (
         <>Sinun täytyy kirjautua sisään muokataksesi tätä sivua.</>
       ),
@@ -286,6 +279,27 @@ const translations: Translations = {
         </>
       ),
       APPROVED: <>Voit muokata tätä sivua ilman ennakkotarkistusta.</>,
+    },
+  },
+  DeleteLarpPage: {
+    title: "Larppisivun poistaminen",
+    confirmation: (
+      <>
+        Jos olet sitä mieltä, että tätä larppisivua ei pitäisi olla olemassa,
+        voit pyytää sen poistamista täällä. Annathan syyn poistopyynnölle.
+        Poistopyynnöt käsittelee ylläpitäjä.
+      </>
+    ),
+    submit: "Pyydä poistamista",
+    adminNote: "Koska olet ylläpitäjä, tämä poistaa larpin välittömästi.",
+    policy: {
+      VERIFIED: (
+        <>
+          Jos tätä sivua ei mielestäsi pitäisi olla olemassa, voit pyytää sen
+          poistamista täällä.
+        </>
+      ),
+      APPROVED: <>Voit poistaa sivuja suoraan, koska olet ylläpitäjä.</>,
     },
   },
   ClaimLarpPage: {
@@ -768,6 +782,9 @@ const translations: Translations = {
           CLAIM: {
             title: "Haltuunotto",
           },
+          DELETE: {
+            title: "Sivun poistaminen",
+          },
         },
       },
       name: {
@@ -889,6 +906,7 @@ const translations: Translations = {
         title: "Näytä myös käsitellyt pyynnöt",
         active: "Näytetään myös käsitellyt pyynnöt.",
       },
+      deleteAdminOnly: "Vain ylläpitäjä voi hyväksyä poistopyyntöjä.",
       resolve: {
         title: "Käsittele pyyntö",
         submit: "Käsittele pyyntö",

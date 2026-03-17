@@ -1,14 +1,14 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditStatus } from "@/generated/prisma/client";
-import { canModerate } from "@/models/User";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
 import {
   approveRequest,
   rejectRequest,
   Resolution,
   zResolution,
 } from "@/models/ModerationRequest";
+import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -24,7 +24,7 @@ const ResolveRequest = MarkCheckedRequest.extend({
 export async function resolveRequest(
   locale: string,
   requestId: string,
-  formData: FormData
+  formData: FormData,
 ) {
   const session = await auth();
   if (!session?.user?.email) {
@@ -58,14 +58,23 @@ export async function resolveRequest(
     throw new Error("Insufficient privileges");
   }
 
+  if (
+    request.action === EditAction.DELETE &&
+    getDeleteLarpInitialStatusForUser(actor) !== EditStatus.APPROVED
+  ) {
+    throw new Error("Only admins can approve deletion requests");
+  }
+
   const resolveRequest = ResolveRequest.parse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   console.log("AUDIT", "resolveRequest", {
     actorUserId: actor.id,
     requestId: request.id,
     resolution: resolveRequest.resolution,
+    action: request.action,
+    larpId: request.larpId,
   });
 
   switch (resolveRequest.resolution) {
@@ -74,8 +83,13 @@ export async function resolveRequest(
         request,
         actor,
         resolveRequest.reason || null,
-        EditStatus.APPROVED
+        EditStatus.APPROVED,
       );
+
+      if (request.action === EditAction.DELETE) {
+        return void redirect(`/moderate`);
+      }
+
       return void redirect(`/larp/${larp.id}`);
 
     case Resolution.REJECTED:
@@ -89,7 +103,7 @@ export async function resolveRequest(
 export async function markChecked(
   locale: string,
   requestId: string,
-  formData: FormData
+  formData: FormData,
 ) {
   const session = await auth();
   if (!session?.user?.email) {
@@ -124,12 +138,15 @@ export async function markChecked(
   }
 
   const markChecked = MarkCheckedRequest.parse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   console.log("AUDIT", "markChecked", {
     actorUserId: actor.id,
     requestId: request.id,
+    resolution: Resolution.APPROVED,
+    action: request.action,
+    larpId: request.larpId,
   });
 
   await prisma.moderationRequest.update({

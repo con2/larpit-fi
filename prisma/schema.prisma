@@ -288,6 +288,7 @@ enum EditAction {
   CREATE
   UPDATE
   CLAIM
+  DELETE
 }
 
 model ModerationRequest {

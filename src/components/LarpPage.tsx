@@ -1,8 +1,13 @@
 import { auth } from "@/auth";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
-import { LarpLink, RelatedUserRole } from "@/generated/prisma/client";
+import {
+  EditStatus,
+  LarpLink,
+  RelatedUserRole,
+} from "@/generated/prisma/client";
 import getLarpHref, { ensureLocation } from "@/models/Larp";
 import {
+  getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
 } from "@/models/User";
@@ -36,7 +41,7 @@ const relatedLarpInclude = {
 } as const;
 
 export async function getLarpPageData(
-  where: { id: string } | { alias: string }
+  where: { id: string } | { alias: string },
 ) {
   return prisma.larp.findUnique({
     where,
@@ -225,7 +230,7 @@ function LarpInfoCard({
       title: t.attributes.language.title,
       getCellContents: (larp) =>
         t.attributes.language.choices[larp.language] || larp.language,
-    }
+    },
   );
 
   if (larp.openness) {
@@ -243,7 +248,7 @@ function LarpInfoCard({
 
   const numParticipants = t.attributes.numParticipants.format(
     larp.numPlayerCharacters,
-    larp.numTotalParticipants
+    larp.numTotalParticipants,
   );
   if (numParticipants) {
     fields.push({
@@ -329,6 +334,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
   const t = translations.LarpPage;
   const larpT = translations.Larp;
   const ediT = translations.EditLarpPage;
+  const deleTe = translations.DeleteLarpPage;
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
@@ -341,26 +347,18 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
     );
   }
 
-  function EditLink({ children }: { children: ReactNode }) {
-    return (
-      <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
-        {children}
-      </Link>
-    );
-  }
-
   let gmity: ReactNode;
   if (
     larp.relatedUsers.some(
       (related) =>
         related.userId === user?.id &&
-        related.role === RelatedUserRole.GAME_MASTER
+        related.role === RelatedUserRole.GAME_MASTER,
     )
   ) {
     gmity = <>✅ {larpT.attributes.isClaimedByGm.youAreTheGm}</>;
   } else if (
     larp.relatedUsers.some(
-      (related) => related.role === RelatedUserRole.GAME_MASTER
+      (related) => related.role === RelatedUserRole.GAME_MASTER,
     )
   ) {
     gmity = <>✅ {larpT.attributes.isClaimedByGm.message}</>;
@@ -368,7 +366,8 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
     gmity = <>⚠️ {t.actions.claim(ClaimLink)}</>;
   }
 
-  const policy = getEditLarpInitialStatusForUserAndLarp(user, larp);
+  const editPolicy = getEditLarpInitialStatusForUserAndLarp(user, larp);
+  const deletePolicy = getDeleteLarpInitialStatusForUser(user);
 
   return (
     <>
@@ -397,9 +396,25 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
         )}
         <div className="mb-2 form-text">{gmity}</div>
         <div className="mb-2 form-text">
-          ✏️ {policy && <EditLink>{t.actions.edit}</EditLink>}:{" "}
-          {ediT.editPolicy[policy ?? "LOG_IN_TO_EDIT"]}
+          ✏️{" "}
+          {editPolicy && (
+            <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
+              {t.actions.edit}
+            </Link>
+          )}
+          : {ediT.policy[editPolicy ?? "LOG_IN_TO_EDIT"]}
         </div>
+        {deletePolicy && (
+          <div className="mb-2 form-text">
+            🗑️{" "}
+            <Link href={`/larp/${larp.id}/delete`} className="link-subtle">
+              {deletePolicy === EditStatus.APPROVED
+                ? t.actions.adminDelete
+                : t.actions.delete}
+            </Link>
+            : {deleTe.policy[deletePolicy]}
+          </div>
+        )}
       </Container>
     </>
   );

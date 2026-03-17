@@ -11,6 +11,7 @@ import { truncateAll } from "@/test/truncate";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
   approveCreateLarpRequest,
+  approveDeleteLarpRequest,
   approveUpdateLarpRequest,
   rejectRequest,
 } from "./ModerationRequest";
@@ -54,11 +55,20 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterId: user.id,
         submitterRole: SubmitterRole.GAME_MASTER,
-        newContent: { ...minimalNewContent, name: "My Larp", tagline: "A tagline" },
+        newContent: {
+          ...minimalNewContent,
+          name: "My Larp",
+          tagline: "A tagline",
+        },
       },
     });
 
-    const result = await approveCreateLarpRequest(request, user, null, "APPROVED");
+    const result = await approveCreateLarpRequest(
+      request,
+      user,
+      null,
+      "APPROVED",
+    );
     const larp = await prisma.larp.findUnique({ where: { id: result.id } });
 
     expect(larp?.name).toBe("My Larp");
@@ -126,6 +136,81 @@ describe("ModerationRequest integration tests", () => {
     expect(updated?.tagline).toBe("Original tagline");
   });
 
+  it("approveDeleteLarpRequest deletes the larp and deletes the request", async () => {
+    const user = await prisma.user.create({
+      data: { ...testUser, role: UserRole.ADMIN },
+    });
+    const larp = await prisma.larp.create({
+      data: { name: "To Be Deleted", language: Language.fi },
+    });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.DELETE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: {},
+      },
+    });
+
+    await approveDeleteLarpRequest(request, user, "Duplicate page", "APPROVED");
+
+    const deletedLarp = await prisma.larp.findUnique({
+      where: { id: larp.id },
+    });
+    expect(deletedLarp).toBeNull();
+
+    // The delete cascades to the moderation request itself as well.
+    const updatedRequest = await prisma.moderationRequest.findUnique({
+      where: { id: request.id },
+    });
+    expect(updatedRequest).toBeNull();
+  });
+
+  it("approveDeleteLarpRequest also deletes cascade-related moderation requests", async () => {
+    const user = await prisma.user.create({
+      data: { ...testUser, role: UserRole.ADMIN },
+    });
+    const larp = await prisma.larp.create({
+      data: { name: "Has Other Requests", language: Language.fi },
+    });
+
+    // An older, already-approved CREATE request for this larp
+    await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.CREATE,
+        larpId: larp.id,
+        status: EditStatus.APPROVED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.GAME_MASTER,
+        newContent: {},
+      },
+    });
+
+    const deleteRequest = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.DELETE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: {},
+      },
+    });
+
+    await approveDeleteLarpRequest(deleteRequest, user, null, "APPROVED");
+
+    const remainingRequests = await prisma.moderationRequest.findMany({
+      where: { larpId: larp.id },
+    });
+    expect(remainingRequests).toHaveLength(0);
+  });
+
   it("rejectRequest sets status to REJECTED with reason", async () => {
     const user = await prisma.user.create({ data: testUser });
 
@@ -142,7 +227,9 @@ describe("ModerationRequest integration tests", () => {
 
     await rejectRequest(request, user, "Spam");
 
-    const updated = await prisma.moderationRequest.findUnique({ where: { id: request.id } });
+    const updated = await prisma.moderationRequest.findUnique({
+      where: { id: request.id },
+    });
     expect(updated?.status).toBe(EditStatus.REJECTED);
     expect(updated?.resolvedMessage).toBe("Spam");
     expect(updated?.resolvedAt).not.toBeNull();

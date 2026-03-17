@@ -22,7 +22,7 @@ export function canEditPages(user: Pick<User, "role"> | null): boolean {
 /// When this user makes a request to create a larp,
 /// this determines the status of the created moderation request.
 export function getNewLarpInitialStatusForUser(
-  user: Pick<User, "role"> | null
+  user: Pick<User, "role"> | null,
 ) {
   if (!user) {
     return EditStatus.PENDING_VERIFICATION;
@@ -47,7 +47,7 @@ export function getEditLarpInitialStatusForUserAndLarp(
   user: Pick<User, "id" | "role"> | null,
   larp: {
     relatedUsers: Pick<RelatedUser, "userId" | "role">[];
-  }
+  },
 ) {
   // Non-logged in users cannot edit
   if (!user?.id) {
@@ -65,7 +65,7 @@ export function getEditLarpInitialStatusForUserAndLarp(
       (relatedUser) =>
         relatedUser.userId === user.id &&
         (relatedUser.role === RelatedUserRole.EDITOR ||
-          relatedUser.role === RelatedUserRole.GAME_MASTER)
+          relatedUser.role === RelatedUserRole.GAME_MASTER),
     )
   ) {
     return EditStatus.AUTO_APPROVED;
@@ -75,8 +75,27 @@ export function getEditLarpInitialStatusForUserAndLarp(
   return EditStatus.VERIFIED;
 }
 
+/// Only admins can directly delete pages.
+export function getDeleteLarpInitialStatusForUser(
+  user: Pick<User, "role"> | null,
+) {
+  if (!user) {
+    return null;
+  }
+
+  switch (user.role) {
+    case UserRole.ADMIN:
+      return EditStatus.APPROVED;
+    case UserRole.MODERATOR:
+    case UserRole.VERIFIED:
+    case UserRole.NOT_VERIFIED:
+    default:
+      return EditStatus.VERIFIED;
+  }
+}
+
 export async function getUserFromSession(
-  session: { user?: { email?: string | null } | null } | null | undefined
+  session: { user?: { email?: string | null } | null } | null | undefined,
 ) {
   return session?.user?.email
     ? await prisma.user.findUnique({
@@ -104,7 +123,7 @@ export function getHighestUserRoleForLarp(
   user: Pick<User, "id"> | null,
   larp: {
     relatedUsers: Pick<RelatedUser, "userId" | "role">[];
-  }
+  },
 ) {
   if (!user?.id) {
     return "NONE";
@@ -114,7 +133,7 @@ export function getHighestUserRoleForLarp(
     if (
       larp.relatedUsers.some(
         (relatedUser) =>
-          relatedUser.userId === user.id && relatedUser.role === role
+          relatedUser.userId === user.id && relatedUser.role === role,
       )
     ) {
       return role;

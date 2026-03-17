@@ -19,6 +19,8 @@ const translations = {
   LarpPage: {
     actions: {
       edit: "Edit this page",
+      delete: "Request deletion",
+      adminDelete: "Delete this page",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -249,17 +251,7 @@ const translations = {
   },
   EditLarpPage: {
     title: "Edit this page",
-    underConstruction: {
-      title: "Under construction",
-      message: (
-        <>
-          The edit page is still under construction. But we&apos;re nearly
-          there! In the meantime, if there&apos;s something you really need
-          fixed right now, send Japsu a message.
-        </>
-      ),
-    },
-    editPolicy: {
+    policy: {
       LOG_IN_TO_EDIT: <>You need to log in to edit this page.</>,
       VERIFIED: (
         <>
@@ -274,6 +266,28 @@ const translations = {
         </>
       ),
       APPROVED: <>You can edit this page directly without moderation.</>,
+    },
+  },
+  DeleteLarpPage: {
+    title: "Delete larp page",
+    confirmation: (
+      <>
+        If you think this larp page should not exist, you can request its
+        removal here. Please provide a reason for the deletion request.
+      </>
+    ),
+    submit: "Request deletion",
+    adminNote: "As an admin, this will delete the larp immediately.",
+    policy: {
+      VERIFIED: (
+        <>
+          If you think this page should not exist, you can request its removal
+          here. Your request will be reviewed by the administrator.
+        </>
+      ),
+      APPROVED: (
+        <>If you think this page should not exist, you can delete it here.</>
+      ),
     },
   },
   ClaimLarpPage: {
@@ -756,6 +770,9 @@ const translations = {
           CLAIM: {
             title: "Claim page",
           },
+          DELETE: {
+            title: "Delete page",
+          },
         },
       },
       name: {
@@ -874,6 +891,7 @@ const translations = {
         title: "Also show resolved requests",
         active: "Showing all requests (including resolved ones)",
       },
+      deleteAdminOnly: "Only admins can approve deletion requests.",
       resolve: {
         title: "Resolve this request",
         submit: "Resolve request",

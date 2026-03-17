@@ -15,8 +15,13 @@ import UserMenu from "./UserMenu";
 import { isStaging } from "@/config";
 import { auth } from "@/auth";
 import prisma from "@/prisma";
-import { EditStatus } from "@/generated/prisma/client";
-import { canEditPages, canManageUsers, canModerate } from "@/models/User";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
+import {
+  getDeleteLarpInitialStatusForUser,
+  canEditPages,
+  canManageUsers,
+  canModerate,
+} from "@/models/User";
 
 interface Props {
   locale: string;
@@ -29,19 +34,30 @@ export async function Navigation({ locale }: Props) {
   // TODO Forces dynamic rendering for all pages.
   // Learn how to put custom fields on session.user and use useSession.
   const session = await auth();
-  const [user, numPendingModerationRequests] = await Promise.all([
-    session?.user?.email
-      ? prisma.user.findUnique({
-          where: { email: session.user.email },
-          select: { id: true, name: true, email: true, role: true },
-        })
-      : null,
-    prisma.moderationRequest.count({
-      where: {
-        status: { in: [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED] },
-      },
-    }),
-  ]);
+  const [user, numPendingNonDeleteRequests, numPendingDeleteRequests] =
+    await Promise.all([
+      session?.user?.email
+        ? prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true, name: true, email: true, role: true },
+          })
+        : null,
+      prisma.moderationRequest.count({
+        where: {
+          status: { in: [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED] },
+          action: { not: EditAction.DELETE },
+        },
+      }),
+      prisma.moderationRequest.count({
+        where: {
+          status: EditStatus.VERIFIED,
+          action: EditAction.DELETE,
+        },
+      }),
+    ]);
+
+  const isAdmin =
+    getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
 
   return (
     <Navbar expand="md">
@@ -72,10 +88,19 @@ export async function Navigation({ locale }: Props) {
             {canModerate(user) && (
               <NavLink as={Link} href="/moderate">
                 {t.actions.moderate}{" "}
-                {!!numPendingModerationRequests && (
-                  <Badge pill bg="primary">
-                    {numPendingModerationRequests}
-                  </Badge>
+                {!!numPendingNonDeleteRequests && (
+                  <>
+                    <Badge pill bg="primary">
+                      {numPendingNonDeleteRequests}
+                    </Badge>{" "}
+                  </>
+                )}
+                {isAdmin && !!numPendingDeleteRequests && (
+                  <>
+                    <Badge pill bg="danger">
+                      {numPendingDeleteRequests}
+                    </Badge>{" "}
+                  </>
                 )}
               </NavLink>
             )}

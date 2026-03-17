@@ -4,10 +4,10 @@ import FormattedDateTime from "@/components/FormattedDateTime";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
-import { EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
-import { canModerate } from "@/models/User";
+import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
@@ -54,20 +54,24 @@ export default async function ModerationPage({ params, searchParams }: Props) {
     statuses = Object.values(EditStatus);
   }
   statuses = statuses.filter(
-    (status) => EditStatus[status as keyof typeof EditStatus]
+    (status) => EditStatus[status as keyof typeof EditStatus],
   );
 
   const isShowingAll = Object.values(EditStatus).every((status) =>
-    statuses.includes(status)
+    statuses.includes(status),
   );
+
+  const canModerateDeleteRequests =
+    getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
 
   const [requests, totalCount] = await Promise.all([
     prisma.moderationRequest.findMany({
       orderBy: { id: "desc" },
       where: {
-        status: {
-          in: statuses as EditStatus[],
-        },
+        status: { in: statuses as EditStatus[] },
+        ...(canModerateDeleteRequests
+          ? {}
+          : { action: { not: EditAction.DELETE } }),
       },
       include: {
         resolvedBy: {

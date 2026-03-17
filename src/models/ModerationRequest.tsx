@@ -103,6 +103,8 @@ export async function approveRequest(
     return approveCreateLarpRequest(request, resolvedBy, reason, newStatus);
   } else if (request.action === EditAction.UPDATE) {
     return approveUpdateLarpRequest(request, resolvedBy, reason, newStatus);
+  } else if (request.action === EditAction.DELETE) {
+    return approveDeleteLarpRequest(request, resolvedBy, reason, newStatus);
   } else {
     throw new Error(`Not implemented yet: ${request.action}`);
   }
@@ -413,6 +415,29 @@ export async function rejectRequest(
       resolvedMessage: reason,
     },
   });
+}
+
+export async function approveDeleteLarpRequest(
+  request: Pick<ModerationRequest, "id" | "action" | "larpId">,
+  resolvedBy: Pick<User, "id" | "role">,
+  reason: string | null,
+  newStatus: "APPROVED" | "AUTO_APPROVED"
+): Promise<Pick<Larp, "id">> {
+  if (request.action !== EditAction.DELETE) {
+    throw new Error(`Not a delete larp request: ${request.id}`);
+  }
+
+  if (!request.larpId) {
+    throw new Error(`Delete larp request without larpId: ${request.id}`);
+  }
+
+  const larpId = request.larpId;
+
+  // Update request status BEFORE deleting larp (cascade would delete it otherwise)
+  await handleRequestStatusUpdate(request.id, larpId, newStatus, resolvedBy, reason);
+  await prisma.larp.delete({ where: { id: larpId } });
+
+  return { id: larpId };
 }
 
 export async function sendVerificationEmail(

@@ -6,7 +6,7 @@ import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
-import { EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import getLarpHref from "@/models/Larp";
 import { LarpLinkUpsertable } from "@/models/LarpLink";
@@ -16,7 +16,7 @@ import {
   ModerationRequestContent,
   parsePartialContent,
 } from "@/models/ModerationRequest";
-import { canModerate } from "@/models/User";
+import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
@@ -90,7 +90,10 @@ export default async function ModerationRequestPage({ params }: Props) {
   }
 
   const mergedContent: ModerationRequestContent = request.larp
-    ? { ...larpToContent(request.larp), ...parsePartialContent(request.newContent) }
+    ? {
+        ...larpToContent(request.larp),
+        ...parsePartialContent(request.newContent),
+      }
     : ModerationRequestContent.parse(request.newContent);
   const updatedLarp = contentToLarp(mergedContent);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
@@ -250,7 +253,14 @@ export default async function ModerationRequestPage({ params }: Props) {
         </Card>
       ) : null}
 
-      {request.status === EditStatus.VERIFIED ? (
+      {request.action === EditAction.DELETE &&
+      getDeleteLarpInitialStatusForUser(user) !== EditStatus.APPROVED ? (
+        <Card className="mb-5">
+          <CardBody>
+            <CardText>{t.actions.deleteAdminOnly}</CardText>
+          </CardBody>
+        </Card>
+      ) : request.status === EditStatus.VERIFIED ? (
         <Card className="mb-5">
           <CardBody>
             <CardTitle>{t.actions.resolve.title}</CardTitle>
@@ -260,7 +270,7 @@ export default async function ModerationRequestPage({ params }: Props) {
               </FormLabel>
               <Row>
                 {Object.entries(
-                  t.actions.resolve.attributes.resolution.choices
+                  t.actions.resolve.attributes.resolution.choices,
                 ).map(([resolution, { title, description, already }]) => (
                   <div className="col-md-6" key={resolution}>
                     <Card className="mb-3">

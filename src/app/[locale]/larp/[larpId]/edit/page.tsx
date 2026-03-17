@@ -84,7 +84,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
-      <div className="text-center mb-5">{t.editPolicy[initialStatus]}</div>
+      <div className="text-center mb-5">{t.policy[initialStatus]}</div>
 
       <Form action={editLarp.bind(null, locale, larp!.id)}>
         <SubmitterFormComponent
