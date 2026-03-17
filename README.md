@@ -72,6 +72,16 @@ npm run db:seed
 
 Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
 
+### Running tests
+
+**Integration tests** try to test key business logic against an actual database. Run these with
+
+```
+npm run test:integration
+```
+
+See above for creating the `larpit_test` database.
+
 ## Features/TODO list
 
 ### Next priorities (as of 2026-)

@@ -2,6 +2,7 @@ import {
   EditAction,
   EditStatus,
   Language,
+  LarpLinkType,
   LarpType,
   SubmitterRole,
   UserRole,
@@ -60,6 +61,7 @@ describe("ModerationRequest integration tests", () => {
           name: "My Larp",
           tagline: "A tagline",
         },
+        addLinks: [{ type: LarpLinkType.HOMEPAGE, href: "https://example.com" }],
       },
     });
 
@@ -69,11 +71,17 @@ describe("ModerationRequest integration tests", () => {
       null,
       "APPROVED",
     );
-    const larp = await prisma.larp.findUnique({ where: { id: result.id } });
+    const larp = await prisma.larp.findUnique({
+      where: { id: result.id },
+      include: { links: true },
+    });
 
     expect(larp?.name).toBe("My Larp");
     expect(larp?.tagline).toBe("A tagline");
     expect(larp?.language).toBe(Language.fi);
+    expect(larp?.links).toHaveLength(1);
+    expect(larp?.links[0].href).toBe("https://example.com");
+    expect(larp?.links[0].type).toBe(LarpLinkType.HOMEPAGE);
   });
 
   it("approveUpdateLarpRequest only updates changed fields", async () => {
@@ -84,6 +92,9 @@ describe("ModerationRequest integration tests", () => {
         language: Language.fi,
         tagline: "Original tagline",
         description: "Original description",
+        links: {
+          create: { type: LarpLinkType.HOMEPAGE, href: "https://old.example.com" },
+        },
       },
     });
 
@@ -96,15 +107,23 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterRole: SubmitterRole.NONE,
         newContent: { name: "New Name" },
+        addLinks: [{ type: LarpLinkType.PHOTOS, href: "https://photos.example.com" }],
+        removeLinks: [{ type: LarpLinkType.HOMEPAGE, href: "https://old.example.com" }],
       },
     });
 
     await approveUpdateLarpRequest(request, user, null, "APPROVED");
 
-    const updated = await prisma.larp.findUnique({ where: { id: larp.id } });
+    const updated = await prisma.larp.findUnique({
+      where: { id: larp.id },
+      include: { links: true },
+    });
     expect(updated?.name).toBe("New Name");
     expect(updated?.tagline).toBe("Original tagline");
     expect(updated?.description).toBe("Original description");
+    expect(updated?.links).toHaveLength(1);
+    expect(updated?.links[0].href).toBe("https://photos.example.com");
+    expect(updated?.links[0].type).toBe(LarpLinkType.PHOTOS);
   });
 
   it("approveUpdateLarpRequest with empty diff leaves larp unchanged", async () => {

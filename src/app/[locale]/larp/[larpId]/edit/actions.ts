@@ -7,7 +7,7 @@ import {
   RelatedUserRole,
 } from "@/generated/prisma/client";
 import { normalizeFormData } from "@/helpers/normalizeFormData";
-import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
+import { diffLarpLinks, formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
   approveRequest,
   diffLarpContent,
@@ -41,7 +41,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
           },
         },
       },
-      links: { select: { id: true } },
+      links: { select: { href: true, type: true } },
     },
   });
 
@@ -82,9 +82,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
       message,
       newContent: diff,
 
-      // TODO cheap-ass solution, implement proper handling for multiple links of same type
-      addLinks: formToLarpLinks(linksForm),
-      removeLinks: larp.links, // [{id}]
+      ...diffLarpLinks(larp.links, formToLarpLinks(linksForm)),
     },
   });
 

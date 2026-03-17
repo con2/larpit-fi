@@ -13,7 +13,8 @@ export const LarpLinkUpsertable = z.object({
 export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;
 
 export const LarpLinkRemovable = z.object({
-  id: z.uuid(),
+  type: zLarpLinkType,
+  href: z.string(),
 });
 
 export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;
@@ -98,6 +99,20 @@ export function socialMediaLinkTitleFromHref(href: string) {
   return null;
 }
 
+export function diffLarpLinks(
+  current: LarpLinkUpsertable[],
+  desired: LarpLinkUpsertable[]
+): { addLinks: LarpLinkUpsertable[]; removeLinks: LarpLinkRemovable[] } {
+  const key = (l: LarpLinkUpsertable) => `${l.type}:${l.href}`;
+  const currentKeys = new Set(current.map(key));
+  const desiredKeys = new Set(desired.map(key));
+
+  return {
+    addLinks: desired.filter((l) => !currentKeys.has(key(l))),
+    removeLinks: current.filter((l) => !desiredKeys.has(key(l))),
+  };
+}
+
 export async function handleLarpLinks(
   larpId: string,
   addLinks: LarpLinkUpsertable[],
@@ -131,8 +146,8 @@ export async function handleLarpLinks(
     promises.push(
       prisma.larpLink.deleteMany({
         where: {
-          id: { in: removeLinks.map((link) => link.id) },
           larpId,
+          OR: removeLinks.map(({ href, type }) => ({ href, type })),
         },
       })
     );

@@ -900,6 +900,9 @@ const translations: Translations = {
       addLinks: {
         title: "Linkit",
       },
+      removeLinks: {
+        title: "Poistetut linkit",
+      },
     },
     actions: {
       showAll: {

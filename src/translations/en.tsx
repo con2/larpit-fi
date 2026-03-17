@@ -885,6 +885,9 @@ const translations = {
       addLinks: {
         title: "Links",
       },
+      removeLinks: {
+        title: "Removed links",
+      },
     },
     actions: {
       showAll: {

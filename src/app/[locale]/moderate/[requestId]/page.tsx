@@ -9,7 +9,7 @@ import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
 import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import getLarpHref from "@/models/Larp";
-import { LarpLinkUpsertable } from "@/models/LarpLink";
+import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import {
   contentToLarp,
   larpToContent,
@@ -98,8 +98,8 @@ export default async function ModerationRequestPage({ params }: Props) {
   const updatedLarp = contentToLarp(mergedContent);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
-  // TODO show
-  // const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
+  // Old removeLinks records may lack `type`; degrade gracefully by dropping unparseable entries
+  const removeLinks = z.array(LarpLinkRemovable).catch([]).parse(request.removeLinks);
 
   function Empty() {
     return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;
@@ -246,6 +246,22 @@ export default async function ModerationRequestPage({ params }: Props) {
                       {link.href}
                     </a>
                   </dd>
+                </Fragment>
+              ))}
+            </dl>
+          </CardBody>
+        </Card>
+      ) : null}
+
+      {removeLinks.length > 0 ? (
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.attributes.removeLinks.title}</CardTitle>
+            <dl>
+              {removeLinks.map((link) => (
+                <Fragment key={JSON.stringify(link)}>
+                  <dt>{larpT.attributes.links.types[link.type].title}</dt>
+                  <dd>{link.href}</dd>
                 </Fragment>
               ))}
             </dl>
