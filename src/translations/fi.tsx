@@ -715,6 +715,7 @@ const translations: Translations = {
         upcoming: "(tulossa)",
         past: "(menneet)",
         noDate: "Päivämäärä ei tiedossa",
+        larp: { singular: "larppi", plural: "larppia" },
       },
       role: {
         title: "Oma rooli",

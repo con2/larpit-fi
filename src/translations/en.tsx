@@ -705,6 +705,7 @@ const translations = {
         upcoming: "(upcoming)",
         past: "(past)",
         noDate: "Date not set",
+        larp: { singular: "larp", plural: "larps" },
       },
       role: {
         title: "Own role",

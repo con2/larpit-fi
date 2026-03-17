@@ -211,6 +211,11 @@ export function LarpTable<Row extends LarpRow>({
                 className="fw-semibold no-hover"
               >
                 {group.title}
+                {" – "}
+                {group.larps.length}{" "}
+                {group.larps.length === 1
+                  ? messages.yearHeaders.larp.singular
+                  : messages.yearHeaders.larp.plural}
               </th>
             </tr>
             {group.larps.map((row) => (
