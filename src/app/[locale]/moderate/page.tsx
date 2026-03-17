@@ -61,22 +61,25 @@ export default async function ModerationPage({ params, searchParams }: Props) {
     statuses.includes(status)
   );
 
-  const requests = await prisma.moderationRequest.findMany({
-    orderBy: { id: "desc" },
-    where: {
-      status: {
-        in: statuses as EditStatus[],
-      },
-    },
-    include: {
-      resolvedBy: {
-        select: {
-          id: true,
-          name: true,
+  const [requests, totalCount] = await Promise.all([
+    prisma.moderationRequest.findMany({
+      orderBy: { id: "desc" },
+      where: {
+        status: {
+          in: statuses as EditStatus[],
         },
       },
-    },
-  });
+      include: {
+        resolvedBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    }),
+    prisma.moderationRequest.count(),
+  ]);
 
   const columns: Column<(typeof requests)[number]>[] = [
     {
@@ -138,7 +141,7 @@ export default async function ModerationPage({ params, searchParams }: Props) {
         getRowHref={(row) => `/moderate/${row.id}`}
       >
         <TableFooter colSpan={columns.length}>
-          {t.tableFooter(requests.length, requests.length)}
+          {t.tableFooter(requests.length, totalCount)}
         </TableFooter>
       </DataTable>
     </Container>
