@@ -6,10 +6,11 @@ import {
   EditStatus,
   RelatedUserRole,
 } from "@/generated/prisma/client";
-import compactObject from "@/helpers/compactObject";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
   approveRequest,
+  diffLarpContent,
+  larpToContent,
   ModerationRequestForm,
 } from "@/models/ModerationRequest";
 import {
@@ -53,7 +54,8 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const linksForm = LarpLinksForm.parse(formDataObject);
 
   const { name: submitterName, email: submitterEmail } = user;
-  const { submitterRole, message, ...newContent } = larpForm;
+  // Destructure out all form-specific fields; remainder is already-transformed ModerationRequestContent
+  const { submitterRole, message, cat: _cat, submitterName: _sn, submitterEmail: _se, ...newContent } = larpForm;
 
   if (!submitterName || !submitterEmail) {
     throw new Error("Missing submitter information");
@@ -63,6 +65,9 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   if (status === null) {
     throw new Error("You do not have permission to edit this larp");
   }
+
+  const currentContent = larpToContent(larp);
+  const diff = diffLarpContent(currentContent, newContent);
 
   const request = await prisma.moderationRequest.create({
     data: {
@@ -74,7 +79,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
       submitterEmail,
       submitterRole,
       message,
-      newContent: compactObject(newContent),
+      newContent: diff,
 
       // TODO cheap-ass solution, implement proper handling for multiple links of same type
       addLinks: formToLarpLinks(linksForm),

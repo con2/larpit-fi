@@ -308,7 +308,6 @@ model ModerationRequest {
   verificationCode String?   @unique @default(uuid(4)) @map("verification_code") @db.Uuid
   verifiedAt       DateTime? @map("verified_at")
 
-  oldContent Json @default("{}") @map("old_content")
   newContent Json @default("{}") @map("new_content")
 
   removeLinks Json @default("[]") @map("remove_links")

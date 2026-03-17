@@ -12,7 +12,9 @@ import getLarpHref from "@/models/Larp";
 import { LarpLinkUpsertable } from "@/models/LarpLink";
 import {
   contentToLarp,
+  larpToContent,
   ModerationRequestContent,
+  parsePartialContent,
 } from "@/models/ModerationRequest";
 import { canModerate } from "@/models/User";
 import prisma from "@/prisma";
@@ -69,13 +71,7 @@ export default async function ModerationRequestPage({ params }: Props) {
             name: true,
           },
         },
-        larp: {
-          select: {
-            id: true,
-            name: true,
-            alias: true,
-          },
-        },
+        larp: true,
       },
     }),
     session?.user?.email
@@ -93,8 +89,10 @@ export default async function ModerationRequestPage({ params }: Props) {
     return notFound();
   }
 
-  const newContent = ModerationRequestContent.parse(request.newContent);
-  const updatedLarp = contentToLarp(newContent);
+  const mergedContent: ModerationRequestContent = request.larp
+    ? { ...larpToContent(request.larp), ...parsePartialContent(request.newContent) }
+    : ModerationRequestContent.parse(request.newContent);
+  const updatedLarp = contentToLarp(mergedContent);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
   // TODO show

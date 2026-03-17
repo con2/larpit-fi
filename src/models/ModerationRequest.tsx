@@ -21,6 +21,7 @@ import {
   fromEveningNull,
   fromJustBeforeMidnightNull,
   fromMorningNull,
+  toPlainDateNull,
   zPlainDateNull,
 } from "@/helpers/temporal";
 import prisma from "@/prisma";
@@ -107,6 +108,63 @@ export async function approveRequest(
   }
 }
 
+export function larpToContent(
+  larp: Pick<Larp, 'name' | 'tagline' | 'type' | 'openness' | 'language' |
+    'fluffText' | 'description' | 'locationText' | 'municipalityId' |
+    'numPlayerCharacters' | 'numTotalParticipants' |
+    'startsAt' | 'endsAt' | 'signupStartsAt' | 'signupEndsAt'>
+): ModerationRequestContent {
+  return {
+    name: larp.name,
+    tagline: larp.tagline ?? "",
+    type: larp.type,
+    openness: larp.openness,
+    language: larp.language,
+    fluffText: larp.fluffText ?? "",
+    description: larp.description ?? "",
+    locationText: larp.locationText ?? "",
+    municipality: larp.municipalityId,
+    numPlayerCharacters: larp.numPlayerCharacters,
+    numTotalParticipants: larp.numTotalParticipants,
+    startsAt: toPlainDateNull(larp.startsAt),
+    endsAt: toPlainDateNull(larp.endsAt),
+    signupStartsAt: toPlainDateNull(larp.signupStartsAt),
+    signupEndsAt: toPlainDateNull(larp.signupEndsAt),
+  };
+}
+
+/**
+ * Parse a stored diff back to Partial<ModerationRequestContent>.
+ * Cannot use ModerationRequestContent.partial().parse() directly because Zod still applies
+ * .default() to absent fields, turning a minimal diff into a full object of defaults.
+ */
+export function parsePartialContent(raw: unknown): Partial<ModerationRequestContent> {
+  const presentKeys = new Set(Object.keys(raw as object));
+  const parsed = ModerationRequestContent.partial().parse(raw);
+  return Object.fromEntries(
+    Object.entries(parsed).filter(([key]) => presentKeys.has(key))
+  ) as Partial<ModerationRequestContent>;
+}
+
+export function diffLarpContent(
+  oldContent: ModerationRequestContent,
+  newContent: ModerationRequestContent
+): Partial<ModerationRequestContent> {
+  const result: Partial<ModerationRequestContent> = {};
+
+  for (const key of Object.keys(newContent) as (keyof ModerationRequestContent)[]) {
+    const oldVal = oldContent[key];
+    const newVal = newContent[key];
+    const oldStr = oldVal == null ? null : String(oldVal);
+    const newStr = newVal == null ? null : String(newVal);
+    if (oldStr !== newStr) {
+      (result as Record<string, unknown>)[key] = newVal;
+    }
+  }
+
+  return result;
+}
+
 export function contentToLarp(content: ModerationRequestContent) {
   const {
     municipality,
@@ -124,6 +182,26 @@ export function contentToLarp(content: ModerationRequestContent) {
     endsAt: fromEveningNull(endsAt),
     signupStartsAt: fromEveningNull(signupStartsAt),
     signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt),
+  };
+}
+
+export function partialContentToLarp(content: Partial<ModerationRequestContent>) {
+  const {
+    municipality,
+    startsAt,
+    endsAt,
+    signupStartsAt,
+    signupEndsAt,
+    ...rest
+  } = content;
+
+  return {
+    ...rest,
+    ...(municipality !== undefined ? { municipalityId: municipality } : {}),
+    ...(startsAt !== undefined ? { startsAt: fromMorningNull(startsAt) } : {}),
+    ...(endsAt !== undefined ? { endsAt: fromEveningNull(endsAt) } : {}),
+    ...(signupStartsAt !== undefined ? { signupStartsAt: fromEveningNull(signupStartsAt) } : {}),
+    ...(signupEndsAt !== undefined ? { signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt) } : {}),
   };
 }
 
@@ -274,8 +352,8 @@ export async function approveUpdateLarpRequest(
     throw new Error(`Update larp request without larpId: ${request.id}`);
   }
 
-  const content = ModerationRequestContent.parse(request.newContent);
-  const data = contentToLarp(content);
+  const content = parsePartialContent(request.newContent);
+  const data = partialContentToLarp(content);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
   const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
 
