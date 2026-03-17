@@ -395,15 +395,15 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
           </div>
         )}
         <div className="mb-2 form-text">{gmity}</div>
-        <div className="mb-2 form-text">
-          ✏️{" "}
-          {editPolicy && (
+        {editPolicy && (
+          <div className="mb-2 form-text">
+            ✏️{" "}
             <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
               {t.actions.edit}
             </Link>
-          )}
-          : {ediT.policy[editPolicy ?? "LOG_IN_TO_EDIT"]}
-        </div>
+            : {ediT.policy[editPolicy]}
+          </div>
+        )}
         {deletePolicy && (
           <div className="mb-2 form-text">
             🗑️{" "}

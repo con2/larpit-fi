@@ -263,9 +263,6 @@ const translations: Translations = {
   EditLarpPage: {
     title: "Muokkaa larppia",
     policy: {
-      LOG_IN_TO_EDIT: (
-        <>Sinun täytyy kirjautua sisään muokataksesi tätä sivua.</>
-      ),
       VERIFIED: (
         <>
           Muokkauksesi tarkistetaan ennen julkaisua moderaattorin tai

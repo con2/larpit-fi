@@ -252,7 +252,6 @@ const translations = {
   EditLarpPage: {
     title: "Edit this page",
     policy: {
-      LOG_IN_TO_EDIT: <>You need to log in to edit this page.</>,
       VERIFIED: (
         <>
           Your edits will be reviewed by a moderator or the GM before being
