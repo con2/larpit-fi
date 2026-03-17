@@ -1,4 +1,1 @@
-- Write SQL keywords in lower case.
-- Use `prisma.$queryRaw` for aggregate queries (COUNT, SUM, etc.) instead of fetching records and counting in JavaScript.
-- Encapsulate repeated code patterns into helper functions.
-- Remove props, types, and code that become redundant after refactoring.
+../CLAUDE.md

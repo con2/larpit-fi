@@ -73,21 +73,17 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
 
 ## Features/TODO list
 
-### Next priorities (as of 2025-11-15)
+### Next priorities (as of 2026-)
 
-- [x] Upgrade to Prisma 7
 - [ ] Import kalenteri.larp.fi content
-- [x] Import Myssy megatable
-- [x] Arrange larp details on larp page as some sort of details/properties card
-  - [x] Put signup starts/ends on larp page
-- [ ] List moderators and admins
-- [ ] Support requests / contact form
-  - [ ] There is a problem with this page that cannot be rectified by suggesting an edit
-  - [ ] I am a journalist or researcher and want to speak to an expert about larp
-  - [ ] I need to contact the GM of a larp
-  - [ ] I want to give feedback about the site
+- [ ] Import Epel Larp content
 - [ ] Enhanced moderation (show what was changed)
+  - [X] In `ModerationRequest`, only include changed fields in `newContent`
+  - [ ] Diff UI
 - [ ] Related larps
+  - [X] DB model
+  - [X] Shown on larp page
+  - [ ] UI to add relations
 
 ### Known bugs / good first issues :)
 
