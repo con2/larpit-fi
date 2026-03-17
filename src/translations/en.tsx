@@ -1,5 +1,5 @@
 import { UserRole } from "@/generated/prisma/client";
-import { JSX, ReactNode } from "react";
+import React, { JSX, ReactNode } from "react";
 
 const translations = {
   title: "Larpit.fi",
