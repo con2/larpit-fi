@@ -47,7 +47,7 @@ npm run db:seed      # Seed with example data
 Integration tests require a PostgreSQL database with ICU locale support for correct Finnish sorting (ÅÄÖ at end of alphabet):
 
 ```bash
-createdb --locale-provider icu --icu-locale fi_FI --template template0 larpit_test
+createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi-FI --template template0 larpit_test
 ```
 
 Set `TEST_DATABASE_URL` in your environment before running tests.

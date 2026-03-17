@@ -37,11 +37,11 @@ See `src/config.ts` for available environment variables.
 
 If you want to see how the HTML email messages look like, get a throwaway SMTP account at [ethereal.email](https://ethereal.email). If you leave `SMTP_HOSTNAME` unset, email text content is logged at the terminal.
 
-You may want to create the database beforehand with the `createdb` command to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO):
+Create the database beforehand with the `createdb` command to get strings to sort properly according to Finnish sort order (ÅÄÖ at the end of the alphabet and not with AAO):
 
 ```bash
-createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi_FI --template template0
-createdb --locale-provider icu --icu-locale fi_FI --template template0 larpit_test
+createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi-FI --template template0 larpit
+createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi-FI --template template0 larpit_test
 ```
 or via `psql`
 ```sql
@@ -54,6 +54,7 @@ template template0;
 create database larpit_test
 locale_provider icu
 icu_locale 'fi-FI'
+locale 'fi_FI.UTF-8'
 template template0;
 ```
 
