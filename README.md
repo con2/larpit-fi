@@ -24,7 +24,8 @@ npm install
 Create an `.env` file not unlike the following:
 
 ```ini
-DATABASE_URL=postgresql://japsu@localhost/larpit
+DATABASE_URL=postgresql://yourusername@localhost/larpit
+TEST_DATABASE_URL=postgresql://yourusername@localhost/larpit_test
 NEXTAUTH_URL=http://localhost:3158
 AUTH_SECRET=eeeee
 SMTP_HOSTNAME=smtp.ethereal.email
@@ -40,6 +41,7 @@ You may want to create the database beforehand with the `createdb` command to ge
 
 ```bash
 createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi_FI --template template0
+createdb --locale-provider icu --icu-locale fi_FI --template template0 larpit_test
 ```
 or via `psql`
 ```sql
@@ -47,7 +49,12 @@ create database larpit
 locale_provider icu
 icu_locale 'fi-FI'
 locale 'fi_FI.UTF-8'
-template template0
+template template0;
+
+create database larpit_test
+locale_provider icu
+icu_locale 'fi-FI'
+template template0;
 ```
 
 Start the development environment with
