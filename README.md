@@ -85,10 +85,6 @@ Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi
   - [X] Shown on larp page
   - [ ] UI to add relations
 
-### Known bugs / good first issues :)
-
-- [ ] Add/edit larp: Fluff text has a relatively low length limit of 2000 characters and there is no physical limitation on the form field. If the length is exceeded, a nondescript error message (”An application error has occurred…”) will be shown. Solve by creating a `<TextArea>` component that has a JavaScript-based length limit (and possibly a `1337/2000` character count display). Bonus points for `setCustomValidity`.
-
 ### Unsorted feature list
 
 - [ ] Enhanced larp page

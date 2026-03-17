@@ -6,6 +6,7 @@ import {
   EditStatus,
   RelatedUserRole,
 } from "@/generated/prisma/client";
+import { normalizeFormData } from "@/helpers/normalizeFormData";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
   approveRequest,
@@ -48,7 +49,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
     throw new Error("Larp not found");
   }
 
-  const formDataObject = Object.fromEntries(data.entries());
+  const formDataObject = normalizeFormData(data);
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const linksForm = LarpLinksForm.parse(formDataObject);

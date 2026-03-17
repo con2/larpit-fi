@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { EditAction, EditStatus } from "@/generated/prisma/client";
 import compactObject from "@/helpers/compactObject";
+import { normalizeFormData } from "@/helpers/normalizeFormData";
 import { formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
 import {
   approveRequest,
@@ -28,7 +29,7 @@ export async function createLarp(
       })
     : null;
 
-  const formDataObject = Object.fromEntries(data.entries());
+  const formDataObject = normalizeFormData(data);
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const linksForm = LarpLinksForm.parse(formDataObject);

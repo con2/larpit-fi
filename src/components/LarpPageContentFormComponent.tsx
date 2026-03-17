@@ -4,10 +4,10 @@ import {
   Card,
   CardBody,
   CardTitle,
-  FormControl,
   FormLabel,
   FormText,
 } from "react-bootstrap";
+import TextArea from "./TextArea";
 
 interface Props {
   translations: Translations;
@@ -39,13 +39,13 @@ export function LarpPageContentFormComponent({
           <FormLabel htmlFor="LarpPageContentFormComponent-fluffText">
             {t.attributes.fluffText.label}
           </FormLabel>
-          <FormControl
-            as="textarea"
+          <TextArea
             id="LarpPageContentFormComponent-fluffText"
             name="fluffText"
             rows={5}
             defaultValue={larp?.fluffText || ""}
             readOnly={readOnly}
+            maxLength={2000}
           />
           {showHelpText && (
             <FormText>{t.attributes.fluffText.helpText}</FormText>
@@ -55,13 +55,13 @@ export function LarpPageContentFormComponent({
           <FormLabel htmlFor="LarpPageContentFormComponent-description">
             {t.attributes.description.label}
           </FormLabel>
-          <FormControl
-            as="textarea"
+          <TextArea
             id="LarpPageContentFormComponent-description"
             name="description"
             rows={5}
             defaultValue={larp?.description || ""}
             readOnly={readOnly}
+            maxLength={2000}
           />
           {showHelpText && (
             <FormText>{t.attributes.description.helpText}</FormText>
