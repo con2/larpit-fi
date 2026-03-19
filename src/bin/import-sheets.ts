@@ -111,8 +111,10 @@ async function main() {
       mappedRow[key] = item[1].trim();
     }
 
+    const validLanguages = ["fi", "en", "sv", "OTHER"];
     const rawContent = {
       ...mappedRow,
+      language: validLanguages.includes(mappedRow.language) ? mappedRow.language : "fi",
       municipality:
         municipalityMapping[mappedRow.municipality?.toLowerCase() || ""] ||
         null,
