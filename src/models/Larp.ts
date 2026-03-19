@@ -59,6 +59,7 @@ export function ensureLocation(
 export async function findExistingLarpsForFillIn(
   name: string,
   startsAt: Date | null,
+  endsAt: Date | null,
 ) {
   const rows = await prisma.$queryRaw<{ id: string }[]>`
     select
@@ -70,12 +71,11 @@ export async function findExistingLarpsForFillIn(
       type in ('ONE_SHOT', 'CAMPAIGN_LARP')
       -- remove everything else than letters and numbers and lowercase for comparison
       and regexp_replace(lower(name), '[^a-z0-9]', '', 'g') = regexp_replace(lower(${name}), '[^a-z0-9]', '', 'g')
-      -- either start date matches or start date is between existing larp's start and end date inclusive
-      and (
-        (starts_at is not null and starts_at::date = ${startsAt}::date)
-        or
-        (starts_at is not null and ends_at is not null and ${startsAt}::date >= starts_at::date and ${startsAt}::date <= ends_at::date)
-      )
+      -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
+      -- null end date means one-day larp (end = start)
+      and starts_at is not null
+      and starts_at::date <= coalesce(${endsAt}::date, ${startsAt}::date)
+      and ${startsAt}::date <= coalesce(ends_at, starts_at)::date
   `;
 
   return prisma.larp.findMany({
@@ -141,6 +141,7 @@ export async function createLarpOrFillInMissingDetails(
   const existingLarps = await findExistingLarpsForFillIn(
     content.name,
     fromMorningNull(content.startsAt),
+    fromMorningNull(content.endsAt),
   );
 
   if (existingLarps.length === 0) {

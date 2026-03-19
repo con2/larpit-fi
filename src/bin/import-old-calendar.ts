@@ -39,6 +39,7 @@ function truncate(str: string | null | undefined, max: number): string {
 
 function mapRow(
   row: OldCalendarRow,
+  municipalityMapping: Record<string, string>,
 ): { content: ModerationRequestContent; links: string[] } | null {
   if (row.status === "PENDING") {
     return null;
@@ -47,6 +48,9 @@ function mapRow(
   const type: LarpType =
     row.eventtype === "2" ? LarpType.ONE_SHOT : LarpType.OTHER_EVENT;
 
+  const locationKey = row.locationtextfield?.toLowerCase() ?? "";
+  const municipalityId = municipalityMapping[locationKey] ?? null;
+
   const rawContent = {
     name: row.eventname,
     type,
@@ -54,7 +58,8 @@ function mapRow(
     endsAt: parseUnixTimestamp(row.enddate),
     signupStartsAt: parseUnixTimestamp(row.startsignuptime),
     signupEndsAt: parseUnixTimestamp(row.endsignuptime),
-    locationText: row.locationtextfield || "",
+    locationText: municipalityId ? "" : (row.locationtextfield || ""),
+    municipality: municipalityId,
     fluffText: truncate(row.storydescription, 2000),
     description: truncate(row.infodescription, 2000),
     openness: row.invitationonly ? Openness.INVITE_ONLY : Openness.OPEN,
@@ -148,12 +153,10 @@ async function main() {
 
   console.log(`Found ${rows.length} rows in vanhalarpkalenteri.events2`);
 
-  void municipalityMapping; // municipality lookup not available in old calendar
-
   const results: Array<{ action: ImportAction; links: string[] }> = [];
 
   for (const row of rows) {
-    const mapped = mapRow(row);
+    const mapped = mapRow(row, municipalityMapping);
     if (!mapped) continue;
 
     const action = await createLarpOrFillInMissingDetails(mapped.content);
