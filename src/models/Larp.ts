@@ -69,8 +69,9 @@ export async function findExistingLarpsForFillIn(
     where
       -- only consider actual larps
       type in ('ONE_SHOT', 'CAMPAIGN_LARP')
-      -- remove everything else than letters and numbers and lowercase for comparison
-      and regexp_replace(lower(name), '[^a-z0-9]', '', 'g') = regexp_replace(lower(${name}), '[^a-z0-9]', '', 'g')
+      -- strip run indicator like "(1. pelautus)" then normalize to letters and numbers only
+      and regexp_replace(lower(regexp_replace(name, '\s*\(\d+\..*\)$', '')), '[^a-z0-9]', '', 'g')
+        = regexp_replace(lower(regexp_replace(${name}, '\s*\(\d+\..*\)$', '')), '[^a-z0-9]', '', 'g')
       -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
       -- null end date means one-day larp (end = start)
       and starts_at is not null
