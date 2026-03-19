@@ -1,5 +1,6 @@
 import { LarpLinkType, LarpType, Openness } from "@/generated/prisma/client";
 import { loadMunicipalityMapping, parseUnixTimestamp } from "@/helpers/import";
+import { JSDOM } from "jsdom";
 import { handleLarpLinks } from "@/models/LarpLink";
 import {
   createLarpOrFillInMissingDetails,
@@ -13,6 +14,14 @@ import prisma from "@/prisma";
 const userId = "359e7a18-59eb-48a0-8d59-de045f8912b0";
 
 const dryRun = process.argv.includes("--dry-run");
+
+const { window: jsdomWindow } = new JSDOM("");
+const htmlDecodeEl = jsdomWindow.document.createElement("textarea");
+function decodeHtml(str: string | null | undefined): string {
+  if (!str) return "";
+  htmlDecodeEl.innerHTML = str;
+  return htmlDecodeEl.value;
+}
 
 interface OldCalendarRow {
   id: number;
@@ -52,16 +61,16 @@ function mapRow(
   const municipalityId = municipalityMapping[locationKey] ?? null;
 
   const rawContent = {
-    name: row.eventname,
+    name: decodeHtml(row.eventname),
     type,
     startsAt: parseUnixTimestamp(row.startdate),
     endsAt: parseUnixTimestamp(row.enddate),
     signupStartsAt: parseUnixTimestamp(row.startsignuptime),
     signupEndsAt: parseUnixTimestamp(row.endsignuptime),
-    locationText: municipalityId ? "" : (row.locationtextfield || ""),
+    locationText: municipalityId ? "" : decodeHtml(row.locationtextfield),
     municipality: municipalityId,
-    fluffText: truncate(row.storydescription, 2000),
-    description: truncate(row.infodescription, 2000),
+    fluffText: truncate(decodeHtml(row.storydescription), 2000),
+    description: truncate(decodeHtml(row.infodescription), 2000),
     openness: row.invitationonly ? Openness.INVITE_ONLY : Openness.OPEN,
     language: row.languagefree ? "OTHER" : "fi",
   };
