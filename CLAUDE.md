@@ -2,6 +2,10 @@
 
 This file provides guidance to AI agents when working with code in this repository.
 
+## Terminology
+
+* _larp_ is both a countable noun (meaning a single larp event or "game") and uncountable noun (meaning larp as a hobby and form of art). Do not treat it as an acronym.
+
 ## Commands
 
 ```bash
@@ -57,3 +61,7 @@ Set `TEST_DATABASE_URL` in your environment before running tests.
 Commit only when instructed to.
 
 Paths containing braces, such as `src/app/[locale]/page.tsx`, need to be quoted on command lines such as `git add "src/app/[locale]/page.tsx"`.
+
+## Important caveats
+
+* If you start adding municipalities outside Finland to the `Municipality` model, there is a hard-coded country in `LarpJsonLd` that you need to fix to come from the `Country` model. The concept of municipality may also not transfer as-is to other countries.

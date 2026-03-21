@@ -3,7 +3,7 @@
 import { Fragment, ReactNode } from "react";
 import { Column, defaultCellElement, defaultCellContents } from "./DataTable";
 import { FormattedDateRange } from "./FormattedDateRange";
-import getLarpHref, { ensureEndsAt } from "@/models/Larp.client";
+import { getLarpHref, ensureEndsAt } from "@/models/Larp.client";
 import MaybeExternalLink from "./MaybeExternalLink";
 import type { Larp, Municipality } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";

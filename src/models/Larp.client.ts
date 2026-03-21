@@ -47,7 +47,7 @@ export function isSignupOver(larp: LarpDates): boolean {
   return !!(larp.signupEndsAt && larp.signupEndsAt < now);
 }
 
-export default function getLarpHref(larp: Pick<Larp, "id" | "alias">): string {
+export function getLarpHref(larp: Pick<Larp, "id" | "alias">): string {
   return larp.alias ? `/${larp.alias}` : `/larp/${larp.id}`;
 }
 

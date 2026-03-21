@@ -5,7 +5,7 @@ import {
   LarpLink,
   RelatedUserRole,
 } from "@/generated/prisma/client";
-import getLarpHref, { ensureLocation } from "@/models/Larp";
+import { getLarpHref, ensureLocation } from "@/models/Larp";
 import {
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
@@ -31,6 +31,7 @@ import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
 import InfoCircle from "./google-material-symbols/InfoCircle";
 import { getSignupStatus } from "./LarpCard";
+import LarpJsonLd from "./LarpJsonLd";
 
 const relatedLarpInclude = {
   select: {
@@ -371,6 +372,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   return (
     <>
+      <LarpJsonLd larp={larp} />
       <Container className="mb-5">
         <div className="text-center" lang={larp.language}>
           <h2 className="mt-5 mb-3">{larp.name}</h2>

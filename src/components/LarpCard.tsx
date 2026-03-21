@@ -6,7 +6,8 @@ import {
   Municipality,
   Openness,
 } from "@/generated/prisma/client";
-import getLarpHref, {
+import {
+  getLarpHref,
   isSignupOpen,
   isSignupOpeningSoon,
   isSignupOver,

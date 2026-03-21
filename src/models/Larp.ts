@@ -12,16 +12,22 @@ import {
 } from "./ModerationRequest";
 import { fromMorningNull } from "@/helpers/temporal";
 import prisma from "@/prisma";
+import { publicUrl } from "@/config";
 
 // Re-export client-safe helpers for convenience
 export {
-  default,
+  getLarpHref,
   ensureEndsAt,
   isSignupOpen,
   isSignupOpeningSoon,
   isSignupOpenOrOpeningSoon,
   isSignupOver,
 } from "./Larp.client";
+import { getLarpHref } from "./Larp.client";
+
+export function getLarpUrl(larp: Parameters<typeof getLarpHref>[0]): string {
+  return `${publicUrl}${getLarpHref(larp)}`;
+}
 
 export function hasEditors(larp: { relatedUsers: RelatedUser[] }): boolean {
   return larp.relatedUsers.some((user) => user.role === RelatedUserRole.EDITOR);

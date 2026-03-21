@@ -8,7 +8,7 @@ import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
 import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
-import getLarpHref from "@/models/Larp";
+import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import {
   contentToLarp,
