@@ -8,9 +8,10 @@ interface Params {
   larpId: string;
 }
 
+// NOTE: Keep in sync with src/app/api-docs/route.ts
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Promise<Params> },
 ) {
   const { larpId } = await params;
 
@@ -48,5 +49,7 @@ export async function GET(
     notFound();
   }
 
-  return NextResponse.json(larpToApi(larp));
+  return NextResponse.json(larpToApi(larp), {
+    headers: { "Access-Control-Allow-Origin": "*" },
+  });
 }

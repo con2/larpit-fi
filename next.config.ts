@@ -3,6 +3,10 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  outputFileTracingIncludes: {
+    "/api-docs/swagger-ui-dist/swagger-ui-bundle.js": ["./node_modules/swagger-ui-dist/swagger-ui-bundle.js"],
+    "/api-docs/swagger-ui-dist/swagger-ui.css": ["./node_modules/swagger-ui-dist/swagger-ui.css"],
+  },
   sassOptions: {
     // bootstrap
     silenceDeprecations: [
