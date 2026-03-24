@@ -10,6 +10,7 @@ import { EditAction, EditStatus } from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
+import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
 import {
   contentToLarp,
   larpToContent,
@@ -100,6 +101,24 @@ export default async function ModerationRequestPage({ params }: Props) {
 
   // Old removeLinks records may lack `type`; degrade gracefully by dropping unparseable entries
   const removeLinks = z.array(LarpLinkRemovable).catch([]).parse(request.removeLinks);
+
+  const addRelatedLarps = z.array(RelatedLarpAddable).catch([]).parse(request.addRelatedLarps);
+  const removeRelatedLarps = z.array(RelatedLarpRemovable).catch([]).parse(request.removeRelatedLarps);
+
+  // Collect all referenced larp IDs (other than the request's own larp) to look up names
+  const referencedLarpIds = [
+    ...addRelatedLarps.flatMap((r) => [r.leftId, r.rightId]),
+    ...removeRelatedLarps.flatMap((r) => [r.leftId, r.rightId]),
+  ].filter((id) => id !== request.larpId);
+
+  const referencedLarps =
+    referencedLarpIds.length > 0
+      ? await prisma.larp.findMany({
+          where: { id: { in: referencedLarpIds } },
+          select: { id: true, alias: true, name: true },
+        })
+      : [];
+  const larpById = Object.fromEntries(referencedLarps.map((l) => [l.id, l]));
 
   function Empty() {
     return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;
@@ -264,6 +283,68 @@ export default async function ModerationRequestPage({ params }: Props) {
                   <dd>{link.href}</dd>
                 </Fragment>
               ))}
+            </dl>
+          </CardBody>
+        </Card>
+      ) : null}
+
+      {addRelatedLarps.length > 0 ? (
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.attributes.addRelatedLarps.title}</CardTitle>
+            <dl>
+              {addRelatedLarps.map((rel) => {
+                const otherLarp = larpById[rel.leftId === request.larpId ? rel.rightId : rel.leftId];
+                const typeLabel =
+                  rel.leftId === request.larpId
+                    ? larpT.attributes.leftRelatedLarps.types[rel.type]
+                    : larpT.attributes.rightRelatedLarps.types[rel.type];
+                return (
+                  <Fragment key={JSON.stringify(rel)}>
+                    <dt>{typeLabel || rel.type}</dt>
+                    <dd>
+                      {otherLarp ? (
+                        <Link href={getLarpHref(otherLarp)} className="link-subtle">
+                          {otherLarp.name}
+                        </Link>
+                      ) : (
+                        rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                      )}
+                    </dd>
+                  </Fragment>
+                );
+              })}
+            </dl>
+          </CardBody>
+        </Card>
+      ) : null}
+
+      {removeRelatedLarps.length > 0 ? (
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.attributes.removeRelatedLarps.title}</CardTitle>
+            <dl>
+              {removeRelatedLarps.map((rel) => {
+                const otherLarp = larpById[rel.leftId === request.larpId ? rel.rightId : rel.leftId];
+                const typeLabel =
+                  rel.leftId === request.larpId
+                    ? larpT.attributes.leftRelatedLarps.types[rel.type]
+                    : larpT.attributes.rightRelatedLarps.types[rel.type];
+                return (
+                  <Fragment key={JSON.stringify(rel)}>
+                    <dt>{typeLabel || rel.type}</dt>
+                    <dd>
+                      {otherLarp ? (
+                        <Link href={getLarpHref(otherLarp)} className="link-subtle">
+                          {otherLarp.name}
+                        </Link>
+                      ) : (
+                        rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                      )}
+                    </dd>
+                  </Fragment>
+                );
+              })}
             </dl>
           </CardBody>
         </Card>

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { removeRelatedLarp } from "@/app/[locale]/larp/[larpId]/relations/actions";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import {
   EditStatus,
@@ -158,11 +159,15 @@ function LarpInfoCard({
   className = "",
   messages: t,
   locale,
+  editPolicy,
+  removeRelatedLarpAction,
 }: {
   larp: LarpPageLarp;
   className: string;
   messages: Translations["Larp"];
   locale: string;
+  editPolicy: EditStatus | null;
+  removeRelatedLarpAction: (data: FormData) => Promise<void>;
 }) {
   const fields: Column<LarpPageLarp>[] = [];
 
@@ -273,26 +278,50 @@ function LarpInfoCard({
     });
   }
 
-  if (larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0) {
+  const hasRelatedLarps = larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
+  if (hasRelatedLarps || editPolicy) {
     fields.push({
       slug: "relatedLarps",
       title: t.attributes.relatedLarps.title,
       getCellContents: (larp) => (
         <div>
           {larp.relatedLarpsLeft.map((relatedLarp) => (
-            <LeftRelatedLarpComponent
-              key={relatedLarp.rightId}
-              relatedLarp={relatedLarp}
-              messages={t}
-            />
+            <div key={relatedLarp.rightId} className="d-flex align-items-baseline gap-2 mb-1">
+              <LeftRelatedLarpComponent relatedLarp={relatedLarp} messages={t} />
+              {editPolicy && (
+                <form action={removeRelatedLarpAction}>
+                  <input type="hidden" name="leftId" value={relatedLarp.leftId} />
+                  <input type="hidden" name="rightId" value={relatedLarp.rightId} />
+                  <input type="hidden" name="type" value={relatedLarp.type} />
+                  <button type="submit" className="btn btn-link btn-sm p-0 text-danger">
+                    {t.attributes.relatedLarps.actions.remove.submit}
+                  </button>
+                </form>
+              )}
+            </div>
           ))}
           {larp.relatedLarpsRight.map((relatedLarp) => (
-            <RightRelatedLarpComponent
-              key={relatedLarp.leftId}
-              relatedLarp={relatedLarp}
-              messages={t}
-            />
+            <div key={relatedLarp.leftId} className="d-flex align-items-baseline gap-2 mb-1">
+              <RightRelatedLarpComponent relatedLarp={relatedLarp} messages={t} />
+              {editPolicy && (
+                <form action={removeRelatedLarpAction}>
+                  <input type="hidden" name="leftId" value={relatedLarp.leftId} />
+                  <input type="hidden" name="rightId" value={relatedLarp.rightId} />
+                  <input type="hidden" name="type" value={relatedLarp.type} />
+                  <button type="submit" className="btn btn-link btn-sm p-0 text-danger">
+                    {t.attributes.relatedLarps.actions.remove.submit}
+                  </button>
+                </form>
+              )}
+            </div>
           ))}
+          {editPolicy && (
+            <div className="mt-1">
+              <Link href={`/larp/${larp.id}/relations/new`} className="link-subtle">
+                + {t.attributes.relatedLarps.actions.add.title}
+              </Link>
+            </div>
+          )}
         </div>
       ),
     });
@@ -369,6 +398,7 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   const editPolicy = getEditLarpInitialStatusForUserAndLarp(user, larp);
   const deletePolicy = getDeleteLarpInitialStatusForUser(user);
+  const removeRelatedLarpAction = removeRelatedLarp.bind(null, locale, larp.id);
 
   return (
     <>
@@ -384,6 +414,8 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
         className="mb-5"
         messages={translations.Larp}
         locale={locale}
+        editPolicy={editPolicy}
+        removeRelatedLarpAction={removeRelatedLarpAction}
       />
       <Container className="mb-5" style={{ maxWidth: "800px" }}>
         {larp.fluffText && (

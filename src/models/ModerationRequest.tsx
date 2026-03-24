@@ -33,6 +33,11 @@ import {
   LarpLinkRemovable,
   LarpLinkUpsertable,
 } from "./LarpLink";
+import {
+  handleRelatedLarps,
+  RelatedLarpAddable,
+  RelatedLarpRemovable,
+} from "./RelatedLarp";
 
 export enum Resolution {
   APPROVED = "APPROVED",
@@ -92,6 +97,8 @@ export async function approveRequest(
     | "newContent"
     | "addLinks"
     | "removeLinks"
+    | "addRelatedLarps"
+    | "removeRelatedLarps"
     | "submitterId"
     | "submitterRole"
   >,
@@ -339,6 +346,8 @@ export async function approveUpdateLarpRequest(
     | "newContent"
     | "addLinks"
     | "removeLinks"
+    | "addRelatedLarps"
+    | "removeRelatedLarps"
     | "submitterId"
     | "submitterRole"
   >,
@@ -383,6 +392,11 @@ export async function approveUpdateLarpRequest(
   }
 
   await handleLarpLinks(larp.id, addLinks, removeLinks);
+
+  const addRelatedLarps = z.array(RelatedLarpAddable).parse(request.addRelatedLarps);
+  const removeRelatedLarps = z.array(RelatedLarpRemovable).parse(request.removeRelatedLarps);
+  await handleRelatedLarps(addRelatedLarps, removeRelatedLarps);
+
   await handleRequestStatusUpdate(
     request.id,
     larp.id,

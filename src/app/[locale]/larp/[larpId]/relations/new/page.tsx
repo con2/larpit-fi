@@ -4,22 +4,28 @@ import SwapVert from "@/components/google-material-symbols/SwapVert";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
-import { Larp } from "@/generated/prisma/client";
+import { Larp, RelatedLarpType } from "@/generated/prisma/client";
 import { getUserFromSession } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { notFound } from "next/navigation";
 import React, { ReactNode } from "react";
-import { Card, CardBody, FormLabel, FormSelect } from "react-bootstrap";
+import { Alert, Card, CardBody, FormLabel, FormSelect } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
+import { addRelatedLarp } from "./actions";
 
 interface Props {
   params: Promise<{
     locale: string;
     larpId: string;
+  }>;
+  searchParams: Promise<{
+    rightId?: string;
+    type?: string;
+    error?: string;
   }>;
 }
 
@@ -94,8 +100,9 @@ function SelectLarpComponent({
   );
 }
 
-export default async function AddRelatedLarpPage({ params }: Props) {
+export default async function AddRelatedLarpPage({ params, searchParams }: Props) {
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const locale = toSupportedLanguage(resolvedParams.locale);
 
   const translations = getTranslations(locale);
@@ -141,12 +148,21 @@ export default async function AddRelatedLarpPage({ params }: Props) {
     notFound();
   }
 
+  const preselectedType =
+    resolvedSearchParams.type &&
+    Object.values(RelatedLarpType).includes(resolvedSearchParams.type as RelatedLarpType)
+      ? resolvedSearchParams.type
+      : undefined;
+
   return (
     <Container>
       <MainHeading>{t.actions.add.title}</MainHeading>
       <Card>
         <CardBody>
-          <Form>
+          {resolvedSearchParams.error === "already_related" && (
+            <Alert variant="danger">{t.errors.alreadyRelated}</Alert>
+          )}
+          <Form action={addRelatedLarp.bind(null, locale, resolvedParams.larpId)}>
             <div className="form-group mb-3">
               <FormLabel>{lefT.label}</FormLabel>
               <div>
@@ -162,7 +178,12 @@ export default async function AddRelatedLarpPage({ params }: Props) {
               <FormLabel htmlFor="AddRelatedLarpPage-type">
                 {t.attributes.type.title}*
               </FormLabel>
-              <FormSelect id="AddRelatedLarpPage-type" name="type" required>
+              <FormSelect
+                id="AddRelatedLarpPage-type"
+                name="type"
+                required
+                defaultValue={preselectedType}
+              >
                 <option value=""></option>
                 {Object.entries(t.attributes.type.choices).map(
                   ([key, title]) => (
@@ -180,6 +201,7 @@ export default async function AddRelatedLarpPage({ params }: Props) {
               larps={larps}
               locale={locale}
               translations={translations}
+              defaultValue={resolvedSearchParams.rightId}
             />
 
             <SubmitButton name="action" value="create" className="me-2">

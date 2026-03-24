@@ -22,6 +22,7 @@ const translations: Translations = {
       edit: "Muokkaa tätä sivua",
       delete: "Pyydä poistamista",
       adminDelete: "Poista tämä sivu",
+      addRelatedLarp: "Lisää suhde toiseen larppiin",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -592,6 +593,12 @@ const translations: Translations = {
               swap: "Käännä suunta",
             },
           },
+          remove: {
+            submit: "Poista",
+          },
+        },
+        errors: {
+          alreadyRelated: "Nämä larpit ovat jo yhteydessä toisiinsa.",
         },
         attributes: {
           type: {
@@ -899,6 +906,12 @@ const translations: Translations = {
       },
       removeLinks: {
         title: "Poistetut linkit",
+      },
+      addRelatedLarps: {
+        title: "Lisätyt suhteet",
+      },
+      removeRelatedLarps: {
+        title: "Poistetut suhteet",
       },
     },
     actions: {

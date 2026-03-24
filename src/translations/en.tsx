@@ -21,6 +21,7 @@ const translations = {
       edit: "Edit this page",
       delete: "Request deletion",
       adminDelete: "Delete this page",
+      addRelatedLarp: "Add related larp",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -577,10 +578,16 @@ const translations = {
           add: {
             title: "Add related larp",
             actions: {
-              submit: "Add relation",
+              submit: "Add related larp",
               swap: "Swap direction",
             },
           },
+          remove: {
+            submit: "Remove",
+          },
+        },
+        errors: {
+          alreadyRelated: "These larps are already related.",
         },
         attributes: {
           type: {
@@ -886,6 +893,12 @@ const translations = {
       },
       removeLinks: {
         title: "Removed links",
+      },
+      addRelatedLarps: {
+        title: "Added related larps",
+      },
+      removeRelatedLarps: {
+        title: "Removed related larps",
       },
     },
     actions: {

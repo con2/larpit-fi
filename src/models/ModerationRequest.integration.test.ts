@@ -4,6 +4,7 @@ import {
   Language,
   LarpLinkType,
   LarpType,
+  RelatedLarpType,
   SubmitterRole,
   UserRole,
 } from "@/generated/prisma/client";
@@ -228,6 +229,98 @@ describe("ModerationRequest integration tests", () => {
       where: { larpId: larp.id },
     });
     expect(remainingRequests).toHaveLength(0);
+  });
+
+  it("approveUpdateLarpRequest with addRelatedLarps creates the relation", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
+    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larpA.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: {},
+        addRelatedLarps: [{ leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SEQUEL }],
+      },
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const relation = await prisma.relatedLarp.findUnique({
+      where: { leftId_rightId: { leftId: larpA.id, rightId: larpB.id } },
+    });
+    expect(relation?.type).toBe(RelatedLarpType.SEQUEL);
+  });
+
+  it("approveUpdateLarpRequest with removeRelatedLarps removes the relation", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
+    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+
+    await prisma.relatedLarp.create({
+      data: { leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SPINOFF },
+    });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larpA.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: {},
+        removeRelatedLarps: [{ leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SPINOFF }],
+      },
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const relation = await prisma.relatedLarp.findUnique({
+      where: { leftId_rightId: { leftId: larpA.id, rightId: larpB.id } },
+    });
+    expect(relation).toBeNull();
+  });
+
+  it("approveUpdateLarpRequest allows (A,B) and (B,A) relations to coexist", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
+    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+
+    // Create (A → B) as SEQUEL
+    await prisma.relatedLarp.create({
+      data: { leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SEQUEL },
+    });
+
+    // Request to add (B → A) as RERUN_OF — a different direction, should be allowed
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larpB.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: {},
+        addRelatedLarps: [{ leftId: larpB.id, rightId: larpA.id, type: RelatedLarpType.RERUN_OF }],
+      },
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const ab = await prisma.relatedLarp.findUnique({
+      where: { leftId_rightId: { leftId: larpA.id, rightId: larpB.id } },
+    });
+    const ba = await prisma.relatedLarp.findUnique({
+      where: { leftId_rightId: { leftId: larpB.id, rightId: larpA.id } },
+    });
+    expect(ab?.type).toBe(RelatedLarpType.SEQUEL);
+    expect(ba?.type).toBe(RelatedLarpType.RERUN_OF);
   });
 
   it("rejectRequest sets status to REJECTED with reason", async () => {
