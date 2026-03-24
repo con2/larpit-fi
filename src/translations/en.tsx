@@ -583,7 +583,10 @@ const translations = {
             },
           },
           remove: {
+            title: "Remove related larp",
             submit: "Remove",
+            confirmation:
+              "Are you sure you want to remove the relation to this larp?",
           },
         },
         errors: {

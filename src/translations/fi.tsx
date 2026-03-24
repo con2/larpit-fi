@@ -594,6 +594,8 @@ const translations: Translations = {
             },
           },
           remove: {
+            title: "Poista tämä larppien välinen suhde",
+            confirmation: "Haluatko varmasti poistaa suhteen tähän larppiin?",
             submit: "Poista",
           },
         },
