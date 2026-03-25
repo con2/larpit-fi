@@ -37,6 +37,7 @@
     "react": "^19.2.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.1",
+    "react-select": "^5.10.2",
     "swagger-ui-dist": "^5.32.1",
     "underscore": "^1.13.7",
     "uuid": "^13.0.0",

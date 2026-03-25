@@ -1,11 +1,10 @@
 import { auth } from "@/auth";
-import { FormattedDateRange } from "@/components/FormattedDateRange";
 import SwapVert from "@/components/google-material-symbols/SwapVert";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
+import SelectLarpCombobox from "@/components/related/SelectLarpCombobox";
 import SubmitButton from "@/components/SubmitButton";
 import {
-  Larp,
   RelatedLarpType,
   RelatedUserRole,
 } from "@/generated/prisma/client";
@@ -15,9 +14,7 @@ import {
 } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
-import type { Translations } from "@/translations/en";
 import { notFound } from "next/navigation";
-import React, { ReactNode } from "react";
 import {
   Alert,
   Card,
@@ -49,79 +46,6 @@ interface Props {
   }>;
 }
 
-type SelectableLarp = Pick<
-  Larp,
-  "id" | "name" | "startsAt" | "endsAt" | "type"
->;
-
-function SelectLarpOption({
-  larp,
-  locale,
-  translations,
-}: {
-  larp: SelectableLarp;
-  locale: string;
-  translations: Translations;
-}) {
-  const { name, type, startsAt, endsAt } = larp;
-  return (
-    <>
-      {name} ({translations.Larp.attributes.type.choices[type].title}
-      {startsAt ? (
-        <>
-          {", "}
-          <FormattedDateRange
-            locale={locale}
-            start={startsAt}
-            end={endsAt}
-            as={React.Fragment} /* avoid wrapping in <time> element */
-          />
-        </>
-      ) : null}
-      )
-    </>
-  );
-}
-
-/// TODO proper autocomplete
-function SelectLarpComponent({
-  larps,
-  name,
-  defaultValue,
-  title,
-  locale,
-  translations,
-  className = "mb-3",
-}: {
-  larps: Array<SelectableLarp>;
-  name: string;
-  defaultValue?: string;
-  title: ReactNode;
-  locale: string;
-  translations: Translations;
-  className?: string;
-}) {
-  const id = `SelectLarpComponent-${name}`;
-
-  return (
-    <div className={`form-group ${className}`}>
-      <FormLabel htmlFor={id}>{title}*</FormLabel>
-      <FormSelect id={id} name={name} required defaultValue={defaultValue}>
-        <option value=""></option>
-        {larps.map((larp) => (
-          <option key={larp.id} value={larp.id}>
-            <SelectLarpOption
-              larp={larp}
-              locale={locale}
-              translations={translations}
-            />
-          </option>
-        ))}
-      </FormSelect>
-    </div>
-  );
-}
-
 export default async function RelatedLarpsPage({
   params,
   searchParams,
@@ -141,6 +65,12 @@ export default async function RelatedLarpsPage({
 
   const session = await auth();
   const user = await getUserFromSession(session);
+
+  const larpTypeChoices = Object.fromEntries(
+    Object.entries(translations.Larp.attributes.type.choices).map(
+      ([k, v]) => [k, v.title],
+    ),
+  );
 
   const [larp, larps] = await Promise.all([
     await prisma.larp.findUnique({
@@ -276,13 +206,17 @@ export default async function RelatedLarpsPage({
                 </FormSelect>
               </div>
 
-              <SelectLarpComponent
+              <SelectLarpCombobox
                 name="rightId"
                 className="mb-4"
                 title={t.actions.add.attributes.relatedLarp}
-                larps={larps}
+                larps={larps.map((l) => ({
+                  ...l,
+                  startsAt: l.startsAt?.toISOString() ?? null,
+                  endsAt: l.endsAt?.toISOString() ?? null,
+                }))}
                 locale={locale}
-                translations={translations}
+                larpTypeChoices={larpTypeChoices}
                 defaultValue={resolvedSearchParams.rightId}
               />
 
