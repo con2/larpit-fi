@@ -22,7 +22,7 @@ const translations: Translations = {
       edit: "Muokkaa tätä sivua",
       delete: "Pyydä poistamista",
       adminDelete: "Poista tämä sivu",
-      addRelatedLarp: "Lisää suhde toiseen larppiin",
+      manageRelatedLarps: "Muokkaa suhteita muihin larppeihin",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -272,11 +272,11 @@ const translations: Translations = {
       ),
       AUTO_APPROVED: (
         <>
-          Voit muokata tätä sivua ilman ennakkotarkistusta. Muokkauksesi
+          Voit muokata tätä larppia ilman ennakkotarkistusta. Muokkauksesi
           tarkistetaan jälkikäteen moderaattorin toimesta.
         </>
       ),
-      APPROVED: <>Voit muokata tätä sivua ilman ennakkotarkistusta.</>,
+      APPROVED: <>Voit muokata tätä larppia ilman ennakkotarkistusta.</>,
     },
   },
   DeleteLarpPage: {
@@ -585,6 +585,8 @@ const translations: Translations = {
       },
       relatedLarps: {
         title: "Suhde muihin larppeihin",
+        noRelatedLarps:
+          "Tällä larpilla ei vielä ole suhteita muihin larppeihin.",
         actions: {
           add: {
             title: "Lisää suhde toiseen larppiin",
@@ -592,11 +594,29 @@ const translations: Translations = {
               submit: "Lisää suhde",
               swap: "Käännä suunta",
             },
+            attributes: {
+              relatedLarp: "Larppi, johon suhde lisätään",
+            },
+            loginRequired: {
+              title: "Kirjaudu sisään lisätäksesi suhteita muihin larpppeja",
+              message:
+                "Larppien välisten suhteiden lisääminen edellyttää sisäänkirjautumista.",
+              actions: {
+                login: "Kirjaudu sisään",
+              },
+            },
           },
           remove: {
             title: "Poista tämä larppien välinen suhde",
-            confirmation: "Haluatko varmasti poistaa suhteen tähän larppiin?",
-            submit: "Poista",
+            label: "Poista suhde",
+            confirmationByPolicy: {
+              VERIFIED:
+                "Haluatko varmasti poistaa tämän larppien välisen suhteen? Moderaattori tarkastaa suhteen poistopyynnön ennen sen toteuttamista.",
+              AUTO_APPROVED:
+                "Haluatko varmasti poistaa tämän larppien välisen suhteen? Moderaattori tarkastaa poiston sen toteuttamisen jälkeen.",
+              APPROVED:
+                "Haluatko varmasti poistaa tämän larppien välisen suhteen? Tämä toimenpide on välitön eikä sitä voi peruuttaa.",
+            },
           },
         },
         errors: {

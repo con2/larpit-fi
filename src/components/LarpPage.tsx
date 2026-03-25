@@ -1,13 +1,11 @@
 import { auth } from "@/auth";
-import { removeRelatedLarp } from "@/app/[locale]/larp/[larpId]/relations/actions";
 import { FormattedDateRange } from "@/components/FormattedDateRange";
 import {
   EditStatus,
   LarpLink,
-  RelatedLarpType,
   RelatedUserRole,
 } from "@/generated/prisma/client";
-import { getLarpHref, ensureLocation } from "@/models/Larp";
+import { ensureLocation } from "@/models/Larp";
 import {
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
@@ -20,7 +18,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import {
-  Button,
   Card,
   CardBody,
   Container,
@@ -29,15 +26,18 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { Column } from "./DataTable";
-import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
-import Markdown from "./Markdown";
-import Paragraphs from "./Paragraphs";
 import InfoCircle from "./google-material-symbols/InfoCircle";
+import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
 import { getSignupStatus } from "./LarpCard";
 import LarpJsonLd from "./LarpJsonLd";
-import SubmitButton from "./SubmitButton";
+import Markdown from "./Markdown";
+import Paragraphs from "./Paragraphs";
+import {
+  LeftRelatedLarpComponent,
+  RightRelatedLarpComponent,
+} from "./related/RelatedLarpComponent";
 
-const relatedLarpInclude = {
+export const relatedLarpInclude = {
   select: {
     id: true,
     alias: true,
@@ -71,9 +71,9 @@ export async function getLarpPageData(
   });
 }
 
-type LarpPageLarp = NonNullable<Awaited<ReturnType<typeof getLarpPageData>>>;
-type RelatedLarpLeft = LarpPageLarp["relatedLarpsLeft"][number];
-type RelatedLarpRight = LarpPageLarp["relatedLarpsRight"][number];
+export type LarpPageLarp = NonNullable<
+  Awaited<ReturnType<typeof getLarpPageData>>
+>;
 
 function LarpLinkComponent({
   link,
@@ -94,24 +94,6 @@ function LarpLinkComponent({
         <OpenInNewTab />
       </a>
     </div>
-  );
-}
-
-function LeftRelatedLarpComponent({
-  relatedLarp,
-  messages: t,
-}: {
-  relatedLarp: RelatedLarpLeft;
-  messages: Translations["Larp"];
-}) {
-  return (
-    <>
-      {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
-        relatedLarp.type}{" "}
-      <Link href={getLarpHref(relatedLarp.right)} className="link-subtle">
-        {relatedLarp.right?.name}
-      </Link>
-    </>
   );
 }
 
@@ -139,76 +121,16 @@ function ChoiceWithDescription({
   );
 }
 
-function RightRelatedLarpComponent({
-  relatedLarp,
-  messages: t,
-}: {
-  relatedLarp: RelatedLarpRight;
-  messages: Translations["Larp"];
-}) {
-  return (
-    <>
-      <Link href={getLarpHref(relatedLarp.left)} className="link-subtle">
-        {relatedLarp.left?.name}
-      </Link>{" "}
-      {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
-        relatedLarp.type}
-    </>
-  );
-}
-
-function RemoveRelatedLarpButton({
-  locale,
-  larpId,
-  leftId,
-  rightId,
-  type,
-  messages: t,
-}: {
-  locale: string;
-  larpId: string;
-  leftId: string;
-  rightId: string;
-  type: RelatedLarpType;
-  messages: Translations["Larp"]["attributes"]["relatedLarps"]["actions"]["remove"];
-}) {
-  return (
-    <form
-      className="d-inline ms-1"
-      action={removeRelatedLarp.bind(
-        null,
-        locale,
-        larpId,
-        leftId,
-        rightId,
-        type,
-      )}
-    >
-      <SubmitButton
-        variant="link"
-        size="sm"
-        className="p-0 link-xsubtle text-danger"
-        confirmationMessage={t.confirmation}
-        title={t.title}
-      >
-        ❌
-      </SubmitButton>
-    </form>
-  );
-}
-
 function LarpInfoCard({
   larp,
   className = "",
   messages: t,
   locale,
-  editPolicy,
 }: {
   larp: LarpPageLarp;
   className: string;
   messages: Translations["Larp"];
   locale: string;
-  editPolicy: EditStatus | null;
 }) {
   const fields: Column<LarpPageLarp>[] = [];
 
@@ -305,6 +227,33 @@ function LarpInfoCard({
     });
   }
 
+  const hasRelatedLarps =
+    larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
+  if (hasRelatedLarps) {
+    fields.push({
+      slug: "relatedLarps",
+      title: t.attributes.relatedLarps.title,
+      getCellContents: (larp) => (
+        <>
+          {larp.relatedLarpsLeft.map((relatedLarp) => (
+            <LeftRelatedLarpComponent
+              key={relatedLarp.rightId}
+              relatedLarp={relatedLarp}
+              messages={t}
+            />
+          ))}
+          {larp.relatedLarpsRight.map((relatedLarp) => (
+            <RightRelatedLarpComponent
+              key={relatedLarp.leftId}
+              relatedLarp={relatedLarp}
+              messages={t}
+            />
+          ))}
+        </>
+      ),
+    });
+  }
+
   if (larp.links.length > 0) {
     fields.push({
       slug: "links",
@@ -314,65 +263,6 @@ function LarpInfoCard({
           {larp.links.map((link) => (
             <LarpLinkComponent key={link.id} link={link} messages={t} />
           ))}
-        </>
-      ),
-    });
-  }
-
-  const hasRelatedLarps =
-    larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
-  if (hasRelatedLarps || editPolicy) {
-    fields.push({
-      slug: "relatedLarps",
-      title: t.attributes.relatedLarps.title,
-      getCellContents: (larp) => (
-        <>
-          {larp.relatedLarpsLeft.map((relatedLarp) => (
-            <div key={relatedLarp.rightId}>
-              <LeftRelatedLarpComponent
-                relatedLarp={relatedLarp}
-                messages={t}
-              />
-              {editPolicy && (
-                <RemoveRelatedLarpButton
-                  locale={locale}
-                  larpId={larp.id}
-                  leftId={relatedLarp.leftId}
-                  rightId={relatedLarp.rightId}
-                  type={relatedLarp.type}
-                  messages={t.attributes.relatedLarps.actions.remove}
-                />
-              )}
-            </div>
-          ))}
-          {larp.relatedLarpsRight.map((relatedLarp) => (
-            <div key={relatedLarp.leftId}>
-              <RightRelatedLarpComponent
-                relatedLarp={relatedLarp}
-                messages={t}
-              />
-              {editPolicy && (
-                <RemoveRelatedLarpButton
-                  locale={locale}
-                  larpId={larp.id}
-                  leftId={relatedLarp.leftId}
-                  rightId={relatedLarp.rightId}
-                  type={relatedLarp.type}
-                  messages={t.attributes.relatedLarps.actions.remove}
-                />
-              )}
-            </div>
-          ))}
-          {editPolicy && (
-            <div>
-              <Link
-                href={`/larp/${larp.id}/relations/new`}
-                className="link-subtle"
-              >
-                + {t.attributes.relatedLarps.actions.add.title}
-              </Link>
-            </div>
-          )}
         </>
       ),
     });
@@ -449,7 +339,6 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
 
   const editPolicy = getEditLarpInitialStatusForUserAndLarp(user, larp);
   const deletePolicy = getDeleteLarpInitialStatusForUser(user);
-  const removeRelatedLarpAction = removeRelatedLarp.bind(null, locale, larp.id);
 
   return (
     <>
@@ -465,7 +354,6 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
         className="mb-5"
         messages={translations.Larp}
         locale={locale}
-        editPolicy={editPolicy}
       />
       <Container className="mb-5" style={{ maxWidth: "800px" }}>
         {larp.fluffText && (
@@ -480,13 +368,22 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
         )}
         <div className="mb-2 form-text">{gmity}</div>
         {editPolicy && (
-          <div className="mb-2 form-text">
-            ✏️{" "}
-            <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
-              {t.actions.edit}
-            </Link>
-            : {ediT.policy[editPolicy]}
-          </div>
+          <>
+            <div className="mb-2 form-text">
+              ✏️{" "}
+              <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
+                {t.actions.edit}
+              </Link>
+              : {ediT.policy[editPolicy]}
+            </div>
+            <div className="mb-2 form-text">
+              🔗{" "}
+              <Link href={`/larp/${larp!.id}/related`} className="link-subtle">
+                {t.actions.manageRelatedLarps}
+              </Link>
+              : {ediT.policy[editPolicy]}
+            </div>
+          </>
         )}
         {deletePolicy && (
           <div className="mb-2 form-text">

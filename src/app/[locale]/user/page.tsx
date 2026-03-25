@@ -86,7 +86,11 @@ export default async function UsersPage({ params }: Props) {
       })
     : null;
   if (!user) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
   if (!canModerate(user)) {
     return <InsufficientPrivileges messages={translations.AdminRequired} />;

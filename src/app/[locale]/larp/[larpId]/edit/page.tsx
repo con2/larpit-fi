@@ -78,7 +78,11 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
       : getHighestUserRoleForLarp(user, larp);
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
 
   return (

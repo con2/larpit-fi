@@ -27,7 +27,11 @@ export default async function ModerationPage({ params, searchParams }: Props) {
 
   const session = await auth();
   if (!session?.user?.email) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
 
   const user = await prisma.user.findUnique({

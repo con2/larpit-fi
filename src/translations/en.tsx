@@ -21,7 +21,7 @@ const translations = {
       edit: "Edit this page",
       delete: "Request deletion",
       adminDelete: "Delete this page",
-      addRelatedLarp: "Add related larp",
+      manageRelatedLarps: "Manage related larps",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -574,6 +574,7 @@ const translations = {
       },
       relatedLarps: {
         title: "Related larps",
+        noRelatedLarps: "No related larps yet.",
         actions: {
           add: {
             title: "Add related larp",
@@ -581,12 +582,28 @@ const translations = {
               submit: "Add related larp",
               swap: "Swap direction",
             },
+            attributes: {
+              relatedLarp: "Larp to which the relation is added",
+            },
+            loginRequired: {
+              title: "Login required to add related larps",
+              message: "You need to be logged in to add related larps.",
+              actions: {
+                login: "Log in",
+              },
+            },
           },
           remove: {
             title: "Remove related larp",
-            submit: "Remove",
-            confirmation:
-              "Are you sure you want to remove the relation to this larp?",
+            label: "Remove",
+            confirmationByPolicy: {
+              VERIFIED:
+                "Are you sure you want to remove the relation to this larp? This action will be reviewed by a moderator.",
+              AUTO_APPROVED:
+                "Are you sure you want to remove the relation to this larp? This action will be checked afterwards by a moderator.",
+              APPROVED:
+                "Are you sure you want to remove the relation to this larp? This action will be immediate and cannot be undone.",
+            },
           },
         },
         errors: {

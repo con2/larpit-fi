@@ -160,7 +160,11 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
       })
     : null;
   if (!user) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
 
   const filters = getFilters(translations);

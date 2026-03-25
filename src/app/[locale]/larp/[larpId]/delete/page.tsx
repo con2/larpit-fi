@@ -56,7 +56,11 @@ export default async function DeleteLarpPage({ params }: Props) {
   }
 
   if (!session || !user) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
 
   const canDeleteWithoutApproval =

@@ -28,7 +28,11 @@ export default async function PagesPage({ params }: Props) {
 
   const user = await getUserFromSession(session);
   if (!user) {
-    return <LoginRequired messages={translations.LoginRequired} />;
+    return (
+      <Container>
+        <LoginRequired messages={translations.LoginRequired} />
+      </Container>
+    );
   }
   if (!canEditPages(user)) {
     return <InsufficientPrivileges messages={translations.AdminRequired} />;
