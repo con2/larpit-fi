@@ -815,6 +815,7 @@ const translations: Translations = {
       },
       name: {
         title: "Larpin nimi",
+        unknown: "Larpin nimeä ei ole asetettu",
       },
       submitterName: {
         title: "Lähettäjän nimi",

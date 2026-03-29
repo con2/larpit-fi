@@ -803,6 +803,7 @@ const translations = {
       },
       name: {
         title: "Name of the larp",
+        unknown: "Name of the larp not set",
       },
       submitterName: {
         title: "Submitter name",

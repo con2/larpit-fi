@@ -84,6 +84,12 @@ export default async function ModerationPage({ params, searchParams }: Props) {
             name: true,
           },
         },
+        larp: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     }),
     prisma.moderationRequest.count(),
@@ -109,7 +115,10 @@ export default async function ModerationPage({ params, searchParams }: Props) {
       slug: "name",
       title: t.attributes.name.title,
       getCellContents: (row) =>
-        (row.newContent as ModerationRequestContent).name,
+        row.larp?.name ||
+        (row.newContent as ModerationRequestContent).name || (
+          <em>{t.attributes.name.unknown}</em>
+        ),
     },
     {
       slug: "submitterName",
