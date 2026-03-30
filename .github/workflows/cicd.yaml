@@ -81,38 +81,6 @@ jobs:
           name: build-json
           path: build.json
 
-  deploy_staging:
-    runs-on: qb-arc-runners
-    needs: build
-    environment: staging
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v5
-        with:
-          name: build-json
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          package-manager-cache: false
-
-      - id: cache-bin
-        uses: actions/cache@v4
-        with:
-          path: bin
-          key: ${{ runner.os }}-bin-2
-      - if: steps.cache-bin.outputs.cache-hit != 'true'
-        run: |
-          mkdir bin
-          curl -Lo bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
-          curl -Lo bin/kubectl https://dl.k8s.io/release/v1.22.0/bin/linux/amd64/kubectl
-          chmod +x bin/skaffold bin/kubectl
-      - run: echo "$PWD/bin" >> $GITHUB_PATH
-      - run: node --experimental-strip-types src/bin/manifest.mts
-        env:
-          ENV: staging
-      - run: skaffold deploy -n larpit-staging -a build.json
-
   deploy_production:
     runs-on: qb-arc-runners
     needs: build
