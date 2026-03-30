@@ -23,5 +23,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "src/bin/import-municipalities.ts"]
+  "exclude": ["node_modules", "src/bin/import-municipalities.ts", "src/bin/import-larppikuvat.ts", "src/bin/import-old-calendar.ts"]
 }

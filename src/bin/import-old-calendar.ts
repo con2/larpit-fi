@@ -1,3 +1,5 @@
+// This file is excluded from tsconfig.json because jsdom is not in package.json.
+// Install manually before running this script: npm install jsdom @types/jsdom
 import { LarpLinkType, LarpType, Openness } from "@/generated/prisma/client";
 import { loadMunicipalityMapping, parseUnixTimestamp } from "@/helpers/import";
 import { JSDOM } from "jsdom";

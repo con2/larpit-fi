@@ -1,30 +1,20 @@
-import { Marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
-import { JSDOM } from "jsdom";
+import ReactMarkdown from "react-markdown";
+import rehypeExternalLinks from "rehype-external-links";
+import rehypeSanitize from "rehype-sanitize";
 
 interface Props {
   input: string;
 }
 
-const marked = new Marked();
-
-function getDompurify() {
-  const window = new JSDOM().window;
-  const instance = DOMPurify(window);
-
-  instance.addHook("afterSanitizeAttributes", (node) => {
-    if (node.hasAttribute("href")) {
-      node.setAttribute("target", "_blank");
-      node.setAttribute("rel", "noopener noreferrer");
-    }
-  });
-
-  return instance;
-}
-
-const dompurify = getDompurify();
-
-export default async function Markdown({ input }: Props) {
-  const html = dompurify.sanitize(await marked.parse(input));
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+export default function Markdown({ input }: Props) {
+  return (
+    <ReactMarkdown
+      rehypePlugins={[
+        rehypeSanitize,
+        [rehypeExternalLinks, { target: "_blank", rel: ["noopener", "noreferrer"] }],
+      ]}
+    >
+      {input}
+    </ReactMarkdown>
+  );
 }

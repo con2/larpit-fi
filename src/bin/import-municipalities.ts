@@ -1,4 +1,5 @@
-// rdflib is not in package.json — install manually before running this script: npm install rdflib
+// This file is excluded from tsconfig.json because rdflib is not in package.json.
+// Install manually before running this script: npm install rdflib
 import { parse, Store, Namespace, sym, Literal, Node } from "rdflib";
 import { readFile } from "fs/promises";
 import prisma from "@/prisma";

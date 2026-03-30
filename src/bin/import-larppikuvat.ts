@@ -1,3 +1,5 @@
+// This file is excluded from tsconfig.json because jsdom is not in package.json.
+// Install manually before running this script: npm install jsdom @types/jsdom
 import {
   Language,
   LarpLinkType,
@@ -52,7 +54,7 @@ const dateParsers: ((body: string) => {
 })[] = [
   function dateRangeMonthDayDontMatch(body) {
     const match = body.match(
-      /(\d{1,2})\.(\d{1,2})\.?\s*[-–—]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/u
+      /(\d{1,2})\.(\d{1,2})\.?\s*[-–—]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/u,
     );
     if (!match) return { startsAt: null, endsAt: null };
     const startDay = match[1];
@@ -66,7 +68,7 @@ const dateParsers: ((body: string) => {
   },
   function dateRangeMonthMatch(body) {
     const match = body.match(
-      /(\d{1,2})\.?\s*[-–—]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/u
+      /(\d{1,2})\.?\s*[-–—]\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/u,
     );
     if (!match) return { startsAt: null, endsAt: null };
     const year = match[4];
@@ -279,7 +281,7 @@ async function importLarps() {
   const rootAlbum = Album.parse(data);
   return Promise.all(
     rootAlbum.subalbums?.map((album) => limit(() => importLarp(album, user))) ??
-      []
+      [],
   );
 }
 
