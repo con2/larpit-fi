@@ -65,7 +65,7 @@ export const ModerationRequestContent = z.object({
   description: z.string().max(2000).optional().default(""),
 
   locationText: z.string().max(200).optional().default(""),
-  municipality: z.string().max(20).nullable().default(null),
+  municipality: z.preprocess((v) => (v === "" ? null : v), z.string().max(20).nullable().default(null)),
 
   numPlayerCharacters: z.coerce.number().nullable().default(null),
   numTotalParticipants: z.coerce.number().nullable().default(null),
