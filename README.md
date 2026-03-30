@@ -86,15 +86,15 @@ See above for creating the `larpit_test` database.
 
 ### Next priorities (as of 2026-)
 
-- [ ] Import kalenteri.larp.fi content
-- [ ] Import Epel Larp content
+- [x] Import kalenteri.larp.fi content
+- [x] Import Epel Larp content
 - [ ] Enhanced moderation (show what was changed)
   - [X] In `ModerationRequest`, only include changed fields in `newContent`
   - [ ] Diff UI
-- [ ] Related larps
+- [x] Related larps
   - [X] DB model
   - [X] Shown on larp page
-  - [ ] UI to add relations
+  - [x] UI to add relations
 
 ### Unsorted feature list
 
@@ -115,7 +115,7 @@ See above for creating the `larpit_test` database.
     - [x] Type
     - [x] Language
     - [ ] Year
-  - [ ] Group by year (other groupings?)
+  - [x] Group by year (other groupings?)
   - [ ] Number of characters/participants
   - [x] Language
   - [ ] Openness
@@ -136,7 +136,7 @@ See above for creating the `larpit_test` database.
 - [ ] GM processes suggested edits for claimed larp pages
   - [ ] GM preference if they want to do this themselves?
 - [ ] Subscribeable calendar resource (ICS)
-- [ ] Public data API (REST/JSON)
+- [x] Public data API (REST/JSON)
 - [ ] Own larps
   - [ ] Filter own larps list by role
   - [ ] "I played this larp" button on larp page for logged in users
@@ -157,7 +157,7 @@ See above for creating the `larpit_test` database.
     - [ ] New games with open signup added
     - [ ] Weekly/monthly newsletter?
 - [ ] Make venue a first class citizen (currently only a text field)
-- [ ] Statistics! (total larps, larp per year etc.)
+- [x] Statistics! (total larps, larp per year etc.)
 - [ ] Moderator needs to be able to set alias for larp
 - [ ] Organizations (that organize larps)
 - [ ] User profile page with visibility toggle
