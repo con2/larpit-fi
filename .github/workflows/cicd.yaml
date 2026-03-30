@@ -83,7 +83,9 @@ jobs:
 
   deploy_production:
     runs-on: qb-arc-runners
-    needs: build
+    needs:
+      - build
+      - test
     environment: production
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
