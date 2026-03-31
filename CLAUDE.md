@@ -65,3 +65,10 @@ Paths containing braces, such as `src/app/[locale]/page.tsx`, need to be quoted 
 ## Important caveats
 
 * If you start adding municipalities outside Finland to the `Municipality` model, there is a hard-coded country in `LarpJsonLd` that you need to fix to come from the `Country` model. The concept of municipality may also not transfer as-is to other countries.
+
+## Worktree use
+
+When working in a Git worktree:
+
+* USE `PORT=30xx` to avoid colliding with the main working copy that uses `PORT=3000`. Select `xx` randomly.
+* For now, the database is shared between worktrees for realistic test data. Warn me about doing schema changes in a worktree.
