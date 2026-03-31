@@ -167,6 +167,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         date,
         isCurrentMonth:
           date.year === currentMonth.year && date.month === currentMonth.month,
+        isToday: Temporal.PlainDate.compare(date, now) === 0,
         larps: larpsOnDay.get(date.toString()) ?? [],
       };
     });
@@ -248,13 +249,14 @@ export default async function CalendarPage({ params, searchParams }: Props) {
                 <td className="text-center text-muted align-top small">
                   {weekNumber}
                 </td>
-                {days.map(({ date, isCurrentMonth, larps: dayLarps }) => (
+                {days.map(({ date, isCurrentMonth, isToday, larps: dayLarps }) => (
                   <td
                     key={date.toString()}
-                    className={`align-top${!isCurrentMonth ? " bg-light" : ""}`}
+                    className={`align-top${isToday ? " table-primary" : !isCurrentMonth ? " bg-light" : ""}`}
                   >
                     <div
-                      className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}`}
+                      className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}${isToday ? " text-primary" : ""}`}
+                      title={isToday ? t.today : undefined}
                     >
                       {date.day}
                     </div>

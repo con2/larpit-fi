@@ -1254,6 +1254,7 @@ const translations = {
       go: "Go",
     },
     weekNumber: "Wk",
+    today: "Today",
     noLarps: "No larps this month.",
   },
   LoginRequired: {

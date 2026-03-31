@@ -1281,6 +1281,7 @@ const translations: Translations = {
       go: "Siirry",
     },
     weekNumber: "Vk",
+    today: "Tänään",
     noLarps: "Ei larppeja tänä kuukautena.",
   },
   LoginRequired: {
