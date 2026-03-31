@@ -1,6 +1,6 @@
 import { publicUrl } from "@/config";
 import { getLarpHref } from "@/models/Larp.client";
-import { fromEvening, toPlainDate } from "@/helpers/temporal";
+import { toPlainDate } from "@/helpers/temporal";
 import prisma from "@/prisma";
 
 const encoder = new TextEncoder();
@@ -71,7 +71,8 @@ export async function GET() {
   for (const larp of larps) {
     if (!larp.startsAt) continue;
 
-    const endsAt = larp.endsAt ?? fromEvening(toPlainDate(larp.startsAt));
+    const startDate = toPlainDate(larp.startsAt);
+    const endDate = larp.endsAt ? toPlainDate(larp.endsAt).add({ days: 1 }) : startDate.add({ days: 1 });
     const url = `${publicUrl}${getLarpHref(larp)}`;
 
     const locationParts = [larp.locationText, larp.municipality?.nameFi].filter(
@@ -83,8 +84,8 @@ export async function GET() {
     lines.push("SEQUENCE:0");
     lines.push(foldLine(`DTSTAMP:${formatUtc(now)}`));
     lines.push(foldLine(`LAST-MODIFIED:${formatUtc(larp.updatedAt)}`));
-    lines.push(foldLine(`DTSTART:${formatUtc(larp.startsAt)}`));
-    lines.push(foldLine(`DTEND:${formatUtc(endsAt)}`));
+    lines.push(foldLine(`DTSTART;VALUE=DATE:${startDate.toString().replace(/-/g, "")}`));
+    lines.push(foldLine(`DTEND;VALUE=DATE:${endDate.toString().replace(/-/g, "")}`));
     lines.push(foldLine(`SUMMARY:${escapeText(larp.name)}`));
 
     if (larp.tagline) {
