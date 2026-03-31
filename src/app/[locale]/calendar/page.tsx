@@ -1,3 +1,4 @@
+import AutoSubmitForm from "@/components/AutoSubmitForm";
 import MainHeading from "@/components/MainHeading";
 import MaybeExternalLink from "@/components/MaybeExternalLink";
 import { timezone } from "@/config";
@@ -8,6 +9,7 @@ import { getTranslations } from "@/translations";
 import { Temporal } from "@js-temporal/polyfill";
 import Link from "next/link";
 import { Container, Table } from "react-bootstrap";
+import MonthSelect from "./MonthSelect";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -56,16 +58,11 @@ function formatMonthOption(
   month: number,
   locale: string,
 ): string {
-  const longName = Temporal.PlainDate.from({
-    year,
-    month,
-    day: 1,
-  }).toLocaleString(toSupportedLanguage(locale), {
-    month: "long",
-    year: "numeric",
-  });
-  const capitalized = longName.charAt(0).toUpperCase() + longName.slice(1);
-  return `${capitalized} (${String(month).padStart(2, "0")}/${year})`;
+  const monthName = Temporal.PlainDate.from({ year, month, day: 1 }).toLocaleString(
+    toSupportedLanguage(locale),
+    { month: "long" },
+  );
+  return `${year}/${String(month).padStart(2, "0")} ${monthName}`;
 }
 
 type LarpRow = Awaited<ReturnType<typeof prisma.larp.findMany>>[number] & {
@@ -191,35 +188,29 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       <div className="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
         <Link
           href={`/calendar?month=${toMonthParam(prevMonth)}`}
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-secondary bg-white"
         >
           ← {t.navigation.previousMonth}
         </Link>
 
-        <form action="/calendar" method="get" className="d-flex gap-2">
-          <select
-            name="month"
-            className="form-select"
-            aria-label={t.navigation.goToMonth}
+        <AutoSubmitForm action="/calendar" method="get" className="flex-grow-1">
+          <MonthSelect
+            options={monthRows.map(({ year, month }) => ({
+              value: `${year}-${String(month).padStart(2, "0")}`,
+              label: formatMonthOption(year, month, locale),
+            }))}
             defaultValue={toMonthParam(currentMonth)}
-          >
-            {monthRows.map(({ year, month }) => {
-              const value = `${year}-${String(month).padStart(2, "0")}`;
-              return (
-                <option key={value} value={value}>
-                  {formatMonthOption(year, month, locale)}
-                </option>
-              );
-            })}
-          </select>
-          <button type="submit" className="btn btn-outline-secondary">
-            {t.navigation.go}
-          </button>
-        </form>
+          />
+          <noscript>
+            <button type="submit" className="btn btn-outline-secondary bg-white">
+              {t.navigation.go}
+            </button>
+          </noscript>
+        </AutoSubmitForm>
 
         <Link
           href={`/calendar?month=${toMonthParam(nextMonth)}`}
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-secondary bg-white"
         >
           {t.navigation.nextMonth} →
         </Link>
