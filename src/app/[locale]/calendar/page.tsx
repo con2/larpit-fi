@@ -109,7 +109,13 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
   const [larps, monthRows] = await Promise.all([
     prisma.larp.findMany({
-      where: { startsAt: { gte: gridStartDate, lt: gridEndDate } },
+      where: {
+        startsAt: { lt: gridEndDate },
+        OR: [
+          { endsAt: { gte: gridStartDate } },
+          { endsAt: null, startsAt: { gte: gridStartDate } },
+        ],
+      },
       orderBy: { startsAt: "asc" },
       include: { municipality: { select: { nameFi: true } } },
     }) as Promise<LarpRow[]>,
@@ -124,17 +130,30 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     `,
   ]);
 
-  // Group larps by their start date in Helsinki timezone
+  // Group larps by day in Helsinki timezone; multi-day larps appear on every day [startDate, endDate]
   const larpsOnDay = new Map<string, LarpRow[]>();
   for (const larp of larps) {
     if (!larp.startsAt) continue;
-    const key = Temporal.Instant.fromEpochMilliseconds(larp.startsAt.getTime())
+    const startDate = Temporal.Instant.fromEpochMilliseconds(
+      larp.startsAt.getTime(),
+    )
       .toZonedDateTimeISO(timezone)
-      .toPlainDate()
-      .toString();
-    const bucket = larpsOnDay.get(key) ?? [];
-    bucket.push(larp);
-    larpsOnDay.set(key, bucket);
+      .toPlainDate();
+    const endDate = larp.endsAt
+      ? Temporal.Instant.fromEpochMilliseconds(larp.endsAt.getTime())
+          .toZonedDateTimeISO(timezone)
+          .toPlainDate()
+      : startDate;
+    for (
+      let date = startDate;
+      Temporal.PlainDate.compare(date, endDate) <= 0;
+      date = date.add({ days: 1 })
+    ) {
+      const key = date.toString();
+      const bucket = larpsOnDay.get(key) ?? [];
+      bucket.push(larp);
+      larpsOnDay.set(key, bucket);
+    }
   }
 
   // Build one entry per week row
