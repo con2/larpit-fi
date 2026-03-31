@@ -51,3 +51,7 @@ next-env.d.ts
 
 # just in case
 *.sql
+
+# Claude Code
+.claude/settings.local.json
+.claude/worktrees/
