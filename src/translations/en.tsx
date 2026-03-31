@@ -1258,7 +1258,7 @@ const translations = {
     keyboardNavigation: "Tip: You can change months with arrow keys.",
     subscribe: (calendarUrl: string) => (
       <>
-        Subscribe to Larpit.fi in eg. Google Calendar or Outlook:{" "}
+        Subscribe to the Larpit.fi calendar in eg. Google Calendar or Outlook:{" "}
         <code>{calendarUrl}</code>
       </>
     ),

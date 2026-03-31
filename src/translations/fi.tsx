@@ -1285,7 +1285,7 @@ const translations: Translations = {
     keyboardNavigation: "Vinkki: Voit vaihtaa kuukausia nuolinäppäimillä.",
     subscribe: (calendarUrl: string) => (
       <>
-        Tilaa Larpit.fi esim. Google Calendariin tai Outlookiin:{" "}
+        Tilaa Larpit.fi-kalenteri esim. Google Calendariin tai Outlookiin:{" "}
         <code>{calendarUrl}</code>
       </>
     ),
