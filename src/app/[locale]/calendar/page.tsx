@@ -1,4 +1,3 @@
-import AutoSubmitForm from "@/components/AutoSubmitForm";
 import MainHeading from "@/components/MainHeading";
 import MaybeExternalLink from "@/components/MaybeExternalLink";
 import { timezone } from "@/config";
@@ -199,7 +198,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           ← {t.navigation.previousMonth}
         </Link>
 
-        <AutoSubmitForm action="/calendar" method="get" className="flex-grow-1">
+        {/* MonthSelect calls form.requestSubmit() on selection */}
+        <form action="/calendar" method="get" className="flex-grow-1">
           <MonthSelect
             options={monthRows.map(({ year, month }) => ({
               value: `${year}-${String(month).padStart(2, "0")}`,
@@ -212,7 +212,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
               {t.navigation.go}
             </button>
           </noscript>
-        </AutoSubmitForm>
+        </form>
 
         <Link
           href={`/calendar?month=${toMonthParam(nextMonth)}`}
