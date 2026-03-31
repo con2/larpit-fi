@@ -1272,6 +1272,21 @@ const translations: Translations = {
       },
     },
   },
+  CalendarPage: {
+    title: "Kalenteri",
+    navigation: {
+      previousMonth: "Edellinen",
+      nextMonth: "Seuraava",
+      goToMonth: "Siirry kuukauteen",
+      go: "Siirry",
+    },
+    noLarps: "Ei larppeja tänä kuukautena.",
+    attributes: {
+      date: "Päivämäärä",
+      name: "Nimi",
+      location: "Sijainti",
+    },
+  },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
