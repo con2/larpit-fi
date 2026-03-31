@@ -200,7 +200,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
         <AutoSubmitForm action="/calendar" method="get" className="flex-grow-1">
           <MonthSelect
-            key={toMonthParam(currentMonth)}
             options={monthRows.map(({ year, month }) => ({
               value: `${year}-${String(month).padStart(2, "0")}`,
               label: formatMonthOption(year, month, locale),

@@ -13,18 +13,24 @@ export default function MonthSelect({
   defaultValue: string;
 }) {
   const [jsEnabled, setJsEnabled] = useState(false);
+  const [value, setValue] = useState(defaultValue);
   const nativeRef = useRef<HTMLSelectElement>(null);
-  const defaultOption = options.find((o) => o.value === defaultValue) ?? null;
 
   useEffect(() => {
     setJsEnabled(true);
   }, []);
+
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
 
   function handleChange(opt: SingleValue<Option>) {
     if (!opt || !nativeRef.current) return;
     nativeRef.current.value = opt.value;
     nativeRef.current.form?.requestSubmit();
   }
+
+  const selectedOption = options.find((o) => o.value === value) ?? null;
 
   return (
     <>
@@ -45,7 +51,7 @@ export default function MonthSelect({
       {jsEnabled && (
         <Select
           options={options}
-          defaultValue={defaultOption}
+          value={selectedOption}
           onChange={handleChange}
           isSearchable
           noOptionsMessage={() => "—"}
