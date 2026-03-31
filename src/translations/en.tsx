@@ -1255,7 +1255,13 @@ const translations = {
     },
     weekNumber: "Wk",
     today: "Today",
-    noLarps: "No larps this month.",
+    keyboardNavigation: "Tip: You can change months with arrow keys.",
+    subscribe: (calendarUrl: string) => (
+      <>
+        Subscribe to Larpit.fi in eg. Google Calendar or Outlook:{" "}
+        <code>{calendarUrl}</code>
+      </>
+    ),
   },
   LoginRequired: {
     title: "Login required",

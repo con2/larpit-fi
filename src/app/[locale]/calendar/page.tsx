@@ -1,6 +1,6 @@
 import MainHeading from "@/components/MainHeading";
 import MaybeExternalLink from "@/components/MaybeExternalLink";
-import { timezone } from "@/config";
+import { publicUrl, timezone } from "@/config";
 import { toSupportedLanguage } from "@/i18n/locales";
 import { getLarpHref } from "@/models/Larp.client";
 import prisma from "@/prisma";
@@ -58,10 +58,11 @@ function formatMonthOption(
   month: number,
   locale: string,
 ): string {
-  const monthName = Temporal.PlainDate.from({ year, month, day: 1 }).toLocaleString(
-    toSupportedLanguage(locale),
-    { month: "long" },
-  );
+  const monthName = Temporal.PlainDate.from({
+    year,
+    month,
+    day: 1,
+  }).toLocaleString(toSupportedLanguage(locale), { month: "long" });
   return `${year}/${String(month).padStart(2, "0")} ${monthName}`;
 }
 
@@ -182,6 +183,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     ),
   );
 
+  const icalUrl = `${publicUrl}/api/calendar`;
+
   return (
     <Container fluid>
       <CalendarKeyboardNav
@@ -208,7 +211,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
             defaultValue={toMonthParam(currentMonth)}
           />
           <noscript>
-            <button type="submit" className="btn btn-outline-secondary bg-white">
+            <button
+              type="submit"
+              className="btn btn-outline-secondary bg-white"
+            >
               {t.navigation.go}
             </button>
           </noscript>
@@ -222,8 +228,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         </Link>
       </div>
 
-      <div className="table-responsive">
-        <Table bordered className="mb-4" style={{ tableLayout: "fixed" }}>
+      <div className="table-responsive mb-3">
+        <Table bordered style={{ tableLayout: "fixed" }}>
           <thead>
             <tr>
               <th
@@ -249,33 +255,41 @@ export default async function CalendarPage({ params, searchParams }: Props) {
                 <td className="text-center text-muted align-top small">
                   {weekNumber}
                 </td>
-                {days.map(({ date, isCurrentMonth, isToday, larps: dayLarps }) => (
-                  <td
-                    key={date.toString()}
-                    className={`align-top${isToday ? " table-primary" : !isCurrentMonth ? " bg-light" : ""}`}
-                  >
-                    <div
-                      className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}${isToday ? " text-primary" : ""}`}
-                      title={isToday ? t.today : undefined}
+                {days.map(
+                  ({ date, isCurrentMonth, isToday, larps: dayLarps }) => (
+                    <td
+                      key={date.toString()}
+                      className={`align-top${isToday ? " table-primary" : !isCurrentMonth ? " bg-light" : ""}`}
                     >
-                      {date.day}
-                    </div>
-                    {dayLarps.map((larp) => (
-                      <div key={larp.id} className="small">
-                        <MaybeExternalLink
-                          href={getLarpHref(larp)}
-                          className={`link-xxsubtle d-block text-truncate${!isCurrentMonth ? " text-muted" : ""}`}
-                        >
-                          {larp.name}
-                        </MaybeExternalLink>
+                      <div
+                        className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}${isToday ? " text-primary" : ""}`}
+                        title={isToday ? t.today : undefined}
+                      >
+                        {date.day}
                       </div>
-                    ))}
-                  </td>
-                ))}
+                      {dayLarps.map((larp) => (
+                        <div key={larp.id} className="small">
+                          <MaybeExternalLink
+                            href={getLarpHref(larp)}
+                            className={`link-xxsubtle d-block text-truncate${!isCurrentMonth ? " text-muted" : ""}`}
+                          >
+                            {larp.name}
+                          </MaybeExternalLink>
+                        </div>
+                      ))}
+                    </td>
+                  ),
+                )}
               </tr>
             ))}
           </tbody>
         </Table>
+      </div>
+      <div className="text-center text-muted mb-4 small">
+        {t.subscribe(icalUrl)}
+      </div>
+      <div className="text-center text-muted mb-3 small">
+        {t.keyboardNavigation}
       </div>
     </Container>
   );

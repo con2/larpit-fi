@@ -1282,7 +1282,13 @@ const translations: Translations = {
     },
     weekNumber: "Vk",
     today: "Tänään",
-    noLarps: "Ei larppeja tänä kuukautena.",
+    keyboardNavigation: "Vinkki: Voit vaihtaa kuukausia nuolinäppäimillä.",
+    subscribe: (calendarUrl: string) => (
+      <>
+        Tilaa Larpit.fi esim. Google Calendariin tai Outlookiin:{" "}
+        <code>{calendarUrl}</code>
+      </>
+    ),
   },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
