@@ -44,15 +44,26 @@ function toMonthParam(ym: Temporal.PlainYearMonth): string {
 function formatMonthTitle(ym: Temporal.PlainYearMonth, locale: string): string {
   const s = ym
     .toPlainDate({ day: 1 })
-    .toLocaleString(toSupportedLanguage(locale), { month: "long", year: "numeric" });
+    .toLocaleString(toSupportedLanguage(locale), {
+      month: "long",
+      year: "numeric",
+    });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function formatMonthOption(year: number, month: number, locale: string): string {
-  const longName = Temporal.PlainDate.from({ year, month, day: 1 }).toLocaleString(
-    toSupportedLanguage(locale),
-    { month: "long", year: "numeric" },
-  );
+function formatMonthOption(
+  year: number,
+  month: number,
+  locale: string,
+): string {
+  const longName = Temporal.PlainDate.from({
+    year,
+    month,
+    day: 1,
+  }).toLocaleString(toSupportedLanguage(locale), {
+    month: "long",
+    year: "numeric",
+  });
   const capitalized = longName.charAt(0).toUpperCase() + longName.slice(1);
   return `${capitalized} (${String(month).padStart(2, "0")}/${year})`;
 }
@@ -73,10 +84,14 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const nextMonth = currentMonth.add({ months: 1 });
 
   const monthFirstDay = currentMonth.toPlainDate({ day: 1 });
-  const monthLastDay = currentMonth.toPlainDate({ day: currentMonth.daysInMonth });
+  const monthLastDay = currentMonth.toPlainDate({
+    day: currentMonth.daysInMonth,
+  });
 
   // Grid always starts on the Monday on or before the 1st (dayOfWeek: 1=Mon…7=Sun)
-  const gridStart = monthFirstDay.subtract({ days: monthFirstDay.dayOfWeek - 1 });
+  const gridStart = monthFirstDay.subtract({
+    days: monthFirstDay.dayOfWeek - 1,
+  });
   // Grid always ends on the Sunday on or after the last day
   const gridEnd = monthLastDay.add({ days: 7 - monthLastDay.dayOfWeek });
 
@@ -124,12 +139,17 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
   // Build one entry per week row
   const weeks = [];
-  for (let day = gridStart; Temporal.PlainDate.compare(day, gridEnd) <= 0; day = day.add({ days: 7 })) {
+  for (
+    let day = gridStart;
+    Temporal.PlainDate.compare(day, gridEnd) <= 0;
+    day = day.add({ days: 7 })
+  ) {
     const days = Array.from({ length: 7 }, (_, i) => {
       const date = day.add({ days: i });
       return {
         date,
-        isCurrentMonth: date.year === currentMonth.year && date.month === currentMonth.month,
+        isCurrentMonth:
+          date.year === currentMonth.year && date.month === currentMonth.month,
         larps: larpsOnDay.get(date.toString()) ?? [],
       };
     });
@@ -137,13 +157,16 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   }
 
   const weekdayNames = Array.from({ length: 7 }, (_, i) =>
-    REFERENCE_MONDAY.add({ days: i }).toLocaleString(toSupportedLanguage(locale), {
-      weekday: "short",
-    }),
+    REFERENCE_MONDAY.add({ days: i }).toLocaleString(
+      toSupportedLanguage(locale),
+      {
+        weekday: "short",
+      },
+    ),
   );
 
   return (
-    <Container>
+    <Container fluid>
       <MainHeading>{formatMonthTitle(currentMonth, locale)}</MainHeading>
 
       <div className="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
@@ -184,14 +207,21 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       </div>
 
       <div className="table-responsive">
-        <Table bordered className="mb-4">
+        <Table bordered className="mb-4" style={{ tableLayout: "fixed" }}>
           <thead>
             <tr>
-              <th className="text-center text-muted fw-normal" style={{ width: "3rem" }}>
+              <th
+                className="text-center text-muted fw-normal"
+                style={{ width: "3rem" }}
+              >
                 {t.weekNumber}
               </th>
               {weekdayNames.map((name) => (
-                <th key={name} className="text-center fw-semibold">
+                <th
+                  key={name}
+                  className="text-center fw-semibold"
+                  style={{ width: "calc((100% - 3rem) / 7)" }}
+                >
                   {name}
                 </th>
               ))}
@@ -199,15 +229,18 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           </thead>
           <tbody>
             {weeks.map(({ weekNumber, days }) => (
-              <tr key={weekNumber}>
-                <td className="text-center text-muted align-top small">{weekNumber}</td>
+              <tr key={weekNumber} style={{ height: "6rem" }}>
+                <td className="text-center text-muted align-top small">
+                  {weekNumber}
+                </td>
                 {days.map(({ date, isCurrentMonth, larps: dayLarps }) => (
                   <td
                     key={date.toString()}
                     className={`align-top${!isCurrentMonth ? " bg-light" : ""}`}
-                    style={{ minWidth: "9rem", minHeight: "5rem" }}
                   >
-                    <div className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}`}>
+                    <div
+                      className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}`}
+                    >
                       {date.day}
                     </div>
                     {dayLarps.map((larp) => (
