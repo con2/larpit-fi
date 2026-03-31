@@ -98,8 +98,12 @@ See above for creating the `larpit_test` database.
 
 ### Unsorted feature list
 
+- [ ] Larp controls for registered users
+  - [ ] I played here
+  - [ ] Mark as favourite
+  - [ ] Move claim button here, too?
 - [ ] Enhanced larp page
-  - [ ] Visual layout of larp page: How to show all the data but at the same time make the page aesthetically pleasing and readable?
+  - [x] Visual layout of larp page: How to show all the data but at the same time make the page aesthetically pleasing and readable?
   - [ ] Author (as opposed to organizer)
   - [ ] Age limits
   - [ ] Intended audience? (-> tagging/categories?)
@@ -135,7 +139,7 @@ See above for creating the `larpit_test` database.
   - [ ] Email confirmation required for each suggestion
 - [ ] GM processes suggested edits for claimed larp pages
   - [ ] GM preference if they want to do this themselves?
-- [ ] Subscribeable calendar resource (ICS)
+- [x] Subscribeable calendar resource (ICS)
 - [x] Public data API (REST/JSON)
 - [ ] Own larps
   - [ ] Filter own larps list by role
@@ -161,6 +165,7 @@ See above for creating the `larpit_test` database.
 - [ ] Moderator needs to be able to set alias for larp
 - [ ] Organizations (that organize larps)
 - [ ] User profile page with visibility toggle
+- [ ] Rate limiting and server-side caching for expensive responses (e.g. `/api/calendar`, `/api/larp`)
 - [ ] Move backlog to GitHub Projects
 - [ ] Spike of Drizzle as DB layer instead of Prisma
 - [ ] Larppikuvat.fi integration
