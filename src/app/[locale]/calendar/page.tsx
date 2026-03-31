@@ -9,6 +9,7 @@ import { getTranslations } from "@/translations";
 import { Temporal } from "@js-temporal/polyfill";
 import Link from "next/link";
 import { Container, Table } from "react-bootstrap";
+import CalendarKeyboardNav from "./CalendarKeyboardNav";
 import MonthSelect from "./MonthSelect";
 
 interface Props {
@@ -183,6 +184,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
   return (
     <Container fluid>
+      <CalendarKeyboardNav
+        prevHref={`/calendar?month=${toMonthParam(prevMonth)}`}
+        nextHref={`/calendar?month=${toMonthParam(nextMonth)}`}
+      />
       <MainHeading>{formatMonthTitle(currentMonth, locale)}</MainHeading>
 
       <div className="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
