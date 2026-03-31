@@ -1,7 +1,7 @@
-import { FormattedDateRange } from "@/components/FormattedDateRange";
 import MainHeading from "@/components/MainHeading";
 import MaybeExternalLink from "@/components/MaybeExternalLink";
 import { timezone } from "@/config";
+import { toSupportedLanguage } from "@/i18n/locales";
 import { getLarpHref } from "@/models/Larp.client";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -21,6 +21,9 @@ interface MonthRow {
 
 const midnight = Temporal.PlainTime.from({ hour: 0, minute: 0, second: 0 });
 
+// A known Monday used only for deriving weekday header names
+const REFERENCE_MONDAY = Temporal.PlainDate.from("2024-01-01");
+
 function parseMonth(
   monthParam: string | undefined,
   now: Temporal.PlainDate,
@@ -39,21 +42,24 @@ function toMonthParam(ym: Temporal.PlainYearMonth): string {
 }
 
 function formatMonthTitle(ym: Temporal.PlainYearMonth, locale: string): string {
-  const s = ym.toPlainDate({ day: 1 }).toLocaleString(locale, { month: "long", year: "numeric" });
+  const s = ym
+    .toPlainDate({ day: 1 })
+    .toLocaleString(toSupportedLanguage(locale), { month: "long", year: "numeric" });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function formatMonthOption(
-  year: number,
-  month: number,
-  locale: string,
-): string {
-  const date = Temporal.PlainDate.from({ year, month, day: 1 });
-  const longName = date.toLocaleString(locale, { month: "long", year: "numeric" });
+function formatMonthOption(year: number, month: number, locale: string): string {
+  const longName = Temporal.PlainDate.from({ year, month, day: 1 }).toLocaleString(
+    toSupportedLanguage(locale),
+    { month: "long", year: "numeric" },
+  );
   const capitalized = longName.charAt(0).toUpperCase() + longName.slice(1);
-  const mm = String(month).padStart(2, "0");
-  return `${capitalized} (${mm}/${year})`;
+  return `${capitalized} (${String(month).padStart(2, "0")}/${year})`;
 }
+
+type LarpRow = Awaited<ReturnType<typeof prisma.larp.findMany>>[number] & {
+  municipality: { nameFi: string } | null;
+};
 
 export default async function CalendarPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -67,24 +73,31 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const nextMonth = currentMonth.add({ months: 1 });
 
   const monthFirstDay = currentMonth.toPlainDate({ day: 1 });
-  const nextMonthFirstDay = nextMonth.toPlainDate({ day: 1 });
-  const startDate = new Date(
-    monthFirstDay
+  const monthLastDay = currentMonth.toPlainDate({ day: currentMonth.daysInMonth });
+
+  // Grid always starts on the Monday on or before the 1st (dayOfWeek: 1=Mon…7=Sun)
+  const gridStart = monthFirstDay.subtract({ days: monthFirstDay.dayOfWeek - 1 });
+  // Grid always ends on the Sunday on or after the last day
+  const gridEnd = monthLastDay.add({ days: 7 - monthLastDay.dayOfWeek });
+
+  const gridStartDate = new Date(
+    gridStart
       .toZonedDateTime({ timeZone: timezone, plainTime: midnight })
       .toInstant().epochMilliseconds,
   );
-  const endDate = new Date(
-    nextMonthFirstDay
+  const gridEndDate = new Date(
+    gridEnd
+      .add({ days: 1 })
       .toZonedDateTime({ timeZone: timezone, plainTime: midnight })
       .toInstant().epochMilliseconds,
   );
 
   const [larps, monthRows] = await Promise.all([
     prisma.larp.findMany({
-      where: { startsAt: { gte: startDate, lt: endDate } },
+      where: { startsAt: { gte: gridStartDate, lt: gridEndDate } },
       orderBy: { startsAt: "asc" },
       include: { municipality: { select: { nameFi: true } } },
-    }),
+    }) as Promise<LarpRow[]>,
     prisma.$queryRaw<MonthRow[]>`
       select
         extract(year from starts_at at time zone ${timezone})::int as year,
@@ -96,12 +109,42 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     `,
   ]);
 
-  const title = formatMonthTitle(currentMonth, locale);
-  const currentMonthStr = toMonthParam(currentMonth);
+  // Group larps by their start date in Helsinki timezone
+  const larpsOnDay = new Map<string, LarpRow[]>();
+  for (const larp of larps) {
+    if (!larp.startsAt) continue;
+    const key = Temporal.Instant.fromEpochMilliseconds(larp.startsAt.getTime())
+      .toZonedDateTimeISO(timezone)
+      .toPlainDate()
+      .toString();
+    const bucket = larpsOnDay.get(key) ?? [];
+    bucket.push(larp);
+    larpsOnDay.set(key, bucket);
+  }
+
+  // Build one entry per week row
+  const weeks = [];
+  for (let day = gridStart; Temporal.PlainDate.compare(day, gridEnd) <= 0; day = day.add({ days: 7 })) {
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const date = day.add({ days: i });
+      return {
+        date,
+        isCurrentMonth: date.year === currentMonth.year && date.month === currentMonth.month,
+        larps: larpsOnDay.get(date.toString()) ?? [],
+      };
+    });
+    weeks.push({ weekNumber: day.weekOfYear!, days });
+  }
+
+  const weekdayNames = Array.from({ length: 7 }, (_, i) =>
+    REFERENCE_MONDAY.add({ days: i }).toLocaleString(toSupportedLanguage(locale), {
+      weekday: "short",
+    }),
+  );
 
   return (
     <Container>
-      <MainHeading>{title}</MainHeading>
+      <MainHeading>{formatMonthTitle(currentMonth, locale)}</MainHeading>
 
       <div className="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
         <Link
@@ -116,7 +159,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
             name="month"
             className="form-select"
             aria-label={t.navigation.goToMonth}
-            defaultValue={currentMonthStr}
+            defaultValue={toMonthParam(currentMonth)}
           >
             {monthRows.map(({ year, month }) => {
               const value = `${year}-${String(month).padStart(2, "0")}`;
@@ -140,47 +183,50 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         </Link>
       </div>
 
-      {larps.length === 0 ? (
-        <p className="text-muted">{t.noLarps}</p>
-      ) : (
-        <div className="table-responsive">
-          <Table striped hover className="border rounded mb-4">
-            <thead>
-              <tr>
-                <th>{t.attributes.date}</th>
-                <th>{t.attributes.name}</th>
-                <th>{t.attributes.location}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {larps.map((larp) => (
-                <tr key={larp.id}>
-                  <td className="align-middle text-nowrap">
-                    <FormattedDateRange
-                      locale={locale}
-                      start={larp.startsAt}
-                      end={larp.endsAt}
-                    />
-                  </td>
-                  <td className="align-middle" style={{ position: "relative" }}>
-                    <MaybeExternalLink
-                      href={getLarpHref(larp)}
-                      className="stretched-link link-xxsubtle"
-                    >
-                      {larp.name}
-                    </MaybeExternalLink>
-                  </td>
-                  <td className="align-middle">
-                    {[larp.locationText, larp.municipality?.nameFi]
-                      .filter(Boolean)
-                      .join(", ")}
-                  </td>
-                </tr>
+      <div className="table-responsive">
+        <Table bordered className="mb-4">
+          <thead>
+            <tr>
+              <th className="text-center text-muted fw-normal" style={{ width: "3rem" }}>
+                {t.weekNumber}
+              </th>
+              {weekdayNames.map((name) => (
+                <th key={name} className="text-center fw-semibold">
+                  {name}
+                </th>
               ))}
-            </tbody>
-          </Table>
-        </div>
-      )}
+            </tr>
+          </thead>
+          <tbody>
+            {weeks.map(({ weekNumber, days }) => (
+              <tr key={weekNumber}>
+                <td className="text-center text-muted align-top small">{weekNumber}</td>
+                {days.map(({ date, isCurrentMonth, larps: dayLarps }) => (
+                  <td
+                    key={date.toString()}
+                    className={`align-top${!isCurrentMonth ? " bg-light" : ""}`}
+                    style={{ minWidth: "9rem", minHeight: "5rem" }}
+                  >
+                    <div className={`small fw-semibold mb-1${!isCurrentMonth ? " text-muted" : ""}`}>
+                      {date.day}
+                    </div>
+                    {dayLarps.map((larp) => (
+                      <div key={larp.id} className="small">
+                        <MaybeExternalLink
+                          href={getLarpHref(larp)}
+                          className={`link-xxsubtle d-block text-truncate${!isCurrentMonth ? " text-muted" : ""}`}
+                        >
+                          {larp.name}
+                        </MaybeExternalLink>
+                      </div>
+                    ))}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </Container>
   );
 }

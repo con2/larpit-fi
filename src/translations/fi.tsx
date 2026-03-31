@@ -1280,12 +1280,8 @@ const translations: Translations = {
       goToMonth: "Siirry kuukauteen",
       go: "Siirry",
     },
+    weekNumber: "Vk",
     noLarps: "Ei larppeja tänä kuukautena.",
-    attributes: {
-      date: "Päivämäärä",
-      name: "Nimi",
-      location: "Sijainti",
-    },
   },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",

@@ -1253,12 +1253,8 @@ const translations = {
       goToMonth: "Go to month",
       go: "Go",
     },
+    weekNumber: "Wk",
     noLarps: "No larps this month.",
-    attributes: {
-      date: "Date",
-      name: "Name",
-      location: "Location",
-    },
   },
   LoginRequired: {
     title: "Login required",
