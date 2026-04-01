@@ -410,7 +410,7 @@ export async function approveUpdateLarpRequest(
 
   await prisma.larp.update({
     where: { id: request.larpId },
-    data,
+    data: { ...data, updateCount: { increment: 1 } },
   });
 
   if (request.submitterId) {

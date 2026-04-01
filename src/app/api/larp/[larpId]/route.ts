@@ -38,6 +38,7 @@ export async function GET(
       language: true,
       numPlayerCharacters: true,
       numTotalParticipants: true,
+      isCancelled: true,
       updatedAt: true,
       fluffText: true,
       description: true,

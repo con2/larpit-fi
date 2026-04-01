@@ -191,6 +191,7 @@ model Larp {
   municipality      Municipality?       @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
 
   isCancelled Boolean @default(false) @map("is_cancelled")
+  updateCount Int     @default(0) @map("update_count")
 
   @@map("larp")
 }

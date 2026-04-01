@@ -41,7 +41,16 @@ function formatUtc(date: Date): string {
   return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 
-export async function GET() {
+const cancelledPrefix: Record<string, string> = {
+  fi: "PERUUTETTU",
+  en: "CANCELLED",
+};
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const locale = searchParams.get("locale") === "fi" ? "fi" : "en";
+  const prefix = cancelledPrefix[locale];
+
   const larps = await prisma.larp.findMany({
     where: { startsAt: { not: null } },
     select: {
@@ -54,6 +63,8 @@ export async function GET() {
       locationText: true,
       municipality: { select: { nameFi: true } },
       updatedAt: true,
+      isCancelled: true,
+      updateCount: true,
     },
     orderBy: { startsAt: "desc" },
   });
@@ -79,14 +90,19 @@ export async function GET() {
       Boolean,
     );
 
+    const summary = larp.isCancelled
+      ? `[${prefix}] ${larp.name}`
+      : larp.name;
+
     lines.push("BEGIN:VEVENT");
     lines.push(foldLine(`UID:${larp.id}@larpit.fi`));
-    lines.push("SEQUENCE:0");
+    lines.push(foldLine(`SEQUENCE:${larp.updateCount}`));
     lines.push(foldLine(`DTSTAMP:${formatUtc(now)}`));
     lines.push(foldLine(`LAST-MODIFIED:${formatUtc(larp.updatedAt)}`));
+    if (larp.isCancelled) lines.push("STATUS:CANCELLED");
     lines.push(foldLine(`DTSTART;VALUE=DATE:${startDate.toString().replace(/-/g, "")}`));
     lines.push(foldLine(`DTEND;VALUE=DATE:${endDate.toString().replace(/-/g, "")}`));
-    lines.push(foldLine(`SUMMARY:${escapeText(larp.name)}`));
+    lines.push(foldLine(`SUMMARY:${escapeText(summary)}`));
 
     if (larp.tagline) {
       lines.push(foldLine(`DESCRIPTION:${escapeText(larp.tagline)}`));

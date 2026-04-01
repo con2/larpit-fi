@@ -323,6 +323,55 @@ describe("ModerationRequest integration tests", () => {
     expect(ba?.type).toBe(RelatedLarpType.RERUN_OF);
   });
 
+  it("approveUpdateLarpRequest increments updateCount on each approval", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larp = await prisma.larp.create({
+      data: { name: "My Larp", language: Language.fi },
+    });
+    expect(larp.updateCount).toBe(0);
+
+    const makeRequest = () =>
+      prisma.moderationRequest.create({
+        data: {
+          action: EditAction.UPDATE,
+          larpId: larp.id,
+          status: EditStatus.VERIFIED,
+          submitterName: user.name!,
+          submitterEmail: user.email,
+          submitterRole: SubmitterRole.NONE,
+          newContent: { name: "Updated Name" },
+        },
+      });
+
+    await approveUpdateLarpRequest(await makeRequest(), user, null, "APPROVED");
+    const after1 = await prisma.larp.findUnique({ where: { id: larp.id } });
+    expect(after1?.updateCount).toBe(1);
+
+    await approveUpdateLarpRequest(await makeRequest(), user, null, "APPROVED");
+    const after2 = await prisma.larp.findUnique({ where: { id: larp.id } });
+    expect(after2?.updateCount).toBe(2);
+  });
+
+  it("approveCreateLarpRequest leaves updateCount at 0", async () => {
+    const user = await prisma.user.create({ data: testUser });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.CREATE,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterId: user.id,
+        submitterRole: SubmitterRole.GAME_MASTER,
+        newContent: minimalNewContent,
+      },
+    });
+
+    const result = await approveCreateLarpRequest(request, user, null, "APPROVED");
+    const larp = await prisma.larp.findUnique({ where: { id: result.id } });
+    expect(larp?.updateCount).toBe(0);
+  });
+
   it("rejectRequest sets status to REJECTED with reason", async () => {
     const user = await prisma.user.create({ data: testUser });
 

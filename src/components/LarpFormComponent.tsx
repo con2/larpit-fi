@@ -9,7 +9,25 @@ import type { Translations } from "@/translations/en";
 interface Props {
   translations: Translations;
   locale: string;
-  larp: Omit<Larp, "id" | "updatedAt" | "alias"> | null;
+  larp: Pick<
+    Larp,
+    | "name"
+    | "tagline"
+    | "type"
+    | "language"
+    | "startsAt"
+    | "endsAt"
+    | "locationText"
+    | "municipalityId"
+    | "openness"
+    | "signupStartsAt"
+    | "signupEndsAt"
+    | "numPlayerCharacters"
+    | "numTotalParticipants"
+    | "fluffText"
+    | "description"
+    | "isCancelled"
+  > | null;
   readOnly?: boolean;
   compact?: boolean;
 }

@@ -196,7 +196,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     ),
   );
 
-  const icalUrl = `${publicUrl}/api/calendar`;
+  const icalUrl = `${publicUrl}/api/calendar?locale=${locale}`;
 
   return (
     <Container fluid>
