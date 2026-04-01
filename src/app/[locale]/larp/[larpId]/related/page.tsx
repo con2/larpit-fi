@@ -1,13 +1,17 @@
 import { auth } from "@/auth";
 import SwapVert from "@/components/google-material-symbols/SwapVert";
+import { relatedLarpInclude } from "@/components/LarpPage";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
+import { addRelatedLarp } from "@/components/related/actions";
+import {
+  LeftRelatedLarpComponent,
+  RightRelatedLarpComponent,
+} from "@/components/related/RelatedLarpComponent";
+import RemoveRelatedLarpButton from "@/components/related/RemoveRelatedLarpButton";
 import SelectLarpCombobox from "@/components/related/SelectLarpCombobox";
 import SubmitButton from "@/components/SubmitButton";
-import {
-  RelatedLarpType,
-  RelatedUserRole,
-} from "@/generated/prisma/client";
+import { RelatedLarpType } from "@/generated/prisma/client";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
@@ -26,13 +30,6 @@ import {
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
-import { addRelatedLarp } from "@/components/related/actions";
-import { relatedLarpInclude } from "@/components/LarpPage";
-import {
-  LeftRelatedLarpComponent,
-  RightRelatedLarpComponent,
-} from "@/components/related/RelatedLarpComponent";
-import RemoveRelatedLarpButton from "@/components/related/RemoveRelatedLarpButton";
 
 interface Props {
   params: Promise<{
@@ -67,9 +64,10 @@ export default async function RelatedLarpsPage({
   const user = await getUserFromSession(session);
 
   const larpTypeChoices = Object.fromEntries(
-    Object.entries(translations.Larp.attributes.type.choices).map(
-      ([k, v]) => [k, v.title],
-    ),
+    Object.entries(translations.Larp.attributes.type.choices).map(([k, v]) => [
+      k,
+      v.title,
+    ]),
   );
 
   const [larp, larps] = await Promise.all([

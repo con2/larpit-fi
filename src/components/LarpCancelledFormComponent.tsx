@@ -1,12 +1,6 @@
 import { Larp } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormCheck,
-  FormLabel,
-} from "react-bootstrap";
+import { Card, CardBody, CardTitle, FormCheck } from "react-bootstrap";
 
 interface Props {
   translations: Translations;
@@ -39,6 +33,7 @@ export default async function LarpCancelledFormComponent({
           name="isCancelled"
           label={<>{t.attributes.isCancelled.label}</>}
           defaultChecked={larp?.isCancelled ?? false}
+          readOnly={readOnly}
         />
       </CardBody>
     </Card>
