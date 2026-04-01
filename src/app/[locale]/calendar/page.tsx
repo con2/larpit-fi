@@ -209,7 +209,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       <div className="d-flex align-items-center justify-content-between mb-4 gap-3 flex-wrap">
         <Link
           href={`/calendar?month=${toMonthParam(prevMonth)}`}
-          className="btn btn-outline-secondary bg-white"
+          className="btn btn-outline-secondary btn-bg-white"
         >
           ← {t.navigation.previousMonth}
         </Link>
@@ -226,7 +226,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           <noscript>
             <button
               type="submit"
-              className="btn btn-outline-secondary bg-white"
+              className="btn btn-outline-secondary btn-bg-white"
             >
               {t.navigation.go}
             </button>
@@ -235,7 +235,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
 
         <Link
           href={`/calendar?month=${toMonthParam(nextMonth)}`}
-          className="btn btn-outline-secondary bg-white"
+          className="btn btn-outline-secondary btn-bg-white"
         >
           {t.navigation.nextMonth} →
         </Link>
