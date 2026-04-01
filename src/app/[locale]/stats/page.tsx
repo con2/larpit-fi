@@ -142,6 +142,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     where
       l.starts_at >= ${cutoff}
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+      and not l.is_cancelled
     group by m.id, m.name_fi
     having count(l.id) > 0
     order by count desc, m.name_fi asc
@@ -189,6 +190,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       left join larp l on
         extract(year from l.starts_at) = yr.year
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        and not l.is_cancelled
     group by yr.year
     order by yr.year asc
   `;
@@ -312,6 +314,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       where
         starts_at >= ${cutoff}
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        and not is_cancelled
     )
     select
       yr.year::varchar as year,

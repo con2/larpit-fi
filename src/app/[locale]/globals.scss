@@ -38,6 +38,12 @@ body {
   color: color-mix(in srgb, var(--bs-primary) 25%, var(--bs-secondary) 75%);
 }
 
+.link-xxsubtle.text-muted,
+.text-muted .link-xxsubtle,
+.link-xxsubtle .text-muted {
+  color: color-mix(in srgb, var(--bs-primary) 10%, var(--bs-secondary) 90%);
+}
+
 .bullet-none {
   list-style: none;
   padding-left: 0;

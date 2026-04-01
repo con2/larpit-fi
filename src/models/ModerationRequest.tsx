@@ -50,7 +50,7 @@ export const zLarpType = z
 export const zResolution = z.enum<typeof Resolution>(Resolution);
 export const zOpenness = z.preprocess(
   (value) => (value === "" ? null : value),
-  z.enum<typeof Openness>(Openness).nullable().default(null)
+  z.enum<typeof Openness>(Openness).nullable().default(null),
 );
 export const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
 export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);
@@ -65,7 +65,10 @@ export const ModerationRequestContent = z.object({
   description: z.string().max(2000).optional().default(""),
 
   locationText: z.string().max(200).optional().default(""),
-  municipality: z.preprocess((v) => (v === "" ? null : v), z.string().max(20).nullable().default(null)),
+  municipality: z.preprocess(
+    (v) => (v === "" ? null : v),
+    z.string().max(20).nullable().default(null),
+  ),
 
   numPlayerCharacters: z.coerce.number().nullable().default(null),
   numTotalParticipants: z.coerce.number().nullable().default(null),
@@ -74,6 +77,8 @@ export const ModerationRequestContent = z.object({
   endsAt: zPlainDateNull,
   signupStartsAt: zPlainDateNull,
   signupEndsAt: zPlainDateNull,
+
+  isCancelled: z.coerce.boolean().default(false),
 });
 
 export const ModerationRequestForm = ModerationRequestContent.extend({
@@ -104,7 +109,7 @@ export async function approveRequest(
   >,
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
-  newStatus: "APPROVED" | "AUTO_APPROVED"
+  newStatus: "APPROVED" | "AUTO_APPROVED",
 ) {
   if (request.action === EditAction.CREATE) {
     return approveCreateLarpRequest(request, resolvedBy, reason, newStatus);
@@ -118,10 +123,25 @@ export async function approveRequest(
 }
 
 export function larpToContent(
-  larp: Pick<Larp, 'name' | 'tagline' | 'type' | 'openness' | 'language' |
-    'fluffText' | 'description' | 'locationText' | 'municipalityId' |
-    'numPlayerCharacters' | 'numTotalParticipants' |
-    'startsAt' | 'endsAt' | 'signupStartsAt' | 'signupEndsAt'>
+  larp: Pick<
+    Larp,
+    | "name"
+    | "tagline"
+    | "type"
+    | "openness"
+    | "language"
+    | "fluffText"
+    | "description"
+    | "locationText"
+    | "municipalityId"
+    | "numPlayerCharacters"
+    | "numTotalParticipants"
+    | "startsAt"
+    | "endsAt"
+    | "signupStartsAt"
+    | "signupEndsAt"
+    | "isCancelled"
+  >,
 ): ModerationRequestContent {
   return {
     name: larp.name,
@@ -139,6 +159,7 @@ export function larpToContent(
     endsAt: toPlainDateNull(larp.endsAt),
     signupStartsAt: toPlainDateNull(larp.signupStartsAt),
     signupEndsAt: toPlainDateNull(larp.signupEndsAt),
+    isCancelled: larp.isCancelled,
   };
 }
 
@@ -147,21 +168,25 @@ export function larpToContent(
  * Cannot use ModerationRequestContent.partial().parse() directly because Zod still applies
  * .default() to absent fields, turning a minimal diff into a full object of defaults.
  */
-export function parsePartialContent(raw: unknown): Partial<ModerationRequestContent> {
+export function parsePartialContent(
+  raw: unknown,
+): Partial<ModerationRequestContent> {
   const presentKeys = new Set(Object.keys(raw as object));
   const parsed = ModerationRequestContent.partial().parse(raw);
   return Object.fromEntries(
-    Object.entries(parsed).filter(([key]) => presentKeys.has(key))
+    Object.entries(parsed).filter(([key]) => presentKeys.has(key)),
   ) as Partial<ModerationRequestContent>;
 }
 
 export function diffLarpContent(
   oldContent: ModerationRequestContent,
-  newContent: ModerationRequestContent
+  newContent: ModerationRequestContent,
 ): Partial<ModerationRequestContent> {
   const result: Partial<ModerationRequestContent> = {};
 
-  for (const key of Object.keys(newContent) as (keyof ModerationRequestContent)[]) {
+  for (const key of Object.keys(
+    newContent,
+  ) as (keyof ModerationRequestContent)[]) {
     const oldVal = oldContent[key];
     const newVal = newContent[key];
     const oldStr = oldVal == null ? null : String(oldVal);
@@ -194,7 +219,9 @@ export function contentToLarp(content: ModerationRequestContent) {
   };
 }
 
-export function partialContentToLarp(content: Partial<ModerationRequestContent>) {
+export function partialContentToLarp(
+  content: Partial<ModerationRequestContent>,
+) {
   const {
     municipality,
     startsAt,
@@ -209,8 +236,12 @@ export function partialContentToLarp(content: Partial<ModerationRequestContent>)
     ...(municipality !== undefined ? { municipalityId: municipality } : {}),
     ...(startsAt !== undefined ? { startsAt: fromMorningNull(startsAt) } : {}),
     ...(endsAt !== undefined ? { endsAt: fromEveningNull(endsAt) } : {}),
-    ...(signupStartsAt !== undefined ? { signupStartsAt: fromEveningNull(signupStartsAt) } : {}),
-    ...(signupEndsAt !== undefined ? { signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt) } : {}),
+    ...(signupStartsAt !== undefined
+      ? { signupStartsAt: fromEveningNull(signupStartsAt) }
+      : {}),
+    ...(signupEndsAt !== undefined
+      ? { signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt) }
+      : {}),
   };
 }
 
@@ -218,7 +249,7 @@ async function handleRequestSubmitter(
   action: EditAction,
   larpId: string,
   submitterId: string,
-  submitterRole: SubmitterRole
+  submitterRole: SubmitterRole,
 ) {
   const roles: Omit<RelatedUser, "id">[] = [];
 
@@ -265,7 +296,7 @@ export async function approveCreateLarpRequest(
   >,
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
-  newStatus: "APPROVED" | "AUTO_APPROVED"
+  newStatus: "APPROVED" | "AUTO_APPROVED",
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.CREATE) {
     throw new Error(`Not a create larp request: ${request.id}`);
@@ -291,7 +322,7 @@ export async function approveCreateLarpRequest(
       request.action,
       larp.id,
       request.submitterId,
-      request.submitterRole
+      request.submitterRole,
     );
   }
 
@@ -301,7 +332,7 @@ export async function approveCreateLarpRequest(
     larp.id,
     newStatus,
     resolvedBy,
-    reason
+    reason,
   );
 
   return larp;
@@ -312,7 +343,7 @@ async function handleRequestStatusUpdate(
   larpId: string,
   newStatus: "APPROVED" | "AUTO_APPROVED",
   resolvedBy: Pick<User, "id" | "role">,
-  reason: string | null
+  reason: string | null,
 ) {
   // Auto-approved requests are not resolved; they will be post-moderated.
   let resolvedAt: Date | null = null;
@@ -353,7 +384,7 @@ export async function approveUpdateLarpRequest(
   >,
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
-  newStatus: "APPROVED" | "AUTO_APPROVED"
+  newStatus: "APPROVED" | "AUTO_APPROVED",
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.UPDATE) {
     throw new Error(`Not an update larp request: ${request.id}`);
@@ -387,14 +418,18 @@ export async function approveUpdateLarpRequest(
       request.action,
       larp.id,
       request.submitterId,
-      request.submitterRole
+      request.submitterRole,
     );
   }
 
   await handleLarpLinks(larp.id, addLinks, removeLinks);
 
-  const addRelatedLarps = z.array(RelatedLarpAddable).parse(request.addRelatedLarps);
-  const removeRelatedLarps = z.array(RelatedLarpRemovable).parse(request.removeRelatedLarps);
+  const addRelatedLarps = z
+    .array(RelatedLarpAddable)
+    .parse(request.addRelatedLarps);
+  const removeRelatedLarps = z
+    .array(RelatedLarpRemovable)
+    .parse(request.removeRelatedLarps);
   await handleRelatedLarps(addRelatedLarps, removeRelatedLarps);
 
   await handleRequestStatusUpdate(
@@ -402,7 +437,7 @@ export async function approveUpdateLarpRequest(
     larp.id,
     newStatus,
     resolvedBy,
-    reason
+    reason,
   );
 
   return larp;
@@ -411,7 +446,7 @@ export async function approveUpdateLarpRequest(
 export async function rejectRequest(
   request: Pick<ModerationRequest, "id" | "action" | "status">,
   resolvedBy: Pick<User, "id" | "role">,
-  reason: string | null
+  reason: string | null,
 ): Promise<void> {
   if (
     request.status === EditStatus.APPROVED ||
@@ -435,7 +470,7 @@ export async function approveDeleteLarpRequest(
   request: Pick<ModerationRequest, "id" | "action" | "larpId">,
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
-  newStatus: "APPROVED" | "AUTO_APPROVED"
+  newStatus: "APPROVED" | "AUTO_APPROVED",
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.DELETE) {
     throw new Error(`Not a delete larp request: ${request.id}`);
@@ -448,7 +483,13 @@ export async function approveDeleteLarpRequest(
   const larpId = request.larpId;
 
   // Update request status BEFORE deleting larp (cascade would delete it otherwise)
-  await handleRequestStatusUpdate(request.id, larpId, newStatus, resolvedBy, reason);
+  await handleRequestStatusUpdate(
+    request.id,
+    larpId,
+    newStatus,
+    resolvedBy,
+    reason,
+  );
   await prisma.larp.delete({ where: { id: larpId } });
 
   return { id: larpId };
@@ -456,7 +497,10 @@ export async function approveDeleteLarpRequest(
 
 export async function sendVerificationEmail(
   locale: string,
-  request: Pick<ModerationRequest, "id" | "verificationCode" | "submitterEmail">
+  request: Pick<
+    ModerationRequest,
+    "id" | "verificationCode" | "submitterEmail"
+  >,
 ) {
   const { verificationCode, submitterEmail } = request;
   if (!submitterEmail) {
@@ -471,8 +515,8 @@ export async function sendVerificationEmail(
   const subject = verifyRequestSubject(locale);
   const html = await pretty(
     await render(
-      <VerifyRequest locale={locale} verificationCode={verificationCode} />
-    )
+      <VerifyRequest locale={locale} verificationCode={verificationCode} />,
+    ),
   );
   const text = verifyRequestText(locale, verificationCode);
 

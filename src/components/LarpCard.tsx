@@ -36,23 +36,31 @@ interface SignupStatus {
 export function getSignupStatus(
   larp: Pick<
     Larp,
-    "openness" | "signupStartsAt" | "signupEndsAt" | "startsAt" | "endsAt"
+    | "openness"
+    | "signupStartsAt"
+    | "signupEndsAt"
+    | "startsAt"
+    | "endsAt"
+    | "isCancelled"
   >,
   messages: Translations["Larp"],
-  locale: string
+  locale: string,
 ): SignupStatus {
   let content: ReactNode | null = null;
   let variant: BadgeProps["bg"] = "secondary";
   const t = messages.attributes.signupStatus.choices;
 
-  if (larp.openness === Openness.INVITE_ONLY) {
+  if (larp.isCancelled) {
+    variant = "danger";
+    content = t.cancelled;
+  } else if (larp.openness === Openness.INVITE_ONLY) {
     variant = "secondary";
     content = t.inviteOnly;
   } else if (isSignupOpen(larp)) {
     variant = "success";
     if (larp.signupEndsAt) {
       content = t.openUntil(
-        <FormattedDate date={larp.signupEndsAt} locale={locale} />
+        <FormattedDate date={larp.signupEndsAt} locale={locale} />,
       );
     } else {
       content = t.openIndefinitely;
@@ -62,7 +70,7 @@ export function getSignupStatus(
     content = (
       <>
         {t.opensAt(
-          <FormattedDate date={larp.signupStartsAt!} locale={locale} />
+          <FormattedDate date={larp.signupStartsAt!} locale={locale} />,
         )}
       </>
     );
@@ -144,8 +152,12 @@ export default function LarpCard({
         href={getLarpHref(larp)}
         lang={larp.language}
       >
-        <CardBody className="d-flex flex-column">
-          <CardTitle>{larp.name}</CardTitle>
+        <CardBody
+          className={`d-flex flex-column ${larp.isCancelled ? "text-muted" : ""}`}
+        >
+          <CardTitle>
+            {larp.isCancelled ? <s>{larp.name}</s> : larp.name}
+          </CardTitle>
           <CardText>
             <FormattedDateRange
               locale={locale}

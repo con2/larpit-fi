@@ -20,6 +20,7 @@ import LoginRequired from "@/components/LoginRequired";
 import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
 import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
+import LarpCancelledFormComponent from "@/components/LarpCancelledFormComponent";
 
 interface Props {
   params: Promise<{
@@ -125,6 +126,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
           translations={translations}
           links={larp!.links}
         />
+        <LarpCancelledFormComponent translations={translations} larp={larp} />
         <YoureAlmostReadyFormComponent
           translations={translations}
           user={user}

@@ -132,6 +132,17 @@ const translations = {
           </>
         ),
       },
+      cancelled: {
+        title: "Is the larp cancelled?",
+        message: (
+          <p>
+            If the larp has been cancelled, please indicate it here. It will
+            still be included in the listing, but marked as cancelled. Do not
+            remove any information about the larp if it has been cancelled, as
+            this information is valuable for historical and research purposes.
+          </p>
+        ),
+      },
       time: {
         title: "When is the larp played?",
         message: (
@@ -487,6 +498,7 @@ const translations = {
           over: <>Signup over</>,
           inviteOnly: <>Invite only</>,
           lookingForReservePlayers: <>Looking for reserve players</>,
+          cancelled: <>Cancelled</>,
         },
       },
       locationText: {
@@ -696,6 +708,10 @@ const translations = {
           }
         },
       },
+      isCancelled: {
+        title: "Cancelled",
+        label: "This larp has been cancelled",
+      },
     },
     actions: {
       showAll: {
@@ -714,6 +730,12 @@ const translations = {
       language: {
         title: "Language",
         all: "All languages",
+      },
+      cancelled: {
+        title: "Cancelled",
+        hide: "Hide cancelled larps",
+        show: "Also show cancelled larps",
+        only: "Only show cancelled larps",
       },
     },
     /** Serializable attributes for client-side LarpTable component */

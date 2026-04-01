@@ -137,6 +137,17 @@ const translations: Translations = {
           </>
         ),
       },
+      cancelled: {
+        title: "Larpin peruminen",
+        message: (
+          <p>
+            Jos larppi on peruutettu, ilmoita siitä tässä. Se näytetään edelleen
+            listauksessa mutta peruttuna. Älä poista mitään tietoja poistetusta
+            larpista, sillä näillä tiedoilla voi olla historiallista ja
+            tutkimuksellista arvoa.
+          </p>
+        ),
+      },
       time: {
         title: "Milloin larppi pelataan?",
         message: (
@@ -500,6 +511,7 @@ const translations: Translations = {
           over: <>Ilmoittautuminen ohi</>,
           inviteOnly: <>Kutsupeli</>,
           lookingForReservePlayers: <>Hakee varapelaajia</>,
+          cancelled: <>Peruutettu</>,
         },
       },
       locationText: {
@@ -706,6 +718,10 @@ const translations: Translations = {
           }
         },
       },
+      isCancelled: {
+        title: "Peruutettu",
+        label: "Tämä larppi on peruutettu",
+      },
     },
     actions: {
       showAll: {
@@ -724,6 +740,12 @@ const translations: Translations = {
       language: {
         title: "Kieli",
         all: "Kaikki kielet",
+      },
+      cancelled: {
+        title: "Peruttu",
+        hide: "Piilota perutut larpit",
+        show: "Näytä myös perutut larpit",
+        only: "Näytä vain perutut larpit",
       },
     },
     /** Serializable attributes for client-side LarpTable component */

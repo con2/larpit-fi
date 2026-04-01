@@ -99,6 +99,7 @@ function serializeLarps(
     endsAt: larp.endsAt,
     language: larp.language,
     type: larp.type,
+    isCancelled: larp.isCancelled,
     municipality: larp.municipality,
     roleTitles: larp.relatedUsers.map((ru) => roleChoices[ru.role] ?? ru.role),
   }));

@@ -190,6 +190,8 @@ model Larp {
   requests          ModerationRequest[]
   municipality      Municipality?       @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
 
+  isCancelled Boolean @default(false) @map("is_cancelled")
+
   @@map("larp")
 }
 

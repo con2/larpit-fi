@@ -13,12 +13,12 @@ import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ type?: string[]; language?: string[] }>;
+  searchParams: Promise<{ type?: string[]; language?: string[]; cancelled?: string }>;
 }
 
 const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
-async function getData(types: LarpType[], languages: Language[]) {
+async function getData(types: LarpType[], languages: Language[], cancelled: "hide" | "show" | "only") {
   return prisma.larp.findMany({
     where: {
       type: {
@@ -27,6 +27,7 @@ async function getData(types: LarpType[], languages: Language[]) {
       language: {
         in: languages,
       },
+      ...(cancelled === "hide" ? { isCancelled: false } : cancelled === "only" ? { isCancelled: true } : {}),
     },
     include: {
       municipality: {
@@ -75,6 +76,15 @@ function getLarpFilters(t: Translations["Larp"]) {
         ),
       ],
     },
+    {
+      slug: "cancelled",
+      title: t.filters.cancelled.title,
+      values: [
+        { slug: "", title: t.filters.cancelled.hide },
+        { slug: "show", title: t.filters.cancelled.show },
+        { slug: "only", title: t.filters.cancelled.only },
+      ],
+    },
   ];
 }
 
@@ -84,7 +94,7 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   const t = translations.Larp;
 
   const filters = getLarpFilters(t);
-  const { type: typesParam, language: languagesParam } = await searchParams;
+  const { type: typesParam, language: languagesParam, cancelled: cancelledParam } = await searchParams;
 
   const types = parseSearchParam(typesParam, {
     defaults: defaultTypes,
@@ -98,8 +108,11 @@ export default async function LarpListPage({ params, searchParams }: Props) {
     isValid: createEnumValidator(Language),
   });
 
+  const cancelled: "hide" | "show" | "only" =
+    cancelledParam === "show" || cancelledParam === "only" ? cancelledParam : "hide";
+
   const [larps, totalCount] = await Promise.all([
-    getData(types, languages),
+    getData(types, languages, cancelled),
     prisma.larp.count(),
   ]);
 

@@ -137,7 +137,7 @@ export default async function HomePage({ params }: Props) {
   );
   const [ongoingSignupLarps, otherUpcomingLarps] = partition(
     upcomingLarps,
-    (larp) => isSignupOpenOrOpeningSoon(larp), // avoid index at 2nd arg
+    (larp) => !larp.isCancelled && isSignupOpenOrOpeningSoon(larp), // avoid index at 2nd arg
   );
 
   // We only show a fixed number of past larps

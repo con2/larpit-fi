@@ -20,6 +20,7 @@ export type LarpRow = Pick<
   | "endsAt"
   | "language"
   | "type"
+  | "isCancelled"
 > & {
   municipality: Pick<Municipality, "nameFi"> | null;
 };
@@ -158,7 +159,7 @@ export function getDefaultColumns<Row extends LarpRow>(
     },
     {
       slug: "dateRange",
-      title: <>{t.dateRange.title} 🔼</>,
+      title: t.dateRange.title,
       getCellElement: larpCellElement,
       getCellContents: (row) => (
         <FormattedDateRange
@@ -219,7 +220,14 @@ export function LarpTable<Row extends LarpRow>({
               </th>
             </tr>
             {group.larps.map((row) => (
-              <tr key={row.id}>
+              <tr
+                key={row.id}
+                className={
+                  row.isCancelled
+                    ? "text-muted text-decoration-line-through"
+                    : undefined
+                }
+              >
                 {finalColumns.map((column) => (
                   <Fragment key={column.slug}>
                     {column.getCellElement!(row, column.getCellContents!(row))}

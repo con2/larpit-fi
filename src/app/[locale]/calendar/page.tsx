@@ -295,9 +295,9 @@ export default async function CalendarPage({ params, searchParams }: Props) {
                         <div key={larp.id} className="small">
                           <MaybeExternalLink
                             href={getLarpHref(larp)}
-                            className={`link-xxsubtle d-block text-truncate${!isCurrentMonth ? " text-muted" : ""}`}
+                            className={`link-xxsubtle d-block text-truncate${!isCurrentMonth || larp.isCancelled ? " text-muted" : ""}`}
                           >
-                            {larp.name}
+                            {larp.isCancelled ? <s>{larp.name}</s> : larp.name}
                           </MaybeExternalLink>
                         </div>
                       ))}
