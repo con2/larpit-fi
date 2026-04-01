@@ -10,6 +10,7 @@ import Link from "next/link";
 import { Container, Table } from "react-bootstrap";
 import CalendarKeyboardNav from "./CalendarKeyboardNav";
 import MonthSelect from "./MonthSelect";
+import { toISODate } from "@/helpers/temporal";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -105,7 +106,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       .toInstant().epochMilliseconds,
   );
 
-  const [larps, monthRows] = await Promise.all([
+  const [larps, monthRows, holidays] = await Promise.all([
     prisma.larp.findMany({
       where: {
         startsAt: { lt: gridEndDate },
@@ -126,6 +127,14 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       group by year, month
       order by year desc, month desc
     `,
+    prisma.holiday.findMany({
+      where: {
+        date: {
+          gte: gridStartDate,
+          lt: gridEndDate,
+        },
+      },
+    }),
   ]);
 
   // Group larps by day in Helsinki timezone; multi-day larps appear on every day [startDate, endDate]
@@ -147,12 +156,15 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       Temporal.PlainDate.compare(date, endDate) <= 0;
       date = date.add({ days: 1 })
     ) {
-      const key = date.toString();
+      const key = toISODate(date);
       const bucket = larpsOnDay.get(key) ?? [];
       bucket.push(larp);
       larpsOnDay.set(key, bucket);
     }
   }
+
+  const holidayByDate = new Map(holidays.map((h) => [toISODate(h.date), h]));
+  console.log(holidayByDate);
 
   // Build one entry per week row
   const weeks = [];
@@ -168,7 +180,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         isCurrentMonth:
           date.year === currentMonth.year && date.month === currentMonth.month,
         isToday: Temporal.PlainDate.compare(date, now) === 0,
-        larps: larpsOnDay.get(date.toString()) ?? [],
+        larps: larpsOnDay.get(toISODate(date)) ?? [],
+        holiday: holidayByDate.get(toISODate(date)),
       };
     });
     weeks.push({ weekNumber: day.weekOfYear!, days });
@@ -256,7 +269,13 @@ export default async function CalendarPage({ params, searchParams }: Props) {
                   {weekNumber}
                 </td>
                 {days.map(
-                  ({ date, isCurrentMonth, isToday, larps: dayLarps }) => (
+                  ({
+                    date,
+                    isCurrentMonth,
+                    isToday,
+                    larps: dayLarps,
+                    holiday,
+                  }) => (
                     <td
                       key={date.toString()}
                       className={`align-top${isToday ? " table-primary" : !isCurrentMonth ? " bg-light" : ""}`}
@@ -267,6 +286,11 @@ export default async function CalendarPage({ params, searchParams }: Props) {
                       >
                         {date.day}
                       </div>
+                      {holiday && (
+                        <div className="small text-danger">
+                          {locale === "fi" ? holiday.titleFi : holiday.titleEn}
+                        </div>
+                      )}
                       {dayLarps.map((larp) => (
                         <div key={larp.id} className="small">
                           <MaybeExternalLink

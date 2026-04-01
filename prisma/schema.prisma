@@ -337,3 +337,12 @@ model Page {
   @@id([slug, language])
   @@map("page")
 }
+
+// used by calendar view
+model Holiday {
+  date    DateTime @id @db.Date
+  titleFi String   @map("title_fi")
+  titleEn String   @map("title_en")
+
+  @@map("holiday")
+}
