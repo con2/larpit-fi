@@ -1,10 +1,17 @@
 import { auth } from "@/auth";
+import CompactLarpFormComponent from "@/components/CompactLarpFormComponent";
 import { LarpBasicInfoFormComponent } from "@/components/LarpBasicInfoFormComponent";
+import LarpCancelledFormComponent from "@/components/LarpCancelledFormComponent";
 import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
 import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
+import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
+import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
+import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
+import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
+import { EditFormPreference } from "@/generated/prisma/client";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getHighestUserRoleForLarp,
@@ -15,12 +22,7 @@ import { notFound } from "next/navigation";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
-import { editLarp } from "./actions";
-import LoginRequired from "@/components/LoginRequired";
-import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
-import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
-import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
-import LarpCancelledFormComponent from "@/components/LarpCancelledFormComponent";
+import { editLarp, setEditFormPreference } from "./actions";
 
 interface Props {
   params: Promise<{
@@ -49,7 +51,13 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
     session?.user?.email
       ? await prisma.user.findUnique({
           where: { email: session.user.email },
-          select: { id: true, name: true, role: true, email: true },
+          select: {
+            id: true,
+            name: true,
+            role: true,
+            email: true,
+            editFormPreference: true,
+          },
         })
       : null,
     await prisma.larp.findUnique({
@@ -86,52 +94,103 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
     );
   }
 
+  const isCompact = user?.editFormPreference === EditFormPreference.COMPACT;
+
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-5">{t.policy[initialStatus]}</div>
 
       <Form action={editLarp.bind(null, locale, larp!.id)}>
-        <SubmitterFormComponent
-          user={user}
-          role={role}
-          translations={translations}
-        />
-        <LarpBasicInfoFormComponent
-          translations={translations}
-          locale={locale}
-          larp={larp}
-        />
-        <LarpTimeFormComponent
-          translations={translations}
-          locale={locale}
-          larp={larp}
-        />
-        <LarpLocationFormComponent
-          translations={translations}
-          locale={locale}
-          larp={larp}
-        />
-        <LarpSignupInfoFormComponent
-          translations={translations}
-          locale={locale}
-          larp={larp}
-        />
-        <LarpPageContentFormComponent
-          translations={translations}
-          locale={locale}
-          larp={larp}
-        />
-        <LarpLinksFormComponent
-          translations={translations}
-          links={larp!.links}
-        />
-        <LarpCancelledFormComponent translations={translations} larp={larp} />
-        <YoureAlmostReadyFormComponent
-          translations={translations}
-          user={user}
-        />
+        {isCompact ? (
+          <>
+            <SubmitterFormComponent
+              user={user}
+              role={role}
+              translations={translations}
+              compact
+            />
+            <CompactLarpFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpLinksFormComponent
+              translations={translations}
+              links={larp!.links}
+              compact
+            />
+            <YoureAlmostReadyFormComponent
+              translations={translations}
+              user={user}
+              compact
+            />
+          </>
+        ) : (
+          <>
+            <SubmitterFormComponent
+              user={user}
+              role={role}
+              translations={translations}
+            />
+            <LarpBasicInfoFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpTimeFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpLocationFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpSignupInfoFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpPageContentFormComponent
+              translations={translations}
+              locale={locale}
+              larp={larp}
+            />
+            <LarpLinksFormComponent
+              translations={translations}
+              links={larp!.links}
+            />
+            <LarpCancelledFormComponent
+              translations={translations}
+              larp={larp}
+            />
+            <YoureAlmostReadyFormComponent
+              translations={translations}
+              user={user}
+            />
+          </>
+        )}
       </Form>
+
+      {user && (
+        <div className="text-center mb-4">
+          <Form
+            className="d-inline"
+            action={setEditFormPreference.bind(
+              null,
+              locale,
+              larp!.id,
+              isCompact ? EditFormPreference.FULL : EditFormPreference.COMPACT,
+            )}
+          >
+            <button className="btn btn-link link-xxsubtle">
+              {isCompact ? t.switchToFullForm : t.switchToCompactForm}
+            </button>
+          </Form>
+        </div>
+      )}
     </Container>
   );
 }

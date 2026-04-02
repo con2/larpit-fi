@@ -274,6 +274,10 @@ const translations: Translations = {
   },
   EditLarpPage: {
     title: "Muokkaa larppia",
+    switchToCompactForm:
+      "Vaihda kompaktiin lomakkeeseen (HUOM! Tallentamattomat muutokset menetetään!)",
+    switchToFullForm:
+      "Vaihda täyteen lomakkeeseen (HUOM! Tallentamattomat muutokset menetetään!)",
     policy: {
       VERIFIED: (
         <>

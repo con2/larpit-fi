@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import {
   EditAction,
+  EditFormPreference,
   EditStatus,
   RelatedUserRole,
 } from "@/generated/prisma/client";
@@ -20,6 +21,7 @@ import {
 } from "@/models/User";
 import prisma from "@/prisma";
 import fi from "@/translations/fi";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function editLarp(locale: string, larpId: string, data: FormData) {
@@ -101,4 +103,27 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   await approveRequest(request, user, reason, status);
 
   return void redirect(`/larp/${larp.id}`);
+}
+
+export async function setEditFormPreference(
+  locale: string,
+  larpId: string,
+  preference: EditFormPreference,
+  _formData: FormData
+) {
+  const session = await auth();
+  const user = session?.user?.email
+    ? await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      })
+    : null;
+  if (!user) throw new Error("Not logged in");
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { editFormPreference: preference },
+  });
+
+  revalidatePath(`/${locale}/larp/${larpId}/edit`);
 }

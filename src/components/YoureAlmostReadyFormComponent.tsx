@@ -12,11 +12,13 @@ import type { Translations } from "@/translations/en";
 interface Props {
   user: { email: string } | null;
   translations: Translations;
+  compact?: boolean;
 }
 
 export default function YoureAlmostReadyFormComponent({
   user,
   translations,
+  compact,
 }: Props) {
   const t = translations.NewLarpPage;
   const requesT = translations.ModerationRequest;
@@ -24,14 +26,21 @@ export default function YoureAlmostReadyFormComponent({
   return (
     <Card className="mb-5">
       <CardBody>
-        <CardTitle>{t.sections.submit.title}</CardTitle>
-        <div className="mb-4">
-          {t.sections.submit.message}
-          {user ? null : t.sections.submit.notLoggedIn}
-        </div>
+        {!compact && (
+          <>
+            <CardTitle>{t.sections.submit.title}</CardTitle>
+            <div className="mb-4">
+              {t.sections.submit.message}
+              {user ? null : t.sections.submit.notLoggedIn}
+            </div>
+          </>
+        )}
 
         <div className="form-group mb-3">
-          <FormLabel htmlFor="YoureAlmostReadyFormComponent-submit-message">
+          <FormLabel
+            htmlFor="YoureAlmostReadyFormComponent-submit-message"
+            className={compact ? "form-text" : ""}
+          >
             {requesT.attributes.message.label}
           </FormLabel>
           <FormControl
@@ -40,7 +49,9 @@ export default function YoureAlmostReadyFormComponent({
             name="message"
             rows={5}
           />
-          <FormText>{requesT.attributes.message.helpText}</FormText>
+          {!compact && (
+            <FormText>{requesT.attributes.message.helpText}</FormText>
+          )}
         </div>
 
         {user ? null : (

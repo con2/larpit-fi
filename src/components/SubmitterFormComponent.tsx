@@ -18,12 +18,14 @@ interface Props {
   } | null;
   role: SubmitterRole | null;
   translations: Translations;
+  compact?: boolean;
 }
 
 export default function SubmitterFormComponent({
   user,
   role,
   translations,
+  compact,
 }: Props) {
   const t = translations.NewLarpPage;
   const requesT = translations.ModerationRequest;
@@ -31,68 +33,77 @@ export default function SubmitterFormComponent({
   return (
     <Card className="mb-4">
       <CardBody>
-        <CardTitle>{t.sections.contact.title}</CardTitle>
-        <div className="mb-4">
-          {user
-            ? t.sections.contact.loggedIn(LogoutLink, ProfileLink)
-            : t.sections.contact.notLoggedIn(LoginLink)}
-        </div>
-        <div className="row">
-          <div className="form-group col-md-6 mb-3">
-            {user ? (
-              <>
-                <div className="form-label">
-                  {requesT.attributes.submitterName.label}
-                </div>
-                <div>{user.name}</div>
-              </>
-            ) : (
-              <>
-                <FormLabel htmlFor="SubmitterFormComponent-submitterName">
-                  {requesT.attributes.submitterName.label}*
-                </FormLabel>
-                <FormControl
-                  type="text"
-                  name="submitterName"
-                  id="SubmitterFormComponent-submitterName"
-                  required
-                />
-                <FormText>{requesT.attributes.submitterName.helpText}</FormText>
-              </>
-            )}
-          </div>
+        {!compact && (
+          <>
+            <CardTitle>{t.sections.contact.title}</CardTitle>
+            <div className="mb-4">
+              {user
+                ? t.sections.contact.loggedIn(LogoutLink, ProfileLink)
+                : t.sections.contact.notLoggedIn(LoginLink)}
+            </div>
+            <div className="row">
+              <div className="form-group col-md-6 mb-3">
+                {user ? (
+                  <>
+                    <div className="form-label">
+                      {requesT.attributes.submitterName.label}
+                    </div>
+                    <div>{user.name}</div>
+                  </>
+                ) : (
+                  <>
+                    <FormLabel htmlFor="SubmitterFormComponent-submitterName">
+                      {requesT.attributes.submitterName.label}*
+                    </FormLabel>
+                    <FormControl
+                      type="text"
+                      name="submitterName"
+                      id="SubmitterFormComponent-submitterName"
+                      required
+                    />
+                    <FormText>
+                      {requesT.attributes.submitterName.helpText}
+                    </FormText>
+                  </>
+                )}
+              </div>
 
-          <div className="form-group col-md-6 mb-3">
-            {user ? (
-              <>
-                <div className="form-label">
-                  {requesT.attributes.submitterEmail.label}
-                </div>
-                <div>
-                  <em>{user.email}</em>
-                </div>
-              </>
-            ) : (
-              <>
-                <FormLabel htmlFor="SubmitterFormComponent-submitterEmail">
-                  {requesT.attributes.submitterEmail.label}*
-                </FormLabel>
-                <FormControl
-                  type="email"
-                  name="submitterEmail"
-                  id="SubmitterFormComponent-submitterEmail"
-                  required
-                />
-                <FormText>
-                  {requesT.attributes.submitterEmail.helpText}
-                </FormText>
-              </>
-            )}
-          </div>
-        </div>
+              <div className="form-group col-md-6 mb-3">
+                {user ? (
+                  <>
+                    <div className="form-label">
+                      {requesT.attributes.submitterEmail.label}
+                    </div>
+                    <div>
+                      <em>{user.email}</em>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <FormLabel htmlFor="SubmitterFormComponent-submitterEmail">
+                      {requesT.attributes.submitterEmail.label}*
+                    </FormLabel>
+                    <FormControl
+                      type="email"
+                      name="submitterEmail"
+                      id="SubmitterFormComponent-submitterEmail"
+                      required
+                    />
+                    <FormText>
+                      {requesT.attributes.submitterEmail.helpText}
+                    </FormText>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="form-group mb-1">
-          <FormLabel htmlFor="SubmitterFormComponent-submitterRole">
+          <FormLabel
+            htmlFor="SubmitterFormComponent-submitterRole"
+            className={compact ? "form-text" : ""}
+          >
             {requesT.attributes.submitterRole.label}*
           </FormLabel>
           <FormSelect
@@ -107,7 +118,7 @@ export default function SubmitterFormComponent({
                 <option key={key} value={key}>
                   {label}
                 </option>
-              )
+              ),
             )}
           </FormSelect>
         </div>

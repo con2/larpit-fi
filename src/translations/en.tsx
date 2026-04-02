@@ -263,6 +263,10 @@ const translations = {
   },
   EditLarpPage: {
     title: "Edit this page",
+    switchToCompactForm:
+      "Switch to compact form (NOTE: Unsaved changes will be lost!)",
+    switchToFullForm:
+      "Switch to full form (NOTE: Unsaved changes will be lost!)",
     policy: {
       VERIFIED: (
         <>

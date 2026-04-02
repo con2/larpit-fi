@@ -16,6 +16,11 @@ enum UserRole {
   ADMIN
 }
 
+enum EditFormPreference {
+  FULL
+  COMPACT
+}
+
 // next-auth
 model User {
   id            String    @id @default(uuid(4)) @db.Uuid
@@ -35,7 +40,8 @@ model User {
   /// NOTE: role=VERIFIED does not imply emailVerified or vice versa
   /// emailVerified=true when the user first submits a request and verifies it
   /// role=VERIFIED when the request is approved (granting them power to add larps without pre-moderation)
-  role UserRole @default(NOT_VERIFIED)
+  role               UserRole           @default(NOT_VERIFIED)
+  editFormPreference EditFormPreference @default(FULL) @map("edit_form_preference")
 
   larps                   RelatedUser[]
   authenticators          Authenticator[]
