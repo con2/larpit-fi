@@ -1,4 +1,5 @@
 import { LarpLinkType } from "@/generated/prisma/client";
+import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
 import prisma from "@/prisma";
 import z from "zod";
 
@@ -8,6 +9,7 @@ const zLarpLinkType = z.enum<typeof LarpLinkType>(LarpLinkType);
 export const LarpLinkUpsertable = z.object({
   type: zLarpLinkType,
   href: z.string().max(400),
+  title: z.string().max(200).optional(),
 });
 
 export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;
@@ -19,91 +21,31 @@ export const LarpLinkRemovable = z.object({
 
 export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;
 
-// TODO Cheap-ass solution, only provides for single link of each type.
-// TODO use z.url() instead when we have proper feedback from validation
-export const LarpLinksForm = z.object({
-  links_HOMEPAGE: z.string().max(400).optional(),
-  links_PHOTOS: z.string().max(400).optional(),
-  links_SOCIAL_MEDIA: z.string().max(400).optional(),
-  links_PLAYER_GUIDE: z.string().max(400).optional(),
-});
-
-export type LarpLinksForm = z.infer<typeof LarpLinksForm>;
-
-export function larpLinksToForm(links: LarpLinkUpsertable[]): LarpLinksForm {
-  const result: Record<keyof LarpLinksForm, string | undefined> = {
-    links_HOMEPAGE: undefined,
-    links_PHOTOS: undefined,
-    links_SOCIAL_MEDIA: undefined,
-    links_PLAYER_GUIDE: undefined,
-  };
-
-  for (const link of links) {
-    if (link.type === "HOMEPAGE") {
-      result.links_HOMEPAGE = link.href;
-    } else if (link.type === "PHOTOS") {
-      result.links_PHOTOS = link.href;
-    } else if (link.type === "SOCIAL_MEDIA") {
-      result.links_SOCIAL_MEDIA = link.href;
-    } else if (link.type === "PLAYER_GUIDE") {
-      result.links_PLAYER_GUIDE = link.href;
-    } else {
-      throw new Error(`Unknown link type: ${link.type}`);
-    }
-  }
-
-  return result;
-}
-
-export function formToLarpLinks(form: LarpLinksForm): LarpLinkUpsertable[] {
+export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertable[] {
+  const count = parseInt((data.get("link_count") as string) || "0");
   const links: LarpLinkUpsertable[] = [];
 
-  for (const type of Object.values(LarpLinkType)) {
-    const href = form[`links_${type}` as keyof LarpLinksForm];
-    if (href) {
-      links.push({ type, href });
-    }
+  for (let i = 0; i < count; i++) {
+    if (data.get(`link_${i}_removed`) === "1") continue;
+
+    const href = ((data.get(`link_${i}_href`) as string) || "").trim();
+    if (!href) continue;
+
+    const type = (data.get(`link_${i}_type`) as string) || "";
+    if (!Object.values(LarpLinkType).includes(type as LarpLinkType)) continue;
+
+    const title = ((data.get(`link_${i}_title`) as string) || "").trim() || undefined;
+    links.push({ type: type as LarpLinkType, href, title });
   }
 
   return links;
-}
-
-export function socialMediaLinkTitleFromHref(href: string) {
-  href = href.trim();
-
-  // NOTE none of these should point to the root of the service
-  if (
-    href.startsWith("https://instagram.com/") ||
-    href.startsWith("https://www.instagram.com/")
-  ) {
-    return "Instagram";
-  } else if (
-    href.startsWith("https://x.com/") ||
-    href.startsWith("https://twitter.com/")
-  ) {
-    return "Twitter";
-  } else if (
-    href.startsWith("https://facebook.com/") ||
-    href.startsWith("https://fb.me/")
-  ) {
-    return "Facebook";
-  } else if (href.startsWith("https://discord.gg/")) {
-    return "Discord";
-  } else if (
-    href.startsWith("https://youtu.be/") ||
-    href.startsWith("https://www.youtube.com/")
-  ) {
-    return "YouTube";
-  }
-
-  return null;
 }
 
 export function diffLarpLinks(
   current: LarpLinkUpsertable[],
   desired: LarpLinkUpsertable[]
 ): { addLinks: LarpLinkUpsertable[]; removeLinks: LarpLinkRemovable[] } {
-  const key = (l: LarpLinkUpsertable) => `${l.type}:${l.href}`;
+  const key = (l: LarpLinkUpsertable) => `${l.type}:${l.href}:${l.title ?? ""}`;
   const currentKeys = new Set(current.map(key));
   const desiredKeys = new Set(desired.map(key));
 
@@ -123,13 +65,14 @@ export async function handleLarpLinks(
   if (addLinks.length > 0) {
     promises.push(
       prisma.larpLink.createMany({
-        data: addLinks.map(({ type, href }) => {
+        data: addLinks.map(({ type, href, title: providedTitle }) => {
           href = href.trim();
 
           const title =
-            type === LarpLinkType.SOCIAL_MEDIA
+            providedTitle?.trim() ||
+            (type === LarpLinkType.SOCIAL_MEDIA
               ? socialMediaLinkTitleFromHref(href)
-              : null;
+              : null);
 
           return {
             larpId,
