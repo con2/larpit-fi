@@ -197,8 +197,8 @@ const translations = {
           <p>
             If you know the address of the home page, a public player&apos;s
             handbook, a public photo album or a social media account for the
-            larp, please provide them here. Only add the URL (<em>https://…</em>
-            ), nothing else.
+            larp, please provide them here. You can add multiple links per
+            category and an optional title for each.
           </p>
         ),
       },
@@ -560,6 +560,13 @@ const translations = {
       },
       links: {
         title: "Links",
+        addLink: "Add link",
+        removeLink: "Remove",
+        undoRemove: "Undo",
+        titlePlaceholder: "Title (optional)",
+        columnType: "Type",
+        columnUrl: "URL",
+        columnTitle: "Title",
         types: {
           HOMEPAGE: {
             title: "Home page of the larp",

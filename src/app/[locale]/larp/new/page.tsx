@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import LarpFormComponent from "@/components/LarpFormComponent";
-import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
+import LarpLinksManager from "@/components/LarpLinksManager";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
@@ -49,7 +49,7 @@ export default async function NewLarpPage({ params }: Props) {
           locale={locale}
           larp={null}
         />
-        <LarpLinksFormComponent translations={translations} />
+        <LarpLinksManager translations={translations} />
         <YoureAlmostReadyFormComponent
           translations={translations}
           user={user}

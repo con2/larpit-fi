@@ -8,7 +8,7 @@ import {
   RelatedUserRole,
 } from "@/generated/prisma/client";
 import { normalizeFormData } from "@/helpers/normalizeFormData";
-import { diffLarpLinks, formToLarpLinks, LarpLinksForm } from "@/models/LarpLink";
+import { diffLarpLinks, parseIndexedLinksFromFormData } from "@/models/LarpLink";
 import {
   approveRequest,
   diffLarpContent,
@@ -43,7 +43,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
           },
         },
       },
-      links: { select: { href: true, type: true } },
+      links: { select: { href: true, type: true, title: true } },
     },
   });
 
@@ -54,7 +54,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const formDataObject = normalizeFormData(data);
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
-  const linksForm = LarpLinksForm.parse(formDataObject);
+  const desiredLinks = parseIndexedLinksFromFormData(data);
 
   const { name: submitterName, email: submitterEmail } = user;
   // Destructure out all form-specific fields; remainder is already-transformed ModerationRequestContent
@@ -84,7 +84,10 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
       message,
       newContent: diff,
 
-      ...diffLarpLinks(larp.links, formToLarpLinks(linksForm)),
+      ...diffLarpLinks(
+        larp.links.map((l) => ({ ...l, title: l.title ?? undefined })),
+        desiredLinks,
+      ),
     },
   });
 
