@@ -329,7 +329,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     {
       slug: "month",
       title: t.attributes.month.title,
-      className: "col-md-2 align-middle",
+      className: "col-md-1 align-middle",
       getCellContents: (row) => getMonthForISOWeek(Number(row.week), locale),
     },
     {
@@ -340,7 +340,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     {
       slug: "graph",
       title: "",
-      className: "col-md-8 align-middle",
+      className: "col-md-9 align-middle",
       getCellContents: (row) => (
         <ProgressBar now={Number(row.count)} max={weekMaxCount} />
       ),
