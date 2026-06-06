@@ -204,7 +204,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const yearRows = await prisma.$queryRaw<YearRow[]>`
     with year_range as (
       select generate_series(
-        extract(year from ${cutoff}::date)::int,
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and not is_cancelled),
         least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     )
@@ -421,7 +421,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
     with year_range as (
       select generate_series(
-        extract(year from ${cutoff}::date)::int,
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and not is_cancelled),
         least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     ),
