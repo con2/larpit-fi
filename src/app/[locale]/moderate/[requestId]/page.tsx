@@ -264,6 +264,7 @@ export default async function ModerationRequestPage({ params }: Props) {
                     >
                       {link.href}
                     </a>
+                    {link.title && <> — {link.title}</>}
                   </dd>
                 </Fragment>
               ))}
@@ -280,7 +281,10 @@ export default async function ModerationRequestPage({ params }: Props) {
               {removeLinks.map((link) => (
                 <Fragment key={JSON.stringify(link)}>
                   <dt>{larpT.attributes.links.types[link.type].title}</dt>
-                  <dd>{link.href}</dd>
+                  <dd>
+                    {link.href}
+                    {link.title && <> — {link.title}</>}
+                  </dd>
                 </Fragment>
               ))}
             </dl>

@@ -17,6 +17,7 @@ export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;
 export const LarpLinkRemovable = z.object({
   type: zLarpLinkType,
   href: z.string(),
+  title: z.string().optional(),
 });
 
 export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;

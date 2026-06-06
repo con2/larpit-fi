@@ -1,8 +1,7 @@
 "use client";
 
 import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
-import type { Translations } from "@/translations/en";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
   Button,
   Card,
@@ -45,21 +44,39 @@ interface LinkData {
   title: string | null;
 }
 
+interface Messages {
+  links: {
+    addLink: string;
+    removeLink: string;
+    undoRemove: string;
+    titlePlaceholder: string;
+    columnType: string;
+    columnUrl: string;
+    columnTitle: string;
+    types: Record<LinkType, { title: string }>;
+  };
+  linksSection: {
+    title: string;
+  };
+}
+
 interface Props {
-  translations: Translations;
+  messages: Messages;
   initialLinks?: LinkData[];
   compact?: boolean;
+  children?: ReactNode;
 }
 
 let newRowCounter = 0;
 
 export default function LarpLinksManager({
-  translations,
+  messages,
   initialLinks = [],
   compact,
+  children,
 }: Props) {
-  const t = translations.Larp.attributes.links;
-  const tSection = translations.NewLarpPage.sections.links;
+  const t = messages.links;
+  const secTion = messages.linksSection;
 
   const [rows, setRows] = useState<LinkRow[]>(() =>
     initialLinks
@@ -88,7 +105,10 @@ export default function LarpLinksManager({
     ]);
   }
 
-  function updateRow(i: number, updates: { type?: LinkType; href?: string; title?: string }) {
+  function updateRow(
+    i: number,
+    updates: { type?: LinkType; href?: string; title?: string },
+  ) {
     setRows((prev) =>
       prev.map((row, j) => (j === i ? { ...row, ...updates } : row)),
     );
@@ -118,12 +138,8 @@ export default function LarpLinksManager({
   return (
     <Card className="mb-4">
       <CardBody>
-        {!compact && (
-          <>
-            <CardTitle>{tSection.title}</CardTitle>
-            <div className="mb-3">{tSection.message}</div>
-          </>
-        )}
+        <CardTitle>{secTion.title}</CardTitle>
+        {!compact && children && <div className="mb-3">{children}</div>}
         <input type="hidden" name="link_count" value={rows.length} />
         {rows.length > 0 && (
           <Table size="sm" className="mb-2 align-middle">
@@ -143,13 +159,6 @@ export default function LarpLinksManager({
                     key={row.kind === "existing" ? `e-${i}` : row.key}
                     className={isRemoved ? "opacity-50" : undefined}
                   >
-                    {isRemoved && (
-                      <input
-                        type="hidden"
-                        name={`link_${i}_removed`}
-                        value="1"
-                      />
-                    )}
                     <td style={{ minWidth: "9rem" }}>
                       <FormSelect
                         name={`link_${i}_type`}
@@ -178,7 +187,8 @@ export default function LarpLinksManager({
                             href,
                           };
                           if (row.type === "SOCIAL_MEDIA" && !row.title) {
-                            const suggested = socialMediaLinkTitleFromHref(href);
+                            const suggested =
+                              socialMediaLinkTitleFromHref(href);
                             if (suggested) updates.title = suggested;
                           }
                           updateRow(i, updates);
@@ -194,13 +204,22 @@ export default function LarpLinksManager({
                         type="text"
                         name={`link_${i}_title`}
                         value={row.title}
-                        onChange={(e) => updateRow(i, { title: e.target.value })}
+                        onChange={(e) =>
+                          updateRow(i, { title: e.target.value })
+                        }
                         disabled={isRemoved}
                         size="sm"
                         placeholder={t.titlePlaceholder}
                       />
                     </td>
                     <td className="text-nowrap">
+                      {isRemoved && (
+                        <input
+                          type="hidden"
+                          name={`link_${i}_removed`}
+                          value="1"
+                        />
+                      )}
                       {isRemoved ? (
                         <Button
                           type="button"
@@ -227,7 +246,12 @@ export default function LarpLinksManager({
             </tbody>
           </Table>
         )}
-        <Button type="button" variant="outline-primary" size="sm" onClick={addRow}>
+        <Button
+          type="button"
+          variant="outline-primary"
+          size="sm"
+          onClick={addRow}
+        >
           {t.addLink}
         </Button>
       </CardBody>

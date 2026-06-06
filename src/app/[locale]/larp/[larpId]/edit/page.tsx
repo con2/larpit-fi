@@ -116,7 +116,10 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
               larp={larp}
             />
             <LarpLinksManager
-              translations={translations}
+              messages={{
+                links: translations.Larp.attributes.links,
+                linksSection: translations.NewLarpPage.sections.links,
+              }}
               initialLinks={larp!.links}
               compact
             />
@@ -159,9 +162,14 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
               larp={larp}
             />
             <LarpLinksManager
-              translations={translations}
+              messages={{
+                links: translations.Larp.attributes.links,
+                linksSection: translations.NewLarpPage.sections.links,
+              }}
               initialLinks={larp!.links}
-            />
+            >
+              {translations.NewLarpPage.sections.links.message}
+            </LarpLinksManager>
             <LarpCancelledFormComponent
               translations={translations}
               larp={larp}

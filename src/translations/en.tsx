@@ -943,7 +943,7 @@ const translations = {
         title: "Larp subject to the request",
       },
       addLinks: {
-        title: "Links",
+        title: "Added links",
       },
       removeLinks: {
         title: "Removed links",

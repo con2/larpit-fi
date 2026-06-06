@@ -959,7 +959,7 @@ const translations: Translations = {
         title: "Larppi jota pyyntö koskee",
       },
       addLinks: {
-        title: "Linkit",
+        title: "Lisätyt linkit",
       },
       removeLinks: {
         title: "Poistetut linkit",
