@@ -201,7 +201,8 @@ const translations: Translations = {
             <p>
               Jos tiedät larpin kotisivun, pelaajan käsikirjan, valokuvien tai
               sosiaalisen median profiilin osoitteen, voit lisätä sen tähän.
-              Syötä vain URL (<em>https://…</em>), ei mitään muuta.
+              Voit lisätä useita linkkejä per kategoria ja halutessasi otsikon
+              kullekin linkille.
             </p>
             <p>
               Harkitse, onko linkki jota olet lisäämässä tarkoitettu julkisesti
@@ -574,6 +575,14 @@ const translations: Translations = {
       },
       links: {
         title: "Linkit",
+        addLink: "Lisää linkki",
+        removeLink: "Poista",
+        undoRemove: "Kumoa",
+        titlePlaceholder: "Otsikko (valinnainen)",
+        titleRequiredPlaceholder: "Otsikko (pakollinen tälle tyypille)",
+        columnType: "Tyyppi",
+        columnUrl: "URL",
+        columnTitle: "Otsikko",
         types: {
           HOMEPAGE: {
             title: "Pelin kotisivu",
@@ -596,6 +605,10 @@ const translations: Translations = {
                 pelaajan käsikirjaa kutsutaan myös nimellä yleisinfo.
               </>
             ),
+          },
+          OTHER: {
+            title: "Muu",
+            helpText: <></>,
           },
         },
       },
@@ -951,7 +964,7 @@ const translations: Translations = {
         title: "Larppi jota pyyntö koskee",
       },
       addLinks: {
-        title: "Linkit",
+        title: "Lisätyt linkit",
       },
       removeLinks: {
         title: "Poistetut linkit",

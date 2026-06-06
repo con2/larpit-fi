@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import CompactLarpFormComponent from "@/components/CompactLarpFormComponent";
 import { LarpBasicInfoFormComponent } from "@/components/LarpBasicInfoFormComponent";
 import LarpCancelledFormComponent from "@/components/LarpCancelledFormComponent";
-import LarpLinksFormComponent from "@/components/LarpLinksFormComponent";
+import LarpLinksManager from "@/components/LarpLinksManager";
 import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
@@ -115,9 +115,12 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
               locale={locale}
               larp={larp}
             />
-            <LarpLinksFormComponent
-              translations={translations}
-              links={larp!.links}
+            <LarpLinksManager
+              messages={{
+                links: translations.Larp.attributes.links,
+                linksSection: translations.NewLarpPage.sections.links,
+              }}
+              initialLinks={larp!.links}
               compact
             />
             <YoureAlmostReadyFormComponent
@@ -158,9 +161,12 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
               locale={locale}
               larp={larp}
             />
-            <LarpLinksFormComponent
-              translations={translations}
-              links={larp!.links}
+            <LarpLinksManager
+              messages={{
+                links: translations.Larp.attributes.links,
+                linksSection: translations.NewLarpPage.sections.links,
+              }}
+              initialLinks={larp!.links}
             />
             <LarpCancelledFormComponent
               translations={translations}
