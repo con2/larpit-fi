@@ -164,7 +164,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   }
 
   const holidayByDate = new Map(holidays.map((h) => [toISODate(h.date), h]));
-  console.log(holidayByDate);
 
   // Build one entry per week row
   const weeks = [];
