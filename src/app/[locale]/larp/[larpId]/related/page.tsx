@@ -53,7 +53,6 @@ export default async function RelatedLarpsPage({
 
   const translations = getTranslations(locale);
   const t = translations.Larp.attributes.relatedLarps;
-  const righT = translations.Larp.attributes.rightRelatedLarps;
   const ediT = translations.EditLarpPage;
 
   if (!validateUuid(resolvedParams.larpId)) {
