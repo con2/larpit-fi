@@ -1242,6 +1242,12 @@ const translations = {
       year: {
         title: "Year",
       },
+      month: {
+        title: "Month",
+      },
+      week: {
+        title: "Week",
+      },
     },
     reports: {
       type: {
@@ -1254,6 +1260,19 @@ const translations = {
       year: {
         title: "Larps by year",
         description: <>Events other than larps are excluded.</>,
+      },
+      month: {
+        title: "Larps by month",
+        description: <>Events other than larps are excluded.</>,
+      },
+      week: {
+        title: "Larps by week number",
+        description: (
+          <>
+            Events other than larps are excluded. Month is approximated based on
+            the Saturday of the corresponding week in 2015.
+          </>
+        ),
       },
       municipality: {
         title: "Larps by municipality",

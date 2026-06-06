@@ -1265,6 +1265,12 @@ const translations: Translations = {
       year: {
         title: "Vuosi",
       },
+      month: {
+        title: "Kuukausi",
+      },
+      week: {
+        title: "Viikko",
+      },
     },
     reports: {
       type: {
@@ -1282,6 +1288,20 @@ const translations: Translations = {
       year: {
         title: "Larppien määrä vuosittain",
         description: <>Ei sisällä muita tapahtumia kuin larppeja.</>,
+      },
+      month: {
+        title: "Larppien määrä kuukausittain",
+        description: <>Ei sisällä muita tapahtumia kuin larppeja.</>,
+      },
+      week: {
+        title: "Larppien määrä viikkonumeroittain",
+        description: (
+          <>
+            Ei sisällä muita tapahtumia kuin larppeja. Kuukautta, jolle kyseinen
+            viikko osuu, approksimoidaan vuoden 2015 kyseisen viikon
+            lauantailla.
+          </>
+        ),
       },
       municipality: {
         title: "Larppien määrä kunnittain",

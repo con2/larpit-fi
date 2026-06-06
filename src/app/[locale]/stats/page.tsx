@@ -66,10 +66,36 @@ interface LanguageRow {
   count: bigint;
 }
 
+interface MonthRow {
+  month: bigint;
+  count: bigint;
+}
+
+interface WeekRow {
+  week: bigint;
+  count: bigint;
+}
+
 interface PlayersRow {
   year: string;
   numPlayerCharacters: bigint;
   numTotalParticipants: bigint;
+}
+
+// 2015 has 53 ISO weeks. Using the Saturday of each week as the reference day
+// since larps most commonly fall on Saturdays.
+function getMonthForISOWeek(week: number, locale: string): string {
+  const jan4 = new Date(2015, 0, 4);
+  const jan4DayOfWeek = jan4.getDay() || 7; // Mon=1…Sun=7
+  const mondayOfWeek1 = new Date(
+    jan4.getTime() - (jan4DayOfWeek - 1) * 86400000,
+  );
+  const saturdayOfWeekN = new Date(
+    mondayOfWeek1.getTime() + ((week - 1) * 7 + 5) * 86400000,
+  );
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(
+    saturdayOfWeekN,
+  );
 }
 
 function Report<T>({
@@ -220,6 +246,104 @@ export default async function StatsPage({ params, searchParams }: Props) {
       getCellContents: (row) => {
         return <ProgressBar now={Number(row.count)} max={yearMaxCount} />;
       },
+    },
+  ];
+
+  const monthRows = await prisma.$queryRaw<MonthRow[]>`
+    with month_range as (
+      select generate_series(1, 12) as month
+    )
+    select
+      mr.month::bigint as month,
+      coalesce(count(l.id), 0) as count
+    from
+      month_range mr
+      left join larp l on
+        extract(month from l.starts_at) = mr.month
+        and l.starts_at >= ${cutoff}
+        and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        and not l.is_cancelled
+    group by mr.month
+    order by mr.month asc
+  `;
+  const monthMaxCount = Number(
+    monthRows.reduce(
+      (max, row) => (row.count > max ? row.count : max),
+      BigInt(0),
+    ),
+  );
+  const monthColumns: Column<MonthRow>[] = [
+    {
+      slug: "month",
+      title: t.attributes.month.title,
+      className: "col-md-2 align-middle",
+      getCellContents: (row) =>
+        new Intl.DateTimeFormat(locale, { month: "long" }).format(
+          new Date(2000, Number(row.month) - 1, 1),
+        ),
+    },
+    {
+      slug: "count",
+      title: t.attributes.count.title,
+      className: "col-md-1 align-middle",
+    },
+    {
+      slug: "graph",
+      title: "",
+      className: "col-md-9 align-middle",
+      getCellContents: (row) => (
+        <ProgressBar now={Number(row.count)} max={monthMaxCount} />
+      ),
+    },
+  ];
+
+  const weekRows = await prisma.$queryRaw<WeekRow[]>`
+    with week_range as (
+      select generate_series(1, 53) as week
+    )
+    select
+      wr.week::bigint as week,
+      coalesce(count(l.id), 0) as count
+    from
+      week_range wr
+      left join larp l on
+        extract(week from l.starts_at) = wr.week
+        and l.starts_at >= ${cutoff}
+        and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        and not l.is_cancelled
+    group by wr.week
+    order by wr.week asc
+  `;
+  const weekMaxCount = Number(
+    weekRows.reduce(
+      (max, row) => (row.count > max ? row.count : max),
+      BigInt(0),
+    ),
+  );
+  const weekColumns: Column<WeekRow>[] = [
+    {
+      slug: "week",
+      title: t.attributes.week.title,
+      className: "col-md-1 align-middle",
+    },
+    {
+      slug: "month",
+      title: t.attributes.month.title,
+      className: "col-md-2 align-middle",
+      getCellContents: (row) => getMonthForISOWeek(Number(row.week), locale),
+    },
+    {
+      slug: "count",
+      title: t.attributes.count.title,
+      className: "col-md-1 align-middle",
+    },
+    {
+      slug: "graph",
+      title: "",
+      className: "col-md-8 align-middle",
+      getCellContents: (row) => (
+        <ProgressBar now={Number(row.count)} max={weekMaxCount} />
+      ),
     },
   ];
 
@@ -407,6 +531,20 @@ export default async function StatsPage({ params, searchParams }: Props) {
         columns={yearColumns}
         messages={t}
         total={yearTotal}
+      />
+      <Report
+        title={t.reports.month.title}
+        description={t.reports.month.description}
+        rows={monthRows}
+        columns={monthColumns}
+        messages={t}
+      />
+      <Report
+        title={t.reports.week.title}
+        description={t.reports.week.description}
+        rows={weekRows}
+        columns={weekColumns}
+        messages={t}
       />
       <Card className="mb-4">
         <CardBody>
