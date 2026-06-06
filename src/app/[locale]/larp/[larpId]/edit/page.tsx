@@ -167,9 +167,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
                 linksSection: translations.NewLarpPage.sections.links,
               }}
               initialLinks={larp!.links}
-            >
-              {translations.NewLarpPage.sections.links.message}
-            </LarpLinksManager>
+            />
             <LarpCancelledFormComponent
               translations={translations}
               larp={larp}

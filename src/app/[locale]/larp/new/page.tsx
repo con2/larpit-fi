@@ -54,9 +54,7 @@ export default async function NewLarpPage({ params }: Props) {
             links: translations.Larp.attributes.links,
             linksSection: translations.NewLarpPage.sections.links,
           }}
-        >
-          {translations.NewLarpPage.sections.links.message}
-        </LarpLinksManager>
+        />
         <YoureAlmostReadyFormComponent
           translations={translations}
           user={user}

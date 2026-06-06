@@ -60,6 +60,7 @@ interface Messages {
   };
   linksSection: {
     title: string;
+    message?: ReactNode;
   };
 }
 
@@ -67,7 +68,6 @@ interface Props {
   messages: Messages;
   initialLinks?: LinkData[];
   compact?: boolean;
-  children?: ReactNode;
 }
 
 let newRowCounter = 0;
@@ -76,7 +76,6 @@ export default function LarpLinksManager({
   messages,
   initialLinks = [],
   compact,
-  children,
 }: Props) {
   const t = messages.links;
   const tSection = messages.linksSection;
@@ -142,7 +141,7 @@ export default function LarpLinksManager({
     <Card className="mb-4">
       <CardBody>
         <CardTitle>{tSection.title}</CardTitle>
-        {!compact && children && <div className="mb-3">{children}</div>}
+        {!compact && tSection.message && <div className="mb-3">{tSection.message}</div>}
         <input type="hidden" name="link_count" value={rows.length} />
         {rows.length > 0 && (
           <Table size="sm" className="mb-2 align-middle">
