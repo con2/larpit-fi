@@ -1024,7 +1024,7 @@ const translations: Translations = {
     },
     messages: {
       approvedAutomaticallyBecauseUserIs: (role: UserRole) => {
-        let roleName: string = role;
+        let roleName: string;
         if (role === UserRole.ADMIN) {
           roleName = "ylläpitäjä";
         } else if (role === UserRole.MODERATOR) {
