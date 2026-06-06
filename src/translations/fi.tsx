@@ -419,7 +419,7 @@ const translations: Translations = {
           CAMPAIGN_LARP: {
             title: "Kampanjapeli",
             description:
-              "Tämä larppi on osa suurempaa kampanjaa, ja vähintään merkittävän osan sen osallistujista odotetaan osallistuneen aiempiin kampanjan larpppeihin tai osallistuvan tuleviin.",
+              "Tämä larppi on osa suurempaa kampanjaa, ja vähintään merkittävän osan sen osallistujista odotetaan osallistuneen aiempiin kampanjan larppeihin tai osallistuvan tuleviin.",
           },
           CAMPAIGN: {
             title: "Kampanja",
@@ -562,14 +562,13 @@ const translations: Translations = {
         label: "Kirjoita halutessasi lyhyt offgame-kuvaus larpista",
         helpText: (
           <>
-            Voit halutessasi kirjoittaa kirjoittaa tähän larpista lyhyen
-            offgame-kuvauksen, johon voit sisällyttää esimerkiksi larpin
-            teemoja, tyylilajin, premissin ym. Tekstissä voi käyttää
-            Markdown-muotoiluja (lopputulos sanitoidaan; käytä järkeä äläkä
-            yritä tehdä mitään jäynää). Suositusmitta on alle 1000 merkkiä.
-            Kuvaus tulisi kirjoittaa larpin ensisijaisella kielellä. Kurkista
-            olemassa oleville larppisivuille löytääksesi esimerkkejä ja
-            inspiraatiota kuvausteksteistä.
+            Voit halutessasi kirjoittaa tähän larpista lyhyen offgame-kuvauksen,
+            johon voit sisällyttää esimerkiksi larpin teemoja, tyylilajin,
+            premissin ym. Tekstissä voi käyttää Markdown-muotoiluja (lopputulos
+            sanitoidaan; käytä järkeä äläkä yritä tehdä mitään jäynää).
+            Suositusmitta on alle 1000 merkkiä. Kuvaus tulisi kirjoittaa larpin
+            ensisijaisella kielellä. Kurkista olemassa oleville larppisivuille
+            löytääksesi esimerkkejä ja inspiraatiota kuvausteksteistä.
           </>
         ),
       },
@@ -627,7 +626,7 @@ const translations: Translations = {
               relatedLarp: "Larppi, johon suhde lisätään",
             },
             loginRequired: {
-              title: "Kirjaudu sisään lisätäksesi suhteita muihin larpppeja",
+              title: "Kirjaudu sisään lisätäksesi suhteita muihin larppeja",
               message:
                 "Larppien välisten suhteiden lisääminen edellyttää sisäänkirjautumista.",
               actions: {

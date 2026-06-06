@@ -349,7 +349,7 @@ async function handleRequestStatusUpdate(
   let resolvedAt: Date | null = null;
   let resolvedById: string | null = null;
   let resolvedMessage: string | null = null;
-  if (newStatus === EditStatus.APPROVED) {
+  if (newStatus === "APPROVED") {
     resolvedAt = new Date();
     resolvedById = resolvedBy.id;
     resolvedMessage = reason;

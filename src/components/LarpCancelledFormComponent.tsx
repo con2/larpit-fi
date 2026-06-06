@@ -9,7 +9,7 @@ interface Props {
   compact?: boolean;
 }
 
-export default async function LarpCancelledFormComponent({
+export default function LarpCancelledFormComponent({
   larp,
   translations,
   readOnly,
@@ -31,7 +31,7 @@ export default async function LarpCancelledFormComponent({
           type="checkbox"
           id="LarpCancelledFormComponent-isCancelled"
           name="isCancelled"
-          label={<>{t.attributes.isCancelled.label}</>}
+          label={t.attributes.isCancelled.label}
           defaultChecked={larp?.isCancelled ?? false}
           readOnly={readOnly}
         />
