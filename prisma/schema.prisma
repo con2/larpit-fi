@@ -262,6 +262,7 @@ enum LarpLinkType {
   PHOTOS
   SOCIAL_MEDIA
   PLAYER_GUIDE
+  OTHER
 }
 
 model LarpLink {

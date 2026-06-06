@@ -579,6 +579,7 @@ const translations: Translations = {
         removeLink: "Poista",
         undoRemove: "Kumoa",
         titlePlaceholder: "Otsikko (valinnainen)",
+        titleRequiredPlaceholder: "Otsikko (pakollinen tälle tyypille)",
         columnType: "Tyyppi",
         columnUrl: "URL",
         columnTitle: "Otsikko",
@@ -604,6 +605,10 @@ const translations: Translations = {
                 pelaajan käsikirjaa kutsutaan myös nimellä yleisinfo.
               </>
             ),
+          },
+          OTHER: {
+            title: "Muu",
+            helpText: <></>,
           },
         },
       },

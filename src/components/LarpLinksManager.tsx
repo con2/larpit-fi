@@ -20,6 +20,7 @@ const LINK_TYPES = [
   "PHOTOS",
   "SOCIAL_MEDIA",
   "PLAYER_GUIDE",
+  "OTHER",
 ] as const satisfies readonly LarpLinkType[];
 type LinkType = (typeof LINK_TYPES)[number];
 
@@ -53,6 +54,7 @@ interface Messages {
     removeLink: string;
     undoRemove: string;
     titlePlaceholder: string;
+    titleRequiredPlaceholder: string;
     columnType: string;
     columnUrl: string;
     columnTitle: string;
@@ -156,6 +158,7 @@ export default function LarpLinksManager({
             <tbody>
               {rows.map((row, i) => {
                 const isRemoved = row.kind === "existing" && row.removed;
+                const titleRequired = !isRemoved && row.type === "OTHER";
                 return (
                   <tr
                     key={row.kind === "existing" ? `e-${i}` : row.key}
@@ -210,8 +213,9 @@ export default function LarpLinksManager({
                           updateRow(i, { title: e.target.value })
                         }
                         disabled={isRemoved}
+                        required={titleRequired}
                         size="sm"
-                        placeholder={t.titlePlaceholder}
+                        placeholder={titleRequired ? t.titleRequiredPlaceholder : t.titlePlaceholder}
                       />
                     </td>
                     <td className="text-nowrap">

@@ -564,6 +564,7 @@ const translations = {
         removeLink: "Remove",
         undoRemove: "Undo",
         titlePlaceholder: "Title (optional)",
+        titleRequiredPlaceholder: "Title (required for this type)",
         columnType: "Type",
         columnUrl: "URL",
         columnTitle: "Title",
@@ -592,6 +593,10 @@ const translations = {
                 accessible.
               </>
             ),
+          },
+          OTHER: {
+            title: "Other",
+            helpText: <></>,
           },
         },
       },
