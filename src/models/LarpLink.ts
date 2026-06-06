@@ -22,6 +22,18 @@ export const LarpLinkRemovable = z.object({
 
 export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;
 
+// Only http(s) URLs may be stored as link hrefs. Schemes like `javascript:` or
+// `data:` parse successfully via `new URL` but would become XSS vectors when
+// rendered as anchor hrefs on the public larp page.
+export function isSafeLinkHref(href: string): boolean {
+  try {
+    const url = new URL(href);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertable[] {
   const count = parseInt((data.get("link_count") as string) || "0");
   const links: LarpLinkUpsertable[] = [];
@@ -30,7 +42,7 @@ export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertabl
     if (data.get(`link_${i}_removed`) === "1") continue;
 
     const href = ((data.get(`link_${i}_href`) as string) || "").trim();
-    if (!href) continue;
+    if (!href || !isSafeLinkHref(href)) continue;
 
     const type = (data.get(`link_${i}_type`) as string) || "";
     if (!Object.values(LarpLinkType).includes(type as LarpLinkType)) continue;
@@ -61,10 +73,25 @@ export async function handleLarpLinks(
   addLinks: LarpLinkUpsertable[],
   removeLinks: LarpLinkRemovable[]
 ) {
-  const promises: Promise<unknown>[] = [];
+  // Title-only edits produce the same (type, href) in both addLinks and
+  // removeLinks. Sequence delete-then-create in a transaction so that an
+  // earlier-completing createMany cannot be wiped by the subsequent
+  // deleteMany (whose WHERE matches by type+href, not title).
+  const operations = [];
+
+  if (removeLinks.length > 0) {
+    operations.push(
+      prisma.larpLink.deleteMany({
+        where: {
+          larpId,
+          OR: removeLinks.map(({ href, type }) => ({ href, type })),
+        },
+      })
+    );
+  }
 
   if (addLinks.length > 0) {
-    promises.push(
+    operations.push(
       prisma.larpLink.createMany({
         data: addLinks.map(({ type, href, title: providedTitle }) => {
           href = href.trim();
@@ -86,16 +113,7 @@ export async function handleLarpLinks(
     );
   }
 
-  if (removeLinks.length > 0) {
-    promises.push(
-      prisma.larpLink.deleteMany({
-        where: {
-          larpId,
-          OR: removeLinks.map(({ href, type }) => ({ href, type })),
-        },
-      })
-    );
+  if (operations.length > 0) {
+    await prisma.$transaction(operations);
   }
-
-  await Promise.all(promises);
 }

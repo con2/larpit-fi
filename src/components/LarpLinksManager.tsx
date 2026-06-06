@@ -1,5 +1,6 @@
 "use client";
 
+import type { LarpLinkType } from "@/generated/prisma/client";
 import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
 import { type ReactNode, useState } from "react";
 import {
@@ -12,12 +13,14 @@ import {
   Table,
 } from "react-bootstrap";
 
+// Hand-maintained to avoid pulling the Prisma runtime into the client bundle.
+// `satisfies` ties this to the Prisma enum so additions there will fail type-check here.
 const LINK_TYPES = [
   "HOMEPAGE",
   "PHOTOS",
   "SOCIAL_MEDIA",
   "PLAYER_GUIDE",
-] as const;
+] as const satisfies readonly LarpLinkType[];
 type LinkType = (typeof LINK_TYPES)[number];
 
 type ExistingRow = {
@@ -76,7 +79,7 @@ export default function LarpLinksManager({
   children,
 }: Props) {
   const t = messages.links;
-  const secTion = messages.linksSection;
+  const tSection = messages.linksSection;
 
   const [rows, setRows] = useState<LinkRow[]>(() =>
     initialLinks
@@ -138,7 +141,7 @@ export default function LarpLinksManager({
   return (
     <Card className="mb-4">
       <CardBody>
-        <CardTitle>{secTion.title}</CardTitle>
+        <CardTitle>{tSection.title}</CardTitle>
         {!compact && children && <div className="mb-3">{children}</div>}
         <input type="hidden" name="link_count" value={rows.length} />
         {rows.length > 0 && (
