@@ -4,7 +4,14 @@ import MainHeading from "@/components/MainHeading";
 import SubmitButton from "@/components/SubmitButton";
 import { findAccountRemovalToken, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
-import { Card, CardBody, CardText, CardTitle, Container, Form } from "react-bootstrap";
+import {
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
+  Container,
+  Form,
+} from "react-bootstrap";
 import { confirmAccountRemoval } from "./actions";
 
 interface Props {
@@ -47,7 +54,7 @@ export default async function ConfirmAccountRemovalPage({ params }: Props) {
                   className="d-block btn btn-danger btn-lg w-100 mt-3"
                   confirmationMessage={t.confirm.confirmationMessage}
                 >
-                  {t.confirm.submit}
+                  {t.confirm.submit}…
                 </SubmitButton>
               </Form>
             </>

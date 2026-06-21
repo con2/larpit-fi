@@ -1386,8 +1386,13 @@ const translations = {
     attributes: {
       name: {
         label: "Display name",
-        helpText:
-          "This is the name shown to others, e.g. as the game master of a larp.",
+        helpText: (
+          <>
+            Your name as it is displayed to others. At the moment this will be
+            visible only to moderators. In the future we may add functionality
+            where you may choose to be shown as eg. the GM of a larp.
+          </>
+        ),
       },
       editFormPreference: {
         label: "Larp editing form",
@@ -1419,28 +1424,29 @@ const translations = {
       title: "Danger zone",
     },
     logOutAllSessions: {
+      title: "Log out on all devices",
       description: (
         <>
           Sign out from all devices and browsers, including this one. Use this
           if you suspect someone else has access to your account.
         </>
       ),
-      submit: "Log out all sessions",
       confirmationMessage: "Log out from all devices, including this one?",
     },
     accountRemoval: {
+      title: "Remove account",
       description: (
         <>
-          Permanently remove your Larpit.fi account. Only your Larpit.fi account
-          is removed, not your Kompassi account. If you also want to remove your
-          Kompassi account, please contact Kompassi support by email. Larps you
-          have created are not removed. If you log in again with your Kompassi
-          account, a new Larpit.fi account will be created for you, but you will
-          not regain the game master and other roles you had before removal. For
-          security, removal requires confirmation by email.
+          Permanently remove your Larpit.fi account. Larps you have created are
+          not removed. Only your Larpit.fi account is removed, not your Kompassi
+          account. If you also want to remove your Kompassi account, please
+          contact Kompassi support by email at <em>suunnistajat@kompassi.eu</em>
+          . If you log in again with your Kompassi account, a new Larpit.fi
+          account will be created for you, but you will not regain the game
+          master and other roles you had before removal. For security, removal
+          requires confirmation by email.
         </>
       ),
-      submit: "Remove account…",
       confirmationMessage: "Send a confirmation email to remove your account?",
       emailSent:
         "We have sent you an email with a link to confirm the removal of your account. Please check your inbox.",

@@ -96,18 +96,21 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
               <FormText>{t.attributes.editFormPreference.helpText}</FormText>
             </div>
 
-            <div className="form-group mb-3">
-              <FormLabel htmlFor="Preferences-email">
-                {t.attributes.email.label}
-              </FormLabel>
-              <FormControl
-                type="email"
-                id="Preferences-email"
-                defaultValue={user.email}
-                readOnly
-              />
-              <FormText>{t.attributes.email.helpText}</FormText>
-            </div>
+            {/* TODO(#9): Update email from Kompassi on login. Help text for email field is inaccurate: in fact, Larpit.fi account is still tied to the same Kompassi account via numeric Kompassi user ID, but the email shown here is not updated. */}
+            {false && (
+              <div className="form-group mb-3">
+                <FormLabel htmlFor="Preferences-email">
+                  {t.attributes.email.label} 🔒
+                </FormLabel>
+                <FormControl
+                  type="email"
+                  id="Preferences-email"
+                  defaultValue={user!.email}
+                  readOnly
+                />
+                <FormText>{t.attributes.email.helpText}</FormText>
+              </div>
+            )}
 
             <div className="d-flex">
               <SubmitButton className="btn btn-primary">{t.save}</SubmitButton>
@@ -118,9 +121,12 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
 
       <Card className="mb-4 border-danger">
         <CardBody>
-          <CardTitle className="text-danger">{t.dangerZone.title}</CardTitle>
+          <CardTitle className="text-danger mb-3">
+            {t.dangerZone.title}
+          </CardTitle>
 
           <div className="mb-4">
+            <CardTitle>{t.logOutAllSessions.title}</CardTitle>
             <CardText>{t.logOutAllSessions.description}</CardText>
             <Form action={logOutAllSessions.bind(null, locale)}>
               <SubmitButton
@@ -128,14 +134,13 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
                 className="btn btn-outline-danger"
                 confirmationMessage={t.logOutAllSessions.confirmationMessage}
               >
-                {t.logOutAllSessions.submit}
+                {t.logOutAllSessions.title}
               </SubmitButton>
             </Form>
           </div>
 
-          <hr />
-
           <div>
+            <CardTitle>{t.accountRemoval.title}</CardTitle>
             <CardText>{t.accountRemoval.description}</CardText>
             <Form action={requestAccountRemoval.bind(null, locale)}>
               <SubmitButton
@@ -143,7 +148,7 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
                 className="btn btn-danger"
                 confirmationMessage={t.accountRemoval.confirmationMessage}
               >
-                {t.accountRemoval.submit}
+                {t.accountRemoval.title}…
               </SubmitButton>
             </Form>
           </div>
