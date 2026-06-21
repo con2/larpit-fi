@@ -161,29 +161,44 @@ export default function ModerationRequestChanges({
               );
             }
 
+            // For a new larp every field is new, so a neutral, full-width frame
+            // (like a read-only form field) is enough — no need to highlight.
+            if (isCreate) {
+              return (
+                <div className="mb-3" key={key}>
+                  <div className="fw-bold">{title}</div>
+                  <div className="border rounded px-2 py-1">
+                    {displayValue(kind, key, newValue)}
+                  </div>
+                </div>
+              );
+            }
+
             const cleared = kind !== "boolean" && isEmptyValue(newValue);
 
+            // Old and new are equal-width and together fill the container.
+            const fillStyle = { flexBasis: 0, minWidth: 0 };
             return (
               <div className="mb-3" key={key}>
                 <div className="fw-bold">{title}</div>
-                <div className="d-flex align-items-center gap-2 flex-wrap">
-                  {!isCreate && (
-                    <>
-                      <span className="text-muted text-decoration-line-through">
-                        {displayValue(kind, key, oldValue)}
-                      </span>
-                      <span aria-hidden>→</span>
-                    </>
-                  )}
-                  {cleared ? (
-                    <span className="border border-danger rounded px-2 py-1">
-                      <Empty />
-                    </span>
-                  ) : (
-                    <span className="border border-success rounded px-2 py-1">
-                      {displayValue(kind, key, newValue)}
-                    </span>
-                  )}
+                <div className="d-flex align-items-stretch gap-2">
+                  <div
+                    className="border rounded px-2 py-1 flex-grow-1 text-muted text-decoration-line-through"
+                    style={fillStyle}
+                  >
+                    {displayValue(kind, key, oldValue)}
+                  </div>
+                  <div className="d-flex align-items-center" aria-hidden>
+                    →
+                  </div>
+                  <div
+                    className={`border rounded px-2 py-1 flex-grow-1 ${
+                      cleared ? "border-danger" : "border-success"
+                    }`}
+                    style={fillStyle}
+                  >
+                    {cleared ? <Empty /> : displayValue(kind, key, newValue)}
+                  </div>
                 </div>
               </div>
             );
