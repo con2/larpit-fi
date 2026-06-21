@@ -9,7 +9,16 @@ const translations = {
     tagline: "Crowd-sourced archive of Finnish larp",
     sections: {
       upcomingOtherEvents: "Upcoming conventions, meetups and other events",
-      ongoingSignup: "Sign-up in progress or opening soon",
+      ongoingSignup: {
+        title: "Sign-up in progress or opening soon",
+        description: (days: number) => (
+          <>
+            This section shows larps whose signup is currently open or opening
+            in the next {days} days. Invite only larps are never shown on the
+            front page.
+          </>
+        ),
+      },
       upcomingWhenNoOngoingSignupPresent: "Upcoming larps",
       upcomingWhenOngoingSignupPresent: "Other upcoming larps",
       past: "Some past larps",

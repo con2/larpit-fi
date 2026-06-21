@@ -10,7 +10,16 @@ const translations: Translations = {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     sections: {
       upcomingOtherEvents: "Tulevat conit, miitit ja muut tapahtumat",
-      ongoingSignup: "Ilmoittautuminen käynnissä tai avautumassa pian",
+      ongoingSignup: {
+        title: "Ilmoittautuminen käynnissä tai avautumassa pian",
+        description: (days: number) => (
+          <>
+            Tämä osio näyttää larpit, joiden ilmoittautuminen on parhaillaan
+            käynnissä tai avautumassa seuraavien {days} päivän aikana.
+            Kutsupelejä ei näytetä etusivulla.
+          </>
+        ),
+      },
       upcomingWhenNoOngoingSignupPresent: "Tulevat larpit",
       upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",
       past: "Viimeaikaisia larppeja",

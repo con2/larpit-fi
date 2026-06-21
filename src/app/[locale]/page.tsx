@@ -6,7 +6,7 @@ import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
-import { CardBody } from "react-bootstrap";
+import { CardBody, FormText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { partition } from "underscore";
 
@@ -49,6 +49,7 @@ async function getHomePageData() {
 }
 
 type HomePageLarp = Awaited<ReturnType<typeof getHomePageData>>[number];
+const signupOpeningSoonDays = 14;
 
 function Section({
   title,
@@ -137,7 +138,9 @@ export default async function HomePage({ params }: Props) {
   );
   const [ongoingSignupLarps, otherUpcomingLarps] = partition(
     upcomingLarps,
-    (larp) => !larp.isCancelled && isSignupOpenOrOpeningSoon(larp), // avoid index at 2nd arg
+    (larp) =>
+      !larp.isCancelled &&
+      isSignupOpenOrOpeningSoon(larp, signupOpeningSoonDays),
   );
 
   // We only show a fixed number of past larps
@@ -163,11 +166,15 @@ export default async function HomePage({ params }: Props) {
 
       {ongoingSignupLarps.length > 0 && (
         <Section
-          title={t.sections.ongoingSignup}
+          title={t.sections.ongoingSignup.title}
           larps={ongoingSignupLarps}
           locale={locale}
           messages={translations.Larp}
-        />
+        >
+          <FormText>
+            {t.sections.ongoingSignup.description(signupOpeningSoonDays)}
+          </FormText>
+        </Section>
       )}
       {otherUpcomingLarps.length > 0 && (
         <Section
