@@ -515,9 +515,9 @@ const translations: Translations = {
       signupStatus: {
         title: "Ilmoittautuminen",
         choices: {
-          upcoming: <>Tulossa</>,
-          inProgress: <>Käynnissä</>,
-          closed: <>Päättynyt</>,
+          upcoming: "Tulossa",
+          inProgress: "Käynnissä",
+          closed: "Päättynyt",
           openIndefinitely: <>Ilmoittautuminen auki</>,
           openUntil: (formattedDate: ReactNode) => (
             <>Ilmo auki {formattedDate} asti</>
@@ -1414,11 +1414,8 @@ const translations: Translations = {
     attributes: {
       name: {
         label: "Näyttönimi",
-        helpText: (
-          <>
-            Tämä nimi näytetään muille, esimerkiksi larpin pelinjohtajana.
-          </>
-        ),
+        helpText:
+          "Tämä nimi näytetään muille, esimerkiksi larpin pelinjohtajana.",
       },
       editFormPreference: {
         label: "Larpin muokkauslomake",
@@ -1465,11 +1462,11 @@ const translations: Translations = {
         <>
           Poista Larpit.fi-tilisi pysyvästi. Vain Larpit.fi-tilisi poistetaan,
           ei Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota
-          yhteyttä Kompassin tukeen sähköpostitse. Luomiasi larppeja ei poisteta.
-          Jos kirjaudut uudelleen sisään Kompassi-tililläsi, sinulle luodaan uusi
-          Larpit.fi-tili, mutta et saa takaisin pelinjohtaja- tai muita rooleja,
-          jotka sinulla oli ennen poistoa. Turvallisuussyistä poisto edellyttää
-          vahvistusta sähköpostitse.
+          yhteyttä Kompassin tukeen sähköpostitse. Luomiasi larppeja ei
+          poisteta. Jos kirjaudut uudelleen sisään Kompassi-tililläsi, sinulle
+          luodaan uusi Larpit.fi-tili, mutta et saa takaisin pelinjohtaja- tai
+          muita rooleja, jotka sinulla oli ennen poistoa. Turvallisuussyistä
+          poisto edellyttää vahvistusta sähköpostitse.
         </>
       ),
       submit: "Poista käyttäjätili…",
@@ -1486,8 +1483,8 @@ const translations: Translations = {
       message: (
         <>
           Tämä poistaa Larpit.fi-tilisi pysyvästi. Vain Larpit.fi-tilisi
-          poistetaan, ei Kompassi-tiliäsi. Luomiasi larppeja ei poisteta. Tätä ei
-          voi perua.
+          poistetaan, ei Kompassi-tiliäsi. Luomiasi larppeja ei poisteta. Tätä
+          ei voi perua.
         </>
       ),
       submit: "Poista käyttäjätilini",

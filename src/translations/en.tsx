@@ -501,9 +501,9 @@ const translations = {
       signupStatus: {
         title: "Sign-up",
         choices: {
-          upcoming: <>Upcoming</>,
-          inProgress: <>In progress</>,
-          closed: <>Closed</>,
+          upcoming: "Upcoming",
+          inProgress: "In progress",
+          closed: "Closed",
           openIndefinitely: <>Signup open</>,
           openUntil: (formattedDate: ReactNode) => (
             <>Signup open until {formattedDate}</>
@@ -1386,11 +1386,8 @@ const translations = {
     attributes: {
       name: {
         label: "Display name",
-        helpText: (
-          <>
-            This is the name shown to others, e.g. as the game master of a larp.
-          </>
-        ),
+        helpText:
+          "This is the name shown to others, e.g. as the game master of a larp.",
       },
       editFormPreference: {
         label: "Larp editing form",
@@ -1429,8 +1426,7 @@ const translations = {
         </>
       ),
       submit: "Log out all sessions",
-      confirmationMessage:
-        "Log out from all devices, including this one?",
+      confirmationMessage: "Log out from all devices, including this one?",
     },
     accountRemoval: {
       description: (
@@ -1445,8 +1441,7 @@ const translations = {
         </>
       ),
       submit: "Remove account…",
-      confirmationMessage:
-        "Send a confirmation email to remove your account?",
+      confirmationMessage: "Send a confirmation email to remove your account?",
       emailSent:
         "We have sent you an email with a link to confirm the removal of your account. Please check your inbox.",
     },
