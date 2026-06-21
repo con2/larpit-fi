@@ -20,22 +20,16 @@ export async function confirmAccountRemoval(locale: string, token: string) {
   }
 
   await prisma.$transaction([
-    // Preserve moderation history that would otherwise cascade-delete with the
-    // user. The denormalized submitterName/submitterEmail keep requests readable.
-    prisma.moderationRequest.updateMany({
-      where: { submitterId: user.id },
-      data: { submitterId: null },
-    }),
-    prisma.moderationRequest.updateMany({
-      where: { resolvedById: user.id },
-      data: { resolvedById: null },
-    }),
-    // Deleting the user cascades RelatedUser, Session, Account and Authenticator
-    // rows. Larps created by the user are NOT deleted (no FK from Larp to User;
-    // ownership is only via the now-removed RelatedUser CREATED_BY rows).
+    // VerificationTokens have no FK to the user, so they don't cascade; remove
+    // the user's removal tokens explicitly.
     prisma.verificationToken.deleteMany({
       where: { identifier: user.id, type: TokenType.ACCOUNT_REMOVAL },
     }),
+    // Deleting the user cascades RelatedUser, Session, Account and Authenticator
+    // rows. ModerationRequest.submitter/resolvedBy are onDelete: SetNull, so the
+    // user's moderation history is preserved (submitterName/submitterEmail are
+    // denormalized). Larps created by the user are NOT deleted (no FK from Larp
+    // to User; ownership is only via the now-removed RelatedUser CREATED_BY rows).
     prisma.user.delete({ where: { id: user.id } }),
   ]);
 

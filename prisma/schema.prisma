@@ -335,9 +335,11 @@ model ModerationRequest {
 
   message String?
 
-  larp       Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)
-  resolvedBy User? @relation("RequestsResolvedByUser", fields: [resolvedById], references: [id], onDelete: Cascade)
-  submitter  User? @relation("RequestsSubmittedByUser", fields: [submitterId], references: [id], onDelete: Cascade)
+  larp Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)
+  // Preserve moderation history when a user is removed: keep the request (its
+  // submitterName/submitterEmail are denormalized) and just drop the FK.
+  resolvedBy User? @relation("RequestsResolvedByUser", fields: [resolvedById], references: [id], onDelete: SetNull)
+  submitter  User? @relation("RequestsSubmittedByUser", fields: [submitterId], references: [id], onDelete: SetNull)
 
   @@map("moderation_request")
 }

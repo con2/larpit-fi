@@ -103,9 +103,8 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
               <FormControl
                 type="email"
                 id="Preferences-email"
-                value={user.email}
+                defaultValue={user.email}
                 readOnly
-                disabled
               />
               <FormText>{t.attributes.email.helpText}</FormText>
             </div>

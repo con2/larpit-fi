@@ -35,8 +35,6 @@ const FIELDS: { key: keyof ModerationRequestContent; kind: FieldKind }[] = [
   { key: "description", kind: "multiline" },
 ];
 
-const MULTILINE_KINDS: FieldKind[] = ["multiline"];
-
 interface Props {
   action: EditAction;
   /// Current content of the larp, or null for a larp being created.
@@ -83,19 +81,25 @@ export default function ModerationRequestChanges({
     switch (kind) {
       case "enum":
         if (key === "type") {
-          return larpT.attributes.type.choices[
-            value as keyof typeof larpT.attributes.type.choices
-          ].title;
+          return (
+            larpT.attributes.type.choices[
+              value as keyof typeof larpT.attributes.type.choices
+            ]?.title ?? String(value)
+          );
         }
         if (key === "language") {
-          return larpT.attributes.language.choices[
-            value as keyof typeof larpT.attributes.language.choices
-          ];
+          return (
+            larpT.attributes.language.choices[
+              value as keyof typeof larpT.attributes.language.choices
+            ] ?? String(value)
+          );
         }
         if (key === "openness") {
-          return larpT.attributes.openness.choices[
-            value as keyof typeof larpT.attributes.openness.choices
-          ].title;
+          return (
+            larpT.attributes.openness.choices[
+              value as keyof typeof larpT.attributes.openness.choices
+            ]?.title ?? String(value)
+          );
         }
         return String(value);
       case "date":
@@ -109,7 +113,17 @@ export default function ModerationRequestChanges({
     }
   }
 
-  const changedFields = FIELDS.filter((field) => field.key in changes);
+  const changedFields = FIELDS.filter(({ key, kind }) => {
+    if (!(key in changes)) {
+      return false;
+    }
+    // On create, compactObject keeps `false` booleans (it only drops null/"").
+    // Skip them so the "new larp" view shows only meaningful fields.
+    if (isCreate && kind === "boolean" && changes[key] === false) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <Card className="mb-4">
@@ -126,7 +140,7 @@ export default function ModerationRequestChanges({
             const oldValue = oldContent ? oldContent[key] : undefined;
             const title = larpT.attributes[key].title;
 
-            if (MULTILINE_KINDS.includes(kind)) {
+            if (kind === "multiline") {
               return (
                 <div className="mb-3" key={key}>
                   <div className="fw-bold">{title}</div>
