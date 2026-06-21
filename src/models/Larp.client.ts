@@ -23,7 +23,7 @@ export function isSignupOpen(larp: LarpDates): boolean {
 
 export function isSignupOpeningSoon(
   larp: LarpDates,
-  deltaDays: number = 7
+  deltaDays: number = 14,
 ): boolean {
   const now = new Date();
   const soon = new Date(now.getTime() + deltaDays * 24 * 60 * 60 * 1000);
@@ -36,7 +36,7 @@ export function isSignupOpeningSoon(
 
 export function isSignupOpenOrOpeningSoon(
   larp: LarpDates,
-  deltaDays: number = 7
+  deltaDays: number = 14,
 ): boolean {
   return isSignupOpen(larp) || isSignupOpeningSoon(larp, deltaDays);
 }
