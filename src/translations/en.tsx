@@ -827,6 +827,23 @@ const translations = {
         Showing {count} request{count === 1 ? "" : "s"} (total {totalCount}).
       </>
     ),
+    changes: {
+      title: "Changes",
+      createTitle: "New larp",
+      noChanges: "No changes to larp fields.",
+      rolesAdded: "Roles added",
+      boolean: {
+        true: "Yes",
+        false: "No",
+      },
+      olderPendingWarning: (count: number) => (
+        <>
+          There {count === 1 ? "is" : "are"} {count} older unresolved request
+          {count === 1 ? "" : "s"} for this larp. Please review the requests in
+          order, starting from the oldest.
+        </>
+      ),
+    },
     attributes: {
       createdAt: {
         title: "Request date",

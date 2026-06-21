@@ -1,22 +1,22 @@
 import { auth } from "@/auth";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import LarpFormComponent from "@/components/LarpFormComponent";
 import LoginRequired from "@/components/LoginRequired";
 import MainHeading from "@/components/MainHeading";
+import ModerationRequestChanges from "@/components/ModerationRequestChanges";
 import SubmitButton from "@/components/SubmitButton";
 import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import {
+  EditAction,
+  EditStatus,
+  RelatedUserRole,
+  SubmitterRole,
+} from "@/generated/prisma/client";
 import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
-import {
-  contentToLarp,
-  larpToContent,
-  ModerationRequestContent,
-  parsePartialContent,
-} from "@/models/ModerationRequest";
+import { larpToContent, parsePartialContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -24,6 +24,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment, ReactNode } from "react";
 import {
+  Alert,
   Card,
   CardBody,
   CardText,
@@ -72,7 +73,11 @@ export default async function ModerationRequestPage({ params }: Props) {
             name: true,
           },
         },
-        larp: true,
+        larp: {
+          include: {
+            relatedUsers: { select: { userId: true, role: true } },
+          },
+        },
       },
     }),
     session?.user?.email
@@ -90,13 +95,68 @@ export default async function ModerationRequestPage({ params }: Props) {
     return notFound();
   }
 
-  const mergedContent: ModerationRequestContent = request.larp
-    ? {
-        ...larpToContent(request.larp),
-        ...parsePartialContent(request.newContent),
-      }
-    : ModerationRequestContent.parse(request.newContent);
-  const updatedLarp = contentToLarp(mergedContent);
+  // Show only what changed: for UPDATE the stored newContent is already a
+  // minimal diff against the larp at submission time; for CREATE it holds the
+  // non-empty fields. parsePartialContent gives just the present keys.
+  const oldContent = request.larp ? larpToContent(request.larp) : null;
+  const changes = parsePartialContent(request.newContent);
+
+  // Resolve municipality ids referenced by the change to display names.
+  const municipalityIds = [oldContent?.municipality, changes.municipality].filter(
+    (id): id is string => !!id,
+  );
+  const municipalities =
+    municipalityIds.length > 0
+      ? await prisma.municipality.findMany({
+          where: { id: { in: municipalityIds } },
+          select: { id: true, nameFi: true, nameSv: true, nameOther: true },
+        })
+      : [];
+  const municipalityNames = Object.fromEntries(
+    municipalities.map((m) => [
+      m.id,
+      (locale === "sv" ? m.nameSv : null) ??
+        m.nameFi ??
+        m.nameSv ??
+        m.nameOther ??
+        m.id,
+    ]),
+  );
+
+  // Warn the moderator if there are older, not-yet-resolved requests for the
+  // same larp; they should be reviewed oldest-first (UUIDv7 ids sort by time).
+  const olderPendingCount = request.larpId
+    ? await prisma.moderationRequest.count({
+        where: {
+          larpId: request.larpId,
+          id: { lt: request.id },
+          status: {
+            in: [
+              EditStatus.PENDING_VERIFICATION,
+              EditStatus.VERIFIED,
+              EditStatus.AUTO_APPROVED,
+            ],
+          },
+        },
+      })
+    : 0;
+
+  // Roles granted by approving this request. Currently only the submitter's own
+  // role (from submitterRole) can be added; the implicit CREATED_BY role given
+  // to the creator is intentionally not shown. Adding roles for other users or
+  // removing roles is not implemented yet — handle that here when it is.
+  const rolesBeingAdded: RelatedUserRole[] = [];
+  if (request.submitterId && request.submitterRole !== SubmitterRole.NONE) {
+    const role = request.submitterRole as unknown as RelatedUserRole;
+    const alreadyHasRole =
+      request.larp?.relatedUsers.some(
+        (ru) => ru.userId === request.submitterId && ru.role === role,
+      ) ?? false;
+    if (!alreadyHasRole) {
+      rolesBeingAdded.push(role);
+    }
+  }
+
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
   // Old removeLinks records may lack `type`; degrade gracefully by dropping unparseable entries
@@ -146,6 +206,13 @@ export default async function ModerationRequestPage({ params }: Props) {
   return (
     <Container>
       <MainHeading>{t.listTitle}</MainHeading>
+
+      {olderPendingCount > 0 ? (
+        <Alert variant="warning">
+          {t.changes.olderPendingWarning(olderPendingCount)}
+        </Alert>
+      ) : null}
+
       <Card className="mb-4">
         <CardBody>
           <CardTitle>
@@ -239,13 +306,31 @@ export default async function ModerationRequestPage({ params }: Props) {
         </CardBody>
       </Card>
 
-      <LarpFormComponent
-        translations={translations}
+      <ModerationRequestChanges
+        action={request.action}
+        oldContent={oldContent}
+        changes={changes}
+        larpT={larpT}
+        changesT={t.changes}
         locale={locale}
-        larp={updatedLarp}
-        readOnly={true}
-        compact={false}
+        municipalityNames={municipalityNames}
       />
+
+      {rolesBeingAdded.length > 0 ? (
+        <Card className="mb-4">
+          <CardBody>
+            <CardTitle>{t.changes.rolesAdded}</CardTitle>
+            <dl>
+              {rolesBeingAdded.map((role) => (
+                <Fragment key={role}>
+                  <dt>{larpT.clientAttributes.role.choices[role]}</dt>
+                  <dd>{request.submitterName}</dd>
+                </Fragment>
+              ))}
+            </dl>
+          </CardBody>
+        </Card>
+      ) : null}
 
       {addLinks.length > 0 ? (
         <Card className="mb-4">

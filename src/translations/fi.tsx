@@ -839,6 +839,23 @@ const translations: Translations = {
         ).
       </>
     ),
+    changes: {
+      title: "Muutokset",
+      createTitle: "Uusi larppi",
+      noChanges: "Ei muutoksia larpin tietoihin.",
+      rolesAdded: "Lisättävät roolit",
+      boolean: {
+        true: "Kyllä",
+        false: "Ei",
+      },
+      olderPendingWarning: (count: number) => (
+        <>
+          Tälle larpille on {count} vanhempi{count === 1 ? "" : "a"}{" "}
+          ratkaisematon{count === 1 ? "" : "ta"} pyyntö{count === 1 ? "" : "ä"}.
+          Käsittele pyynnöt järjestyksessä vanhimmasta alkaen.
+        </>
+      ),
+    },
     attributes: {
       createdAt: {
         title: "Pyynnön ajankohta",

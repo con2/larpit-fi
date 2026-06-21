@@ -1,0 +1,215 @@
+import { FormattedDate } from "@/components/FormattedDate";
+import { EditAction } from "@/generated/prisma/client";
+import type { ModerationRequestContent } from "@/models/ModerationRequest";
+import type { Translations } from "@/translations/en";
+import { Temporal } from "@js-temporal/polyfill";
+import { diffWords } from "diff";
+import { Card, CardBody, CardTitle } from "react-bootstrap";
+
+type FieldKind =
+  | "text"
+  | "multiline"
+  | "enum"
+  | "date"
+  | "number"
+  | "boolean"
+  | "municipality";
+
+/// Display order and rendering kind of the larp content fields shown in a diff.
+const FIELDS: { key: keyof ModerationRequestContent; kind: FieldKind }[] = [
+  { key: "name", kind: "text" },
+  { key: "tagline", kind: "text" },
+  { key: "type", kind: "enum" },
+  { key: "language", kind: "enum" },
+  { key: "openness", kind: "enum" },
+  { key: "isCancelled", kind: "boolean" },
+  { key: "locationText", kind: "text" },
+  { key: "municipality", kind: "municipality" },
+  { key: "numPlayerCharacters", kind: "number" },
+  { key: "numTotalParticipants", kind: "number" },
+  { key: "startsAt", kind: "date" },
+  { key: "endsAt", kind: "date" },
+  { key: "signupStartsAt", kind: "date" },
+  { key: "signupEndsAt", kind: "date" },
+  { key: "fluffText", kind: "multiline" },
+  { key: "description", kind: "multiline" },
+];
+
+const MULTILINE_KINDS: FieldKind[] = ["multiline"];
+
+interface Props {
+  action: EditAction;
+  /// Current content of the larp, or null for a larp being created.
+  oldContent: ModerationRequestContent | null;
+  /// The changed (UPDATE) or non-empty (CREATE) fields to display.
+  changes: Partial<ModerationRequestContent>;
+  larpT: Translations["Larp"];
+  changesT: Translations["ModerationRequest"]["changes"];
+  locale: string;
+  /// Municipality id -> name, for rendering the municipality field.
+  municipalityNames: Record<string, string>;
+}
+
+function isEmptyValue(value: unknown): boolean {
+  return value === null || value === undefined || value === "";
+}
+
+export default function ModerationRequestChanges({
+  action,
+  oldContent,
+  changes,
+  larpT,
+  changesT,
+  locale,
+  municipalityNames,
+}: Props) {
+  const isCreate = action === EditAction.CREATE || oldContent === null;
+
+  const Empty = () => (
+    <em className="text-muted">{larpT.attributes.emptyAttribute}</em>
+  );
+
+  function displayValue(
+    kind: FieldKind,
+    key: keyof ModerationRequestContent,
+    value: unknown,
+  ) {
+    if (kind === "boolean") {
+      return value ? changesT.boolean.true : changesT.boolean.false;
+    }
+    if (isEmptyValue(value)) {
+      return <Empty />;
+    }
+    switch (kind) {
+      case "enum":
+        if (key === "type") {
+          return larpT.attributes.type.choices[
+            value as keyof typeof larpT.attributes.type.choices
+          ].title;
+        }
+        if (key === "language") {
+          return larpT.attributes.language.choices[
+            value as keyof typeof larpT.attributes.language.choices
+          ];
+        }
+        if (key === "openness") {
+          return larpT.attributes.openness.choices[
+            value as keyof typeof larpT.attributes.openness.choices
+          ].title;
+        }
+        return String(value);
+      case "date":
+        return (
+          <FormattedDate locale={locale} date={value as Temporal.PlainDate} />
+        );
+      case "municipality":
+        return municipalityNames[value as string] ?? String(value);
+      default:
+        return String(value);
+    }
+  }
+
+  const changedFields = FIELDS.filter((field) => field.key in changes);
+
+  return (
+    <Card className="mb-4">
+      <CardBody>
+        <CardTitle>
+          {isCreate ? changesT.createTitle : changesT.title}
+        </CardTitle>
+
+        {changedFields.length === 0 ? (
+          <p className="text-muted mb-0">{changesT.noChanges}</p>
+        ) : (
+          changedFields.map(({ key, kind }) => {
+            const newValue = changes[key];
+            const oldValue = oldContent ? oldContent[key] : undefined;
+            const title = larpT.attributes[key].title;
+
+            if (MULTILINE_KINDS.includes(kind)) {
+              return (
+                <div className="mb-3" key={key}>
+                  <div className="fw-bold">{title}</div>
+                  <div
+                    className="border rounded p-2 font-monospace"
+                    style={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {isCreate ? (
+                      String(newValue ?? "")
+                    ) : (
+                      <TextDiff
+                        oldText={String(oldValue ?? "")}
+                        newText={String(newValue ?? "")}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            const cleared = kind !== "boolean" && isEmptyValue(newValue);
+
+            return (
+              <div className="mb-3" key={key}>
+                <div className="fw-bold">{title}</div>
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  {!isCreate && (
+                    <>
+                      <span className="text-muted text-decoration-line-through">
+                        {displayValue(kind, key, oldValue)}
+                      </span>
+                      <span aria-hidden>→</span>
+                    </>
+                  )}
+                  {cleared ? (
+                    <span className="border border-danger rounded px-2 py-1">
+                      <Empty />
+                    </span>
+                  ) : (
+                    <span className="border border-success rounded px-2 py-1">
+                      {displayValue(kind, key, newValue)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+function TextDiff({
+  oldText,
+  newText,
+}: {
+  oldText: string;
+  newText: string;
+}) {
+  const parts = diffWords(oldText, newText);
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.added) {
+          return (
+            <span key={index} className="bg-success-subtle">
+              {part.value}
+            </span>
+          );
+        }
+        if (part.removed) {
+          return (
+            <span
+              key={index}
+              className="bg-danger-subtle text-decoration-line-through"
+            >
+              {part.value}
+            </span>
+          );
+        }
+        return <span key={index}>{part.value}</span>;
+      })}
+    </>
+  );
+}
