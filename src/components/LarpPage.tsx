@@ -28,7 +28,6 @@ import {
 import { Column } from "./DataTable";
 import InfoCircle from "./google-material-symbols/InfoCircle";
 import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
-import { getSignupStatus } from "./LarpCard";
 import LarpJsonLd from "./LarpJsonLd";
 import Markdown from "./Markdown";
 import Paragraphs from "./Paragraphs";
@@ -159,27 +158,40 @@ function LarpInfoCard({
     });
   }
 
-  const signupStatus = getSignupStatus(larp, t, locale);
-  if (signupStatus.content) {
+  // Show the full sign-up period and its status whenever either end is set.
+  // Unlike the space-optimized front-page badge, this stays visible even when
+  // sign-up is not in progress or opening soon. An unbounded end is treated as
+  // ending on the larp's start date.
+  if (larp.signupStartsAt || larp.signupEndsAt) {
+    const now = new Date();
+    const signupEffectiveEnd = larp.signupEndsAt ?? larp.startsAt;
+    const signupChoices = t.attributes.signupStatus.choices;
+
+    let signupStatusLabel: ReactNode;
+    let signupInProgress = false;
+    if (larp.signupStartsAt && now < larp.signupStartsAt) {
+      signupStatusLabel = signupChoices.upcoming;
+    } else if (signupEffectiveEnd && now > signupEffectiveEnd) {
+      signupStatusLabel = signupChoices.closed;
+    } else {
+      signupStatusLabel = signupChoices.inProgress;
+      signupInProgress = true;
+    }
+
     fields.push({
       slug: "signupStatus",
       title: t.attributes.signupStatus.title,
-      getCellContents: () => {
-        switch (signupStatus.variant) {
-          case "danger":
-          case "warning":
-          case "info":
-          case "primary":
-          case "success":
-            return (
-              <span className={`fw-bold text-${signupStatus.variant}`}>
-                {signupStatus.content}
-              </span>
-            );
-          default:
-            return <span>{signupStatus.content}</span>;
-        }
-      },
+      getCellContents: () => (
+        <span className={signupInProgress ? "fw-bold text-success" : undefined}>
+          {signupStatusLabel} (
+          <FormattedDateRange
+            locale={locale}
+            start={larp.signupStartsAt}
+            end={larp.signupEndsAt ?? larp.startsAt}
+          />
+          )
+        </span>
+      ),
     });
   }
 

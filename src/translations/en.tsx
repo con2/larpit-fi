@@ -499,8 +499,11 @@ const translations = {
         ),
       },
       signupStatus: {
-        title: "Signup status",
+        title: "Sign-up",
         choices: {
+          upcoming: <>Upcoming</>,
+          inProgress: <>In progress</>,
+          closed: <>Closed</>,
           openIndefinitely: <>Signup open</>,
           openUntil: (formattedDate: ReactNode) => (
             <>Signup open until {formattedDate}</>

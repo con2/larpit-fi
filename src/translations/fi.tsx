@@ -513,8 +513,11 @@ const translations: Translations = {
         ),
       },
       signupStatus: {
-        title: "Ilmoittautumisen tila",
+        title: "Ilmoittautuminen",
         choices: {
+          upcoming: <>Tulossa</>,
+          inProgress: <>Käynnissä</>,
+          closed: <>Päättynyt</>,
           openIndefinitely: <>Ilmoittautuminen auki</>,
           openUntil: (formattedDate: ReactNode) => (
             <>Ilmo auki {formattedDate} asti</>
