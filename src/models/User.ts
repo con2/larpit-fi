@@ -2,10 +2,24 @@ import {
   EditStatus,
   RelatedUser,
   RelatedUserRole,
+  TokenType,
   User,
   UserRole,
 } from "@/generated/prisma/client";
 import prisma from "@/prisma";
+import { validate as validateUuid } from "uuid";
+import z from "zod";
+
+/// Display name validation, shared between the HTML form (maxLength) and the
+/// saveUserPreferences server action. Trims whitespace, requires 1–80 visible
+/// characters and disallows control characters (newlines, tabs, etc.).
+export const displayNameMaxLength = 80;
+export const DisplayNameSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(displayNameMaxLength)
+  .regex(/^[^\p{Cc}]+$/u);
 
 export function canModerate(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.MODERATOR || user?.role === UserRole.ADMIN;
@@ -92,6 +106,22 @@ export function getDeleteLarpInitialStatusForUser(
     default:
       return EditStatus.VERIFIED;
   }
+}
+
+/// Looks up a non-expired ACCOUNT_REMOVAL token belonging to the given user.
+export async function findAccountRemovalToken(userId: string, token: string) {
+  if (!validateUuid(token)) {
+    return null;
+  }
+
+  return prisma.verificationToken.findFirst({
+    where: {
+      identifier: userId,
+      token,
+      type: TokenType.ACCOUNT_REMOVAL,
+      expires: { gte: new Date() },
+    },
+  });
 }
 
 export async function getUserFromSession(

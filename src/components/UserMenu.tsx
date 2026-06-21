@@ -25,6 +25,10 @@ export default function UserMenu({ messages: t, user }: Props) {
       title: t.ownLarps,
       href: "/profile/larps",
     },
+    {
+      title: t.preferences,
+      href: "/profile/preferences",
+    },
   ];
 
   if (user) {

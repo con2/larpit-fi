@@ -1355,9 +1355,107 @@ const translations = {
   },
   UserMenu: {
     ownLarps: "Own larps",
+    preferences: "Preferences",
     signIn: "Sign in",
     signOut: "Sign out",
     usernameMissing: "Logged in",
+  },
+  Preferences: {
+    title: "Preferences",
+    save: "Save",
+    attributes: {
+      name: {
+        label: "Display name",
+        helpText: (
+          <>
+            This is the name shown to others, e.g. as the game master of a larp.
+          </>
+        ),
+      },
+      editFormPreference: {
+        label: "Larp editing form",
+        helpText: (
+          <>
+            The compact form fits on a single screen and is faster to use once
+            you are familiar with it. The full form guides you with help texts.
+          </>
+        ),
+        choices: {
+          FULL: "Full form",
+          COMPACT: "Compact form",
+        },
+      },
+      email: {
+        label: "Email address",
+        helpText: (
+          <>
+            Your email address connects your Kompassi account to your Larpit.fi
+            account. You cannot change it here. If you change your email address
+            in your Kompassi profile, please ask the Larpit.fi administrator to
+            re-link your Larpit.fi account to your Kompassi account if you want
+            to keep it.
+          </>
+        ),
+      },
+    },
+    dangerZone: {
+      title: "Danger zone",
+    },
+    logOutAllSessions: {
+      description: (
+        <>
+          Sign out from all devices and browsers, including this one. Use this
+          if you suspect someone else has access to your account.
+        </>
+      ),
+      submit: "Log out all sessions",
+      confirmationMessage:
+        "Log out from all devices, including this one?",
+    },
+    accountRemoval: {
+      description: (
+        <>
+          Permanently remove your Larpit.fi account. Only your Larpit.fi account
+          is removed, not your Kompassi account. If you also want to remove your
+          Kompassi account, please contact Kompassi support by email. Larps you
+          have created are not removed. If you log in again with your Kompassi
+          account, a new Larpit.fi account will be created for you, but you will
+          not regain the game master and other roles you had before removal. For
+          security, removal requires confirmation by email.
+        </>
+      ),
+      submit: "Remove account…",
+      confirmationMessage:
+        "Send a confirmation email to remove your account?",
+      emailSent:
+        "We have sent you an email with a link to confirm the removal of your account. Please check your inbox.",
+    },
+  },
+  AccountRemovalPage: {
+    title: "Remove account",
+    confirm: {
+      title: "Confirm account removal",
+      message: (
+        <>
+          This permanently removes your Larpit.fi account. Only your Larpit.fi
+          account is removed, not your Kompassi account. Larps you have created
+          are not removed. This cannot be undone.
+        </>
+      ),
+      submit: "Remove my account",
+      confirmationMessage:
+        "Permanently remove your Larpit.fi account? This cannot be undone.",
+    },
+    invalidToken: {
+      title: "Link expired or invalid",
+      message: (
+        <>
+          This account removal link is invalid or has expired. Please request
+          account removal again from your preferences if you still want to
+          remove your account.
+        </>
+      ),
+    },
   },
   LanguageSwitcher: {
     supportedLanguages: {

@@ -21,6 +21,11 @@ enum EditFormPreference {
   COMPACT
 }
 
+enum TokenType {
+  EMAIL_VERIFICATION
+  ACCOUNT_REMOVAL
+}
+
 // next-auth
 model User {
   id            String    @id @default(uuid(4)) @db.Uuid
@@ -89,6 +94,7 @@ model VerificationToken {
   identifier String
   token      String
   expires    DateTime
+  type       TokenType @default(EMAIL_VERIFICATION)
 
   @@id([identifier, token])
   @@map("verification_token")

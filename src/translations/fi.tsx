@@ -1383,9 +1383,106 @@ const translations: Translations = {
   },
   UserMenu: {
     ownLarps: "Omat larpit",
+    preferences: "Asetukset",
     signIn: "Kirjaudu sisään",
     signOut: "Kirjaudu ulos",
     usernameMissing: "Kirjautunut sisään",
+  },
+  Preferences: {
+    title: "Asetukset",
+    save: "Tallenna",
+    attributes: {
+      name: {
+        label: "Näyttönimi",
+        helpText: (
+          <>
+            Tämä nimi näytetään muille, esimerkiksi larpin pelinjohtajana.
+          </>
+        ),
+      },
+      editFormPreference: {
+        label: "Larpin muokkauslomake",
+        helpText: (
+          <>
+            Tiivis lomake mahtuu yhdelle näytölle ja on nopeampi käyttää, kun
+            olet tottunut siihen. Täysi lomake opastaa ohjeteksteillä.
+          </>
+        ),
+        choices: {
+          FULL: "Täysi lomake",
+          COMPACT: "Tiivis lomake",
+        },
+      },
+      email: {
+        label: "Sähköpostiosoite",
+        helpText: (
+          <>
+            Sähköpostiosoitteesi yhdistää Kompassi-tilisi Larpit.fi-tiliisi. Et
+            voi vaihtaa sitä täällä. Jos vaihdat sähköpostiosoitteesi Kompassi-
+            profiilissasi, pyydä Larpit.fi:n ylläpitäjää yhdistämään
+            Larpit.fi-tilisi uudelleen Kompassi-tiliisi, jos haluat säilyttää
+            sen.
+          </>
+        ),
+      },
+    },
+    dangerZone: {
+      title: "Vaaravyöhyke",
+    },
+    logOutAllSessions: {
+      description: (
+        <>
+          Kirjaudu ulos kaikilta laitteilta ja selaimilta, myös tältä. Käytä
+          tätä, jos epäilet jonkun muun päässeen tilillesi.
+        </>
+      ),
+      submit: "Kirjaa ulos kaikki istunnot",
+      confirmationMessage:
+        "Kirjaudutaanko ulos kaikilta laitteilta, myös tältä?",
+    },
+    accountRemoval: {
+      description: (
+        <>
+          Poista Larpit.fi-tilisi pysyvästi. Vain Larpit.fi-tilisi poistetaan,
+          ei Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota
+          yhteyttä Kompassin tukeen sähköpostitse. Luomiasi larppeja ei poisteta.
+          Jos kirjaudut uudelleen sisään Kompassi-tililläsi, sinulle luodaan uusi
+          Larpit.fi-tili, mutta et saa takaisin pelinjohtaja- tai muita rooleja,
+          jotka sinulla oli ennen poistoa. Turvallisuussyistä poisto edellyttää
+          vahvistusta sähköpostitse.
+        </>
+      ),
+      submit: "Poista käyttäjätili…",
+      confirmationMessage:
+        "Lähetetäänkö vahvistussähköposti tilin poistamiseksi?",
+      emailSent:
+        "Lähetimme sinulle sähköpostin, jossa on linkki tilisi poiston vahvistamiseen. Tarkista sähköpostisi.",
+    },
+  },
+  AccountRemovalPage: {
+    title: "Käyttäjätilin poisto",
+    confirm: {
+      title: "Vahvista käyttäjätilin poisto",
+      message: (
+        <>
+          Tämä poistaa Larpit.fi-tilisi pysyvästi. Vain Larpit.fi-tilisi
+          poistetaan, ei Kompassi-tiliäsi. Luomiasi larppeja ei poisteta. Tätä ei
+          voi perua.
+        </>
+      ),
+      submit: "Poista käyttäjätilini",
+      confirmationMessage:
+        "Poistetaanko Larpit.fi-tilisi pysyvästi? Tätä ei voi perua.",
+    },
+    invalidToken: {
+      title: "Linkki on vanhentunut tai virheellinen",
+      message: (
+        <>
+          Tämä tilinpoistolinkki on virheellinen tai vanhentunut. Pyydä tilin
+          poistoa uudelleen asetuksistasi, jos haluat yhä poistaa tilisi.
+        </>
+      ),
+    },
   },
   LanguageSwitcher: {
     supportedLanguages: {
