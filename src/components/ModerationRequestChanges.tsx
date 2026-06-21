@@ -37,10 +37,15 @@ const FIELDS: { key: keyof ModerationRequestContent; kind: FieldKind }[] = [
 
 interface Props {
   action: EditAction;
-  /// Current content of the larp, or null for a larp being created.
+  /// Pre-edit content of the larp, used only when showOldValues is true.
   oldContent: ModerationRequestContent | null;
   /// The changed (UPDATE) or non-empty (CREATE) fields to display.
   changes: Partial<ModerationRequestContent>;
+  /// Whether to show old → new. Only meaningful while the edit has not been
+  /// applied yet (the larp still represents the pre-edit baseline). For already
+  /// resolved/applied requests the larp has since changed, so we just show the
+  /// values the request set, without a stale "old" column.
+  showOldValues: boolean;
   larpT: Translations["Larp"];
   changesT: Translations["ModerationRequest"]["changes"];
   locale: string;
@@ -56,12 +61,13 @@ export default function ModerationRequestChanges({
   action,
   oldContent,
   changes,
+  showOldValues,
   larpT,
   changesT,
   locale,
   municipalityNames,
 }: Props) {
-  const isCreate = action === EditAction.CREATE || oldContent === null;
+  const isCreate = action === EditAction.CREATE;
 
   const Empty = () => (
     <em className="text-muted">{larpT.attributes.emptyAttribute}</em>
@@ -148,22 +154,24 @@ export default function ModerationRequestChanges({
                     className="border rounded p-2 font-monospace"
                     style={{ whiteSpace: "pre-wrap" }}
                   >
-                    {isCreate ? (
-                      String(newValue ?? "")
-                    ) : (
+                    {showOldValues ? (
                       <TextDiff
                         oldText={String(oldValue ?? "")}
                         newText={String(newValue ?? "")}
                       />
+                    ) : (
+                      String(newValue ?? "")
                     )}
                   </div>
                 </div>
               );
             }
 
-            // For a new larp every field is new, so a neutral, full-width frame
-            // (like a read-only form field) is enough — no need to highlight.
-            if (isCreate) {
+            // When not showing old → new (a new larp, or an already
+            // resolved/applied request whose pre-edit baseline is no longer
+            // available), show just the value the request set, in a neutral,
+            // full-width frame like a read-only form field.
+            if (!showOldValues) {
               return (
                 <div className="mb-3" key={key}>
                   <div className="fw-bold">{title}</div>

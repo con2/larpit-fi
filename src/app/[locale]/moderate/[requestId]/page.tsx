@@ -98,8 +98,18 @@ export default async function ModerationRequestPage({ params }: Props) {
   // Show only what changed: for UPDATE the stored newContent is already a
   // minimal diff against the larp at submission time; for CREATE it holds the
   // non-empty fields. parsePartialContent gives just the present keys.
-  const oldContent = request.larp ? larpToContent(request.larp) : null;
   const changes = parsePartialContent(request.newContent);
+
+  // The larp's current state is a valid "old" baseline only while the edit has
+  // not been applied yet (PENDING_VERIFICATION / VERIFIED). Once a request is
+  // approved, auto-approved, rejected or withdrawn, the larp has since changed,
+  // so showing old → new against the current state would be misleading — we
+  // then show just the values the request set.
+  const showOldValues =
+    !!request.larp &&
+    (request.status === EditStatus.PENDING_VERIFICATION ||
+      request.status === EditStatus.VERIFIED);
+  const oldContent = showOldValues ? larpToContent(request.larp!) : null;
 
   // Resolve municipality ids referenced by the change to display names.
   const municipalityIds = [oldContent?.municipality, changes.municipality].filter(
@@ -310,6 +320,7 @@ export default async function ModerationRequestPage({ params }: Props) {
         action={request.action}
         oldContent={oldContent}
         changes={changes}
+        showOldValues={showOldValues}
         larpT={larpT}
         changesT={t.changes}
         locale={locale}
