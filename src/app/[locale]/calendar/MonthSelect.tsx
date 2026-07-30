@@ -13,16 +13,13 @@ export default function MonthSelect({
   defaultValue: string;
 }) {
   const [jsEnabled, setJsEnabled] = useState(false);
-  const [value, setValue] = useState(defaultValue);
   const nativeRef = useRef<HTMLSelectElement>(null);
 
+  // Replace the native select with react-select after the first render
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setJsEnabled(true);
   }, []);
-
-  useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
 
   function handleChange(opt: SingleValue<Option>) {
     if (!opt || !nativeRef.current) return;
@@ -30,7 +27,7 @@ export default function MonthSelect({
     nativeRef.current.form?.requestSubmit();
   }
 
-  const selectedOption = options.find((o) => o.value === value) ?? null;
+  const selectedOption = options.find((o) => o.value === defaultValue) ?? null;
 
   return (
     <>

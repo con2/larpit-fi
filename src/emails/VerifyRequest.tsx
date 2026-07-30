@@ -1,13 +1,6 @@
 import { formattedMailFrom, privacyPolicyUrl, publicUrl } from "@/config";
 import { toSupportedLanguage } from "@/translations";
-import {
-  Button,
-  Container,
-  Hr,
-  Html,
-  Link,
-  Text,
-} from "@react-email/components";
+import { Button, Container, Hr, Html, Link, Text } from "react-email";
 import * as React from "react";
 
 const signatureSeparator = "-- ";

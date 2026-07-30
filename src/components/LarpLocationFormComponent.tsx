@@ -1,6 +1,5 @@
 import { Larp, Municipality } from "@/generated/prisma/client";
 import prisma from "@/prisma";
-import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
 import {
   Card,
@@ -23,6 +22,8 @@ interface Props {
 function getMunicipalityName(municipality: Municipality, _locale: string) {
   // TODO how should we take into account the locale and language of the larp?
   // A unilingually Swedish municipality under English locale should probably be returned in Swedish?
+  // But we don't have that information here.
+  // Then again, .nameFi may also be in Swedish if no Finnish name exists.
   if (municipality.nameFi) {
     return { language: "fi", name: municipality.nameFi };
   } else if (municipality.nameSv) {
@@ -51,7 +52,6 @@ export default async function LarpLocationFormComponent({
   const municipalities = await prisma.municipality.findMany({
     orderBy: { nameFi: "asc" }, // TODO handle other languages
   });
-  locale = toSupportedLanguage(locale);
 
   return (
     <Card className="mb-4">
@@ -91,7 +91,7 @@ export default async function LarpLocationFormComponent({
               {municipalities.map((municipality) => {
                 const { language, name } = getMunicipalityName(
                   municipality,
-                  locale
+                  locale,
                 );
                 return (
                   <option

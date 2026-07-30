@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import NavDropdown from "react-bootstrap/NavDropdown";
@@ -34,10 +33,8 @@ export default function LanguageSwitcher({ locale, messages }: Props) {
       {Object.entries(supportedLanguages).map(([code, name]) => (
         <NavDropdown.Item
           key={code}
-          as={Link}
           href={`/${code}${pathname}`}
           active={code === locale}
-          prefetch={false}
         >
           {name}
         </NavDropdown.Item>

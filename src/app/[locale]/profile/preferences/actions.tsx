@@ -10,7 +10,7 @@ import { EditFormPreference, TokenType } from "@/generated/prisma/client";
 import { DisplayNameSchema, getUserFromSession } from "@/models/User";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
-import { pretty, render } from "@react-email/render";
+import { pretty, render } from "react-email";
 import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";

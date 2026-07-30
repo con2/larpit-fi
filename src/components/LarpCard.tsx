@@ -13,7 +13,7 @@ import {
   isSignupOver,
 } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
-import Link from "next/link";
+import Link from "@/components/ClientLink";
 import { ReactNode } from "react";
 import {
   Badge,

@@ -26,7 +26,7 @@ import {
 } from "@/helpers/temporal";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
-import { pretty, render } from "@react-email/render";
+import { pretty, render } from "react-email";
 import z from "zod";
 import {
   handleLarpLinks,
