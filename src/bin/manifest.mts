@@ -54,7 +54,7 @@ const nodeServiceName = "node";
 const clusterIssuer = "letsencrypt-prod";
 const tlsSecretName = "ingress-letsencrypt";
 const port = 3000;
-const ingressClassName = "nginx";
+const ingressClassName = "traefik";
 const livenessProbeEnabled = true;
 const smtpHostname = "sr1.pahaip.fi";
 const smtpPort = 25;
@@ -209,14 +209,20 @@ const tls = tlsEnabled
   ? [{ hosts: [hostname], secretName: tlsSecretName }]
   : [];
 
+// The https-redirect middleware must only be attached when TLS is actually configured -
+// see infrastructure/kubernetes/traefik-middlewares.yaml for why this is a per-app
+// opt-in Middleware rather than a global entrypoint redirect (ACME HTTP-01 safety:
+// an entrypoint-level redirect would also catch cert-manager's plain-HTTP solver
+// Ingress, which never gets this annotation).
+const middlewares = tlsEnabled
+  ? "default-https-redirect@kubernetescrd,default-body-1m@kubernetescrd"
+  : "default-body-1m@kubernetescrd";
 const defaultIngressAnnotations = {
-  "nginx.ingress.kubernetes.io/proxy-body-size": "1m",
-  "nginx.org/client-max-body-size": "1m",
+  "traefik.ingress.kubernetes.io/router.middlewares": middlewares,
 };
 const ingressAnnotations = tlsEnabled
   ? {
       "cert-manager.io/cluster-issuer": clusterIssuer,
-      "nginx.ingress.kubernetes.io/ssl-redirect": "true",
       ...defaultIngressAnnotations,
     }
   : defaultIngressAnnotations;
