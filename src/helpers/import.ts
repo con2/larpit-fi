@@ -24,7 +24,9 @@ export function parseUnixTimestamp(
   return new Date(num * 1000).toISOString().slice(0, 10);
 }
 
-export async function loadMunicipalityMapping(): Promise<Record<string, string>> {
+export async function loadMunicipalityMapping(): Promise<
+  Record<string, string>
+> {
   const municipalities = await prisma.municipality.findMany();
   const mapping: Record<string, string> = {};
   for (const municipality of municipalities) {

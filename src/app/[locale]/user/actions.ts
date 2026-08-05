@@ -16,7 +16,7 @@ const SetUserRoleRequestSchema = z.object({
 export async function setUserRole(
   locale: string,
   userId: string,
-  formData: FormData
+  formData: FormData,
 ) {
   const session = await auth();
   const actor = session?.user?.email
@@ -36,7 +36,7 @@ export async function setUserRole(
   }
 
   const { role } = SetUserRoleRequestSchema.parse(
-    Object.fromEntries(formData.entries())
+    Object.fromEntries(formData.entries()),
   );
 
   console.log("AUDIT", "setUserRole", {

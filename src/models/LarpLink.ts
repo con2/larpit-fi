@@ -34,7 +34,9 @@ export function isSafeLinkHref(href: string): boolean {
   }
 }
 
-export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertable[] {
+export function parseIndexedLinksFromFormData(
+  data: FormData,
+): LarpLinkUpsertable[] {
   const count = parseInt((data.get("link_count") as string) || "0");
   const links: LarpLinkUpsertable[] = [];
 
@@ -47,7 +49,8 @@ export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertabl
     const type = (data.get(`link_${i}_type`) as string) || "";
     if (!Object.values(LarpLinkType).includes(type as LarpLinkType)) continue;
 
-    const title = ((data.get(`link_${i}_title`) as string) || "").trim() || undefined;
+    const title =
+      ((data.get(`link_${i}_title`) as string) || "").trim() || undefined;
     links.push({ type: type as LarpLinkType, href, title });
   }
 
@@ -56,7 +59,7 @@ export function parseIndexedLinksFromFormData(data: FormData): LarpLinkUpsertabl
 
 export function diffLarpLinks(
   current: LarpLinkUpsertable[],
-  desired: LarpLinkUpsertable[]
+  desired: LarpLinkUpsertable[],
 ): { addLinks: LarpLinkUpsertable[]; removeLinks: LarpLinkRemovable[] } {
   const key = (l: LarpLinkUpsertable) => `${l.type}:${l.href}:${l.title ?? ""}`;
   const currentKeys = new Set(current.map(key));
@@ -71,7 +74,7 @@ export function diffLarpLinks(
 export async function handleLarpLinks(
   larpId: string,
   addLinks: LarpLinkUpsertable[],
-  removeLinks: LarpLinkRemovable[]
+  removeLinks: LarpLinkRemovable[],
 ) {
   // Title-only edits produce the same (type, href) in both addLinks and
   // removeLinks. Sequence delete-then-create in a transaction so that an
@@ -86,7 +89,7 @@ export async function handleLarpLinks(
           larpId,
           OR: removeLinks.map(({ href, type }) => ({ href, type })),
         },
-      })
+      }),
     );
   }
 
@@ -109,7 +112,7 @@ export async function handleLarpLinks(
             title,
           };
         }),
-      })
+      }),
     );
   }
 

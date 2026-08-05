@@ -11,7 +11,7 @@ export const supportedLanguages: readonly SupportedLanguage[] = [
 export const defaultLanguage: SupportedLanguage = "en";
 
 export function isSupportedLanguage(
-  language?: string
+  language?: string,
 ): language is SupportedLanguage {
   return (
     typeof language === "string" &&

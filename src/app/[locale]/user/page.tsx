@@ -6,7 +6,12 @@ import { canModerate } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
-import { AutoSubmitForm, Column, DataTable, MessageCard } from "@con2/components";
+import {
+  AutoSubmitForm,
+  Column,
+  DataTable,
+  MessageCard,
+} from "@con2/components";
 import { Container, FormLabel, FormSelect } from "react-bootstrap";
 import { setUserRole } from "./actions";
 

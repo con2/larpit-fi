@@ -22,7 +22,7 @@ function getRemovalUrl(token: string) {
 
 export function confirmAccountRemovalText(
   locale: string,
-  token: string
+  token: string,
 ): string {
   locale = toSupportedLanguage(locale);
 
@@ -117,9 +117,9 @@ export function ConfirmAccountRemoval({
               </Button>
             </Text>
             <Text>
-              Huomaa, että vain Larpit.fi-tilisi poistetaan, ei Kompassi-tiliäsi.
-              Jos haluat poistaa myös Kompassi-tilisi, ota yhteyttä Kompassin
-              tukeen sähköpostitse.
+              Huomaa, että vain Larpit.fi-tilisi poistetaan, ei
+              Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota
+              yhteyttä Kompassin tukeen sähköpostitse.
             </Text>
             <Text>
               Jos et tehnyt tätä pyyntöä, voit turvallisesti jättää tämän
@@ -161,13 +161,13 @@ export function ConfirmAccountRemoval({
               </Button>
             </Text>
             <Text>
-              Note that only your Larpit.fi account is removed, not your Kompassi
-              account. If you also want to remove your Kompassi account, please
-              contact Kompassi support by email.
+              Note that only your Larpit.fi account is removed, not your
+              Kompassi account. If you also want to remove your Kompassi
+              account, please contact Kompassi support by email.
             </Text>
             <Text>
-              If you did not make this request, you can safely ignore this email.
-              Your account will not be removed without this confirmation.
+              If you did not make this request, you can safely ignore this
+              email. Your account will not be removed without this confirmation.
             </Text>
             <Text>Yours sincerely</Text>
             <Hr />

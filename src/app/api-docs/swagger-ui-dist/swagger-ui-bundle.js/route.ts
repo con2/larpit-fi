@@ -3,7 +3,9 @@ import { join } from "path";
 import { NextResponse } from "next/server";
 
 export function GET() {
-  const content = readFileSync(join(process.cwd(), "node_modules/swagger-ui-dist/swagger-ui-bundle.js"));
+  const content = readFileSync(
+    join(process.cwd(), "node_modules/swagger-ui-dist/swagger-ui-bundle.js"),
+  );
   return new NextResponse(content, {
     headers: {
       "Content-Type": "application/javascript",

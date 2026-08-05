@@ -84,7 +84,7 @@ export function LarpBasicInfoFormComponent({
                 <option key={key} value={key}>
                   {label}
                 </option>
-              )
+              ),
             )}
           </FormSelect>
           {showHelpText && (
@@ -109,7 +109,7 @@ export function LarpBasicInfoFormComponent({
                 <option key={key} value={key}>
                   {title}
                 </option>
-              )
+              ),
             )}
           </FormSelect>
           {showHelpText && (
@@ -119,7 +119,7 @@ export function LarpBasicInfoFormComponent({
                   <div className="mt-1" key={key}>
                     <strong>{title}:</strong> {description}
                   </div>
-                )
+                ),
               )}
             </FormText>
           )}

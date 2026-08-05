@@ -13,12 +13,20 @@ import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ type?: string[]; language?: string[]; cancelled?: string }>;
+  searchParams: Promise<{
+    type?: string[];
+    language?: string[];
+    cancelled?: string;
+  }>;
 }
 
 const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
 
-async function getData(types: LarpType[], languages: Language[], cancelled: "hide" | "show" | "only") {
+async function getData(
+  types: LarpType[],
+  languages: Language[],
+  cancelled: "hide" | "show" | "only",
+) {
   return prisma.larp.findMany({
     where: {
       type: {
@@ -27,7 +35,11 @@ async function getData(types: LarpType[], languages: Language[], cancelled: "hid
       language: {
         in: languages,
       },
-      ...(cancelled === "hide" ? { isCancelled: false } : cancelled === "only" ? { isCancelled: true } : {}),
+      ...(cancelled === "hide"
+        ? { isCancelled: false }
+        : cancelled === "only"
+          ? { isCancelled: true }
+          : {}),
     },
     include: {
       municipality: {
@@ -94,7 +106,11 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   const t = translations.Larp;
 
   const filters = getLarpFilters(t);
-  const { type: typesParam, language: languagesParam, cancelled: cancelledParam } = await searchParams;
+  const {
+    type: typesParam,
+    language: languagesParam,
+    cancelled: cancelledParam,
+  } = await searchParams;
 
   const types = parseSearchParam(typesParam, {
     defaults: defaultTypes,
@@ -109,7 +125,9 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   });
 
   const cancelled: "hide" | "show" | "only" =
-    cancelledParam === "show" || cancelledParam === "only" ? cancelledParam : "hide";
+    cancelledParam === "show" || cancelledParam === "only"
+      ? cancelledParam
+      : "hide";
 
   const [larps, totalCount] = await Promise.all([
     getData(types, languages, cancelled),

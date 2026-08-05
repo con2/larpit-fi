@@ -22,7 +22,7 @@ function getVerificationUrl(verificationCode: string) {
 
 export function verifyRequestText(
   locale: string,
-  verificationCode: string
+  verificationCode: string,
 ): string {
   locale = toSupportedLanguage(locale);
 

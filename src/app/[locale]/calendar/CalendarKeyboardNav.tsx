@@ -14,7 +14,12 @@ export default function CalendarKeyboardNav({
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLSelectElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
       if (e.key === "ArrowLeft") router.push(prevHref);
       if (e.key === "ArrowRight") router.push(nextHref);
     }

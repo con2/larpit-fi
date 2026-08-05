@@ -34,7 +34,11 @@ export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
   return (
     <SessionProviderWrapper>
-      <html lang={locale} className={geist.variable} data-scroll-behavior="smooth">
+      <html
+        lang={locale}
+        className={geist.variable}
+        data-scroll-behavior="smooth"
+      >
         <body>
           <Navigation locale={locale} />
           <main>{children}</main>

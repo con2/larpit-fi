@@ -143,7 +143,9 @@ export default function LarpLinksManager({
     <Card className="mb-4">
       <CardBody>
         <CardTitle>{tSection.title}</CardTitle>
-        {!compact && tSection.message && <div className="mb-3">{tSection.message}</div>}
+        {!compact && tSection.message && (
+          <div className="mb-3">{tSection.message}</div>
+        )}
         <input type="hidden" name="link_count" value={rows.length} />
         {rows.length > 0 && (
           <Table size="sm" className="mb-2 align-middle">
@@ -215,7 +217,11 @@ export default function LarpLinksManager({
                         disabled={isRemoved}
                         required={titleRequired}
                         size="sm"
-                        placeholder={titleRequired ? t.titleRequiredPlaceholder : t.titlePlaceholder}
+                        placeholder={
+                          titleRequired
+                            ? t.titleRequiredPlaceholder
+                            : t.titlePlaceholder
+                        }
                       />
                     </td>
                     <td className="text-nowrap">

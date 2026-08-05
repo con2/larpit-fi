@@ -120,9 +120,10 @@ export default async function ModerationRequestPage({ params }: Props) {
   const oldContent = showOldValues ? larpToContent(request.larp!) : null;
 
   // Resolve municipality ids referenced by the change to display names.
-  const municipalityIds = [oldContent?.municipality, changes.municipality].filter(
-    (id): id is string => !!id,
-  );
+  const municipalityIds = [
+    oldContent?.municipality,
+    changes.municipality,
+  ].filter((id): id is string => !!id);
   const municipalities =
     municipalityIds.length > 0
       ? await prisma.municipality.findMany({
@@ -178,10 +179,19 @@ export default async function ModerationRequestPage({ params }: Props) {
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
   // Old removeLinks records may lack `type`; degrade gracefully by dropping unparseable entries
-  const removeLinks = z.array(LarpLinkRemovable).catch([]).parse(request.removeLinks);
+  const removeLinks = z
+    .array(LarpLinkRemovable)
+    .catch([])
+    .parse(request.removeLinks);
 
-  const addRelatedLarps = z.array(RelatedLarpAddable).catch([]).parse(request.addRelatedLarps);
-  const removeRelatedLarps = z.array(RelatedLarpRemovable).catch([]).parse(request.removeRelatedLarps);
+  const addRelatedLarps = z
+    .array(RelatedLarpAddable)
+    .catch([])
+    .parse(request.addRelatedLarps);
+  const removeRelatedLarps = z
+    .array(RelatedLarpRemovable)
+    .catch([])
+    .parse(request.removeRelatedLarps);
 
   // Collect all referenced larp IDs (other than the request's own larp) to look up names
   const referencedLarpIds = [
@@ -402,7 +412,10 @@ export default async function ModerationRequestPage({ params }: Props) {
             <CardTitle>{t.attributes.addRelatedLarps.title}</CardTitle>
             <dl>
               {addRelatedLarps.map((rel) => {
-                const otherLarp = larpById[rel.leftId === request.larpId ? rel.rightId : rel.leftId];
+                const otherLarp =
+                  larpById[
+                    rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                  ];
                 const typeLabel =
                   rel.leftId === request.larpId
                     ? larpT.attributes.leftRelatedLarps.types[rel.type]
@@ -412,11 +425,16 @@ export default async function ModerationRequestPage({ params }: Props) {
                     <dt>{typeLabel || rel.type}</dt>
                     <dd>
                       {otherLarp ? (
-                        <Link href={getLarpHref(otherLarp)} className="link-subtle">
+                        <Link
+                          href={getLarpHref(otherLarp)}
+                          className="link-subtle"
+                        >
                           {otherLarp.name}
                         </Link>
+                      ) : rel.leftId === request.larpId ? (
+                        rel.rightId
                       ) : (
-                        rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                        rel.leftId
                       )}
                     </dd>
                   </Fragment>
@@ -433,7 +451,10 @@ export default async function ModerationRequestPage({ params }: Props) {
             <CardTitle>{t.attributes.removeRelatedLarps.title}</CardTitle>
             <dl>
               {removeRelatedLarps.map((rel) => {
-                const otherLarp = larpById[rel.leftId === request.larpId ? rel.rightId : rel.leftId];
+                const otherLarp =
+                  larpById[
+                    rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                  ];
                 const typeLabel =
                   rel.leftId === request.larpId
                     ? larpT.attributes.leftRelatedLarps.types[rel.type]
@@ -443,11 +464,16 @@ export default async function ModerationRequestPage({ params }: Props) {
                     <dt>{typeLabel || rel.type}</dt>
                     <dd>
                       {otherLarp ? (
-                        <Link href={getLarpHref(otherLarp)} className="link-subtle">
+                        <Link
+                          href={getLarpHref(otherLarp)}
+                          className="link-subtle"
+                        >
                           {otherLarp.name}
                         </Link>
+                      ) : rel.leftId === request.larpId ? (
+                        rel.rightId
                       ) : (
-                        rel.leftId === request.larpId ? rel.rightId : rel.leftId
+                        rel.leftId
                       )}
                     </dd>
                   </Fragment>

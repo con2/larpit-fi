@@ -4,12 +4,12 @@
 
 ## Technologies used
 
-* PostgreSQL
-* Node.js
-* TypeScript
-* Next.js
-* React
-* Prisma.io
+- PostgreSQL
+- Node.js
+- TypeScript
+- Next.js
+- React
+- Prisma.io
 
 ## Getting started
 
@@ -43,7 +43,9 @@ Create the database beforehand with the `createdb` command to get strings to sor
 createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi-FI --template template0 larpit
 createdb --locale-provider icu --locale fi_FI.UTF-8 --icu-locale fi-FI --template template0 larpit_test
 ```
+
 or via `psql`
+
 ```sql
 create database larpit
 locale_provider icu
@@ -89,7 +91,7 @@ See above for creating the `larpit_test` database.
 - [x] Import kalenteri.larp.fi content
 - [x] Import Epel Larp content
 - [ ] Enhanced moderation (show what was changed)
-  - [X] In `ModerationRequest`, only include changed fields in `newContent`
+  - [x] In `ModerationRequest`, only include changed fields in `newContent`
   - [ ] Diff UI
 - [x] Related larps
   - [X] DB model

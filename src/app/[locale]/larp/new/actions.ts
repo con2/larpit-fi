@@ -18,7 +18,7 @@ const acceptableFelines = ["cat", "kissa", "katt"] as const;
 
 export async function createLarp(
   locale: string,
-  data: FormData
+  data: FormData,
 ): Promise<void> {
   const session = await auth();
   const user = session?.user?.email
@@ -81,7 +81,7 @@ export async function createLarp(
   const reason =
     status === EditStatus.APPROVED
       ? fi.ModerationRequest.messages.approvedAutomaticallyBecauseUserIs(
-          user.role
+          user.role,
         )
       : null;
   const larp = await approveRequest(request, user, reason, status);

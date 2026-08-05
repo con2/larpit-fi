@@ -38,7 +38,10 @@ function foldLine(line: string): string {
 
 /** Format a Date as an iCalendar UTC timestamp: YYYYMMDDTHHMMSSZ */
 function formatUtc(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 }
 
 const cancelledPrefix: Record<string, string> = {
@@ -83,16 +86,16 @@ export async function GET(request: Request) {
     if (!larp.startsAt) continue;
 
     const startDate = toPlainDate(larp.startsAt);
-    const endDate = larp.endsAt ? toPlainDate(larp.endsAt).add({ days: 1 }) : startDate.add({ days: 1 });
+    const endDate = larp.endsAt
+      ? toPlainDate(larp.endsAt).add({ days: 1 })
+      : startDate.add({ days: 1 });
     const url = `${publicUrl}${getLarpHref(larp)}`;
 
     const locationParts = [larp.locationText, larp.municipality?.nameFi].filter(
       Boolean,
     );
 
-    const summary = larp.isCancelled
-      ? `[${prefix}] ${larp.name}`
-      : larp.name;
+    const summary = larp.isCancelled ? `[${prefix}] ${larp.name}` : larp.name;
 
     lines.push("BEGIN:VEVENT");
     lines.push(foldLine(`UID:${larp.id}@larpit.fi`));
@@ -100,8 +103,12 @@ export async function GET(request: Request) {
     lines.push(foldLine(`DTSTAMP:${formatUtc(now)}`));
     lines.push(foldLine(`LAST-MODIFIED:${formatUtc(larp.updatedAt)}`));
     if (larp.isCancelled) lines.push("STATUS:CANCELLED");
-    lines.push(foldLine(`DTSTART;VALUE=DATE:${startDate.toString().replace(/-/g, "")}`));
-    lines.push(foldLine(`DTEND;VALUE=DATE:${endDate.toString().replace(/-/g, "")}`));
+    lines.push(
+      foldLine(`DTSTART;VALUE=DATE:${startDate.toString().replace(/-/g, "")}`),
+    );
+    lines.push(
+      foldLine(`DTEND;VALUE=DATE:${endDate.toString().replace(/-/g, "")}`),
+    );
     lines.push(foldLine(`SUMMARY:${escapeText(summary)}`));
 
     if (larp.tagline) {

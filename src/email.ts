@@ -7,7 +7,7 @@ export async function sendEmail(
   to: string | string[],
   subject: string,
   text: string,
-  html: string
+  html: string,
 ): Promise<void> {
   if (!nodemailerConfig.host) {
     if (nodeEnv === "production") {

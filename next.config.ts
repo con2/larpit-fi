@@ -5,8 +5,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   transpilePackages: ["@con2/components"],
   outputFileTracingIncludes: {
-    "/api-docs/swagger-ui-dist/swagger-ui-bundle.js": ["./node_modules/swagger-ui-dist/swagger-ui-bundle.js"],
-    "/api-docs/swagger-ui-dist/swagger-ui.css": ["./node_modules/swagger-ui-dist/swagger-ui.css"],
+    "/api-docs/swagger-ui-dist/swagger-ui-bundle.js": [
+      "./node_modules/swagger-ui-dist/swagger-ui-bundle.js",
+    ],
+    "/api-docs/swagger-ui-dist/swagger-ui.css": [
+      "./node_modules/swagger-ui-dist/swagger-ui.css",
+    ],
   },
   sassOptions: {
     // bootstrap

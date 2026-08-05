@@ -4,7 +4,12 @@ import type {
   RelatedUser,
   User,
 } from "@/generated/prisma/client";
-import { EditAction, EditStatus, RelatedUserRole, SubmitterRole } from "@/generated/prisma/client";
+import {
+  EditAction,
+  EditStatus,
+  RelatedUserRole,
+  SubmitterRole,
+} from "@/generated/prisma/client";
 import {
   approveRequest,
   larpToContent,
@@ -102,7 +107,12 @@ export type ImportAction =
       name: string;
       fields: Partial<ModerationRequestContent>;
     }
-  | { kind: "skip"; name: string; reason: "ambiguous_match"; candidates: number }
+  | {
+      kind: "skip";
+      name: string;
+      reason: "ambiguous_match";
+      candidates: number;
+    }
   | { kind: "skip"; name: string; reason: "already_complete" };
 
 function isFieldEmpty(value: unknown): boolean {

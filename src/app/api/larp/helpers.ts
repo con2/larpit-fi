@@ -11,10 +11,15 @@ export function larpToApi<
     municipality: { nameFi: string | null } | null;
   },
 >(
-  larp: T
+  larp: T,
 ): Omit<
   T,
-  "startsAt" | "endsAt" | "signupStartsAt" | "signupEndsAt" | "updatedAt" | "municipality"
+  | "startsAt"
+  | "endsAt"
+  | "signupStartsAt"
+  | "signupEndsAt"
+  | "updatedAt"
+  | "municipality"
 > & {
   createdAt: string;
   startsAt: string | null;

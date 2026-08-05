@@ -22,7 +22,7 @@ export type RelatedLarpRemovable = z.infer<typeof RelatedLarpRemovable>;
 
 export async function handleRelatedLarps(
   add: RelatedLarpAddable[],
-  remove: RelatedLarpRemovable[]
+  remove: RelatedLarpRemovable[],
 ) {
   const promises: Promise<unknown>[] = [];
 
@@ -32,7 +32,7 @@ export async function handleRelatedLarps(
         where: { leftId_rightId: { leftId, rightId } },
         create: { leftId, rightId, type },
         update: { type },
-      })
+      }),
     );
   }
 
@@ -42,7 +42,7 @@ export async function handleRelatedLarps(
         where: {
           OR: remove.map(({ leftId, rightId }) => ({ leftId, rightId })),
         },
-      })
+      }),
     );
   }
 

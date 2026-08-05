@@ -62,7 +62,9 @@ describe("ModerationRequest integration tests", () => {
           name: "My Larp",
           tagline: "A tagline",
         },
-        addLinks: [{ type: LarpLinkType.HOMEPAGE, href: "https://example.com" }],
+        addLinks: [
+          { type: LarpLinkType.HOMEPAGE, href: "https://example.com" },
+        ],
       },
     });
 
@@ -94,7 +96,10 @@ describe("ModerationRequest integration tests", () => {
         tagline: "Original tagline",
         description: "Original description",
         links: {
-          create: { type: LarpLinkType.HOMEPAGE, href: "https://old.example.com" },
+          create: {
+            type: LarpLinkType.HOMEPAGE,
+            href: "https://old.example.com",
+          },
         },
       },
     });
@@ -108,8 +113,12 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterRole: SubmitterRole.NONE,
         newContent: { name: "New Name" },
-        addLinks: [{ type: LarpLinkType.PHOTOS, href: "https://photos.example.com" }],
-        removeLinks: [{ type: LarpLinkType.HOMEPAGE, href: "https://old.example.com" }],
+        addLinks: [
+          { type: LarpLinkType.PHOTOS, href: "https://photos.example.com" },
+        ],
+        removeLinks: [
+          { type: LarpLinkType.HOMEPAGE, href: "https://old.example.com" },
+        ],
       },
     });
 
@@ -233,8 +242,12 @@ describe("ModerationRequest integration tests", () => {
 
   it("approveUpdateLarpRequest with addRelatedLarps creates the relation", async () => {
     const user = await prisma.user.create({ data: testUser });
-    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
-    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+    const larpA = await prisma.larp.create({
+      data: { name: "Larp A", language: Language.fi },
+    });
+    const larpB = await prisma.larp.create({
+      data: { name: "Larp B", language: Language.fi },
+    });
 
     const request = await prisma.moderationRequest.create({
       data: {
@@ -245,7 +258,9 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterRole: SubmitterRole.NONE,
         newContent: {},
-        addRelatedLarps: [{ leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SEQUEL }],
+        addRelatedLarps: [
+          { leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SEQUEL },
+        ],
       },
     });
 
@@ -259,11 +274,19 @@ describe("ModerationRequest integration tests", () => {
 
   it("approveUpdateLarpRequest with removeRelatedLarps removes the relation", async () => {
     const user = await prisma.user.create({ data: testUser });
-    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
-    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+    const larpA = await prisma.larp.create({
+      data: { name: "Larp A", language: Language.fi },
+    });
+    const larpB = await prisma.larp.create({
+      data: { name: "Larp B", language: Language.fi },
+    });
 
     await prisma.relatedLarp.create({
-      data: { leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SPINOFF },
+      data: {
+        leftId: larpA.id,
+        rightId: larpB.id,
+        type: RelatedLarpType.SPINOFF,
+      },
     });
 
     const request = await prisma.moderationRequest.create({
@@ -275,7 +298,13 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterRole: SubmitterRole.NONE,
         newContent: {},
-        removeRelatedLarps: [{ leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SPINOFF }],
+        removeRelatedLarps: [
+          {
+            leftId: larpA.id,
+            rightId: larpB.id,
+            type: RelatedLarpType.SPINOFF,
+          },
+        ],
       },
     });
 
@@ -289,12 +318,20 @@ describe("ModerationRequest integration tests", () => {
 
   it("approveUpdateLarpRequest allows (A,B) and (B,A) relations to coexist", async () => {
     const user = await prisma.user.create({ data: testUser });
-    const larpA = await prisma.larp.create({ data: { name: "Larp A", language: Language.fi } });
-    const larpB = await prisma.larp.create({ data: { name: "Larp B", language: Language.fi } });
+    const larpA = await prisma.larp.create({
+      data: { name: "Larp A", language: Language.fi },
+    });
+    const larpB = await prisma.larp.create({
+      data: { name: "Larp B", language: Language.fi },
+    });
 
     // Create (A → B) as SEQUEL
     await prisma.relatedLarp.create({
-      data: { leftId: larpA.id, rightId: larpB.id, type: RelatedLarpType.SEQUEL },
+      data: {
+        leftId: larpA.id,
+        rightId: larpB.id,
+        type: RelatedLarpType.SEQUEL,
+      },
     });
 
     // Request to add (B → A) as RERUN_OF — a different direction, should be allowed
@@ -307,7 +344,13 @@ describe("ModerationRequest integration tests", () => {
         submitterEmail: user.email,
         submitterRole: SubmitterRole.NONE,
         newContent: {},
-        addRelatedLarps: [{ leftId: larpB.id, rightId: larpA.id, type: RelatedLarpType.RERUN_OF }],
+        addRelatedLarps: [
+          {
+            leftId: larpB.id,
+            rightId: larpA.id,
+            type: RelatedLarpType.RERUN_OF,
+          },
+        ],
       },
     });
 
@@ -367,7 +410,12 @@ describe("ModerationRequest integration tests", () => {
       },
     });
 
-    const result = await approveCreateLarpRequest(request, user, null, "APPROVED");
+    const result = await approveCreateLarpRequest(
+      request,
+      user,
+      null,
+      "APPROVED",
+    );
     const larp = await prisma.larp.findUnique({ where: { id: result.id } });
     expect(larp?.updateCount).toBe(0);
   });

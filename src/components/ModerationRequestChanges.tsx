@@ -217,13 +217,7 @@ export default function ModerationRequestChanges({
   );
 }
 
-function TextDiff({
-  oldText,
-  newText,
-}: {
-  oldText: string;
-  newText: string;
-}) {
+function TextDiff({ oldText, newText }: { oldText: string; newText: string }) {
   const parts = diffWords(oldText, newText);
   return (
     <>

@@ -11,7 +11,7 @@ export async function putPage(
   locale: string,
   slug: string,
   language: string,
-  formData: FormData
+  formData: FormData,
 ) {
   const session = await auth();
   const user = await getUserFromSession(session);

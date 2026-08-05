@@ -4,7 +4,7 @@ This file provides guidance to AI agents when working with code in this reposito
 
 ## Terminology
 
-* _larp_ is both a countable noun (meaning a single larp event or "game") and uncountable noun (meaning larp as a hobby and form of art). Do not treat it as an acronym.
+- _larp_ is both a countable noun (meaning a single larp event or "game") and uncountable noun (meaning larp as a hobby and form of art). Do not treat it as an acronym.
 
 ## Commands
 
@@ -17,11 +17,13 @@ npm run email:dev    # Email template preview on port 3159
 ```
 
 To run a single test file:
+
 ```bash
 npx vitest run src/models/ModerationRequest.integration.test.ts
 ```
 
 Database:
+
 ```bash
 npm run db:migrate   # Deploy pending migrations
 npm run db:reset     # Reset and re-run all migrations
@@ -64,11 +66,11 @@ Paths containing braces, such as `src/app/[locale]/page.tsx`, need to be quoted 
 
 ## Important caveats
 
-* If you start adding municipalities outside Finland to the `Municipality` model, there is a hard-coded country in `LarpJsonLd` that you need to fix to come from the `Country` model. The concept of municipality may also not transfer as-is to other countries.
+- If you start adding municipalities outside Finland to the `Municipality` model, there is a hard-coded country in `LarpJsonLd` that you need to fix to come from the `Country` model. The concept of municipality may also not transfer as-is to other countries.
 
 ## Worktree use
 
 When working in a Git worktree:
 
-* USE `PORT=30xx` to avoid colliding with the main working copy that uses `PORT=3000`. Select `xx` randomly.
-* For now, the database is shared between worktrees for realistic test data. Warn me about doing schema changes in a worktree.
+- USE `PORT=30xx` to avoid colliding with the main working copy that uses `PORT=3000`. Select `xx` randomly.
+- For now, the database is shared between worktrees for realistic test data. Warn me about doing schema changes in a worktree.

@@ -8,7 +8,10 @@ import {
   RelatedUserRole,
 } from "@/generated/prisma/client";
 import { normalizeFormData } from "@con2/components/helpers";
-import { diffLarpLinks, parseIndexedLinksFromFormData } from "@/models/LarpLink";
+import {
+  diffLarpLinks,
+  parseIndexedLinksFromFormData,
+} from "@/models/LarpLink";
 import {
   approveRequest,
   diffLarpContent,
@@ -58,7 +61,14 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
 
   const { name: submitterName, email: submitterEmail } = user;
   // Destructure out all form-specific fields; remainder is already-transformed ModerationRequestContent
-  const { submitterRole, message, cat: _cat, submitterName: _sn, submitterEmail: _se, ...newContent } = larpForm;
+  const {
+    submitterRole,
+    message,
+    cat: _cat,
+    submitterName: _sn,
+    submitterEmail: _se,
+    ...newContent
+  } = larpForm;
 
   if (!submitterName || !submitterEmail) {
     throw new Error("Missing submitter information");
@@ -100,7 +110,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const reason =
     status === EditStatus.APPROVED
       ? fi.ModerationRequest.messages.approvedAutomaticallyBecauseUserIs(
-          user.role
+          user.role,
         )
       : null;
   await approveRequest(request, user, reason, status);
@@ -112,7 +122,7 @@ export async function setEditFormPreference(
   locale: string,
   larpId: string,
   preference: EditFormPreference,
-  _formData: FormData
+  _formData: FormData,
 ) {
   const session = await auth();
   const user = session?.user?.email

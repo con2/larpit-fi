@@ -26,7 +26,7 @@ function toISODateEmpty(
     | Date
     | string
     | null
-    | undefined
+    | undefined,
 ): string {
   if (!date) return "";
   return toPlainDate(date).toString();

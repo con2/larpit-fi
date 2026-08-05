@@ -36,7 +36,7 @@ function toISODateEmpty(
     | Date
     | string
     | null
-    | undefined
+    | undefined,
 ): string {
   if (!date) return "";
   return toPlainDate(date).toString();
@@ -76,7 +76,7 @@ export function LarpSignupInfoFormComponent({
                 <option key={key} value={key}>
                   {title}: {description}
                 </option>
-              )
+              ),
             )}
           </FormSelect>
           {showHelpText && (
