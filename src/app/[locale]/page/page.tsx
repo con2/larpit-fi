@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
-import { Column, DataTable } from "@/components/DataTable";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
+import { Column, DataTable, MessageCard } from "@con2/components";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -30,12 +29,18 @@ export default async function PagesPage({ params }: Props) {
   if (!user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }
   if (!canEditPages(user)) {
-    return <InsufficientPrivileges messages={translations.AdminRequired} />;
+    return (
+      <MessageCard
+        title={translations.AdminRequired.title}
+        message={translations.AdminRequired.message}
+        container
+      />
+    );
   }
 
   const pages = await getData();

@@ -1,5 +1,5 @@
 import { Larp } from "@/generated/prisma/client";
-import { toPlainDate } from "@/helpers/temporal";
+import { toPlainDate } from "@con2/components/helpers";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
 import {

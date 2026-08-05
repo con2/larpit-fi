@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
 import MainHeading from "@/components/MainHeading";
-import Markdown from "@/components/Markdown";
 import { Page } from "@/generated/prisma/client";
 import { canEditPages } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import { Markdown } from "@con2/components";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardBody, Container } from "react-bootstrap";

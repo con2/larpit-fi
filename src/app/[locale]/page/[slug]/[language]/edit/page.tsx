@@ -1,10 +1,9 @@
 import { auth } from "@/auth";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import MainHeading from "@/components/MainHeading";
-import SubmitButton from "@/components/SubmitButton";
 import { canEditPages } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import { MessageCard, SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -46,7 +45,13 @@ export default async function PageWithLanguagePage({ params }: Props) {
     : null;
 
   if (!canEditPages(user)) {
-    return <InsufficientPrivileges messages={translations.AdminRequired} />;
+    return (
+      <MessageCard
+        title={translations.AdminRequired.title}
+        message={translations.AdminRequired.message}
+        container
+      />
+    );
   }
 
   return (

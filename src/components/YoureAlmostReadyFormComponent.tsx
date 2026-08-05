@@ -6,8 +6,8 @@ import {
   FormLabel,
   FormText,
 } from "react-bootstrap";
-import SubmitButton from "./SubmitButton";
 import type { Translations } from "@/translations/en";
+import { SubmitButton } from "@con2/components";
 
 interface Props {
   user: { email: string } | null;

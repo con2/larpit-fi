@@ -2,8 +2,7 @@
 
 import { auth } from "@/auth";
 import { EditAction, EditStatus } from "@/generated/prisma/client";
-import compactObject from "@/helpers/compactObject";
-import { normalizeFormData } from "@/helpers/normalizeFormData";
+import { compactObject, normalizeFormData } from "@con2/components/helpers";
 import { parseIndexedLinksFromFormData } from "@/models/LarpLink";
 import {
   approveRequest,

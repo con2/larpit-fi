@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import SubmitButton from "@/components/SubmitButton";
 import { displayNameMaxLength } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import { SubmitButton } from "@con2/components";
 import {
   Alert,
   Card,
@@ -17,7 +18,6 @@ import {
   FormSelect,
   FormText,
 } from "react-bootstrap";
-import LoginRequired from "@/components/LoginRequired";
 import {
   logOutAllSessions,
   requestAccountRemoval,
@@ -45,7 +45,7 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
   if (!user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }

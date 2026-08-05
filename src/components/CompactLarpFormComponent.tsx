@@ -1,5 +1,5 @@
 import { Larp, LarpType } from "@/generated/prisma/client";
-import { toPlainDate } from "@/helpers/temporal";
+import { toPlainDate } from "@con2/components/helpers";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormSelect,
 } from "react-bootstrap";
-import TextArea from "./TextArea";
+import { TextArea } from "@con2/components";
 
 interface Props {
   translations: Translations;
@@ -332,6 +332,7 @@ export default async function CompactLarpFormComponent({
               rows={5}
               defaultValue={larp?.fluffText || ""}
               maxLength={2000}
+              locale={locale}
             />
           </div>
 
@@ -348,6 +349,7 @@ export default async function CompactLarpFormComponent({
               rows={5}
               defaultValue={larp?.description || ""}
               maxLength={2000}
+              locale={locale}
             />
           </div>
         </CardBody>

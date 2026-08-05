@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormText,
 } from "react-bootstrap";
-import TextArea from "./TextArea";
+import { TextArea } from "@con2/components";
 
 interface Props {
   translations: Translations;
@@ -19,6 +19,7 @@ interface Props {
 
 export function LarpPageContentFormComponent({
   translations,
+  locale,
   larp,
   readOnly,
   compact,
@@ -46,6 +47,7 @@ export function LarpPageContentFormComponent({
             defaultValue={larp?.fluffText || ""}
             readOnly={readOnly}
             maxLength={2000}
+            locale={locale}
           />
           {showHelpText && (
             <FormText>{t.attributes.fluffText.helpText}</FormText>
@@ -62,6 +64,7 @@ export function LarpPageContentFormComponent({
             defaultValue={larp?.description || ""}
             readOnly={readOnly}
             maxLength={2000}
+            locale={locale}
           />
           {showHelpText && (
             <FormText>{t.attributes.description.helpText}</FormText>

@@ -10,7 +10,7 @@ import {
   larpToContent,
   ModerationRequestContent,
 } from "./ModerationRequest";
-import { fromMorningNull } from "@/helpers/temporal";
+import { fromMorningNull } from "@con2/components/helpers";
 import prisma from "@/prisma";
 import { publicUrl } from "@/config";
 

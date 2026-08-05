@@ -1,6 +1,5 @@
-import DataTable, { Column } from "@/components/DataTable";
-import { DimensionFilters } from "@/components/DimensionFilters";
 import MainHeading from "@/components/MainHeading";
+import { Column, DataTable, DimensionFilters } from "@con2/components";
 import { Language, LarpType } from "@/generated/prisma/client";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
@@ -508,7 +507,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <div className="text-center mb-4">{t.message}</div>
-      <DimensionFilters className="mb-4" dimensions={filters} />
+      <DimensionFilters className="mb-4" dimensions={filters} locale={locale} />
       <Report
         title={t.reports.type.title}
         rows={typeRows}

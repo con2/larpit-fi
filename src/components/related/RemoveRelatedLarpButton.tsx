@@ -1,7 +1,7 @@
 import { RelatedLarpType } from "@/generated/prisma/enums";
 import { type Translations } from "@/translations/en";
 import { removeRelatedLarp } from "./actions";
-import SubmitButton from "../SubmitButton";
+import { SubmitButton } from "@con2/components";
 
 export default function RemoveRelatedLarpButton({
   locale,

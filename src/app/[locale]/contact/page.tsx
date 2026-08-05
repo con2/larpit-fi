@@ -5,10 +5,10 @@ import {
   ProfileLink,
 } from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
-import SubmitButton from "@/components/SubmitButton";
 import { getUserFromSession } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import { SubmitButton } from "@con2/components";
 import {
   Card,
   CardBody,

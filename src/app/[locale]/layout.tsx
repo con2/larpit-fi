@@ -12,6 +12,7 @@ const geist = Geist({
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import { getTranslations } from "@/translations";
 import "./globals.scss";
+import "@con2/components/icons/material-symbol.css";
 
 interface Props {
   children: ReactNode;

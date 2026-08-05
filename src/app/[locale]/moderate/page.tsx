@@ -1,11 +1,15 @@
 import { auth } from "@/auth";
-import { Column, DataTable, TableFooter } from "@/components/DataTable";
-import FormattedDateTime from "@/components/FormattedDateTime";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { EditAction, EditStatus } from "@/generated/prisma/client";
-import { uuid7ToZonedDateTime } from "@/helpers/temporal";
+import {
+  Column,
+  DataTable,
+  FormattedDateTime,
+  MessageCard,
+  TableFooter,
+} from "@con2/components";
+import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
@@ -29,7 +33,7 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   if (!session?.user?.email) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }
@@ -44,7 +48,13 @@ export default async function ModerationPage({ params, searchParams }: Props) {
     },
   });
   if (!canModerate(user)) {
-    return <InsufficientPrivileges messages={translations.ModeratorRequired} />;
+    return (
+      <MessageCard
+        title={translations.ModeratorRequired.title}
+        message={translations.ModeratorRequired.message}
+        container
+      />
+    );
   }
 
   let { status: statuses } = await searchParams;

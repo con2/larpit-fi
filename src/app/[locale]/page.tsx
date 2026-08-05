@@ -1,10 +1,10 @@
 import LarpCard from "@/components/LarpCard";
-import Markdown from "@/components/Markdown";
 import { LarpType, Openness } from "@/generated/prisma/client";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
+import { Markdown } from "@con2/components";
 import Link from "next/link";
 import { CardBody, FormText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";

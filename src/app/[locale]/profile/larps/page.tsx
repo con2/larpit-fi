@@ -1,16 +1,16 @@
 import { auth } from "@/auth";
-import { DimensionFilters } from "@/components/DimensionFilters";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { LarpRow } from "@/components/LarpTable";
 import { LarpType, RelatedUserRole } from "@/generated/prisma/client";
-import {
-  parseSearchParam,
-  createEnumValidator,
-} from "@/helpers/parseSearchParam";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
+import { DimensionFilters } from "@con2/components";
+import {
+  parseSearchParam,
+  createEnumValidator,
+} from "@con2/components/helpers";
 import { Container } from "react-bootstrap";
 import OwnLarpsTableClient from "./OwnLarpsTableClient";
 
@@ -163,7 +163,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   if (!user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }
@@ -195,7 +195,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   return (
     <Container>
       <MainHeading>{t.title}</MainHeading>
-      <DimensionFilters dimensions={filters} />
+      <DimensionFilters dimensions={filters} locale={locale} />
       <OwnLarpsTableClient
         larps={larps}
         messages={translations.Larp.clientAttributes}

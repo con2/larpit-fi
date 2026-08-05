@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import SubmitButton from "@/components/SubmitButton";
 import { getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
+import { SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -58,7 +58,7 @@ export default async function DeleteLarpPage({ params }: Props) {
   if (!session || !user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }

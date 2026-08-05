@@ -1,16 +1,16 @@
 import MainHeading from "@/components/MainHeading";
-import MaybeExternalLink from "@/components/MaybeExternalLink";
 import { publicUrl, timezone } from "@/config";
 import { toSupportedLanguage } from "@/i18n/locales";
 import { getLarpHref } from "@/models/Larp.client";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import { MaybeExternalLink } from "@con2/components";
+import { toISODate } from "@con2/components/helpers";
 import { Temporal } from "@js-temporal/polyfill";
 import Link from "next/link";
 import { Container, Table } from "react-bootstrap";
 import CalendarKeyboardNav from "./CalendarKeyboardNav";
 import MonthSelect from "./MonthSelect";
-import { toISODate } from "@/helpers/temporal";
 
 interface Props {
   params: Promise<{ locale: string }>;

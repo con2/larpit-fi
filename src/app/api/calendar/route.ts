@@ -1,6 +1,6 @@
 import { publicUrl } from "@/config";
 import { getLarpHref } from "@/models/Larp.client";
-import { toPlainDate } from "@/helpers/temporal";
+import { toPlainDate } from "@con2/components/helpers";
 import prisma from "@/prisma";
 
 const encoder = new TextEncoder();

@@ -23,7 +23,7 @@ import {
   fromMorningNull,
   toPlainDateNull,
   zPlainDateNull,
-} from "@/helpers/temporal";
+} from "@con2/components/helpers";
 import prisma from "@/prisma";
 import { toSupportedLanguage } from "@/translations";
 import { pretty, render } from "react-email";

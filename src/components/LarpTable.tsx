@@ -1,10 +1,14 @@
 "use client";
 
 import { Fragment, ReactNode } from "react";
-import { Column, defaultCellElement, defaultCellContents } from "./DataTable";
-import { FormattedDateRange } from "./FormattedDateRange";
+import {
+  Column,
+  defaultCellElement,
+  defaultCellContents,
+  FormattedDateRange,
+  MaybeExternalLink,
+} from "@con2/components";
 import { getLarpHref, ensureEndsAt } from "@/models/Larp.client";
-import MaybeExternalLink from "./MaybeExternalLink";
 import type { Larp, Municipality } from "@/generated/prisma/client";
 import type { Translations } from "@/translations/en";
 

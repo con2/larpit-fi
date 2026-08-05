@@ -1,5 +1,5 @@
-import { FormattedDate } from "@/components/FormattedDate";
 import { EditAction } from "@/generated/prisma/client";
+import { FormattedDate } from "@con2/components";
 import type { ModerationRequestContent } from "@/models/ModerationRequest";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";

@@ -1,5 +1,4 @@
-import { FormattedDate } from "@/components/FormattedDate";
-import { FormattedDateRange } from "@/components/FormattedDateRange";
+import { FormattedDate, FormattedDateRange } from "@con2/components";
 import {
   Larp,
   LarpType,

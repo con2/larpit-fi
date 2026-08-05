@@ -7,7 +7,7 @@ import {
   EditStatus,
   RelatedUserRole,
 } from "@/generated/prisma/client";
-import { normalizeFormData } from "@/helpers/normalizeFormData";
+import { normalizeFormData } from "@con2/components/helpers";
 import { diffLarpLinks, parseIndexedLinksFromFormData } from "@/models/LarpLink";
 import {
   approveRequest,

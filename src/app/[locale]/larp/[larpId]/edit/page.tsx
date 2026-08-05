@@ -7,7 +7,7 @@ import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
 import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
@@ -89,7 +89,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   if (!initialStatus) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }

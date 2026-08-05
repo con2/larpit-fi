@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import SubmitButton from "@/components/SubmitButton";
 import { findAccountRemovalToken, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
+import { SubmitButton } from "@con2/components";
 import {
   Card,
   CardBody,
@@ -32,7 +32,7 @@ export default async function ConfirmAccountRemovalPage({ params }: Props) {
   if (!user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }

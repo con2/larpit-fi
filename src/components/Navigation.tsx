@@ -10,7 +10,7 @@ import {
   NavbarToggle,
   NavLink,
 } from "react-bootstrap";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { LanguageSwitcher } from "@con2/components";
 import UserMenu from "./UserMenu";
 import { isStaging } from "@/config";
 import { auth } from "@/auth";

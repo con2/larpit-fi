@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { FormattedDateRange } from "@/components/FormattedDateRange";
 import {
   EditStatus,
   LarpLink,
@@ -25,12 +24,14 @@ import {
   Row,
   Tooltip,
 } from "react-bootstrap";
-import { Column } from "./DataTable";
-import InfoCircle from "./google-material-symbols/InfoCircle";
-import OpenInNewTab from "./google-material-symbols/OpenInNewTab";
+import {
+  Column,
+  FormattedDateRange,
+  Markdown,
+  Paragraphs,
+} from "@con2/components";
+import { InfoCircle, OpenInNewTab } from "@con2/components/icons";
 import LarpJsonLd from "./LarpJsonLd";
-import Markdown from "./Markdown";
-import Paragraphs from "./Paragraphs";
 import {
   LeftRelatedLarpComponent,
   RightRelatedLarpComponent,

@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
-import SwapVert from "@/components/google-material-symbols/SwapVert";
 import { relatedLarpInclude } from "@/components/LarpPage";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { addRelatedLarp } from "@/components/related/actions";
 import {
@@ -10,7 +9,6 @@ import {
 } from "@/components/related/RelatedLarpComponent";
 import RemoveRelatedLarpButton from "@/components/related/RemoveRelatedLarpButton";
 import SelectLarpCombobox from "@/components/related/SelectLarpCombobox";
-import SubmitButton from "@/components/SubmitButton";
 import { RelatedLarpType } from "@/generated/prisma/client";
 import {
   getEditLarpInitialStatusForUserAndLarp,
@@ -18,6 +16,8 @@ import {
 } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
+import { SubmitButton } from "@con2/components";
+import { SwapVert } from "@con2/components/icons";
 import { notFound } from "next/navigation";
 import {
   Alert,
@@ -227,7 +227,7 @@ export default async function RelatedLarpsPage({
           </CardBody>
         </Card>
       ) : (
-        <LoginRequired messages={t.actions.add.loginRequired} />
+        <LoginRequiredCard messages={t.actions.add.loginRequired} />
       )}
       {editPolicy && (
         <div className="text-center text-muted mb-4">

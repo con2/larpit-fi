@@ -1,14 +1,12 @@
 import { auth } from "@/auth";
-import AutoSubmitForm from "@/components/AutoSubmitForm";
-import { Column, DataTable } from "@/components/DataTable";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
 import { SubtlePrivacyPolicyLink } from "@/components/LoginLink";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { canModerate } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
+import { AutoSubmitForm, Column, DataTable, MessageCard } from "@con2/components";
 import { Container, FormLabel, FormSelect } from "react-bootstrap";
 import { setUserRole } from "./actions";
 
@@ -88,12 +86,18 @@ export default async function UsersPage({ params }: Props) {
   if (!user) {
     return (
       <Container>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }
   if (!canModerate(user)) {
-    return <InsufficientPrivileges messages={translations.AdminRequired} />;
+    return (
+      <MessageCard
+        title={translations.AdminRequired.title}
+        message={translations.AdminRequired.message}
+        container
+      />
+    );
   }
 
   const users = await getData();

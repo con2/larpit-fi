@@ -1,18 +1,13 @@
 import { auth } from "@/auth";
-import FormattedDateTime from "@/components/FormattedDateTime";
-import InsufficientPrivileges from "@/components/InsufficientPrivileges";
-import LoginRequired from "@/components/LoginRequired";
+import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import ModerationRequestChanges from "@/components/ModerationRequestChanges";
-import SubmitButton from "@/components/SubmitButton";
-import UnrenderedMarkdown from "@/components/UnrenderedMarkdown";
 import {
   EditAction,
   EditStatus,
   RelatedUserRole,
   SubmitterRole,
 } from "@/generated/prisma/client";
-import { uuid7ToZonedDateTime } from "@/helpers/temporal";
 import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
@@ -20,6 +15,13 @@ import { larpToContent, parsePartialContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
+import {
+  FormattedDateTime,
+  MessageCard,
+  SubmitButton,
+  UnrenderedMarkdown,
+} from "@con2/components";
+import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment, ReactNode } from "react";
@@ -56,7 +58,7 @@ export default async function ModerationRequestPage({ params }: Props) {
     return (
       <Container>
         <MainHeading>{t.listTitle}</MainHeading>
-        <LoginRequired messages={translations.LoginRequired} />
+        <LoginRequiredCard messages={translations.LoginRequired} />
       </Container>
     );
   }
@@ -89,7 +91,13 @@ export default async function ModerationRequestPage({ params }: Props) {
       : null,
   ]);
   if (!canModerate(user)) {
-    return <InsufficientPrivileges messages={translations.ModeratorRequired} />;
+    return (
+      <MessageCard
+        title={translations.ModeratorRequired.title}
+        message={translations.ModeratorRequired.message}
+        container
+      />
+    );
   }
   if (!request) {
     return notFound();

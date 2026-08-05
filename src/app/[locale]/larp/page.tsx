@@ -1,14 +1,14 @@
-import { DimensionFilters } from "@/components/DimensionFilters";
 import { LarpTable } from "@/components/LarpTable";
 import MainHeading from "@/components/MainHeading";
 import { Language, LarpType } from "@/generated/prisma/client";
-import {
-  parseSearchParam,
-  createEnumValidator,
-} from "@/helpers/parseSearchParam";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
+import { DimensionFilters } from "@con2/components";
+import {
+  parseSearchParam,
+  createEnumValidator,
+} from "@con2/components/helpers";
 import { Container } from "react-bootstrap";
 
 interface Props {
@@ -119,7 +119,7 @@ export default async function LarpListPage({ params, searchParams }: Props) {
   return (
     <Container>
       <MainHeading>{t.listTitle}</MainHeading>
-      <DimensionFilters dimensions={filters} />
+      <DimensionFilters dimensions={filters} locale={locale} />
       <LarpTable
         larps={larps}
         messages={t.clientAttributes}

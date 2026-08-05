@@ -2,7 +2,7 @@
 
 import { signIn, signOut } from "next-auth/react";
 import { ReactNode } from "react";
-import MaybeExternalLink from "./MaybeExternalLink";
+import { MaybeExternalLink } from "@con2/components";
 import { kompassiProfileUrl, privacyPolicyUrl } from "@/config";
 
 export function LoginLink({ children }: { children: ReactNode }) {
