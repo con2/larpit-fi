@@ -1,5 +1,5 @@
 import { getTranslations } from "@/translations";
-import Link from "@/components/ClientLink";
+import { ClientLink as Link } from "@con2/components";
 import {
   Badge,
   Container,

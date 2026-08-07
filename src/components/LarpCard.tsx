@@ -12,7 +12,7 @@ import {
   isSignupOver,
 } from "@/models/Larp";
 import type { Translations } from "@/translations/en";
-import Link from "@/components/ClientLink";
+import { ClientLink as Link } from "@con2/components";
 import { ReactNode } from "react";
 import {
   Badge,
