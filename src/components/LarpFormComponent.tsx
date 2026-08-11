@@ -26,7 +26,7 @@ interface Props {
     | "numTotalParticipants"
     | "fluffText"
     | "description"
-    | "isCancelled"
+    | "cancelledAt"
   > | null;
   readOnly?: boolean;
   compact?: boolean;

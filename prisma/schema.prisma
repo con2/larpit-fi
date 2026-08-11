@@ -202,8 +202,8 @@ model Larp {
   requests          ModerationRequest[]
   municipality      Municipality?       @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
 
-  isCancelled Boolean @default(false) @map("is_cancelled")
-  updateCount Int     @default(0) @map("update_count")
+  cancelledAt DateTime? @map("cancelled_at")
+  updateCount Int       @default(0) @map("update_count")
 
   @@map("larp")
 }
@@ -335,7 +335,7 @@ model ModerationRequest {
 
   message String?
 
-  larp Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)
+  larp       Larp? @relation(fields: [larpId], references: [id], onDelete: Cascade)
   // Preserve moderation history when a user is removed: keep the request (its
   // submitterName/submitterEmail are denormalized) and just drop the FK.
   resolvedBy User? @relation("RequestsResolvedByUser", fields: [resolvedById], references: [id], onDelete: SetNull)

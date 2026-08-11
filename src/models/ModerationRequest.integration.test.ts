@@ -165,6 +165,90 @@ describe("ModerationRequest integration tests", () => {
     expect(updated?.tagline).toBe("Original tagline");
   });
 
+  it("approveUpdateLarpRequest sets cancelledAt when the diff cancels the larp", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larp = await prisma.larp.create({
+      data: { name: "Original Name", language: Language.fi },
+    });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: { isCancelled: true },
+      },
+    });
+
+    const before = new Date();
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const updated = await prisma.larp.findUnique({ where: { id: larp.id } });
+    expect(updated?.cancelledAt).not.toBeNull();
+    expect(updated!.cancelledAt!.getTime()).toBeGreaterThanOrEqual(
+      before.getTime(),
+    );
+  });
+
+  it("approveUpdateLarpRequest preserves cancelledAt when an unrelated field is edited", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const cancelledAt = new Date("2020-01-01T00:00:00Z");
+    const larp = await prisma.larp.create({
+      data: { name: "Original Name", language: Language.fi, cancelledAt },
+    });
+
+    // The diff omits isCancelled because the submitted checkbox state
+    // (checked, mirroring the cancelled larp) matches the current value.
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: { name: "New Name" },
+      },
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const updated = await prisma.larp.findUnique({ where: { id: larp.id } });
+    expect(updated?.name).toBe("New Name");
+    expect(updated?.cancelledAt).toEqual(cancelledAt);
+  });
+
+  it("approveUpdateLarpRequest clears cancelledAt when the diff un-cancels the larp", async () => {
+    const user = await prisma.user.create({ data: testUser });
+    const larp = await prisma.larp.create({
+      data: {
+        name: "Original Name",
+        language: Language.fi,
+        cancelledAt: new Date("2020-01-01T00:00:00Z"),
+      },
+    });
+
+    const request = await prisma.moderationRequest.create({
+      data: {
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterRole: SubmitterRole.NONE,
+        newContent: { isCancelled: false },
+      },
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+    const updated = await prisma.larp.findUnique({ where: { id: larp.id } });
+    expect(updated?.cancelledAt).toBeNull();
+  });
+
   it("approveDeleteLarpRequest deletes the larp and deletes the request", async () => {
     const user = await prisma.user.create({
       data: { ...testUser, role: UserRole.ADMIN },

@@ -40,7 +40,7 @@ export function getSignupStatus(
     | "signupEndsAt"
     | "startsAt"
     | "endsAt"
-    | "isCancelled"
+    | "cancelledAt"
   >,
   messages: Translations["Larp"],
   locale: string,
@@ -49,7 +49,7 @@ export function getSignupStatus(
   let variant: BadgeProps["bg"] = "secondary";
   const t = messages.attributes.signupStatus.choices;
 
-  if (larp.isCancelled) {
+  if (larp.cancelledAt) {
     variant = "danger";
     content = t.cancelled;
   } else if (larp.openness === Openness.INVITE_ONLY) {
@@ -152,10 +152,10 @@ export default function LarpCard({
         lang={larp.language}
       >
         <CardBody
-          className={`d-flex flex-column ${larp.isCancelled ? "text-muted" : ""}`}
+          className={`d-flex flex-column ${larp.cancelledAt ? "text-muted" : ""}`}
         >
           <CardTitle>
-            {larp.isCancelled ? <s>{larp.name}</s> : larp.name}
+            {larp.cancelledAt ? <s>{larp.name}</s> : larp.name}
           </CardTitle>
           <CardText>
             <FormattedDateRange

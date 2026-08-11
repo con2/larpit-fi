@@ -18,12 +18,19 @@ interface Props {
 // This is a reasonable guess as there are usually not that many upcoming larps.
 const take = 100;
 
+const cancelledLarpVisibleDays = 30;
+
 async function getHomePageData() {
+  const cancelledCutoff = new Date(
+    Date.now() - cancelledLarpVisibleDays * 24 * 60 * 60 * 1000,
+  );
+
   return prisma.larp.findMany({
     where: {
       startsAt: {
         not: null,
       },
+      OR: [{ cancelledAt: null }, { cancelledAt: { gte: cancelledCutoff } }],
       // XXX Prisma does not support the SQL IS NOT DISTINCT FROM operator
       // openness: {
       //   isNotDistinctFrom: Openness.INVITE_ONLY,
@@ -139,7 +146,7 @@ export default async function HomePage({ params }: Props) {
   const [ongoingSignupLarps, otherUpcomingLarps] = partition(
     upcomingLarps,
     (larp) =>
-      !larp.isCancelled &&
+      !larp.cancelledAt &&
       isSignupOpenOrOpeningSoon(larp, signupOpeningSoonDays),
   );
 

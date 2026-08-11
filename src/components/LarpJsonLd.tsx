@@ -11,7 +11,7 @@ type LarpJsonLdInput = Pick<
   | "endsAt"
   | "locationText"
   | "language"
-  | "isCancelled"
+  | "cancelledAt"
 > & {
   municipality: Pick<
     Municipality,
@@ -25,7 +25,7 @@ function larpToJsonLd(larp: LarpJsonLdInput) {
   return {
     "@context": "https://schema.org",
     "@type": "Event",
-    eventStatus: larp.isCancelled
+    eventStatus: larp.cancelledAt
       ? "https://schema.org/EventCancelled"
       : "https://schema.org/EventScheduled",
     url: getLarpUrl(larp),

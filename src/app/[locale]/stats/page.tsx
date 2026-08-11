@@ -167,7 +167,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     where
       l.starts_at >= ${cutoff}
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-      and not l.is_cancelled
+      and l.cancelled_at is null
     group by m.id, m.name_fi
     having count(l.id) > 0
     order by count desc, m.name_fi asc
@@ -203,7 +203,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const yearRows = await prisma.$queryRaw<YearRow[]>`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and not is_cancelled),
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
         least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     )
@@ -215,7 +215,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       left join larp l on
         extract(year from l.starts_at) = yr.year
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-        and not l.is_cancelled
+        and l.cancelled_at is null
     group by yr.year
     order by yr.year asc
   `;
@@ -261,7 +261,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         extract(month from l.starts_at) = mr.month
         and l.starts_at >= ${cutoff}
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-        and not l.is_cancelled
+        and l.cancelled_at is null
     group by mr.month
     order by mr.month asc
   `;
@@ -309,7 +309,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         extract(week from l.starts_at) = wr.week
         and l.starts_at >= ${cutoff}
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-        and not l.is_cancelled
+        and l.cancelled_at is null
     group by wr.week
     order by wr.week asc
   `;
@@ -420,7 +420,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const playersRows = await prisma.$queryRaw<PlayersRow[]>`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and not is_cancelled),
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
         least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
       ) as year
     ),
@@ -437,7 +437,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       where
         starts_at >= ${cutoff}
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
-        and not is_cancelled
+        and cancelled_at is null
     )
     select
       yr.year::varchar as year,

@@ -24,7 +24,7 @@ export type LarpRow = Pick<
   | "endsAt"
   | "language"
   | "type"
-  | "isCancelled"
+  | "cancelledAt"
 > & {
   municipality: Pick<Municipality, "nameFi"> | null;
 };
@@ -227,7 +227,7 @@ export function LarpTable<Row extends LarpRow>({
               <tr
                 key={row.id}
                 className={
-                  row.isCancelled
+                  row.cancelledAt
                     ? "text-muted text-decoration-line-through"
                     : undefined
                 }

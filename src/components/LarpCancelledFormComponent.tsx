@@ -4,7 +4,7 @@ import { Card, CardBody, CardTitle, FormCheck } from "react-bootstrap";
 
 interface Props {
   translations: Translations;
-  larp: Pick<Larp, "isCancelled"> | null;
+  larp: Pick<Larp, "cancelledAt"> | null;
   readOnly?: boolean;
   compact?: boolean;
 }
@@ -32,7 +32,7 @@ export default function LarpCancelledFormComponent({
           id="LarpCancelledFormComponent-isCancelled"
           name="isCancelled"
           label={t.attributes.isCancelled.label}
-          defaultChecked={larp?.isCancelled ?? false}
+          defaultChecked={larp?.cancelledAt != null}
           readOnly={readOnly}
         />
       </CardBody>

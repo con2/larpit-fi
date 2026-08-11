@@ -140,7 +140,7 @@ export function larpToContent(
     | "endsAt"
     | "signupStartsAt"
     | "signupEndsAt"
-    | "isCancelled"
+    | "cancelledAt"
   >,
 ): ModerationRequestContent {
   return {
@@ -159,7 +159,7 @@ export function larpToContent(
     endsAt: toPlainDateNull(larp.endsAt),
     signupStartsAt: toPlainDateNull(larp.signupStartsAt),
     signupEndsAt: toPlainDateNull(larp.signupEndsAt),
-    isCancelled: larp.isCancelled,
+    isCancelled: larp.cancelledAt !== null,
   };
 }
 
@@ -206,6 +206,7 @@ export function contentToLarp(content: ModerationRequestContent) {
     endsAt,
     signupStartsAt,
     signupEndsAt,
+    isCancelled,
     ...rest
   } = content;
 
@@ -216,6 +217,7 @@ export function contentToLarp(content: ModerationRequestContent) {
     endsAt: fromEveningNull(endsAt),
     signupStartsAt: fromEveningNull(signupStartsAt),
     signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt),
+    cancelledAt: isCancelled ? new Date() : null,
   };
 }
 
@@ -228,6 +230,7 @@ export function partialContentToLarp(
     endsAt,
     signupStartsAt,
     signupEndsAt,
+    isCancelled,
     ...rest
   } = content;
 
@@ -241,6 +244,9 @@ export function partialContentToLarp(
       : {}),
     ...(signupEndsAt !== undefined
       ? { signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt) }
+      : {}),
+    ...(isCancelled !== undefined
+      ? { cancelledAt: isCancelled ? new Date() : null }
       : {}),
   };
 }

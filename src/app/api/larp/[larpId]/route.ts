@@ -38,7 +38,7 @@ export async function GET(
       language: true,
       numPlayerCharacters: true,
       numTotalParticipants: true,
-      isCancelled: true,
+      cancelledAt: true,
       updatedAt: true,
       fluffText: true,
       description: true,
@@ -50,7 +50,10 @@ export async function GET(
     notFound();
   }
 
-  return NextResponse.json(larpToApi(larp), {
-    headers: { "Access-Control-Allow-Origin": "*" },
-  });
+  const { cancelledAt, ...rest } = larp;
+
+  return NextResponse.json(
+    larpToApi({ ...rest, isCancelled: cancelledAt !== null }),
+    { headers: { "Access-Control-Allow-Origin": "*" } },
+  );
 }

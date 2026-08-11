@@ -34,7 +34,7 @@ interface Props {
     | "numTotalParticipants"
     | "fluffText"
     | "description"
-    | "isCancelled"
+    | "cancelledAt"
   > | null;
 }
 
@@ -311,7 +311,7 @@ export default async function CompactLarpFormComponent({
               id="LarpCancelledFormComponent-isCancelled"
               name="isCancelled"
               label={<>{t.attributes.isCancelled.label}</>}
-              defaultChecked={larp?.isCancelled ?? false}
+              defaultChecked={larp?.cancelledAt != null}
             />
           </div>
         </CardBody>

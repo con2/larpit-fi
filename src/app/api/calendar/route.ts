@@ -66,7 +66,7 @@ export async function GET(request: Request) {
       locationText: true,
       municipality: { select: { nameFi: true } },
       updatedAt: true,
-      isCancelled: true,
+      cancelledAt: true,
       updateCount: true,
     },
     orderBy: { startsAt: "desc" },
@@ -95,14 +95,14 @@ export async function GET(request: Request) {
       Boolean,
     );
 
-    const summary = larp.isCancelled ? `[${prefix}] ${larp.name}` : larp.name;
+    const summary = larp.cancelledAt ? `[${prefix}] ${larp.name}` : larp.name;
 
     lines.push("BEGIN:VEVENT");
     lines.push(foldLine(`UID:${larp.id}@larpit.fi`));
     lines.push(foldLine(`SEQUENCE:${larp.updateCount}`));
     lines.push(foldLine(`DTSTAMP:${formatUtc(now)}`));
     lines.push(foldLine(`LAST-MODIFIED:${formatUtc(larp.updatedAt)}`));
-    if (larp.isCancelled) lines.push("STATUS:CANCELLED");
+    if (larp.cancelledAt) lines.push("STATUS:CANCELLED");
     lines.push(
       foldLine(`DTSTART;VALUE=DATE:${startDate.toString().replace(/-/g, "")}`),
     );

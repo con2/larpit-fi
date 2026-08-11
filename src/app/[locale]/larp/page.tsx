@@ -36,9 +36,9 @@ async function getData(
         in: languages,
       },
       ...(cancelled === "hide"
-        ? { isCancelled: false }
+        ? { cancelledAt: null }
         : cancelled === "only"
-          ? { isCancelled: true }
+          ? { cancelledAt: { not: null } }
           : {}),
     },
     include: {
