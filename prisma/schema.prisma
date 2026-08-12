@@ -195,12 +195,17 @@ model Larp {
   signupEndsAt   DateTime? @map("signup_ends_at")
   openness       Openness?
 
-  links             LarpLink[]
-  relatedLarpsLeft  RelatedLarp[]       @relation("RelatedLarpsLeft")
-  relatedLarpsRight RelatedLarp[]       @relation("RelatedLarpsRight")
-  relatedUsers      RelatedUser[]
-  requests          ModerationRequest[]
-  municipality      Municipality?       @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
+  localSignupStatus     LocalSignupStatus     @default(DISABLED) @map("local_signup_status")
+  localSignupCode       String?               @map("local_signup_code")
+  relatedUserVisibility RelatedUserVisibility @default(GM) @map("related_user_visibility")
+
+  links                 LarpLink[]
+  relatedLarpsLeft      RelatedLarp[]           @relation("RelatedLarpsLeft")
+  relatedLarpsRight     RelatedLarp[]           @relation("RelatedLarpsRight")
+  relatedUsers          RelatedUser[]
+  unauthenticatedSignups UnauthenticatedSignup[]
+  requests              ModerationRequest[]
+  municipality          Municipality?           @relation(fields: [municipalityId], references: [id], onDelete: SetNull)
 
   cancelledAt DateTime? @map("cancelled_at")
   updateCount Int       @default(0) @map("update_count")
@@ -243,18 +248,29 @@ enum RelatedUserRole {
   VOLUNTEER
   PLAYER
   FAVORITE
+  LOCAL_SIGNUP_YES
+  LOCAL_SIGNUP_MAYBE
+  LOCAL_SIGNUP_NO
 }
 
-enum Visibility {
+enum LocalSignupStatus {
+  DISABLED
   PUBLIC
-  GAME_MASTER
-  PRIVATE
+  CODE_REQUIRED
+}
+
+enum RelatedUserVisibility {
+  PARTICIPANTS
+  GM
+  ONLY_ME
 }
 
 model RelatedUser {
-  larpId String          @map("larp_id") @db.Uuid
-  userId String          @map("user_id") @db.Uuid
-  role   RelatedUserRole
+  larpId     String                @map("larp_id") @db.Uuid
+  userId     String                @map("user_id") @db.Uuid
+  role       RelatedUserRole
+  visibility RelatedUserVisibility @default(ONLY_ME)
+  createdAt  DateTime              @default(now()) @map("created_at")
 
   larp Larp @relation(fields: [larpId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -354,6 +370,24 @@ model Page {
 
   @@id([slug, language])
   @@map("page")
+}
+
+model UnauthenticatedSignup {
+  id               String                @id @default(uuid(7)) @db.Uuid
+  larpId           String                @map("larp_id") @db.Uuid
+  displayName      String                @map("display_name")
+  email            String
+  signupStatus     RelatedUserRole       @map("signup_status")
+  visibility       RelatedUserVisibility @map("visibility")
+  verificationCode String                @unique @map("verification_code")
+  verifiedAt       DateTime?             @map("verified_at")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+
+  larp Larp @relation(fields: [larpId], references: [id], onDelete: Cascade)
+
+  // Partial unique indexes (verified/pending) added manually in migration SQL.
+  @@map("unauthenticated_signup")
 }
 
 // used by calendar view

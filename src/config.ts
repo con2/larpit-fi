@@ -49,3 +49,7 @@ export const mailOptions: Partial<SendMailOptions> = {
   sender: mailSender,
   from: formattedMailFrom,
 };
+
+export const featureFlags = {
+  localSignup: false,
+} as const;

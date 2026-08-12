@@ -1,10 +1,17 @@
 import { UserRole } from "@/generated/prisma/client";
-import React, { JSX, ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 const translations = {
   title: "Larpit.fi",
   stagingTitle: "Larpit.fi (STAGING)",
 
+  Common: {
+    actions: {
+      returnToLarpPage: {
+        title: "Return to larp page",
+      },
+    },
+  },
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
     sections: {
@@ -31,6 +38,7 @@ const translations = {
       delete: "Request deletion",
       adminDelete: "Delete this page",
       manageRelatedLarps: "Manage related larps",
+      manageSignupSettings: "Sign-up settings",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -290,6 +298,144 @@ const translations = {
         </>
       ),
       APPROVED: <>You can edit this page directly without moderation.</>,
+    },
+  },
+  LocalSignupSettings: {
+    title: "Sign-up at Larpit.fi",
+    message:
+      "Configure whether participants can sign up for this event directly on Larpit.fi.",
+    attributes: {
+      localSignupStatus: {
+        label: "Sign-up mode",
+        choices: {
+          DISABLED: "Disabled — no sign-up form shown",
+          PUBLIC: "Public — anyone can sign up",
+          CODE_REQUIRED: "Invite-only — requires a code",
+        },
+      },
+      localSignupCode: {
+        label: "Invite code",
+        helpText:
+          "Participants must enter this code to sign up. Share it only with invited participants.",
+      },
+      relatedUserVisibility: {
+        label: "Who can see the participant list?",
+        choices: {
+          GM: "Game Master and moderators only",
+          PARTICIPANTS: "All signed-up participants",
+        },
+      },
+    },
+    actions: {
+      save: "Save sign-up settings",
+    },
+    settingsSaved: "Sign-up settings saved.",
+  },
+  LocalSignupPage: {
+    title: "Sign up",
+    userSignupStatus: {
+      choices: {
+        CANCELLED: "This larp is cancelled. Sign-up is not available.",
+        DISABLED: "Sign-up for this event is not available.",
+        CODE_REQUIRED:
+          "This event is only accepting sign-ups via a private link.",
+        CAN_SIGN_UP: "Sign-up for this event at Larpit.fi is in progress!",
+        LOCAL_SIGNUP_YES: "You have signed up for this event!",
+        LOCAL_SIGNUP_MAYBE: 'You have signed up "maybe" for this event!',
+        LOCAL_SIGNUP_NO:
+          "You have informed the host you can't make it to this event.",
+      },
+      actions: {
+        signUp: "Sign up here!",
+        change: "Update your sign-up here.",
+      },
+    },
+    attributes: {
+      displayName: { label: "Your name" },
+      email: {
+        label: "Email address",
+        helpText: "A verification email will be sent to this address.",
+      },
+      signupStatus: {
+        label: "Attending?",
+        choices: {
+          LOCAL_SIGNUP_YES: { title: "Yes", label: "I am attending" },
+          LOCAL_SIGNUP_MAYBE: { title: "Maybe", label: "I might attend" },
+          LOCAL_SIGNUP_NO: { title: "No", label: "I am not attending" },
+        },
+      },
+      visibility: {
+        label: "Who can see your sign-up?",
+        helpText:
+          "Note: the Game Master will always see your name and email address.",
+        choices: {
+          PARTICIPANTS: {
+            title: "All participants",
+            label: "All participants",
+          },
+          GM: { title: "Game Master only", label: "Game Master only" },
+        },
+      },
+    },
+    actions: {
+      submit: "Sign up",
+      change: "Update your sign-up",
+      remove: "Remove sign-up",
+    },
+    emailSent:
+      "A verification email has been sent. Please check your inbox and click the link to confirm your sign-up.",
+    verifyPage: {
+      title: "Confirm your sign-up",
+      message: "Click the button below to confirm your sign-up for this event.",
+      actions: { verify: "Confirm sign-up" },
+      alreadyVerified:
+        "Your sign-up has already been verified. You can close this page.",
+    },
+    cancelled: "This larp has been cancelled.",
+    disabled: "Sign-up for this event is not available.",
+    codeRequired:
+      "Sign-up for this event is invite-only. You need a private link to sign up.",
+    signupVerified: "Your sign-up has been confirmed!",
+  },
+  RolesPage: {
+    title: "Participants",
+    message: "This is a list of users and sign-ups associated with this event.",
+    columns: {
+      name: "Name",
+      role: "Role",
+      visibility: "Visibility",
+      signedUpAt: "Signed up",
+      email: "Email",
+      verified: "Verified",
+      actions: "Actions",
+    },
+    visibility: {
+      PARTICIPANTS: "Participants",
+      GM: "Game Master",
+      ONLY_ME: "Only me",
+    },
+    actions: {
+      exportCsv: "Export guest list (CSV)",
+      remove: "Remove",
+      manage: "Manage",
+      confirmRemoveRole: "Remove this role? This cannot be undone.",
+      confirmRemoveGmRole:
+        "Warning: removing your Game Master role will revoke your edit access to this larp. Remove anyway?",
+      confirmRemoveSignup:
+        "Remove your sign-up for this event? This cannot be undone. Consider changing your sign-up status to 'No' instead.",
+    },
+    unauthenticatedSignups: {
+      sectionTitle: "Unverified sign-ups",
+      badge: "email only",
+    },
+    insufficientPrivileges:
+      "You do not have permission to view the participant list for this event.",
+    filters: {
+      role: {
+        title: "Role",
+        all: "All",
+        signups: "Signups",
+      },
     },
   },
   DeleteLarpPage: {
@@ -808,6 +954,9 @@ const translations = {
           VOLUNTEER: "Volunteer",
           PLAYER: "Player",
           FAVORITE: "Marked as favorite",
+          LOCAL_SIGNUP_YES: "Signed up (yes)",
+          LOCAL_SIGNUP_MAYBE: "Signed up (maybe)",
+          LOCAL_SIGNUP_NO: "Signed up (no)",
         },
       },
     },
@@ -1154,6 +1303,15 @@ const translations = {
           },
           FAVORITE: {
             title: "Marked as favorite",
+          },
+          LOCAL_SIGNUP_YES: {
+            title: "Signed up (yes)",
+          },
+          LOCAL_SIGNUP_MAYBE: {
+            title: "Signed up (maybe)",
+          },
+          LOCAL_SIGNUP_NO: {
+            title: "Signed up (no)",
           },
         },
       },

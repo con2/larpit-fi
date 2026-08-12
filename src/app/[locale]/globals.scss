@@ -90,3 +90,24 @@ h4.h-float {
   --bs-table-hover-bg: transparent;
   --bs-table-accent-bg: var(--bs-table-bg);
 }
+
+.btn.btn-outline-danger.bg-white:hover,
+.btn.btn-outline-danger.bg-white:focus {
+  color: var(--bs-danger);
+}
+.btn.btn-outline-info.bg-white:hover,
+.btn.btn-outline-info.bg-white:focus {
+  color: var(--bs-info);
+}
+.btn.btn-outline-success.bg-white:hover,
+.btn.btn-outline-success.bg-white:focus {
+  color: var(--bs-success);
+}
+.btn.btn-outline-warning.bg-white:hover,
+.btn.btn-outline-warning.bg-white:focus {
+  color: var(--bs-warning);
+}
+
+.btn-outline-warning {
+  color: #c59b1d;
+}

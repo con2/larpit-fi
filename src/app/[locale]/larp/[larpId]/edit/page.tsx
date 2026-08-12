@@ -11,10 +11,11 @@ import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
-import { EditFormPreference } from "@/generated/prisma/client";
+import { EditFormPreference, SubmitterRole } from "@/generated/prisma/client";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getHighestUserRoleForLarp,
+  localSignupRoles,
 } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
@@ -81,10 +82,14 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
     notFound();
   }
 
-  const role =
+  const highestRole = getHighestUserRoleForLarp(user, larp);
+  // LOCAL_SIGNUP_* roles are not valid SubmitterRoles; treat them as NONE for the edit form.
+  const role: SubmitterRole | "NONE" =
     resolvedSearchParams.role === "GAME_MASTER"
       ? "GAME_MASTER"
-      : getHighestUserRoleForLarp(user, larp);
+      : (localSignupRoles as readonly string[]).includes(highestRole)
+        ? "NONE"
+        : (highestRole as SubmitterRole | "NONE");
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
     return (

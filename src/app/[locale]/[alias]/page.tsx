@@ -9,6 +9,7 @@ interface Props {
     locale: string;
     alias: string;
   }>;
+  searchParams?: Promise<{ code?: string }>;
 }
 
 async function getContent({ params }: Props) {
@@ -55,7 +56,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function LarpByAliasPage({ params }: Props) {
+export default async function LarpByAliasPage({ params, searchParams }: Props) {
   const { alias, locale } = await params;
-  return <LarpPage larpPromise={getLarpPageData({ alias })} locale={locale} />;
+  const code = (await searchParams)?.code;
+  return (
+    <LarpPage
+      larpPromise={getLarpPageData({ alias })}
+      locale={locale}
+      code={code}
+    />
+  );
 }
