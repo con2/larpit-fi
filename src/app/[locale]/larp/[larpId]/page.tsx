@@ -1,15 +1,19 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
+import { publicUrl } from "@/config";
+import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate as uuidValidate } from "uuid";
-import prisma from "@/prisma";
-import { publicUrl } from "@/config";
 
 interface Props {
   params: Promise<{
     locale: string;
     larpId: string;
+  }>;
+  searchParams: Promise<{
+    code?: string;
+    success?: string;
   }>;
 }
 
@@ -41,8 +45,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function LarpByIdPage({ params }: Props) {
+export default async function LarpByIdPage({ params, searchParams }: Props) {
   const { larpId, locale } = await params;
+  const { code, success } = await searchParams;
 
   // avoid 500 on invalid UUID
   if (!uuidValidate(larpId)) {
@@ -50,6 +55,11 @@ export default async function LarpByIdPage({ params }: Props) {
   }
 
   return (
-    <LarpPage larpPromise={getLarpPageData({ id: larpId })} locale={locale} />
+    <LarpPage
+      larpPromise={getLarpPageData({ id: larpId })}
+      locale={locale}
+      code={code}
+      signupVerified={success === "signupVerified"}
+    />
   );
 }

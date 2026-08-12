@@ -1,11 +1,18 @@
-import React, { JSX, ReactNode } from "react";
-import type { Translations } from "./en";
 import { UserRole } from "@/generated/prisma/client";
+import { JSX, ReactNode } from "react";
+import type { Translations } from "./en";
 
 const translations: Translations = {
   title: "Larpit.fi",
   stagingTitle: "Larpit.fi (STAGING)",
 
+  Common: {
+    actions: {
+      returnToLarpPage: {
+        title: "Palaa larpin sivulle",
+      },
+    },
+  },
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     sections: {
@@ -32,6 +39,7 @@ const translations: Translations = {
       delete: "Pyydä poistamista",
       adminDelete: "Poista tämä sivu",
       manageRelatedLarps: "Muokkaa suhteita muihin larppeihin",
+      manageSignupSettings: "Ilmoittautumisasetukset",
       claim: (
         ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
       ) => (
@@ -302,6 +310,148 @@ const translations: Translations = {
         </>
       ),
       APPROVED: <>Voit muokata tätä larppia ilman ennakkotarkistusta.</>,
+    },
+  },
+  LocalSignupSettings: {
+    title: "Ilmoittautuminen Larpit.fi:ssä",
+    message:
+      "Määritä, voivatko osallistujat ilmoittautua tähän tapahtumaan suoraan Larpit.fi:ssä.",
+    attributes: {
+      localSignupStatus: {
+        label: "Ilmoittautumistila",
+        choices: {
+          DISABLED: "Pois käytöstä — ilmoittautumislomaketta ei näytetä",
+          PUBLIC: "Julkinen — kuka tahansa voi ilmoittautua",
+          CODE_REQUIRED: "Vain kutsulla — vaatii koodin",
+        },
+      },
+      localSignupCode: {
+        label: "Kutsukoodi",
+        helpText:
+          "Osallistujien täytyy syöttää tämä koodi ilmoittautuakseen. Jaa se vain kutsutuille.",
+      },
+      relatedUserVisibility: {
+        label: "Kuka näkee osallistujalistan?",
+        choices: {
+          GM: "Vain pelinjohtaja ja moderaattorit",
+          PARTICIPANTS: "Kaikki ilmoittautuneet osallistujat",
+        },
+      },
+    },
+    actions: {
+      save: "Tallenna ilmoittautumisasetukset",
+    },
+    settingsSaved: "Ilmoittautumisasetukset tallennettu.",
+  },
+  LocalSignupPage: {
+    title: "Ilmoittautuminen",
+    userSignupStatus: {
+      choices: {
+        CANCELLED:
+          "Tämä larppi on peruttu. Ilmoittautuminen ei ole mahdollista.",
+        DISABLED: "Ilmoittautuminen tähän tapahtumaan ei ole käytössä.",
+        CODE_REQUIRED:
+          "Tähän tapahtumaan voi ilmoittautua vain yksityisellä linkillä.",
+        CAN_SIGN_UP: "Tapahtuman ilmoittautuminen Larpit.fi:ssä on käynnissä!",
+        LOCAL_SIGNUP_YES: "Olet ilmoittautunut tähän tapahtumaan!",
+        LOCAL_SIGNUP_MAYBE:
+          "Olet ilmoittautunut tähän tapahtumaan ehkä-vastauksella!",
+        LOCAL_SIGNUP_NO:
+          "Olet ilmoittautunut tähän tapahtumaan ei-vastauksella.",
+      },
+      actions: {
+        signUp: "Ilmoittaudu tästä!",
+        change: "Muuta ilmoittautumistasi tästä.",
+      },
+    },
+    attributes: {
+      displayName: { label: "Nimesi" },
+      email: {
+        label: "Sähköpostiosoite",
+        helpText: "Vahvistuslinkki lähetetään tähän osoitteeseen.",
+      },
+      signupStatus: {
+        label: "Osallistutko?",
+        choices: {
+          LOCAL_SIGNUP_YES: { title: "Kyllä", label: "Osallistun" },
+          LOCAL_SIGNUP_MAYBE: { title: "Ehkä", label: "Ehkä osallistun" },
+          LOCAL_SIGNUP_NO: { title: "Ei", label: "En osallistu" },
+        },
+      },
+      visibility: {
+        label: "Kuka näkee ilmoittautumisesi?",
+        helpText:
+          "Huom: pelinjohtaja näkee aina nimesi ja sähköpostiosoitteesi.",
+        choices: {
+          PARTICIPANTS: {
+            title: "Kaikki osallistujat",
+            label: "Kaikki osallistujat",
+          },
+          GM: { title: "Vain pelinjohtaja", label: "Vain pelinjohtaja" },
+        },
+      },
+    },
+    actions: {
+      submit: "Ilmoittaudu tästä!",
+      change: "Muuta ilmoittautumistasi tästä.",
+      remove: "Poista ilmoittautuminen",
+    },
+    emailSent:
+      "Vahvistusviesti on lähetetty. Tarkista sähköpostisi ja klikkaa linkkiä vahvistaaksesi ilmoittautumisesi.",
+    verifyPage: {
+      title: "Vahvista ilmoittautumisesi",
+      message:
+        "Klikkaa alla olevaa painiketta vahvistaaksesi ilmoittautumisesi tähän tapahtumaan.",
+      actions: { verify: "Vahvista ilmoittautuminen" },
+      alreadyVerified:
+        "Ilmoittautumisesi on jo vahvistettu. Voit sulkea tämän sivun.",
+    },
+    cancelled: "Tämä larppi on peruttu.",
+    disabled: "Ilmoittautuminen tähän tapahtumaan ei ole käytössä.",
+    codeRequired:
+      "Ilmoittautuminen tähän tapahtumaan on vain kutsulla. Tarvitset yksityisen linkin ilmoittautuaksesi.",
+    signupVerified: "Ilmoittautumisesi on vahvistettu!",
+  },
+  RolesPage: {
+    title: "Osallistujat",
+    message:
+      "Tämä on lista tähän tapahtumaan liitetyistä käyttäjistä ja ilmoittautumisista.",
+    columns: {
+      name: "Nimi",
+      role: "Rooli",
+      visibility: "Näkyvyys",
+      signedUpAt: "Ilmoittautunut",
+      email: "Sähköposti",
+      verified: "Vahvistettu",
+      actions: "Toiminnot",
+    },
+    visibility: {
+      PARTICIPANTS: "Osallistujat",
+      GM: "Pelinjohtaja",
+      ONLY_ME: "Vain minä",
+    },
+    actions: {
+      exportCsv: "Vie vieraslista (CSV)",
+      remove: "Poista",
+      manage: "Hallitse",
+      confirmRemoveRole: "Poistetaanko tämä rooli? Toimintoa ei voi kumota.",
+      confirmRemoveGmRole:
+        "Varoitus: pelinjohtajaroolin poistaminen poistaa muokkausoikeutesi tähän larppiin. Poistetaanko silti?",
+      confirmRemoveSignup:
+        "Haluatko varmasti poistaa ilmoittautumisesi? Poistoa ei voi perua. Harkitse ilmoittautumistilasi muuttamista ”Ei”-vastaukseksi poistamisen sijaan.",
+    },
+    unauthenticatedSignups: {
+      sectionTitle: "Vahvistamattomat ilmoittautumiset",
+      badge: "vain sähköposti",
+    },
+    insufficientPrivileges:
+      "Sinulla ei ole oikeutta nähdä tämän tapahtuman osallistujalistaa.",
+    filters: {
+      role: {
+        title: "Rooli",
+        all: "Kaikki",
+        signups: "Ilmoittautumiset",
+      },
     },
   },
   DeleteLarpPage: {
@@ -818,6 +968,9 @@ const translations: Translations = {
           VOLUNTEER: "Vapaaehtoinen",
           PLAYER: "Pelaaja",
           FAVORITE: "Merkinnyt suosikiksi",
+          LOCAL_SIGNUP_YES: "Ilmoittautunut (kyllä)",
+          LOCAL_SIGNUP_MAYBE: "Ilmoittautunut (ehkä)",
+          LOCAL_SIGNUP_NO: "Ilmoittautunut (ei)",
         },
       },
     },
@@ -1178,6 +1331,15 @@ const translations: Translations = {
           },
           FAVORITE: {
             title: "Merkinnyt suosikiksi",
+          },
+          LOCAL_SIGNUP_YES: {
+            title: "Ilmoittautunut (kyllä)",
+          },
+          LOCAL_SIGNUP_MAYBE: {
+            title: "Ilmoittautunut (ehkä)",
+          },
+          LOCAL_SIGNUP_NO: {
+            title: "Ilmoittautunut (ei)",
           },
         },
       },

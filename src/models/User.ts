@@ -1,7 +1,9 @@
 import {
   EditStatus,
+  LocalSignupStatus,
   RelatedUser,
   RelatedUserRole,
+  RelatedUserVisibility,
   TokenType,
   User,
   UserRole,
@@ -142,12 +144,138 @@ export async function getUserFromSession(
     : null;
 }
 
+export type LocalSignupRole = Extract<
+  RelatedUserRole,
+  "LOCAL_SIGNUP_YES" | "LOCAL_SIGNUP_MAYBE" | "LOCAL_SIGNUP_NO"
+>;
+
+export const localSignupRoles = [
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+] as const;
+
+export const participantVisibilityRoles = [
+  RelatedUserRole.GAME_MASTER,
+  RelatedUserRole.TEAM_MEMBER,
+  RelatedUserRole.VOLUNTEER,
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+] as const;
+
 const rolesHierarchy = [
   RelatedUserRole.GAME_MASTER,
   RelatedUserRole.TEAM_MEMBER,
   RelatedUserRole.VOLUNTEER,
   RelatedUserRole.PLAYER,
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
 ];
+
+export function isGmOrModerator(
+  user: Pick<User, "id" | "role"> | null,
+  larp: { relatedUsers: Pick<RelatedUser, "userId" | "role">[] },
+): boolean {
+  if (!user) return false;
+  if (canModerate(user)) return true;
+  return larp.relatedUsers.some(
+    (r) => r.userId === user.id && r.role === RelatedUserRole.GAME_MASTER,
+  );
+}
+
+export function isParticipant(
+  user: Pick<User, "id"> | null,
+  larp: { relatedUsers: Pick<RelatedUser, "userId" | "role">[] },
+): boolean {
+  if (!user) return false;
+  return larp.relatedUsers.some(
+    (r) =>
+      r.userId === user.id &&
+      (participantVisibilityRoles as readonly string[]).includes(r.role),
+  );
+}
+
+export function canViewParticipantList(
+  user: Pick<User, "id" | "role"> | null,
+  larp: {
+    relatedUserVisibility: RelatedUserVisibility;
+    relatedUsers: Pick<RelatedUser, "userId" | "role">[];
+  },
+  forceStrong: boolean,
+): boolean {
+  if (!user) return false;
+  if (canModerate(user) && forceStrong) return true;
+  if (isGmOrModerator(user, larp)) return true;
+  if (larp.relatedUserVisibility === RelatedUserVisibility.PARTICIPANTS) {
+    return isParticipant(user, larp);
+  }
+  return false;
+}
+
+export function canViewRelatedUserEntry(
+  viewer: Pick<User, "id" | "role"> | null,
+  entry: Pick<RelatedUser, "userId" | "visibility">,
+  larp: {
+    relatedUserVisibility: RelatedUserVisibility;
+    relatedUsers: Pick<RelatedUser, "userId" | "role">[];
+  },
+): boolean {
+  if (!viewer) return false;
+  if (isGmOrModerator(viewer, larp)) return true;
+  if (viewer.id === entry.userId) return true;
+  // Ceiling: if larp is GM-only, PARTICIPANTS entries are still GM-only
+  const effectiveVisibility =
+    larp.relatedUserVisibility === RelatedUserVisibility.GM
+      ? RelatedUserVisibility.GM
+      : entry.visibility;
+  if (effectiveVisibility === RelatedUserVisibility.PARTICIPANTS) {
+    return isParticipant(viewer, larp);
+  }
+  return false;
+}
+
+export type UserSignupStatus =
+  | "CANCELLED"
+  | "DISABLED"
+  | "CODE_REQUIRED"
+  | "LOCAL_SIGNUP_YES"
+  | "LOCAL_SIGNUP_MAYBE"
+  | "LOCAL_SIGNUP_NO"
+  | "CAN_SIGN_UP";
+
+export function getLocalSignupStatusForUser(
+  user: Pick<User, "id"> | null,
+  larp: {
+    localSignupStatus: LocalSignupStatus;
+    localSignupCode: string | null;
+    cancelledAt: Date | null;
+    relatedUsers: Pick<RelatedUser, "userId" | "role">[];
+  },
+  codeParam: string | null | undefined,
+): UserSignupStatus {
+  if (larp.cancelledAt) return "CANCELLED";
+  if (larp.localSignupStatus === LocalSignupStatus.DISABLED) return "DISABLED";
+
+  if (user) {
+    const existing = larp.relatedUsers.find(
+      (r) =>
+        r.userId === user.id &&
+        (localSignupRoles as readonly string[]).includes(r.role),
+    );
+    if (existing) {
+      return existing.role as unknown as LocalSignupRole;
+    }
+  }
+
+  if (larp.localSignupStatus === LocalSignupStatus.CODE_REQUIRED) {
+    if (!codeParam || codeParam !== larp.localSignupCode)
+      return "CODE_REQUIRED";
+  }
+
+  return "CAN_SIGN_UP";
+}
 
 export function getHighestUserRoleForLarp(
   user: Pick<User, "id"> | null,

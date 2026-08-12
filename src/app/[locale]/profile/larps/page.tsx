@@ -84,7 +84,15 @@ type OwnLarp = Awaited<ReturnType<typeof getData>>[number];
 export type OwnLarpRow = LarpRow & {
   /** Pre-resolved role titles */
   roleTitles: string[];
+  /** True if the user has a LOCAL_SIGNUP_* role on this larp */
+  hasLocalSignup: boolean;
 };
+
+const localSignupRoleStrings: string[] = [
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+];
 
 function serializeLarps(
   larps: OwnLarp[],
@@ -102,6 +110,9 @@ function serializeLarps(
     cancelledAt: larp.cancelledAt,
     municipality: larp.municipality,
     roleTitles: larp.relatedUsers.map((ru) => roleChoices[ru.role] ?? ru.role),
+    hasLocalSignup: larp.relatedUsers.some((ru) =>
+      localSignupRoleStrings.includes(ru.role),
+    ),
   }));
 }
 
@@ -201,6 +212,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
         messages={translations.Larp.clientAttributes}
         locale={locale}
         totalCount={totalCount}
+        manageLabel={translations.RolesPage.actions.manage}
       />
     </Container>
   );

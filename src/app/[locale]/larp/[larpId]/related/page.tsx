@@ -18,6 +18,7 @@ import prisma from "@/prisma";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import { SwapVert } from "@con2/components/icons";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   Alert,
@@ -220,9 +221,20 @@ export default async function RelatedLarpsPage({
               <SubmitButton name="action" value="create" className="me-2">
                 {t.actions.add.actions.submit}
               </SubmitButton>
-              <SubmitButton variant="secondary" name="action" value="swap">
+              <SubmitButton
+                variant="secondary"
+                name="action"
+                value="swap"
+                className="me-2"
+              >
                 <SwapVert /> {t.actions.add.actions.swap}
               </SubmitButton>
+              <Link
+                href={`/larp/${larp.id}`}
+                className="btn btn-outline-secondary"
+              >
+                {translations.Common.actions.returnToLarpPage.title}
+              </Link>
             </Form>
           </CardBody>
         </Card>

@@ -7,6 +7,7 @@ import {
   getDefaultColumns,
   Column,
 } from "@/components/LarpTable";
+import Link from "next/link";
 import type { OwnLarpRow } from "./page";
 
 interface OwnLarpsTableClientProps {
@@ -14,11 +15,13 @@ interface OwnLarpsTableClientProps {
   messages: LarpTableMessages;
   locale: string;
   totalCount: number;
+  manageLabel: string;
 }
 
 function getOwnLarpColumns(
   messages: LarpTableMessages,
   locale: string,
+  manageLabel: string,
 ): Column<OwnLarpRow>[] {
   const defaultColumns = getDefaultColumns<OwnLarpRow>(messages, locale);
 
@@ -44,10 +47,25 @@ function getOwnLarpColumns(
     ),
   };
 
+  const actionsColumn: Column<OwnLarpRow> = {
+    slug: "actions",
+    title: "",
+    getCellContents: (row) =>
+      row.hasLocalSignup ? (
+        <Link
+          href={`/larp/${row.id}/signup`}
+          className="btn btn-sm btn-outline-secondary"
+        >
+          {manageLabel}
+        </Link>
+      ) : null,
+  };
+
   // Insert before the last column (dateRange)
   return [
     ...filteredColumns.slice(0, -1),
     roleColumn,
+    actionsColumn,
     ...filteredColumns.slice(-1),
   ];
 }
@@ -57,8 +75,9 @@ export default function OwnLarpsTableClient({
   messages,
   locale,
   totalCount,
+  manageLabel,
 }: OwnLarpsTableClientProps) {
-  const columns = getOwnLarpColumns(messages, locale);
+  const columns = getOwnLarpColumns(messages, locale, manageLabel);
 
   return (
     <LarpTable<OwnLarpRow>

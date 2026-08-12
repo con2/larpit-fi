@@ -1,36 +1,43 @@
 import { auth } from "@/auth";
+import { featureFlags } from "@/config";
 import {
   EditStatus,
   LarpLink,
+  LocalSignupStatus,
   RelatedUserRole,
 } from "@/generated/prisma/client";
 import { ensureLocation } from "@/models/Larp";
 import {
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
+  getLocalSignupStatusForUser,
   getUserFromSession,
+  isGmOrModerator,
 } from "@/models/User";
 import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ReactNode } from "react";
 import {
-  Card,
-  CardBody,
-  Container,
-  OverlayTrigger,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
-import {
+  AlertNavigateOnClose,
   Column,
   FormattedDateRange,
   Markdown,
   Paragraphs,
 } from "@con2/components";
 import { InfoCircle, OpenInNewTab } from "@con2/components/icons";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ReactNode } from "react";
+import {
+  Card,
+  CardBody,
+  CardText,
+  CardTitle,
+  Container,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import LarpJsonLd from "./LarpJsonLd";
 import {
   LeftRelatedLarpComponent,
@@ -302,9 +309,16 @@ function LarpInfoCard({
 interface Props {
   locale: string;
   larpPromise: ReturnType<typeof getLarpPageData>;
+  code?: string;
+  signupVerified?: boolean;
 }
 
-export default async function LarpPage({ larpPromise, locale }: Props) {
+export default async function LarpPage({
+  larpPromise,
+  locale,
+  code,
+  signupVerified,
+}: Props) {
   const session = await auth();
   const [user, larp] = await Promise.all([
     getUserFromSession(session),
@@ -319,6 +333,121 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
   const larpT = translations.Larp;
   const ediT = translations.EditLarpPage;
   const deleTe = translations.DeleteLarpPage;
+  const signupT = translations.LocalSignupPage;
+
+  // Fetch the current user's LOCAL_SIGNUP_* role for this larp (not in getLarpPageData since relatedUsers is filtered to GAME_MASTER)
+  const userSignupRelatedUser = user
+    ? await prisma.relatedUser.findFirst({
+        where: {
+          larpId: larp.id,
+          userId: user.id,
+          role: {
+            in: [
+              RelatedUserRole.LOCAL_SIGNUP_YES,
+              RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+              RelatedUserRole.LOCAL_SIGNUP_NO,
+            ],
+          },
+        },
+        select: { userId: true, role: true },
+      })
+    : null;
+
+  const signupCheckRelatedUsers = [
+    ...larp.relatedUsers,
+    ...(userSignupRelatedUser ? [userSignupRelatedUser] : []),
+  ];
+
+  const signupStatus = getLocalSignupStatusForUser(
+    user,
+    { ...larp, relatedUsers: signupCheckRelatedUsers },
+    code ?? null,
+  );
+
+  const signupHref = code
+    ? `/larp/${larp.id}/signup?code=${encodeURIComponent(code)}`
+    : `/larp/${larp.id}/signup`;
+
+  const SignupButton = ({
+    variant = "secondary",
+    title,
+    callToAction,
+    href,
+  }: {
+    variant: "primary" | "secondary" | "success" | "danger" | "warning";
+    title: string;
+    callToAction?: string;
+    href?: string;
+  }) => {
+    if (!href) {
+      return (
+        <Card>
+          <CardBody className={`text-${variant}`}>
+            <CardTitle className="mb-0 text-center">{title}</CardTitle>
+            {callToAction && (
+              <CardText className="mt-3">{callToAction}</CardText>
+            )}
+          </CardBody>
+        </Card>
+      );
+    }
+
+    return (
+      <Link
+        href={signupHref}
+        className={`btn btn-outline-${variant} p-3 w-100 bg-white`}
+      >
+        <CardTitle className="mb-0">{title}</CardTitle>
+        {callToAction && <CardText className="mt-2">{callToAction}</CardText>}
+      </Link>
+    );
+  };
+
+  let signupCard: ReactNode = null;
+  if (signupStatus === "CANCELLED") {
+    signupCard = (
+      <SignupButton
+        variant="danger"
+        title={signupT.userSignupStatus.choices.CANCELLED}
+      />
+    );
+  } else if (signupStatus === "CAN_SIGN_UP") {
+    signupCard = (
+      <SignupButton
+        variant="primary"
+        title={signupT.userSignupStatus.choices.CAN_SIGN_UP}
+        callToAction={signupT.userSignupStatus.actions.signUp}
+        href={signupHref}
+      />
+    );
+  } else if (signupStatus === "LOCAL_SIGNUP_YES") {
+    signupCard = (
+      <SignupButton
+        variant="success"
+        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_YES}
+        callToAction={signupT.userSignupStatus.actions.change}
+        href={signupHref}
+      />
+    );
+  } else if (signupStatus === "LOCAL_SIGNUP_MAYBE") {
+    signupCard = (
+      <SignupButton
+        variant="warning"
+        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_MAYBE}
+        callToAction={signupT.userSignupStatus.actions.change}
+        href={signupHref}
+      />
+    );
+  } else if (signupStatus === "LOCAL_SIGNUP_NO") {
+    signupCard = (
+      <SignupButton
+        variant="danger"
+        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_NO}
+        callToAction={signupT.userSignupStatus.actions.change}
+        href={signupHref}
+      />
+    );
+  }
 
   function ClaimLink({ children }: { children: ReactNode }) {
     return (
@@ -362,6 +491,16 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
           <p className="fs-5 fst-italic h-float">{larp.tagline}</p>
         </div>
       </Container>
+      {signupCard && (
+        <Container className="mb-3" style={{ maxWidth: "800px" }}>
+          {signupVerified && (
+            <AlertNavigateOnClose variant="success">
+              {signupT.signupVerified}
+            </AlertNavigateOnClose>
+          )}
+          {signupCard}
+        </Container>
+      )}
       <LarpInfoCard
         larp={larp}
         className="mb-5"
@@ -380,6 +519,15 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
           </div>
         )}
         <div className="mb-2 form-text">{gmity}</div>
+        {featureFlags.localSignup &&
+          larp.localSignupStatus !== LocalSignupStatus.DISABLED && (
+            <div className="mb-2 form-text">
+              👥{" "}
+              <Link href={`/larp/${larp.id}/roles`} className="link-subtle">
+                {translations.RolesPage.title}
+              </Link>
+            </div>
+          )}
         {editPolicy && (
           <>
             <div className="mb-2 form-text">
@@ -396,6 +544,17 @@ export default async function LarpPage({ larpPromise, locale }: Props) {
               </Link>
               : {ediT.policy[editPolicy]}
             </div>
+            {featureFlags.localSignup && isGmOrModerator(user, larp) && (
+              <div className="mb-2 form-text">
+                ⚙️{" "}
+                <Link
+                  href={`/larp/${larp.id}/signup/settings`}
+                  className="link-subtle"
+                >
+                  {t.actions.manageSignupSettings}
+                </Link>
+              </div>
+            )}
           </>
         )}
         {deletePolicy && (

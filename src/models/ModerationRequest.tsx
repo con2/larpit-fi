@@ -11,8 +11,8 @@ import {
   LarpType,
   ModerationRequest,
   Openness,
-  RelatedUser,
   RelatedUserRole,
+  RelatedUserVisibility,
   SubmitterRole,
   User,
   UserRole,
@@ -257,13 +257,19 @@ async function handleRequestSubmitter(
   submitterId: string,
   submitterRole: SubmitterRole,
 ) {
-  const roles: Omit<RelatedUser, "id">[] = [];
+  const roles: {
+    larpId: string;
+    userId: string;
+    role: RelatedUserRole;
+    visibility: RelatedUserVisibility;
+  }[] = [];
 
   if (action === EditAction.CREATE) {
     roles.push({
       larpId,
       userId: submitterId,
       role: RelatedUserRole.CREATED_BY,
+      visibility: RelatedUserVisibility.ONLY_ME,
     });
   }
 
@@ -271,7 +277,8 @@ async function handleRequestSubmitter(
     roles.push({
       larpId,
       userId: submitterId,
-      role: submitterRole,
+      role: submitterRole as unknown as RelatedUserRole,
+      visibility: RelatedUserVisibility.ONLY_ME,
     });
   }
 
