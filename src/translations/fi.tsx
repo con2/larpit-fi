@@ -16,6 +16,9 @@ const translations: Translations = {
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
     sections: {
+      recentChanges: {
+        title: "Tuoreet muutokset",
+      },
       upcomingOtherEvents: "Tulevat conit, miitit ja muut tapahtumat",
       ongoingSignup: {
         title: "Ilmoittautuminen käynnissä tai avautumassa pian",

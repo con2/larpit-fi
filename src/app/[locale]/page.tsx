@@ -1,4 +1,7 @@
 import LarpCard from "@/components/LarpCard";
+import RecentChangesCard, {
+  getRecentChanges,
+} from "@/components/RecentChangesCard";
 import { LarpType, Openness } from "@/generated/prisma/client";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
 import prisma from "@/prisma";
@@ -20,7 +23,7 @@ const take = 100;
 
 const cancelledLarpVisibleDays = 30;
 
-async function getHomePageData() {
+async function getHomePageLarps() {
   const cancelledCutoff = new Date(
     Date.now() - cancelledLarpVisibleDays * 24 * 60 * 60 * 1000,
   );
@@ -55,7 +58,7 @@ async function getHomePageData() {
   });
 }
 
-type HomePageLarp = Awaited<ReturnType<typeof getHomePageData>>[number];
+type HomePageLarp = Awaited<ReturnType<typeof getHomePageLarps>>[number];
 const signupOpeningSoonDays = 14;
 
 function Section({
@@ -118,11 +121,12 @@ export default async function HomePage({ params }: Props) {
   // TODO currently gets all larps, then filters in memory
   // still plenty fast enough, but should be optimized later
 
-  const [larps, page] = await Promise.all([
-    getHomePageData(),
+  const [larps, page, recentChanges] = await Promise.all([
+    getHomePageLarps(),
     prisma.page.findUnique({
       where: { slug_language: { slug, language: locale } },
     }),
+    getRecentChanges(),
   ]);
 
   const candidateLarps = larps.filter(
@@ -163,13 +167,27 @@ export default async function HomePage({ params }: Props) {
         </p>
       </div>
 
-      {page && (
-        <Card className="mb-5">
-          <CardBody>
-            <Markdown input={page.content} />
-          </CardBody>
-        </Card>
-      )}
+      <div className="row">
+        {page && (
+          <div className="col-lg-8 mb-5">
+            <Card className="h-100">
+              <CardBody>
+                <Markdown input={page.content} />
+              </CardBody>
+            </Card>
+          </div>
+        )}
+        <div className="col-lg-4 mb-5">
+          <RecentChangesCard
+            recentChanges={recentChanges}
+            locale={locale}
+            messages={{
+              section: t.sections.recentChanges,
+              action: translations.ModerationRequest.attributes.action.choices,
+            }}
+          />
+        </div>
+      </div>
 
       {ongoingSignupLarps.length > 0 && (
         <Section

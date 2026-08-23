@@ -15,6 +15,9 @@ const translations = {
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
     sections: {
+      recentChanges: {
+        title: "Recent changes",
+      },
       upcomingOtherEvents: "Upcoming conventions, meetups and other events",
       ongoingSignup: {
         title: "Sign-up in progress or opening soon",
