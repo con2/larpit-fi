@@ -338,7 +338,7 @@ const translations = {
     title: "Sign up",
     userSignupStatus: {
       choices: {
-        CANCELLED: "This larp is cancelled. Sign-up is not available.",
+        CANCELLED: "This larp has been cancelled.",
         DISABLED: "Sign-up for this event is not available.",
         CODE_REQUIRED:
           "This event is only accepting sign-ups via a private link.",

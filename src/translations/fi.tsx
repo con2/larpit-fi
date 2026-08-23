@@ -350,8 +350,7 @@ const translations: Translations = {
     title: "Ilmoittautuminen",
     userSignupStatus: {
       choices: {
-        CANCELLED:
-          "Tämä larppi on peruttu. Ilmoittautuminen ei ole mahdollista.",
+        CANCELLED: "Tämä larppi on peruttu.",
         DISABLED: "Ilmoittautuminen tähän tapahtumaan ei ole käytössä.",
         CODE_REQUIRED:
           "Tähän tapahtumaan voi ilmoittautua vain yksityisellä linkillä.",
