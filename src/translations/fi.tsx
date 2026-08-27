@@ -769,6 +769,15 @@ const translations: Translations = {
               </>
             ),
           },
+          SIGNUP: {
+            title: "Ilmoittautuminen",
+            helpText: (
+              <>
+                Linkki suoraan larpin ilmoittautumislomakkeeseen tai muuhun
+                ilmoittautumiseen käytettävään palveluun.
+              </>
+            ),
+          },
           OTHER: {
             title: "Muu",
             helpText: <></>,

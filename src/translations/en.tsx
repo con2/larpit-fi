@@ -755,6 +755,15 @@ const translations = {
               </>
             ),
           },
+          SIGNUP: {
+            title: "Sign-up",
+            helpText: (
+              <>
+                Link directly to the sign-up form or other facility used to sign
+                up for the larp.
+              </>
+            ),
+          },
           OTHER: {
             title: "Other",
             helpText: <></>,
