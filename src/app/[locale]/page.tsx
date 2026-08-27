@@ -8,8 +8,10 @@ import prisma from "@/prisma";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Markdown } from "@con2/components";
+import { InfoCircle } from "@con2/components/icons";
 import Link from "next/link";
-import { CardBody, FormText } from "react-bootstrap";
+import { ReactNode } from "react";
+import { CardBody, OverlayTrigger, Tooltip } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { partition } from "underscore";
 
@@ -63,6 +65,7 @@ const signupOpeningSoonDays = 14;
 
 function Section({
   title,
+  description,
   larps,
   locale,
   messages,
@@ -71,6 +74,7 @@ function Section({
   countWord,
 }: {
   title: string;
+  description?: ReactNode;
   larps: HomePageLarp[];
   locale: string;
   messages: Translations["Larp"];
@@ -90,6 +94,14 @@ function Section({
           <>
             {" "}
             ({count} {countLabel})
+          </>
+        )}
+        {description && (
+          <>
+            {" "}
+            <OverlayTrigger overlay={<Tooltip>{description}</Tooltip>}>
+              <InfoCircle />
+            </OverlayTrigger>
           </>
         )}
       </h4>
@@ -192,14 +204,13 @@ export default async function HomePage({ params }: Props) {
       {ongoingSignupLarps.length > 0 && (
         <Section
           title={t.sections.ongoingSignup.title}
+          description={t.sections.ongoingSignup.description(
+            signupOpeningSoonDays,
+          )}
           larps={ongoingSignupLarps}
           locale={locale}
           messages={translations.Larp}
-        >
-          <FormText>
-            {t.sections.ongoingSignup.description(signupOpeningSoonDays)}
-          </FormText>
-        </Section>
+        />
       )}
       {otherUpcomingLarps.length > 0 && (
         <Section
