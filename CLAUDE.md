@@ -36,7 +36,7 @@ npm run db:seed      # Seed with example data
 
 **Data flow:** Pages are server components that query Prisma directly. Form submissions and mutations are handled by server actions. Client components are used only where interactivity is needed, or for performance.
 
-**Authentication:** next-auth v4 with Kompassi OIDC. Users start as `NOT_VERIFIED` and must be approved by a moderator. Moderation submissions create `ModerationRequest` records; approved edits are applied to the main tables.
+**Authentication:** Auth.js v5 (`next-auth` 5.x) with Kompassi OIDC and database sessions. Users start as `NOT_VERIFIED` and must be approved by a moderator. Moderation submissions create `ModerationRequest` records; approved edits are applied to the main tables.
 
 **Translations:** `src/translations/en.tsx` is the source of truth and defines the `Translations` type. `src/translations/fi.tsx` implements that type. Translations are TypeScript objects (not JSON) and can contain JSX. Access via `getTranslations(locale)` on the server. Functions and JSX cannot be passed to client components, which may limit some translations to JSON serializable ones.
 

@@ -26,7 +26,7 @@ Create an `.env` file not unlike the following:
 ```ini
 DATABASE_URL=postgresql://yourusername@localhost/larpit
 TEST_DATABASE_URL=postgresql://yourusername@localhost/larpit_test
-NEXTAUTH_URL=http://localhost:3158
+AUTH_URL=http://localhost:3158
 AUTH_SECRET=eeeee
 SMTP_HOSTNAME=smtp.ethereal.email
 SMTP_USERNAME=youraccount@ethereal.email

@@ -98,7 +98,7 @@ const env = Object.entries({
   PORT: port,
   DATABASE_URL: secretKeyRef("DATABASE_URL"),
   AUTH_SECRET: secretKeyRef("AUTH_SECRET"),
-  NEXTAUTH_URL: publicUrl,
+  AUTH_URL: publicUrl,
   NEXT_PUBLIC_KOMPASSI_BASE_URL: kompassiBaseUrl,
   KOMPASSI_OIDC_CLIENT_ID: secretKeyRef("KOMPASSI_OIDC_CLIENT_ID"),
   KOMPASSI_OIDC_CLIENT_SECRET: secretKeyRef("KOMPASSI_OIDC_CLIENT_SECRET"),

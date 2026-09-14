@@ -15,7 +15,7 @@ export const kompassiBaseUrl =
   process.env.NEXT_PUBLIC_KOMPASSI_BASE_URL || "https://dev.kompassi.eu";
 export const kompassiProfileUrl = `${kompassiBaseUrl}/profile`;
 export const kompassiOidc = {
-  wellKnown: `${kompassiBaseUrl}/oidc/.well-known/openid-configuration/`,
+  issuer: `${kompassiBaseUrl}/oidc`,
   clientId:
     process.env.KOMPASSI_OIDC_CLIENT_ID ||
     "kompassi_dev_insecure_client_id_larpit_fi",
@@ -25,10 +25,10 @@ export const kompassiOidc = {
 };
 
 // User-visible public base URL of the service
-export const publicUrl = process.env.NEXTAUTH_URL || "http://localhost:3158";
+export const publicUrl = process.env.AUTH_URL || "http://localhost:3158";
 export const isStaging = publicUrl.includes("dev.larpit.fi");
 
-// next-auth aka auth.js
+// Auth.js
 export const authSecret =
   process.env.AUTH_SECRET || "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 
