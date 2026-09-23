@@ -19,13 +19,17 @@ Certificate. `.github/workflows/cicd.yaml` runs `helm upgrade --install larpit c
 ```sh
 kubectl create namespace larpit-production
 kubectl -n larpit-production create secret generic larpit \
-  --from-literal=DATABASE_URL='postgresql://...' \
+  --from-literal=DATABASE_URL='postgresql://larpit:...@siilo.tracon.fi/larpit?sslmode=verify-full' \
   --from-literal=AUTH_SECRET="$(openssl rand -base64 32)" \
   --from-literal=KOMPASSI_OIDC_CLIENT_ID=... \
   --from-literal=KOMPASSI_OIDC_CLIENT_SECRET=...
 ```
 
 The Kompassi OIDC client must allow the redirect URI `https://<hostname>/api/auth/callback/kompassi`.
+
+Use `sslmode=verify-full`, not `require`. `pg` treats `require`, `prefer` and `verify-ca` as
+aliases for `verify-full` today and only warns about them, but a future major version will give
+them their libpq meaning, which skips hostname verification.
 
 ## Request body limit
 
