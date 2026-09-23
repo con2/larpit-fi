@@ -1,0 +1,7 @@
+hostname: larpit.fi
+kompassi:
+  baseUrl: https://kompassi.eu
+larppikuvatSync:
+  enabled: true
+# Secret `larpit` in namespace larpit-production is managed out of band.
+existingSecretName: larpit

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: larpit
+  labels:
+    {{- include "larpit.labels" . | nindent 4 }}
+data:
+  PORT: "3000"
+  AUTH_URL: {{ printf "https://%s" .Values.hostname | quote }}
+  NEXT_PUBLIC_KOMPASSI_BASE_URL: {{ .Values.kompassi.baseUrl | quote }}
+  SMTP_HOSTNAME: {{ .Values.mail.smtpHostname | quote }}
+  SMTP_PORT: {{ .Values.mail.smtpPort | quote }}

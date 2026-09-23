@@ -1,0 +1,37 @@
+{{- if .Values.larppikuvatSync.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sync-larppikuvat
+  labels:
+    {{- include "larpit.labels" . | nindent 4 }}
+    component: sync-larppikuvat
+spec:
+  schedule: "17 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            stack: larpit
+            component: sync-larppikuvat
+        spec:
+          restartPolicy: Never
+          enableServiceLinks: false
+          automountServiceAccountToken: false
+          securityContext:
+            {{- include "larpit.podSecurityContext" . | nindent 12 }}
+          containers:
+            - name: sync-larppikuvat
+              # The runner image has only the Next.js standalone build, not src/bin.
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}-builder"
+              command: ["node_modules/.bin/tsx", "src/bin/sync-larppikuvat.ts"]
+              envFrom:
+                {{- include "larpit.envFrom" . | nindent 16 }}
+              resources:
+                {{- toYaml .Values.resources.sync | nindent 16 }}
+              securityContext:
+                {{- include "larpit.containerSecurityContext" . | nindent 16 }}
+{{- end }}
