@@ -8,6 +8,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.integration.test.ts"],
+    // The test files share one database and truncate it between tests.
+    fileParallelism: false,
     globalSetup: "./src/test/globalSetup.ts",
     env: {
       DATABASE_URL: process.env.TEST_DATABASE_URL!,

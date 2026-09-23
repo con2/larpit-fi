@@ -8,7 +8,7 @@ interface Params {
   larpId: string;
 }
 
-// NOTE: Keep in sync with src/app/api-docs/route.ts
+// NOTE: Keep in sync with src/app/api/openapi.json/route.ts
 export async function GET(
   _request: Request,
   { params }: { params: Promise<Params> },

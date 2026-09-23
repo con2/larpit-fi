@@ -117,6 +117,14 @@ export async function handleLarpLinks(
   }
 
   if (operations.length > 0) {
+    // @updatedAt only fires on writes to the larp row itself, and API
+    // consumers polling with updatedAfter need to see link changes.
+    operations.push(
+      prisma.larp.update({
+        where: { id: larpId },
+        data: { updatedAt: new Date() },
+      }),
+    );
     await prisma.$transaction(operations);
   }
 }

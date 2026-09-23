@@ -2,13 +2,15 @@
 // See https://github.com/japsu/depleten for philosophy.
 // Usage: ENV=staging node --experimental-strip-types src/bin/manifest.mts
 
-import { mkdirSync, writeFileSync } from "fs";
+import { mkdirSync, rmSync, writeFileSync } from "fs";
 import path from "path";
 
 interface Environment {
   hostname: string;
   kompassiBaseUrl: string;
   tlsEnabled: boolean;
+  // The sync adds PHOTOS links to production larppikuvat.fi albums.
+  larppikuvatSyncEnabled: boolean;
 }
 
 const manifestsDir = path.resolve("kubernetes");
@@ -21,16 +23,19 @@ const environmentConfigurations: Record<EnvironmentName, Environment> = {
     hostname: "larpit.localhost",
     kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: false,
+    larppikuvatSyncEnabled: true,
   },
   staging: {
     hostname: "dev.larpit.fi",
     kompassiBaseUrl: "https://dev.kompassi.eu",
     tlsEnabled: true,
+    larppikuvatSyncEnabled: false,
   },
   production: {
     hostname: "larpit.fi",
     kompassiBaseUrl: "https://kompassi.eu",
     tlsEnabled: true,
+    larppikuvatSyncEnabled: true,
   },
 };
 
@@ -47,7 +52,8 @@ const environmentConfiguration =
 
 // image name will be replaced by skaffold
 const image = "larpit-fi";
-const migrateImage = "larpit-fi-builder";
+// the runner image only contains the Next.js standalone build, not src/bin
+const builderImage = "larpit-fi-builder";
 
 export const stack = "larpit";
 const nodeServiceName = "node";
@@ -59,7 +65,8 @@ const livenessProbeEnabled = true;
 const smtpHostname = "sr1.pahaip.fi";
 const smtpPort = 25;
 
-const { hostname, kompassiBaseUrl, tlsEnabled } = environmentConfiguration;
+const { hostname, kompassiBaseUrl, tlsEnabled, larppikuvatSyncEnabled } =
+  environmentConfiguration;
 
 const ingressProtocol = tlsEnabled ? "https" : "http";
 const publicUrl = `${ingressProtocol}://${hostname}`;
@@ -163,7 +170,7 @@ const deployment = {
         initContainers: [
           {
             name: "migrate",
-            image: migrateImage,
+            image: builderImage,
             command: ["npm", "run", "db:migrate"],
             env,
             securityContext,
@@ -182,6 +189,51 @@ const deployment = {
             volumeMounts,
           },
         ],
+      },
+    },
+  },
+};
+
+const larppikuvatSyncName = "sync-larppikuvat";
+const larppikuvatSyncCronJob = {
+  apiVersion: "batch/v1",
+  kind: "CronJob",
+  metadata: {
+    name: larppikuvatSyncName,
+    labels: labels(larppikuvatSyncName),
+  },
+  spec: {
+    schedule: "17 * * * *",
+    concurrencyPolicy: "Forbid",
+    jobTemplate: {
+      spec: {
+        backoffLimit: 0,
+        template: {
+          metadata: {
+            labels: labels(larppikuvatSyncName),
+          },
+          spec: {
+            restartPolicy: "Never",
+            enableServiceLinks: false,
+            securityContext: {
+              runAsUser: 1000,
+              runAsGroup: 1000,
+              fsGroup: 1000,
+            },
+            containers: [
+              {
+                name: larppikuvatSyncName,
+                image: builderImage,
+                command: [
+                  "node_modules/.bin/tsx",
+                  "src/bin/sync-larppikuvat.ts",
+                ],
+                env,
+                securityContext,
+              },
+            ],
+          },
+        },
       },
     },
   },
@@ -276,6 +328,13 @@ function main() {
   writeManifest("deployment.json", deployment);
   writeManifest("service.json", service);
   writeManifest("ingress.json", ingress);
+
+  const cronJobFilename = "cronjob-sync-larppikuvat.json";
+  if (larppikuvatSyncEnabled) {
+    writeManifest(cronJobFilename, larppikuvatSyncCronJob);
+  } else {
+    rmSync(path.join(manifestsDir, cronJobFilename), { force: true });
+  }
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {

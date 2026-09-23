@@ -50,6 +50,10 @@ export const mailOptions: Partial<SendMailOptions> = {
   from: formattedMailFrom,
 };
 
+// Edegal instance whose top-level albums are cross-linked with larps
+export const larppikuvatApiUrl =
+  process.env.LARPPIKUVAT_API_URL || "https://larppikuvat.fi/api/v3/";
+
 export const featureFlags = {
   localSignup: false,
 } as const;

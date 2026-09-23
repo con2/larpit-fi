@@ -32,12 +32,13 @@ function decodeCursor(
   }
 }
 
-// NOTE: Keep in sync with src/app/api-docs/route.ts
+// NOTE: Keep in sync with src/app/api/openapi.json/route.ts
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const updatedAfterParam = searchParams.get("updatedAfter");
   const limitParam = searchParams.get("limit");
   const afterParam = searchParams.get("after");
+  const includeParam = searchParams.get("include");
 
   let updatedAfter: Date | undefined;
   if (updatedAfterParam) {
@@ -49,6 +50,20 @@ export async function GET(request: Request) {
       );
     }
     updatedAfter = parsed;
+  }
+
+  let includeLinks = false;
+  if (includeParam) {
+    for (const include of includeParam.split(",")) {
+      if (include === "links") {
+        includeLinks = true;
+      } else {
+        return NextResponse.json(
+          { error: "Invalid include value" },
+          { status: 400, headers: CORS_HEADERS },
+        );
+      }
+    }
   }
 
   let limit: number | undefined;
@@ -117,6 +132,9 @@ export async function GET(request: Request) {
       numPlayerCharacters: true,
       numTotalParticipants: true,
       updatedAt: true,
+      links: includeLinks
+        ? { select: { href: true, type: true, title: true } }
+        : false,
     },
     orderBy: [{ startsAt: { sort: "desc", nulls: "last" } }, { id: "asc" }],
     take: limit !== undefined ? limit + 1 : undefined,

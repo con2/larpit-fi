@@ -72,7 +72,14 @@ const spec = {
         return {
           type: "object",
           required: Object.keys(properties),
-          properties,
+          properties: {
+            ...properties,
+            links: {
+              type: "array",
+              description: "Present only when requested with include=links",
+              items: { $ref: "#/components/schemas/LarpLink" },
+            },
+          },
         };
       })(),
       LarpDetail: {
@@ -124,8 +131,16 @@ const spec = {
             in: "query",
             required: false,
             description:
-              "Cursor for the next page, taken from the X-Next-Cursor response header.",
+              "Cursor for the next page, taken from nextCursor of the previous response.",
             schema: { type: "string" },
+          },
+          {
+            name: "include",
+            in: "query",
+            required: false,
+            description:
+              "Comma-separated list of related data to include in each item. Supported: links",
+            schema: { type: "string", example: "links" },
           },
         ],
         responses: {
