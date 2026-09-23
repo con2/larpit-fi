@@ -43,17 +43,31 @@ Before this chart, `src/bin/manifest.mts` generated a Deployment `node`, a Servi
 Ingress `larpit`, and skaffold applied them. The chart keeps the Deployment's and Service's names
 and selector, so Helm can adopt them instead of recreating them.
 
-1. Before the first chart deploy, mark the existing objects as belonging to the release:
+1. Mark the existing objects as belonging to the release:
 
    ```sh
-   kubectl -n larpit-production annotate deployment/node service/node \
-     meta.helm.sh/release-name=larpit meta.helm.sh/release-namespace=larpit-production
-   kubectl -n larpit-production label deployment/node service/node \
+   ns=larpit-production
+   kubectl -n $ns annotate deployment/node service/node cronjob/sync-larppikuvat --overwrite \
+     meta.helm.sh/release-name=larpit meta.helm.sh/release-namespace=$ns
+   kubectl -n $ns label deployment/node service/node cronjob/sync-larppikuvat --overwrite \
      app.kubernetes.io/managed-by=Helm
    ```
 
-2. Deploy (push to main). Until step 3 both the old Ingress and the new Gateway route larpit.fi.
-   Wait until the new certificate is issued and the routes are accepted:
+2. Deploy once by hand with `--force-conflicts`, using an image tag CI has already pushed. Helm
+   installs with server-side apply, which refuses to change fields that `kubectl apply` still
+   owns. Clearing `managedFields` does not help: the next apply assigns every existing field to
+   a placeholder owner, `before-first-apply`, and conflicts with that instead.
+
+   ```sh
+   helm upgrade --install larpit chart --namespace larpit-production \
+     -f chart/values-production.yaml \
+     --set image.repository=ghcr.io/con2/larpit-fi --set image.tag=<short sha> \
+     --force-conflicts --wait --timeout 300s
+   ```
+
+   Later CI deploys need no flag, because Helm then owns every field. Until step 3 both the old
+   Ingress and the new Gateway route larpit.fi. Wait until the new certificate is issued and the
+   routes are accepted:
 
    ```sh
    kubectl -n larpit-production get certificate larpit      # READY True
