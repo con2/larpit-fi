@@ -52,6 +52,9 @@ npm run db:verify           # Check that the database matches the contract
 - Production applies migrations with `src/bin/migrate.mjs` (ORM command family only) from the `-migrate` image. A database that predates Prisma 8 must be signed once at the baseline migration; see `chart/README.md`.
 - Prisma only appends native enum values: add new values at the end of the enum.
 - `pg` and `@types/pg` stay pinned to the versions the Prisma runtime bundles.
+- The CLI's "Prisma agent skills are out of date" warning is expected: skills are read from
+  `node_modules`, and `prisma skills sync` (which copies them into four harness directories) is
+  not used here.
 
 ## Code conventions
 
