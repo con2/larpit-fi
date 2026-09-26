@@ -32,6 +32,11 @@ spec:
             {{- toYaml .Values.resources.migrate | nindent 12 }}
           securityContext:
             {{- include "larpit.containerSecurityContext" . | nindent 12 }}
+          # The migrate image has no Next.js cache; the mount stays because server-side apply
+          # keeps this list item under its pre-Helm owner and rejects the Deployment without it.
+          volumeMounts:
+            - name: next-cache
+              mountPath: /usr/src/app/.next/cache
       containers:
         - name: node
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
