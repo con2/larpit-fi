@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
-    "@con2/components": "github:con2/components#v5.0.0",
+    "@con2/components": "github:con2/components#v5.1.0",
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
