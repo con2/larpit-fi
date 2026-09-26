@@ -30,6 +30,7 @@ npm run db:migrate:dev      # Apply pending migrations to the dev database and a
 npm run db:plan -- <slug>   # Emit the contract and plan a migration from the contract diff
 npm run db:migrate          # Apply pending migrations (what the deploy init container does)
 npm run db:verify           # Check that the database matches the contract
+npm run db:load             # Mirror the public larps of larpit.fi into the database (or --api <url>)
 ```
 
 ## Architecture

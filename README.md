@@ -67,6 +67,12 @@ npm run db:migrate:dev
 npm run dev
 ```
 
+An empty database is dull. Mirror the public larps of larpit.fi into it with
+
+```
+npm run db:load
+```
+
 Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
 
 ### Running tests

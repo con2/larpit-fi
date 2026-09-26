@@ -1,3 +1,4 @@
+import { or } from "@prisma/orm-postgres/orm-client";
 import { NextResponse } from "next/server";
 import { validate as uuidValidate } from "uuid";
 
@@ -79,7 +80,25 @@ async function pageOfLarpIds(
   return result.rows.map((row) => row.id);
 }
 
-async function loadLarps(ids: string[], includeLinks: boolean) {
+/** Both directions of the relations touching the given larps, as stored. */
+async function relatedLarpsOf(ids: string[]) {
+  const rows = await db.orm.public.RelatedLarp.where((r) =>
+    or(r.leftId.in(ids), r.rightId.in(ids)),
+  ).all();
+  const byLarp = new Map<string, typeof rows>();
+  for (const row of rows) {
+    for (const id of [row.leftId, row.rightId]) {
+      byLarp.set(id, [...(byLarp.get(id) ?? []), row]);
+    }
+  }
+  return byLarp;
+}
+
+async function loadLarps(
+  ids: string[],
+  includeLinks: boolean,
+  includeRelatedLarps: boolean,
+) {
   const larps = db.orm.public.Larp.where((l) => l.id.in(ids))
     .select(
       "id",
@@ -107,7 +126,13 @@ async function loadLarps(ids: string[], includeLinks: boolean) {
       : await larps.all(),
   );
   const byId = new Map(rows.map((row) => [row.id, row]));
-  return ids.map((id) => byId.get(id)!);
+  const ordered = ids.map((id) => byId.get(id)!);
+  if (!includeRelatedLarps) return ordered;
+  const related = await relatedLarpsOf(ids);
+  return ordered.map((larp) => ({
+    ...larp,
+    relatedLarps: related.get(larp.id) ?? [],
+  }));
 }
 
 // NOTE: Keep in sync with src/app/api/openapi.json/route.ts
@@ -131,10 +156,13 @@ export async function GET(request: Request) {
   }
 
   let includeLinks = false;
+  let includeRelatedLarps = false;
   if (includeParam) {
     for (const include of includeParam.split(",")) {
       if (include === "links") {
         includeLinks = true;
+      } else if (include === "relatedLarps") {
+        includeRelatedLarps = true;
       } else {
         return NextResponse.json(
           { error: "Invalid include value" },
@@ -169,7 +197,10 @@ export async function GET(request: Request) {
   }
 
   const ids = await pageOfLarpIds(updatedAfter, cursor, limit);
-  const larps = ids.length > 0 ? await loadLarps(ids, includeLinks) : [];
+  const larps =
+    ids.length > 0
+      ? await loadLarps(ids, includeLinks, includeRelatedLarps)
+      : [];
 
   const hasMore = limit !== undefined && larps.length > limit;
   const items = hasMore ? larps.slice(0, limit) : larps;

@@ -1,5 +1,11 @@
 import { publicUrl } from "@/config";
-import { Language, LarpLinkType, LarpType, Openness } from "@/prisma/enums";
+import {
+  Language,
+  LarpLinkType,
+  LarpType,
+  Openness,
+  RelatedLarpType,
+} from "@/prisma/enums";
 import { NextResponse } from "next/server";
 
 const spec = {
@@ -27,6 +33,24 @@ const spec = {
         type: "string",
         enum: Object.values(LarpLinkType),
       },
+      RelatedLarpType: {
+        type: "string",
+        enum: Object.values(RelatedLarpType),
+      },
+      RelatedLarp: (() => {
+        const properties = {
+          leftId: { type: "string", format: "uuid" },
+          rightId: { type: "string", format: "uuid" },
+          type: { $ref: "#/components/schemas/RelatedLarpType" },
+        };
+        return {
+          type: "object",
+          description:
+            "A directed relation read as `left <type> right`, e.g. `left RUN_OF right`. The larp it is listed under is either end.",
+          required: Object.keys(properties),
+          properties,
+        };
+      })(),
       LarpLink: (() => {
         const properties = {
           href: { type: "string" },
@@ -73,6 +97,12 @@ const spec = {
               type: "array",
               description: "Present only when requested with include=links",
               items: { $ref: "#/components/schemas/LarpLink" },
+            },
+            relatedLarps: {
+              type: "array",
+              description:
+                "Present only when requested with include=relatedLarps",
+              items: { $ref: "#/components/schemas/RelatedLarp" },
             },
           },
         };
@@ -134,7 +164,7 @@ const spec = {
             in: "query",
             required: false,
             description:
-              "Comma-separated list of related data to include in each item. Supported: links",
+              "Comma-separated list of related data to include in each item. Supported: links, relatedLarps",
             schema: { type: "string", example: "links" },
           },
         ],
