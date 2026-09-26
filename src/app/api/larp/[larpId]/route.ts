@@ -1,4 +1,5 @@
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 import { validate as uuidValidate } from "uuid";
@@ -20,37 +21,35 @@ export async function GET(
     notFound();
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      alias: true,
-      name: true,
-      tagline: true,
-      type: true,
-      openness: true,
-      startsAt: true,
-      endsAt: true,
-      signupStartsAt: true,
-      signupEndsAt: true,
-      locationText: true,
-      municipality: { select: { nameFi: true } },
-      language: true,
-      numPlayerCharacters: true,
-      numTotalParticipants: true,
-      cancelledAt: true,
-      updatedAt: true,
-      fluffText: true,
-      description: true,
-      links: { select: { href: true, type: true, title: true } },
-    },
-  });
+  const larpRow = await db.orm.public.Larp.select(
+    "id",
+    "alias",
+    "name",
+    "tagline",
+    "type",
+    "openness",
+    "startsAt",
+    "endsAt",
+    "signupStartsAt",
+    "signupEndsAt",
+    "locationText",
+    "language",
+    "numPlayerCharacters",
+    "numTotalParticipants",
+    "cancelledAt",
+    "updatedAt",
+    "fluffText",
+    "description",
+  )
+    .include("municipality", (m) => m.select("nameFi"))
+    .include("links", (l) => l.select("href", "type", "title"))
+    .first({ id: larpId });
 
-  if (!larp) {
+  if (!larpRow) {
     notFound();
   }
 
-  const { cancelledAt, ...rest } = larp;
+  const { cancelledAt, ...rest } = parseDates(larpRow);
 
   return NextResponse.json(
     larpToApi({ ...rest, isCancelled: cancelledAt !== null }),

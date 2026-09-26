@@ -1,22 +1,3 @@
-import { sendEmail } from "@/email";
-import VerifyRequest, {
-  verifyRequestSubject,
-  verifyRequestText,
-} from "@/emails/VerifyRequest";
-import {
-  EditAction,
-  EditStatus,
-  Language,
-  Larp,
-  LarpType,
-  ModerationRequest,
-  Openness,
-  RelatedUserRole,
-  RelatedUserVisibility,
-  SubmitterRole,
-  User,
-  UserRole,
-} from "@/generated/prisma/client";
 import {
   fromEveningNull,
   fromJustBeforeMidnightNull,
@@ -24,10 +5,30 @@ import {
   toPlainDateNull,
   zPlainDateNull,
 } from "@con2/components/helpers";
-import prisma from "@/prisma";
-import { toSupportedLanguage } from "@/translations";
 import { pretty, render } from "react-email";
 import z from "zod";
+
+import { sendEmail } from "@/email";
+import VerifyRequest, {
+  verifyRequestSubject,
+  verifyRequestText,
+} from "@/emails/VerifyRequest";
+import { formatDates, iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import {
+  EditAction,
+  EditStatus,
+  Language,
+  LarpType,
+  Openness,
+  RelatedUserRole,
+  RelatedUserVisibility,
+  SubmitterRole,
+  UserRole,
+} from "@/prisma/enums";
+import type { Larp, ModerationRequest, User } from "@/prisma/models";
+import { execute, sql } from "@/prisma/sql";
+import { toSupportedLanguage } from "@/translations";
 import {
   handleLarpLinks,
   LarpLinkRemovable,
@@ -44,16 +45,14 @@ export enum Resolution {
   REJECTED = "REJECTED",
 }
 
-export const zLarpType = z
-  .enum<typeof LarpType>(LarpType)
-  .default(LarpType.ONE_SHOT);
-export const zResolution = z.enum<typeof Resolution>(Resolution);
+export const zLarpType = z.enum(LarpType).default(LarpType.ONE_SHOT);
+export const zResolution = z.enum(Resolution);
 export const zOpenness = z.preprocess(
   (value) => (value === "" ? null : value),
-  z.enum<typeof Openness>(Openness).nullable().default(null),
+  z.enum(Openness).nullable().default(null),
 );
-export const zSubmitterRole = z.enum<typeof SubmitterRole>(SubmitterRole);
-export const zLanguage = z.enum<typeof Language>(Language).default(Language.fi);
+export const zSubmitterRole = z.enum(SubmitterRole);
+export const zLanguage = z.enum(Language).default(Language.fi);
 
 export const ModerationRequestContent = z.object({
   name: z.string().min(1).max(200),
@@ -257,42 +256,34 @@ async function handleRequestSubmitter(
   submitterId: string,
   submitterRole: SubmitterRole,
 ) {
-  const roles: {
-    larpId: string;
-    userId: string;
-    role: RelatedUserRole;
-    visibility: RelatedUserVisibility;
-  }[] = [];
+  const roles: RelatedUserRole[] = [];
 
   if (action === EditAction.CREATE) {
-    roles.push({
-      larpId,
-      userId: submitterId,
-      role: RelatedUserRole.CREATED_BY,
-      visibility: RelatedUserVisibility.ONLY_ME,
-    });
+    roles.push(RelatedUserRole.CREATED_BY);
   }
 
   if (submitterRole !== SubmitterRole.NONE) {
-    roles.push({
-      larpId,
-      userId: submitterId,
-      role: submitterRole as unknown as RelatedUserRole,
-      visibility: RelatedUserVisibility.ONLY_ME,
+    roles.push(submitterRole);
+  }
+
+  for (const role of roles) {
+    await db.orm.public.RelatedUser.upsert({
+      create: {
+        larpId,
+        userId: submitterId,
+        role,
+        visibility: RelatedUserVisibility.ONLY_ME,
+      },
+      update: {},
     });
   }
 
-  await prisma.relatedUser.createMany({
-    data: roles,
-    skipDuplicates: true,
-  });
-
   // Verify the user if they are not yet verified
   // so that they may create further larps without pre-moderation
-  await prisma.user.updateMany({
-    where: { id: submitterId, role: UserRole.NOT_VERIFIED },
-    data: { role: UserRole.VERIFIED },
-  });
+  await db.orm.public.User.where({
+    id: submitterId,
+    role: UserRole.NOT_VERIFIED,
+  }).updateAndCount({ role: UserRole.VERIFIED });
 }
 
 export async function approveCreateLarpRequest(
@@ -323,12 +314,7 @@ export async function approveCreateLarpRequest(
   const data = contentToLarp(content);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
-  const larp = await prisma.larp.create({
-    data,
-    select: {
-      id: true,
-    },
-  });
+  const larp = await db.orm.public.Larp.select("id").create(formatDates(data));
 
   if (request.submitterId) {
     await handleRequestSubmitter(
@@ -359,24 +345,21 @@ async function handleRequestStatusUpdate(
   reason: string | null,
 ) {
   // Auto-approved requests are not resolved; they will be post-moderated.
-  let resolvedAt: Date | null = null;
+  let resolvedAt: string | null = null;
   let resolvedById: string | null = null;
   let resolvedMessage: string | null = null;
   if (newStatus === "APPROVED") {
-    resolvedAt = new Date();
+    resolvedAt = iso(new Date());
     resolvedById = resolvedBy.id;
     resolvedMessage = reason;
   }
 
-  await prisma.moderationRequest.update({
-    where: { id: requestId },
-    data: {
-      larpId,
-      resolvedAt,
-      resolvedById,
-      resolvedMessage,
-      status: newStatus,
-    },
+  await db.orm.public.ModerationRequest.where({ id: requestId }).update({
+    larpId,
+    resolvedAt,
+    resolvedById,
+    resolvedMessage,
+    status: newStatus,
   });
 }
 
@@ -408,23 +391,26 @@ export async function approveUpdateLarpRequest(
   }
 
   const content = parsePartialContent(request.newContent);
-  const data = partialContentToLarp(content);
+  const data = formatDates(partialContentToLarp(content));
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
   const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: request.larpId },
-    select: { id: true },
+  const larp = await db.orm.public.Larp.select("id").first({
+    id: request.larpId,
   });
 
   if (!larp) {
     throw new Error("Larp not found");
   }
 
-  await prisma.larp.update({
-    where: { id: request.larpId },
-    data: { ...data, updateCount: { increment: 1 } },
-  });
+  if (Object.keys(data).length > 0) {
+    await db.orm.public.Larp.where({ id: larp.id }).update(data);
+  }
+  await execute(sql`
+    update larp
+    set update_count = update_count + 1, updated_at = now()
+    where id = ${larp.id}
+  `);
 
   if (request.submitterId) {
     await handleRequestSubmitter(
@@ -468,14 +454,11 @@ export async function rejectRequest(
     throw new Error("Request is already resolved");
   }
 
-  await prisma.moderationRequest.update({
-    where: { id: request.id },
-    data: {
-      status: EditStatus.REJECTED,
-      resolvedAt: new Date(),
-      resolvedById: resolvedBy.id,
-      resolvedMessage: reason,
-    },
+  await db.orm.public.ModerationRequest.where({ id: request.id }).update({
+    status: EditStatus.REJECTED,
+    resolvedAt: iso(new Date()),
+    resolvedById: resolvedBy.id,
+    resolvedMessage: reason,
   });
 }
 
@@ -503,7 +486,7 @@ export async function approveDeleteLarpRequest(
     resolvedBy,
     reason,
   );
-  await prisma.larp.delete({ where: { id: larpId } });
+  await db.orm.public.Larp.where({ id: larpId }).delete();
 
   return { id: larpId };
 }

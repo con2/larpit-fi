@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { relatedLarpInclude } from "@/components/LarpPage";
+import { byStartsAt, relatedLarpFields } from "@/components/LarpPage";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { addRelatedLarp } from "@/components/related/actions";
@@ -9,12 +9,14 @@ import {
 } from "@/components/related/RelatedLarpComponent";
 import RemoveRelatedLarpButton from "@/components/related/RemoveRelatedLarpButton";
 import SelectLarpCombobox from "@/components/related/SelectLarpCombobox";
-import { RelatedLarpType } from "@/generated/prisma/client";
+import { RelatedLarpType } from "@/prisma/enums";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { compareNullsLast } from "@/helpers/sort";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import { SwapVert } from "@con2/components/icons";
@@ -70,47 +72,35 @@ export default async function RelatedLarpsPage({
     ]),
   );
 
-  const [larp, larps] = await Promise.all([
-    await prisma.larp.findUnique({
-      where: { id: resolvedParams.larpId },
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        startsAt: true,
-        endsAt: true,
-        relatedLarpsLeft: {
-          include: { right: relatedLarpInclude },
-          orderBy: { right: { startsAt: "asc" } },
-        },
-        relatedLarpsRight: {
-          include: { left: relatedLarpInclude },
-          orderBy: { left: { startsAt: "asc" } },
-        },
-        relatedUsers: {
-          where: { role: "GAME_MASTER" },
-          select: { userId: true, role: true },
-        },
-      },
-    }),
-    await prisma.larp.findMany({
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        startsAt: true,
-        endsAt: true,
-      },
-      where: {
-        id: { not: resolvedParams.larpId },
-      },
-      orderBy: [{ name: "asc" }, { startsAt: { sort: "desc", nulls: "last" } }],
-    }),
+  const [larpRow, larpRows] = await Promise.all([
+    db.orm.public.Larp.select("id", "name", "type", "startsAt", "endsAt")
+      .include("relatedLarpsLeft", (r) =>
+        r.include("right", (l) => l.select(...relatedLarpFields)),
+      )
+      .include("relatedLarpsRight", (r) =>
+        r.include("left", (l) => l.select(...relatedLarpFields)),
+      )
+      .include("relatedUsers", (r) =>
+        r.where({ role: "GAME_MASTER" }).select("userId", "role"),
+      )
+      .first({ id: resolvedParams.larpId }),
+    db.orm.public.Larp.select("id", "name", "type", "startsAt", "endsAt")
+      .where((l) => l.id.neq(resolvedParams.larpId))
+      .orderBy((l) => l.name.asc())
+      .all(),
   ]);
 
-  if (!larp) {
+  if (!larpRow) {
     notFound();
   }
+  larpRow.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
+  larpRow.relatedLarpsRight.sort((a, b) => byStartsAt(a.left, b.left));
+  const larp = parseDates(larpRow);
+  const larps = parseDates(larpRows).sort(
+    (a, b) =>
+      a.name.localeCompare(b.name, "fi") ||
+      compareNullsLast(b.startsAt, a.startsAt),
+  );
 
   const preselectedType =
     resolvedSearchParams.type &&

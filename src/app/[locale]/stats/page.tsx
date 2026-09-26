@@ -1,7 +1,7 @@
 import MainHeading from "@/components/MainHeading";
 import { Column, DataTable, DimensionFilters } from "@con2/components";
-import { Language, LarpType } from "@/generated/prisma/client";
-import prisma from "@/prisma";
+import { Language, LarpType } from "@/prisma/enums";
+import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -44,41 +44,50 @@ function getCutoffDate(since: SinceFilter): Date {
   }
 }
 
+// Postgres bigint aggregates arrive from pg as decimal strings.
 interface MuniRow {
   municipalityId: string;
   municipalityName: string;
-  count: bigint;
+  count: string;
 }
 
 interface YearRow {
-  year: bigint;
-  count: bigint;
+  year: string;
+  count: string;
 }
 
 interface TypeRow {
   type: string;
-  count: bigint;
+  count: string;
 }
 
 interface LanguageRow {
   language: Language;
-  count: bigint;
+  count: string;
 }
 
 interface MonthRow {
-  month: bigint;
-  count: bigint;
+  month: string;
+  count: string;
 }
 
 interface WeekRow {
-  week: bigint;
-  count: bigint;
+  week: string;
+  count: string;
 }
 
 interface PlayersRow {
   year: string;
-  numPlayerCharacters: bigint;
-  numTotalParticipants: bigint;
+  numPlayerCharacters: string;
+  numTotalParticipants: string;
+}
+
+function sumOf<T>(rows: T[], get: (row: T) => string): number {
+  return rows.reduce((sum, row) => sum + Number(get(row)), 0);
+}
+
+function maxOf<T>(rows: T[], get: (row: T) => string): number {
+  return rows.reduce((max, row) => Math.max(max, Number(get(row))), 0);
 }
 
 // 2015 has 53 ISO weeks. Using the Saturday of each week as the reference day
@@ -156,7 +165,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const muniRows = await prisma.$queryRaw<MuniRow[]>`
+  const muniRows = await query<MuniRow>(sql`
     select
       m.id as "municipalityId",
       m.name_fi as "municipalityName",
@@ -171,14 +180,9 @@ export default async function StatsPage({ params, searchParams }: Props) {
     group by m.id, m.name_fi
     having count(l.id) > 0
     order by count desc, m.name_fi asc
-  `;
-  const muniTotal = muniRows.reduce((sum, row) => sum + row.count, BigInt(0));
-  const muniMaxCount = Number(
-    muniRows.reduce(
-      (max, row) => (row.count > max ? row.count : max),
-      BigInt(0),
-    ),
-  );
+  `);
+  const muniTotal = sumOf(muniRows, (row) => row.count);
+  const muniMaxCount = maxOf(muniRows, (row) => row.count);
   const muniColumns: Column<MuniRow>[] = [
     {
       slug: "municipalityName",
@@ -200,7 +204,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const yearRows = await prisma.$queryRaw<YearRow[]>`
+  const yearRows = await query<YearRow>(sql`
     with year_range as (
       select generate_series(
         (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
@@ -218,15 +222,10 @@ export default async function StatsPage({ params, searchParams }: Props) {
         and l.cancelled_at is null
     group by yr.year
     order by yr.year asc
-  `;
-  const yearTotal = yearRows.reduce((sum, row) => sum + row.count, BigInt(0));
-  const yearMaxCount = Number(
-    yearRows.reduce(
-      (max, row) => (row.count > max ? row.count : max),
-      BigInt(0),
-    ),
-  );
-  yearRows.sort((a, b) => Number(a.year - b.year));
+  `);
+  const yearTotal = sumOf(yearRows, (row) => row.count);
+  const yearMaxCount = maxOf(yearRows, (row) => row.count);
+  yearRows.sort((a, b) => Number(a.year) - Number(b.year));
   const yearColumns: Column<YearRow>[] = [
     {
       slug: "year",
@@ -248,7 +247,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const monthRows = await prisma.$queryRaw<MonthRow[]>`
+  const monthRows = await query<MonthRow>(sql`
     with month_range as (
       select generate_series(1, 12) as month
     )
@@ -264,13 +263,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
         and l.cancelled_at is null
     group by mr.month
     order by mr.month asc
-  `;
-  const monthMaxCount = Number(
-    monthRows.reduce(
-      (max, row) => (row.count > max ? row.count : max),
-      BigInt(0),
-    ),
-  );
+  `);
+  const monthMaxCount = maxOf(monthRows, (row) => row.count);
   const monthColumns: Column<MonthRow>[] = [
     {
       slug: "month",
@@ -296,7 +290,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const weekRows = await prisma.$queryRaw<WeekRow[]>`
+  const weekRows = await query<WeekRow>(sql`
     with week_range as (
       select generate_series(1, 53) as week
     )
@@ -312,13 +306,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
         and l.cancelled_at is null
     group by wr.week
     order by wr.week asc
-  `;
-  const weekMaxCount = Number(
-    weekRows.reduce(
-      (max, row) => (row.count > max ? row.count : max),
-      BigInt(0),
-    ),
-  );
+  `);
+  const weekMaxCount = maxOf(weekRows, (row) => row.count);
   const weekColumns: Column<WeekRow>[] = [
     {
       slug: "week",
@@ -346,19 +335,19 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const typeRows = await prisma.$queryRaw<TypeRow[]>`
+  const typeRows = await query<TypeRow>(sql`
     select
       l.type as type,
       count(l.id) as count
     from
       larp l
     where
-      (l.starts_at >= ${cutoff} or ${since === "ALL_TIME"} and l.starts_at is null)
+      (l.starts_at >= ${cutoff} or ${since === "ALL_TIME"}::boolean and l.starts_at is null)
     group by l.type
     having count(l.id) > 0
     order by count desc, l.type asc
-  `;
-  const typeTotal = typeRows.reduce((sum, row) => sum + row.count, BigInt(0));
+  `);
+  const typeTotal = sumOf(typeRows, (row) => row.count);
   const typeColumns: Column<TypeRow>[] = [
     {
       slug: "type",
@@ -378,7 +367,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const languageRows = await prisma.$queryRaw<LanguageRow[]>`
+  const languageRows = await query<LanguageRow>(sql`
     select
       l.language as language,
       count(l.id) as count
@@ -391,11 +380,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
     group by l.language
     having count(l.id) > 0
     order by count desc, l.language asc
-  `;
-  const languageTotal = languageRows.reduce(
-    (sum, row) => sum + row.count,
-    BigInt(0),
-  );
+  `);
+  const languageTotal = sumOf(languageRows, (row) => row.count);
   const languageColumns: Column<LanguageRow>[] = [
     {
       slug: "language",
@@ -417,7 +403,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   // some larps have 0 for numTotalParticipants denoting unknown total participants
   // some larps have null for numTotalParticipants denoting unknown total participants
   // either way, default them to numPlayerCharacters for normalization
-  const playersRows = await prisma.$queryRaw<PlayersRow[]>`
+  const playersRows = await query<PlayersRow>(sql`
     with year_range as (
       select generate_series(
         (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
@@ -448,14 +434,14 @@ export default async function StatsPage({ params, searchParams }: Props) {
       left join normalized_data_points ndp on yr.year = ndp.year
     group by yr.year
     order by yr.year asc
-  `;
-  const playerCharactersTotal = playersRows.reduce(
-    (sum, row) => sum + row.numPlayerCharacters,
-    BigInt(0),
+  `);
+  const playerCharactersTotal = sumOf(
+    playersRows,
+    (row) => row.numPlayerCharacters,
   );
-  const totalParticipantsTotal = playersRows.reduce(
-    (sum, row) => sum + row.numTotalParticipants,
-    BigInt(0),
+  const totalParticipantsTotal = sumOf(
+    playersRows,
+    (row) => row.numTotalParticipants,
   );
   const maxTotalParticipants = Math.max(
     ...playersRows.map((row) => Number(row.numTotalParticipants)),

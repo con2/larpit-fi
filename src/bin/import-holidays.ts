@@ -1,5 +1,6 @@
 import fsp from "fs/promises";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 
 const holidayFiToEn: Record<string, string> = {
   Uudenvuodenpäivä: "New Year's Day",
@@ -26,15 +27,20 @@ async function main() {
     await fsp.readFile("data/holidays.json", "utf-8"),
   );
 
-  await prisma.holiday.createMany({
-    data: data.map(({ date, title }) => ({
-      date: new Date(date),
+  await db.orm.public.Holiday.createAndCount(
+    data.map(({ date, title }) => ({
+      date,
       titleFi: title,
       titleEn: holidayFiToEn[title],
     })),
-  });
+  );
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  main();
+  try {
+    await main();
+  } finally {
+    await db.close();
+    await pool.end();
+  }
 }

@@ -1,7 +1,9 @@
 import { LarpTable } from "@/components/LarpTable";
 import MainHeading from "@/components/MainHeading";
-import { Language, LarpType } from "@/generated/prisma/client";
-import prisma from "@/prisma";
+import { Language, LarpType } from "@/prisma/enums";
+import { compareNullsLast } from "@/helpers/sort";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { DimensionFilters } from "@con2/components";
@@ -27,36 +29,18 @@ async function getData(
   languages: Language[],
   cancelled: "hide" | "show" | "only",
 ) {
-  return prisma.larp.findMany({
-    where: {
-      type: {
-        in: types,
-      },
-      language: {
-        in: languages,
-      },
-      ...(cancelled === "hide"
-        ? { cancelledAt: null }
-        : cancelled === "only"
-          ? { cancelledAt: { not: null } }
-          : {}),
-    },
-    include: {
-      municipality: {
-        select: {
-          nameFi: true,
-        },
-      },
-    },
-    orderBy: [
-      {
-        startsAt: {
-          sort: "desc",
-          nulls: "last",
-        },
-      },
-    ],
-  });
+  let larps = db.orm.public.Larp.where((l) => l.type.in(types))
+    .where((l) => l.language.in(languages))
+    .include("municipality", (m) => m.select("nameFi"));
+  if (cancelled === "hide") {
+    larps = larps.where((l) => l.cancelledAt.isNull());
+  } else if (cancelled === "only") {
+    larps = larps.where((l) => l.cancelledAt.isNotNull());
+  }
+  // Latest first, larps without a date last: the ORM cannot express NULLS LAST.
+  return parseDates(await larps.all()).sort((a, b) =>
+    compareNullsLast(b.startsAt, a.startsAt),
+  );
 }
 
 function getLarpFilters(t: Translations["Larp"]) {
@@ -131,7 +115,9 @@ export default async function LarpListPage({ params, searchParams }: Props) {
 
   const [larps, totalCount] = await Promise.all([
     getData(types, languages, cancelled),
-    prisma.larp.count(),
+    db.orm.public.Larp.aggregate((a) => ({ count: a.count() })).then(
+      (r) => r.count,
+    ),
   ]);
 
   return (

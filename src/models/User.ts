@@ -1,16 +1,17 @@
+import { validate as validateUuid } from "uuid";
+import z from "zod";
+
+import { iso, parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import {
   EditStatus,
   LocalSignupStatus,
-  RelatedUser,
   RelatedUserRole,
   RelatedUserVisibility,
   TokenType,
-  User,
   UserRole,
-} from "@/generated/prisma/client";
-import prisma from "@/prisma";
-import { validate as validateUuid } from "uuid";
-import z from "zod";
+} from "@/prisma/enums";
+import type { RelatedUser, User } from "@/prisma/models";
 
 /// Display name validation, shared between the HTML form (maxLength) and the
 /// saveUserPreferences server action. Trims whitespace, requires 1–80 visible
@@ -116,30 +117,22 @@ export async function findAccountRemovalToken(userId: string, token: string) {
     return null;
   }
 
-  return prisma.verificationToken.findFirst({
-    where: {
-      identifier: userId,
-      token,
-      type: TokenType.ACCOUNT_REMOVAL,
-      expires: { gte: new Date() },
-    },
-  });
+  const verificationToken = await db.orm.public.VerificationToken.where({
+    identifier: userId,
+    token,
+    type: TokenType.ACCOUNT_REMOVAL,
+  })
+    .where((t) => t.expires.gte(iso(new Date())))
+    .first();
+  return verificationToken && parseDates(verificationToken);
 }
 
 export async function getUserFromSession(
   session: { user?: { email?: string | null } | null } | null | undefined,
 ) {
   return session?.user?.email
-    ? await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          id: true,
-          role: true,
-          name: true,
-          email: true,
-        },
+    ? await db.orm.public.User.select("id", "role", "name", "email").first({
+        email: session.user.email,
       })
     : null;
 }

@@ -1,4 +1,4 @@
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 
 export function parseDateFi(dateStr: string): string | null {
   if (!dateStr) {
@@ -27,7 +27,7 @@ export function parseUnixTimestamp(
 export async function loadMunicipalityMapping(): Promise<
   Record<string, string>
 > {
-  const municipalities = await prisma.municipality.findMany();
+  const municipalities = await db.orm.public.Municipality.all();
   const mapping: Record<string, string> = {};
   for (const municipality of municipalities) {
     if (!municipality.nameFi) continue;

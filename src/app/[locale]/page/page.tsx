@@ -3,7 +3,7 @@ import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { Column, DataTable, MessageCard } from "@con2/components";
 import { canEditPages, getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
@@ -13,9 +13,10 @@ interface Props {
 }
 
 async function getData() {
-  return prisma.page.findMany({
-    orderBy: [{ slug: "asc" }, { language: "asc" }],
-  });
+  return db.orm.public.Page.orderBy([
+    (p) => p.slug.asc(),
+    (p) => p.language.asc(),
+  ]).all();
 }
 
 export default async function PagesPage({ params }: Props) {

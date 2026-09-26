@@ -24,17 +24,14 @@ spec:
         {{- include "larpit.podSecurityContext" . | nindent 8 }}
       initContainers:
         - name: migrate
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}-builder"
-          command: ["npm", "run", "db:migrate"]
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}-migrate"
+          command: ["sh", "-c", "node src/bin/migrate.mjs migration check && node src/bin/migrate.mjs db migrate"]
           envFrom:
             {{- include "larpit.envFrom" . | nindent 12 }}
           resources:
             {{- toYaml .Values.resources.migrate | nindent 12 }}
           securityContext:
             {{- include "larpit.containerSecurityContext" . | nindent 12 }}
-          volumeMounts:
-            - name: next-cache
-              mountPath: /usr/src/app/.next/cache
       containers:
         - name: node
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

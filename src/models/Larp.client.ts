@@ -1,8 +1,8 @@
 /**
  * Client-safe Larp helpers.
- * This file only uses `import type` to avoid pulling in Prisma runtime code.
+ * This file only uses `import type` to avoid pulling in database code.
  */
-import type { Larp } from "@/generated/prisma/client";
+import type { Larp } from "@/prisma/models";
 
 type LarpDates = Pick<
   Larp,

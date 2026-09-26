@@ -1,9 +1,12 @@
-import { LarpLinkType } from "@/generated/prisma/client";
-import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
-import prisma from "@/prisma";
+import { and, or } from "@prisma/orm-postgres/orm-client";
 import z from "zod";
 
-const zLarpLinkType = z.enum<typeof LarpLinkType>(LarpLinkType);
+import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
+import { iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { LarpLinkType } from "@/prisma/enums";
+
+const zLarpLinkType = z.enum(LarpLinkType);
 
 // TODO use z.url() instead when we have proper feedback from validation
 export const LarpLinkUpsertable = z.object({
@@ -76,27 +79,30 @@ export async function handleLarpLinks(
   addLinks: LarpLinkUpsertable[],
   removeLinks: LarpLinkRemovable[],
 ) {
-  // Title-only edits produce the same (type, href) in both addLinks and
-  // removeLinks. Sequence delete-then-create in a transaction so that an
-  // earlier-completing createMany cannot be wiped by the subsequent
-  // deleteMany (whose WHERE matches by type+href, not title).
-  const operations = [];
-
-  if (removeLinks.length > 0) {
-    operations.push(
-      prisma.larpLink.deleteMany({
-        where: {
-          larpId,
-          OR: removeLinks.map(({ href, type }) => ({ href, type })),
-        },
-      }),
-    );
+  if (removeLinks.length === 0 && addLinks.length === 0) {
+    return;
   }
 
-  if (addLinks.length > 0) {
-    operations.push(
-      prisma.larpLink.createMany({
-        data: addLinks.map(({ type, href, title: providedTitle }) => {
+  // Title-only edits produce the same (type, href) in both addLinks and
+  // removeLinks. Sequence delete-then-create in a transaction so that an
+  // earlier-completing insert cannot be wiped by the subsequent delete
+  // (whose WHERE matches by type+href, not title).
+  await db.transaction(async (tx) => {
+    if (removeLinks.length > 0) {
+      await tx.orm.public.LarpLink.where({ larpId })
+        .where((l) =>
+          or(
+            ...removeLinks.map(({ href, type }) =>
+              and(l.href.eq(href), l.type.eq(type)),
+            ),
+          ),
+        )
+        .deleteAndCount();
+    }
+
+    if (addLinks.length > 0) {
+      await tx.orm.public.LarpLink.createAndCount(
+        addLinks.map(({ type, href, title: providedTitle }) => {
           href = href.trim();
 
           const title =
@@ -112,19 +118,13 @@ export async function handleLarpLinks(
             title,
           };
         }),
-      }),
-    );
-  }
+      );
+    }
 
-  if (operations.length > 0) {
-    // @updatedAt only fires on writes to the larp row itself, and API
-    // consumers polling with updatedAfter need to see link changes.
-    operations.push(
-      prisma.larp.update({
-        where: { id: larpId },
-        data: { updatedAt: new Date() },
-      }),
-    );
-    await prisma.$transaction(operations);
-  }
+    // API consumers polling with updatedAfter need to see link changes, and
+    // updatedAt only moves on writes to the larp row itself.
+    await tx.orm.public.Larp.where({ id: larpId }).update({
+      updatedAt: iso(new Date()),
+    });
+  });
 }

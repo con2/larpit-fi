@@ -4,7 +4,7 @@ variable "IMAGE" { default = "ghcr.io/con2/larpit-fi" }
 variable "TAG" { default = "dev" }
 
 group "default" {
-  targets = ["runner", "builder"]
+  targets = ["runner", "builder", "migrate"]
 }
 
 target "common" {
@@ -21,9 +21,16 @@ target "runner" {
   tags     = ["${IMAGE}:${TAG}"]
 }
 
-// Runs the migrations and the scripts in src/bin, which the standalone runner image lacks.
+// Runs the scripts in src/bin, which the standalone runner image lacks.
 target "builder" {
   inherits = ["common"]
   target   = "builder"
   tags     = ["${IMAGE}:${TAG}-builder"]
+}
+
+// Applies the database migrations before the runner starts.
+target "migrate" {
+  inherits = ["common"]
+  target   = "migrate"
+  tags     = ["${IMAGE}:${TAG}-migrate"]
 }

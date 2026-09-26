@@ -1,10 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import {
-  RelatedUserRole,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
+import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import SignupVerification, {
   signupVerificationSubject,
   signupVerificationText,
@@ -21,7 +18,8 @@ import {
   getLocalSignupStatusForUser,
   getUserFromSession,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import { render } from "@react-email/render";
 import { revalidatePath } from "next/cache";
@@ -40,19 +38,18 @@ const VisibilitySchema = z.enum([
 ]);
 
 async function getLarpForSignup(larpId: string, userId?: string) {
-  return prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      name: true,
-      cancelledAt: true,
-      localSignupStatus: true,
-      localSignupCode: true,
-      relatedUsers: userId
-        ? { where: { userId }, select: { userId: true, role: true } }
-        : { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await db.orm.public.Larp.select(
+    "id",
+    "name",
+    "cancelledAt",
+    "localSignupStatus",
+    "localSignupCode",
+  )
+    .include("relatedUsers", (r) =>
+      (userId ? r.where({ userId }) : r).select("userId", "role"),
+    )
+    .first({ id: larpId });
+  return larp && parseDates(larp);
 }
 
 export async function submitSignup(
@@ -142,19 +139,15 @@ export async function removeLocalSignup(
 
   if (!user?.id) throw new Error("Not logged in");
 
-  await prisma.relatedUser.deleteMany({
-    where: {
-      larpId,
-      userId: user.id,
-      role: {
-        in: [
-          RelatedUserRole.LOCAL_SIGNUP_YES,
-          RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-          RelatedUserRole.LOCAL_SIGNUP_NO,
-        ],
-      },
-    },
-  });
+  await db.orm.public.RelatedUser.where({ larpId, userId: user.id })
+    .where((r) =>
+      r.role.in([
+        RelatedUserRole.LOCAL_SIGNUP_YES,
+        RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+        RelatedUserRole.LOCAL_SIGNUP_NO,
+      ]),
+    )
+    .deleteAndCount();
 
   revalidatePath(`/${locale}/larp/${larpId}`);
   redirect(`/${locale}/larp/${larpId}`);

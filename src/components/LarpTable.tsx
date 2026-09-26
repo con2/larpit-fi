@@ -9,7 +9,7 @@ import {
   MaybeExternalLink,
 } from "@con2/components";
 import { getLarpHref, ensureEndsAt } from "@/models/Larp.client";
-import type { Larp, Municipality } from "@/generated/prisma/client";
+import type { Larp, Municipality } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
 
 export type { Column };

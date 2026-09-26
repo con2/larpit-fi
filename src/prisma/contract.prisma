@@ -1,0 +1,368 @@
+// use prisma-next
+namespace public {
+  native_enum UserRole {
+    NOT_VERIFIED = "NOT_VERIFIED"
+    VERIFIED = "VERIFIED"
+    MODERATOR = "MODERATOR"
+    ADMIN = "ADMIN"
+  }
+
+  native_enum EditFormPreference {
+    FULL = "FULL"
+    COMPACT = "COMPACT"
+  }
+
+  native_enum TokenType {
+    EMAIL_VERIFICATION = "EMAIL_VERIFICATION"
+    ACCOUNT_REMOVAL = "ACCOUNT_REMOVAL"
+  }
+
+  native_enum LarpType {
+    ONE_SHOT = "ONE_SHOT"
+    CAMPAIGN_LARP = "CAMPAIGN_LARP"
+    // of CAMPAIGN_LARPs
+    CAMPAIGN = "CAMPAIGN"
+    // of ONE_SHOTs (or, in rare occasions, CAMPAIGNs)
+    MULTIPLE_RUNS = "MULTIPLE_RUNS"
+    OTHER_EVENT_SERIES = "OTHER_EVENT_SERIES"
+    OTHER_EVENT = "OTHER_EVENT"
+  }
+
+  native_enum Language {
+    fi = "fi"
+    en = "en"
+    sv = "sv"
+    OTHER = "OTHER"
+  }
+
+  native_enum Openness {
+    OPEN = "OPEN"
+    TARGETED = "TARGETED"
+    INVITE_ONLY = "INVITE_ONLY"
+  }
+
+  native_enum RelatedLarpType {
+    SEQUEL = "SEQUEL"
+    SPINOFF = "SPINOFF"
+    // CAMPAIGN_LARP IN_CAMPAIGN CAMPAIGN, ONE_SHOT RUN_OF MULTIPLE_RUNS etc.
+    IN_CAMPAIGN = "IN_CAMPAIGN"
+    IN_SERIES = "IN_SERIES"
+    RUN_OF = "RUN_OF"
+    RERUN_OF = "RERUN_OF"
+    PLAYED_AT = "PLAYED_AT"
+  }
+
+  // Postgres only appends enum values, so the order here is the order they were added in.
+  native_enum RelatedUserRole {
+    EDITOR = "EDITOR"
+    CREATED_BY = "CREATED_BY"
+    GAME_MASTER = "GAME_MASTER"
+    VOLUNTEER = "VOLUNTEER"
+    PLAYER = "PLAYER"
+    FAVORITE = "FAVORITE"
+    TEAM_MEMBER = "TEAM_MEMBER"
+    LOCAL_SIGNUP_YES = "LOCAL_SIGNUP_YES"
+    LOCAL_SIGNUP_MAYBE = "LOCAL_SIGNUP_MAYBE"
+    LOCAL_SIGNUP_NO = "LOCAL_SIGNUP_NO"
+  }
+
+  native_enum LocalSignupStatus {
+    DISABLED = "DISABLED"
+    PUBLIC = "PUBLIC"
+    CODE_REQUIRED = "CODE_REQUIRED"
+  }
+
+  native_enum RelatedUserVisibility {
+    PARTICIPANTS = "PARTICIPANTS"
+    GM = "GM"
+    ONLY_ME = "ONLY_ME"
+  }
+
+  native_enum LarpLinkType {
+    HOMEPAGE = "HOMEPAGE"
+    PHOTOS = "PHOTOS"
+    SOCIAL_MEDIA = "SOCIAL_MEDIA"
+    PLAYER_GUIDE = "PLAYER_GUIDE"
+    OTHER = "OTHER"
+    SIGNUP = "SIGNUP"
+  }
+
+  native_enum SubmitterRole {
+    NONE = "NONE"
+    GAME_MASTER = "GAME_MASTER"
+    VOLUNTEER = "VOLUNTEER"
+    PLAYER = "PLAYER"
+    TEAM_MEMBER = "TEAM_MEMBER"
+  }
+
+  native_enum EditStatus {
+    PENDING_VERIFICATION = "PENDING_VERIFICATION"
+    VERIFIED = "VERIFIED"
+    AUTO_APPROVED = "AUTO_APPROVED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    WITHDRAWN = "WITHDRAWN"
+  }
+
+  native_enum EditAction {
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    CLAIM = "CLAIM"
+    DELETE = "DELETE"
+  }
+
+  model User {
+    id                      Uuid                        @id @default(uuid(4))
+    name                    String?
+    email                   String
+    // Set when the user first submits a request and verifies it. Independent of role:
+    // role=VERIFIED means a moderator approved a request, granting the power to add larps
+    // without pre-moderation.
+    emailVerified           TimestamptzString?          @map("email_verified")
+    image                   String?
+    createdAt               TimestamptzString           @default(now()) @map("created_at")
+    updatedAt               temporal.updatedAtString()  @map("updated_at")
+
+    titleFi                 String?                     @map("title_fi")
+    titleEn                 String?                     @map("title_en")
+
+    role                    pg.enum(UserRole)           @default("NOT_VERIFIED")
+    editFormPreference      pg.enum(EditFormPreference) @default("FULL") @map("edit_form_preference")
+
+    accounts                Account[]
+    larps                   RelatedUser[]
+    requestsResolvedByUser  ModerationRequest[]         @relation("RequestsResolvedByUser")
+    requestsSubmittedByUser ModerationRequest[]         @relation("RequestsSubmittedByUser")
+
+    @@index([email], map: "user_email_key", unique: true)
+    @@map("user")
+  }
+
+  // One row per Kompassi identity, linking the OIDC subject to the larpit.fi user.
+  model Account {
+    userId            Uuid                       @map("user_id")
+    type              String
+    provider          String
+    providerAccountId String                     @map("provider_account_id")
+    refreshToken      String?                    @map("refresh_token")
+    accessToken       String?                    @map("access_token")
+    expiresAt         Int?                       @map("expires_at")
+    tokenType         String?                    @map("token_type")
+    scope             String?
+    idToken           String?                    @map("id_token")
+    sessionState      String?                    @map("session_state")
+
+    createdAt         TimestamptzString          @default(now()) @map("created_at")
+    updatedAt         temporal.updatedAtString() @map("updated_at")
+
+    user              User                       @relation(fields:[userId], references:[id], onDelete: Cascade, index: false)
+
+    @@id([provider, providerAccountId])
+    @@map("account")
+  }
+
+  model VerificationToken {
+    identifier String
+    token      String
+    expires    TimestamptzString
+    type       pg.enum(TokenType) @default("EMAIL_VERIFICATION")
+
+    @@id([identifier, token])
+    @@map("verification_token")
+  }
+
+  model Country {
+    // Wikidata id with wd: prefix, eg. wd:Q33
+    id             String         @id
+    // ISO 3166-1 alpha-2 country code, eg. FI
+    code           String?
+    nameFi         String?        @map("name_fi")
+    nameSv         String?        @map("name_sv")
+    nameEn         String?        @map("name_en")
+    municipalities Municipality[]
+
+    @@index([code], map: "country_code_key", unique: true)
+    @@map("country")
+  }
+
+  model Municipality {
+    id                    String  @id
+    nameFi                String? @map("name_fi")
+    nameSv                String? @map("name_sv")
+    nameOther             String? @map("name_other")
+    nameOtherLanguageCode String? @map("name_other_language_code")
+    countryId             String  @default("wd:Q33") @map("country_code")
+    lat                   Float
+    long                  Float
+    larps                 Larp[]
+
+    country               Country @relation(fields:[countryId], references:[id], onDelete: Cascade, index: false)
+
+    @@map("municipality")
+  }
+
+  model Larp {
+    // createdAt is derived from the UUIDv7 id
+    id                     Uuid                           @id @default(uuid(7))
+    name                   String
+    type                   pg.enum(LarpType)              @default("ONE_SHOT")
+    language               pg.enum(Language)
+    tagline                String?
+    alias                  String?
+
+    locationText           String?                        @map("location_text")
+    municipalityId         String?                        @map("municipality_id")
+
+    numPlayerCharacters    Int?                           @map("num_player_characters")
+    numTotalParticipants   Int?                           @map("num_total_participants")
+
+    fluffText              String?                        @map("fluff_text")
+    description            String?
+
+    updatedAt              temporal.updatedAtString()     @map("updated_at")
+
+    startsAt               TimestamptzString?             @map("starts_at")
+    endsAt                 TimestamptzString?             @map("ends_at")
+    signupStartsAt         TimestamptzString?             @map("signup_starts_at")
+    signupEndsAt           TimestamptzString?             @map("signup_ends_at")
+    openness               pg.enum(Openness)?
+
+    localSignupStatus      pg.enum(LocalSignupStatus)     @default("DISABLED") @map("local_signup_status")
+    localSignupCode        String?                        @map("local_signup_code")
+    relatedUserVisibility  pg.enum(RelatedUserVisibility) @default("GM") @map("related_user_visibility")
+
+    cancelledAt            TimestamptzString?             @map("cancelled_at")
+    updateCount            Int                            @default(0) @map("update_count")
+
+    links                  LarpLink[]
+    relatedLarpsLeft       RelatedLarp[]                  @relation("RelatedLarpsLeft")
+    relatedLarpsRight      RelatedLarp[]                  @relation("RelatedLarpsRight")
+    relatedUsers           RelatedUser[]
+    unauthenticatedSignups UnauthenticatedSignup[]
+    requests               ModerationRequest[]
+    municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
+
+    @@index([alias], map: "larp_alias_key", unique: true)
+    @@map("larp")
+  }
+
+  model RelatedLarp {
+    leftId  Uuid                     @map("left_id")
+    rightId Uuid                     @map("right_id")
+    type    pg.enum(RelatedLarpType)
+
+    left    Larp                     @relation("RelatedLarpsLeft", fields:[leftId], references:[id], onDelete: Cascade, index: false)
+    right   Larp                     @relation("RelatedLarpsRight", fields:[rightId], references:[id], onDelete: Cascade, index: false)
+
+    @@id([leftId, rightId])
+    @@map("related_larp")
+  }
+
+  model RelatedUser {
+    larpId     Uuid                           @map("larp_id")
+    userId     Uuid                           @map("user_id")
+    role       pg.enum(RelatedUserRole)
+    visibility pg.enum(RelatedUserVisibility) @default("ONLY_ME")
+    createdAt  TimestamptzString              @default(now()) @map("created_at")
+
+    larp       Larp                           @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
+    user       User                           @relation(fields:[userId], references:[id], onDelete: Cascade, index: false)
+
+    @@id([larpId, userId, role])
+    @@map("related_user")
+  }
+
+  model LarpLink {
+    id     Uuid                  @id @default(uuid(7))
+    larpId Uuid                  @map("larp_id")
+    type   pg.enum(LarpLinkType) @default("HOMEPAGE")
+    href   String
+    title  String?
+
+    larp   Larp                  @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
+
+    @@map("larp_link")
+  }
+
+  model ModerationRequest {
+    id                 Uuid                   @id @default(uuid(7))
+    larpId             Uuid?                  @map("larp_id")
+    action             pg.enum(EditAction)
+    status             pg.enum(EditStatus)
+
+    resolvedById       Uuid?                  @map("resolved_by_id")
+    resolvedAt         TimestamptzString?     @map("resolved_at")
+    resolvedMessage    String?                @map("resolved_message")
+
+    submitterName      String                 @map("submitter_name")
+    submitterEmail     String                 @map("submitter_email")
+    submitterId        Uuid?                  @map("submitter_id")
+    submitterRole      pg.enum(SubmitterRole) @default("NONE") @map("submitter_role")
+
+    verificationCode   Uuid?                  @default(dbgenerated("gen_random_uuid()")) @map("verification_code")
+    verifiedAt         TimestamptzString?     @map("verified_at")
+
+    newContent         Jsonb                  @default(dbgenerated("'{}'::jsonb")) @map("new_content")
+
+    removeLinks        Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_links")
+    addLinks           Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_links")
+
+    removeRelatedLarps Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_related_larps")
+    addRelatedLarps    Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_related_larps")
+
+    message            String?
+
+    larp               Larp?                  @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
+    // Removing a user keeps their moderation history: submitterName/submitterEmail are
+    // denormalized, only the FK is dropped.
+    resolvedBy         User?                  @relation("RequestsResolvedByUser", fields:[resolvedById], references:[id], onDelete: SetNull, index: false)
+    submitter          User?                  @relation("RequestsSubmittedByUser", fields:[submitterId], references:[id], onDelete: SetNull, index: false)
+
+    @@index([verificationCode], map: "moderation_request_verification_code_key", unique: true)
+    @@map("moderation_request")
+  }
+
+  model Page {
+    slug      String                     @default("front-page")
+    language  String
+    title     String
+    content   String
+    createdAt TimestamptzString          @default(now()) @map("created_at")
+    updatedAt temporal.updatedAtString() @map("updated_at")
+
+    @@id([slug, language])
+    @@map("page")
+  }
+
+  model UnauthenticatedSignup {
+    id               Uuid                           @id @default(uuid(7))
+    larpId           Uuid                           @map("larp_id")
+    displayName      String                         @map("display_name")
+    email            String
+    signupStatus     pg.enum(RelatedUserRole)       @map("signup_status")
+    visibility       pg.enum(RelatedUserVisibility)
+    verificationCode String                         @map("verification_code")
+    verifiedAt       TimestamptzString?             @map("verified_at")
+    createdAt        TimestamptzString              @default(now()) @map("created_at")
+    updatedAt        temporal.updatedAtString()     @map("updated_at")
+
+    larp             Larp                           @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
+
+    // At most one pending and one verified signup per email and larp.
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_pending_uidx", where: "(verified_at IS NULL)", unique: true)
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: "(verified_at IS NOT NULL)", unique: true)
+    @@check(expression: "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))", map: "unauthenticated_signup_signup_status_check")
+    @@check(expression: "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))", map: "unauthenticated_signup_visibility_check")
+    @@index([verificationCode], map: "unauthenticated_signup_verification_code_key", unique: true)
+    @@map("unauthenticated_signup")
+  }
+
+  // Used by the calendar view.
+  model Holiday {
+    date    DateString @id
+    titleFi String     @map("title_fi")
+    titleEn String     @map("title_en")
+
+    @@map("holiday")
+  }
+}

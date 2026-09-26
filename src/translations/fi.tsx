@@ -1,4 +1,4 @@
-import { UserRole } from "@/generated/prisma/client";
+import { UserRole } from "@/prisma/enums";
 import { JSX, ReactNode } from "react";
 import type { Translations } from "./en";
 
@@ -1624,17 +1624,6 @@ const translations: Translations = {
     },
     dangerZone: {
       title: "Vaaravyöhyke",
-    },
-    logOutAllSessions: {
-      title: "Kirjaudu ulos kaikilta laitteilta",
-      description: (
-        <>
-          Kirjaudu ulos kaikilta laitteilta ja selaimilta, myös tältä. Käytä
-          tätä, jos epäilet jonkun muun päässeen tilillesi.
-        </>
-      ),
-      confirmationMessage:
-        "Kirjaudutaanko ulos kaikilta laitteilta, myös tältä?",
     },
     accountRemoval: {
       title: "Poista käyttäjätili",

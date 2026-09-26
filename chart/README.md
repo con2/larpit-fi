@@ -7,12 +7,37 @@ Certificate. `.github/workflows/cicd.yaml` runs `helm upgrade --install larpit c
 
 ## Images
 
-`docker-bake.hcl` builds two images from the Dockerfile, both tagged with the short commit SHA:
+`docker-bake.hcl` builds three images from the Dockerfile, all tagged with the short commit SHA:
 
 - `ghcr.io/con2/larpit-fi:<sha>`: the Next.js standalone server.
+- `ghcr.io/con2/larpit-fi:<sha>-migrate`: the migration init container, with only the Prisma
+  ORM engine packages and the migrations.
 - `ghcr.io/con2/larpit-fi:<sha>-builder`: the full build stage with `node_modules` and `src`.
-  The migration init container and the sync CronJob run from it, because the standalone image
-  has neither the Prisma CLI nor `src/bin`.
+  The sync CronJob runs from it, because the standalone image has no `src/bin`.
+
+## Migrations
+
+The init container runs `migration check` and `db migrate` (`src/bin/migrate.mjs`, the ORM
+command family only). `db migrate` replays the on-disk migration graph from the database's
+marker; it never plans anything itself.
+
+### One-time cutover from Prisma 7
+
+The Prisma 7 migration history (`_prisma_migrations`) is unknown to Prisma 8, so a database that
+predates the Prisma 8 build has no marker and `db migrate` refuses it. Sign it once at the
+baseline migration, whose contract describes exactly the schema the last Prisma 7 migration left
+behind. Do this before deploying the first Prisma 8 build, from a pod with the migrate image:
+
+```sh
+kubectl -n larpit-production run larpit-sign --rm -it --restart=Never \
+  --image=ghcr.io/con2/larpit-fi:<short sha>-migrate \
+  --overrides='{"spec":{"containers":[{"name":"sign","image":"ghcr.io/con2/larpit-fi:<short sha>-migrate","command":["node","src/bin/migrate.mjs","db","sign","20260926T1125_baseline"],"envFrom":[{"secretRef":{"name":"larpit"}}]}]}}'
+```
+
+`db sign` verifies the live schema against that contract before writing the marker, so it fails
+rather than mislabels a database that does not match. The deploy then applies every migration
+after the baseline. Drop the leftover `_prisma_migrations` table whenever convenient; Prisma 8
+tolerates unmanaged tables.
 
 ## Prerequisites per namespace
 

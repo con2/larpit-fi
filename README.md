@@ -60,16 +60,11 @@ locale 'fi_FI.UTF-8'
 template template0;
 ```
 
-Start the development environment with
+Bring the database to the current contract, then start the development server:
 
 ```
+npm run db:migrate:dev
 npm run dev
-```
-
-You can add some larps to the database with
-
-```
-npm run db:seed
 ```
 
 Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.

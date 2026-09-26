@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import { compactObject, normalizeFormData } from "@con2/components/helpers";
 import { parseIndexedLinksFromFormData } from "@/models/LarpLink";
 import {
@@ -9,8 +9,12 @@ import {
   ModerationRequestForm,
   sendVerificationEmail,
 } from "@/models/ModerationRequest";
-import { getNewLarpInitialStatusForUser } from "@/models/User";
-import prisma from "@/prisma";
+import {
+  getNewLarpInitialStatusForUser,
+  getUserFromSession,
+} from "@/models/User";
+import { db } from "@/prisma/db";
+import { toJson } from "@/prisma/json";
 import { redirect } from "next/navigation";
 import fi from "@/translations/fi";
 
@@ -21,12 +25,7 @@ export async function createLarp(
   data: FormData,
 ): Promise<void> {
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, name: true, email: true, role: true },
-      })
-    : null;
+  const user = await getUserFromSession(session);
 
   const formDataObject = normalizeFormData(data);
 
@@ -55,18 +54,16 @@ export async function createLarp(
 
   const status = getNewLarpInitialStatusForUser(user);
 
-  const request = await prisma.moderationRequest.create({
-    data: {
-      action: EditAction.CREATE,
-      status,
-      submitterId: user?.id,
-      submitterName,
-      submitterEmail,
-      submitterRole,
-      message,
-      newContent: compactObject(newContent),
-      addLinks,
-    },
+  const request = await db.orm.public.ModerationRequest.create({
+    action: EditAction.CREATE,
+    status,
+    submitterId: user?.id ?? null,
+    submitterName,
+    submitterEmail,
+    submitterRole,
+    message: message ?? null,
+    newContent: toJson(compactObject(newContent)),
+    addLinks: toJson(addLinks),
   });
 
   if (status === EditStatus.PENDING_VERIFICATION) {

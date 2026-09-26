@@ -1,4 +1,5 @@
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 
 const query = `
 SELECT DISTINCT ?country ?countryLabel_en ?countryLabel_fi ?countryLabel_sv ?iso2 WHERE {
@@ -64,10 +65,7 @@ function parseCountryData(data: any) {
 async function storeCountries(countries: Country[]) {
   for (const country of countries) {
     const { id, code, nameFi, nameEn, nameSv } = country;
-    const result = await prisma.country.upsert({
-      where: {
-        id,
-      },
+    const result = await db.orm.public.Country.upsert({
       create: {
         id,
         code,
@@ -92,5 +90,10 @@ async function main() {
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  main();
+  try {
+    await main();
+  } finally {
+    await db.close();
+    await pool.end();
+  }
 }

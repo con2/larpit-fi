@@ -1,47 +1,123 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth, { type NextAuthConfig } from "next-auth";
+import NextAuth, { type DefaultSession, type NextAuthConfig } from "next-auth";
+import { encode as defaultEncode } from "next-auth/jwt";
 
 import { authSecret, kompassiOidc } from "@/config";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 
-// TODO make this expire at the same time as the Kompassi access token
-// currently we just assume this is the validity period of the Kompassi access token
-const fallbackMaxAge = 10 * 60 * 60; // 10 hours
+// Assumed to match the validity period of the Kompassi access token.
+const fallbackMaxAgeSeconds = 10 * 60 * 60;
+
+const kompassiProvider = "kompassi";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+    } & DefaultSession["user"];
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    userId?: string;
+  }
+}
+
+interface KompassiProfile {
+  sub: string;
+  name?: string;
+  email?: string;
+}
+
+/**
+ * Finds the larpit.fi user for a Kompassi identity, creating the user and the account link on
+ * first sign-in. An account row (provider + subject) is the authoritative link; a user without
+ * one is matched by email, which is how the earlier database-session setup linked them.
+ */
+async function resolveUser(profile: KompassiProfile): Promise<string> {
+  const account = await db.orm.public.Account.first({
+    provider: kompassiProvider,
+    providerAccountId: profile.sub,
+  });
+  if (account) return account.userId;
+
+  const email = profile.email ?? "";
+  const existing = email ? await db.orm.public.User.first({ email }) : null;
+  const user =
+    existing ??
+    (await db.orm.public.User.create({
+      email,
+      name: profile.name ?? null,
+    }));
+
+  await db.orm.public.Account.create({
+    userId: user.id,
+    type: "oidc",
+    provider: kompassiProvider,
+    providerAccountId: profile.sub,
+  });
+  return user.id;
+}
 
 const config: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
   secret: authSecret,
   // The app is only ever reached through the cluster ingress, which sets the Host header itself.
   trustHost: true,
   providers: [
     {
-      id: "kompassi",
+      id: kompassiProvider,
       name: "Kompassi",
       type: "oidc",
       // PKCE binds the code to this login, nonce binds the ID token to it; PKCE alone is the default.
       checks: ["pkce", "state", "nonce"],
-
-      profile(profile) {
+      profile(profile: KompassiProfile) {
         return {
-          image: null,
           id: profile.sub,
-          name: profile.name,
-          email: profile.email,
+          name: profile.name ?? null,
+          email: profile.email ?? null,
+          image: null,
         };
       },
       ...kompassiOidc,
     },
   ],
-
-  // session.maxAge governs both the session cookie's Max-Age and the
-  // database session row's expires; without it set explicitly it defaults
-  // to Auth.js's 30 days, letting stale sessions vastly outlive the
-  // Kompassi access token they're associated with.
-  session: {
-    maxAge: fallbackMaxAge,
+  session: { strategy: "jwt", maxAge: fallbackMaxAgeSeconds },
+  jwt: {
+    maxAge: fallbackMaxAgeSeconds,
+    // Make the session JWT expire together with the Kompassi access token it was issued for.
+    encode(params) {
+      const exp = params.token?.exp;
+      const maxAge =
+        typeof exp === "number"
+          ? exp - Math.floor(Date.now() / 1000)
+          : params.maxAge;
+      return defaultEncode({ ...params, maxAge });
+    },
   },
-
-  // NOTE: if you ever need authenticated access to Kompassi API, look at auth.ts in Kompassi
+  logger: {
+    error(error) {
+      // Expected once the JWT outlives the Kompassi access token; the user simply signs in again.
+      if (error.name === "JWTSessionError") return;
+      console.error(error);
+    },
+  },
+  callbacks: {
+    async jwt({ token, account, profile }) {
+      if (account && profile) {
+        if (typeof account.expires_at === "number") {
+          token.exp = account.expires_at;
+        }
+        const kompassi = profile as KompassiProfile;
+        token.userId = await resolveUser(kompassi);
+        token.email = kompassi.email ?? token.email;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user = { ...session.user, id: token.userId ?? "" };
+      return session;
+    },
+  },
 };
 
 export const { handlers, auth } = NextAuth(config);

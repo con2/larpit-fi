@@ -1,4 +1,4 @@
-import { Larp } from "@/generated/prisma/client";
+import type { Larp } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
 import {
   Card,

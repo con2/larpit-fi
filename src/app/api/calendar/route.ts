@@ -1,7 +1,8 @@
 import { publicUrl } from "@/config";
 import { getLarpHref } from "@/models/Larp.client";
 import { toPlainDate } from "@con2/components/helpers";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 
 const encoder = new TextEncoder();
 
@@ -54,23 +55,24 @@ export async function GET(request: Request) {
   const locale = searchParams.get("locale") === "fi" ? "fi" : "en";
   const prefix = cancelledPrefix[locale];
 
-  const larps = await prisma.larp.findMany({
-    where: { startsAt: { not: null } },
-    select: {
-      id: true,
-      alias: true,
-      name: true,
-      tagline: true,
-      startsAt: true,
-      endsAt: true,
-      locationText: true,
-      municipality: { select: { nameFi: true } },
-      updatedAt: true,
-      cancelledAt: true,
-      updateCount: true,
-    },
-    orderBy: { startsAt: "desc" },
-  });
+  const larps = parseDates(
+    await db.orm.public.Larp.where((l) => l.startsAt.isNotNull())
+      .select(
+        "id",
+        "alias",
+        "name",
+        "tagline",
+        "startsAt",
+        "endsAt",
+        "locationText",
+        "updatedAt",
+        "cancelledAt",
+        "updateCount",
+      )
+      .include("municipality", (m) => m.select("nameFi"))
+      .orderBy((l) => l.startsAt.desc())
+      .all(),
+  );
 
   const now = new Date();
   const lines: string[] = [

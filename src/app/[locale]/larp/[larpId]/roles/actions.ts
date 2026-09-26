@@ -1,12 +1,18 @@
 "use server";
 
 import { auth } from "@/auth";
-import { RelatedUserRole } from "@/generated/prisma/client";
+import { RelatedUserRole } from "@/prisma/enums";
 import { isGmOrModerator, getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+function larpWithRoles(larpId: string) {
+  return db.orm.public.Larp.select("id")
+    .include("relatedUsers", (r) => r.select("userId", "role"))
+    .first({ id: larpId });
+}
 
 export async function removeRole(
   locale: string,
@@ -21,13 +27,7 @@ export async function removeRole(
 
   if (!user) throw new Error("Not logged in");
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      relatedUsers: { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await larpWithRoles(larpId);
   if (!larp) throw new Error("Larp not found");
 
   const isOwnRole = user.id === targetUserId;
@@ -35,9 +35,11 @@ export async function removeRole(
     throw new Error("Insufficient permissions");
   }
 
-  await prisma.relatedUser.delete({
-    where: { larpId_userId_role: { larpId, userId: targetUserId, role } },
-  });
+  await db.orm.public.RelatedUser.where({
+    larpId,
+    userId: targetUserId,
+    role,
+  }).delete();
 
   revalidatePath(`/${locale}/larp/${larpId}/roles`);
   redirect(`/${locale}/larp/${larpId}/roles`);
@@ -55,20 +57,14 @@ export async function removeUnauthenticatedSignup(
 
   if (!user) throw new Error("Not logged in");
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      relatedUsers: { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await larpWithRoles(larpId);
   if (!larp) throw new Error("Larp not found");
 
   if (!isGmOrModerator(user, larp)) {
     throw new Error("Insufficient permissions");
   }
 
-  await prisma.unauthenticatedSignup.delete({ where: { id: signupId } });
+  await db.orm.public.UnauthenticatedSignup.where({ id: signupId }).delete();
 
   revalidatePath(`/${locale}/larp/${larpId}/roles`);
   redirect(`/${locale}/larp/${larpId}/roles`);

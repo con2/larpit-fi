@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { displayNameMaxLength } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import {
@@ -18,11 +18,7 @@ import {
   FormSelect,
   FormText,
 } from "react-bootstrap";
-import {
-  logOutAllSessions,
-  requestAccountRemoval,
-  saveUserPreferences,
-} from "./actions";
+import { requestAccountRemoval, saveUserPreferences } from "./actions";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -37,10 +33,12 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
 
   const session = await auth();
   const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, name: true, email: true, editFormPreference: true },
-      })
+    ? await db.orm.public.User.select(
+        "id",
+        "name",
+        "email",
+        "editFormPreference",
+      ).first({ email: session.user.email })
     : null;
   if (!user) {
     return (
@@ -124,20 +122,6 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
           <CardTitle className="text-danger mb-3">
             {t.dangerZone.title}
           </CardTitle>
-
-          <div className="mb-4">
-            <CardTitle>{t.logOutAllSessions.title}</CardTitle>
-            <CardText>{t.logOutAllSessions.description}</CardText>
-            <Form action={logOutAllSessions.bind(null, locale)}>
-              <SubmitButton
-                variant="outline-danger"
-                className="btn btn-outline-danger"
-                confirmationMessage={t.logOutAllSessions.confirmationMessage}
-              >
-                {t.logOutAllSessions.title}
-              </SubmitButton>
-            </Form>
-          </div>
 
           <div>
             <CardTitle>{t.accountRemoval.title}</CardTitle>

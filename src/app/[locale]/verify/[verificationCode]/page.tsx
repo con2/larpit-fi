@@ -1,9 +1,9 @@
 import MainHeading from "@/components/MainHeading";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import { FormattedDateTime, SubmitButton } from "@con2/components";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { notFound } from "next/navigation";
 import { Card, CardBody, CardTitle, Form } from "react-bootstrap";
@@ -29,17 +29,12 @@ export default async function VerificationCodePage({ params }: Props) {
     notFound();
   }
 
-  const request = await prisma.moderationRequest.findUnique({
-    where: {
-      verificationCode,
-    },
-    select: {
-      id: true,
-      action: true,
-      status: true,
-      newContent: true,
-    },
-  });
+  const request = await db.orm.public.ModerationRequest.select(
+    "id",
+    "action",
+    "status",
+    "newContent",
+  ).first({ verificationCode });
 
   if (!request) {
     console.warn("Request with this verification code not found", {

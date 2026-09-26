@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import MainHeading from "@/components/MainHeading";
-import { Page } from "@/generated/prisma/client";
-import { canEditPages } from "@/models/User";
-import prisma from "@/prisma";
+import type { Page } from "@/prisma/models";
+import { canEditPages, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
 import { Markdown } from "@con2/components";
 import Link from "next/link";
@@ -22,17 +21,7 @@ export default async function PagePage({ page, locale }: Props) {
   }
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          id: true,
-          role: true,
-        },
-      })
-    : null;
+  const user = await getUserFromSession(session);
 
   return (
     <Container>

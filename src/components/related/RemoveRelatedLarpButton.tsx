@@ -1,4 +1,4 @@
-import { RelatedLarpType } from "@/generated/prisma/enums";
+import { RelatedLarpType } from "@/prisma/enums";
 import { type Translations } from "@/translations/en";
 import { removeRelatedLarp } from "./actions";
 import { SubmitButton } from "@con2/components";

@@ -1,12 +1,9 @@
-import {
-  EditAction,
-  EditStatus,
-  Language,
-  LarpLinkType,
-} from "@/generated/prisma/client";
-import prisma from "@/prisma";
-import { truncateAll } from "@/test/truncate";
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { db } from "@/prisma/db";
+import { EditAction, EditStatus, Language, LarpLinkType } from "@/prisma/enums";
+import { pool } from "@/prisma/pool";
+import { truncateAll } from "@/test/truncate";
 import {
   larpIdFromUrl,
   syncFromLarppikuvat,
@@ -34,19 +31,18 @@ function fakeFetch(subalbums: { path: string; eventMetadataUrl: string }[]) {
 }
 
 async function createLarp(links: { type: LarpLinkType; href: string }[] = []) {
-  return prisma.larp.create({
-    data: {
-      name: "Test Larp",
-      language: Language.fi,
-      links: { create: links },
-    },
+  return db.orm.public.Larp.create({
+    name: "Test Larp",
+    language: Language.fi,
+    links: (larpLinks) => larpLinks.create(links),
   });
 }
 
 async function photosLinks(larpId: string) {
-  const links = await prisma.larpLink.findMany({
-    where: { larpId, type: LarpLinkType.PHOTOS },
-  });
+  const links = await db.orm.public.LarpLink.where({
+    larpId,
+    type: LarpLinkType.PHOTOS,
+  }).all();
   return links.map((link) => link.href);
 }
 
@@ -70,7 +66,10 @@ describe("larpIdFromUrl", () => {
 
 describe("syncFromLarppikuvat", () => {
   beforeEach(truncateAll);
-  afterAll(() => prisma.$disconnect());
+  afterAll(async () => {
+    await db.close();
+    await pool.end();
+  });
 
   it("adds a PHOTOS link through an approved moderation request", async () => {
     const larp = await createLarp([
@@ -100,8 +99,8 @@ describe("syncFromLarppikuvat", () => {
         "https://larppikuvat.fi/test-larp",
       ]),
     );
-    const request = await prisma.moderationRequest.findFirstOrThrow({
-      where: { larpId: larp.id },
+    const request = await db.orm.public.ModerationRequest.first({
+      larpId: larp.id,
     });
     expect(request).toMatchObject({
       action: EditAction.UPDATE,
@@ -109,10 +108,8 @@ describe("syncFromLarppikuvat", () => {
       message: syncMessage,
       submitterEmail: "yhteys@larppikuvat.fi",
     });
-    const updated = await prisma.larp.findUniqueOrThrow({
-      where: { id: larp.id },
-    });
-    expect(updated.updateCount).toBe(1);
+    const updated = await db.orm.public.Larp.first({ id: larp.id });
+    expect(updated?.updateCount).toBe(1);
   });
 
   it("does nothing when the larp already links to the album", async () => {
@@ -141,7 +138,11 @@ describe("syncFromLarppikuvat", () => {
       missing: 0,
     });
     expect(await photosLinks(larp.id)).toHaveLength(1);
-    expect(await prisma.moderationRequest.count()).toBe(0);
+    expect(
+      await db.orm.public.ModerationRequest.aggregate((a) => ({
+        count: a.count(),
+      })),
+    ).toEqual({ count: 0 });
   });
 
   it("warns and skips when the larp links to another album on the same site", async () => {

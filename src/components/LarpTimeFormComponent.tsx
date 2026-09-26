@@ -1,4 +1,4 @@
-import { Larp } from "@/generated/prisma/client";
+import type { Larp } from "@/prisma/models";
 import { toPlainDate } from "@con2/components/helpers";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";

@@ -1,20 +1,17 @@
 "use server";
 
 import { auth } from "@/auth";
-import {
-  LocalSignupStatus,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
+import { LocalSignupStatus, RelatedUserVisibility } from "@/prisma/enums";
 import { isGmOrModerator, getUserFromSession } from "@/models/User";
 import { normalizeFormData } from "@con2/components/helpers";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
 
 const LocalSignupSettingsSchema = z.object({
-  localSignupStatus: z.nativeEnum(LocalSignupStatus),
+  localSignupStatus: z.enum(LocalSignupStatus),
   localSignupCode: z.string().max(100).optional(),
   relatedUserVisibility: z.enum([
     RelatedUserVisibility.PARTICIPANTS,
@@ -33,13 +30,9 @@ export async function saveLocalSignupSettings(
 
   if (!user?.id) throw new Error("Not logged in");
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      relatedUsers: { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await db.orm.public.Larp.select("id")
+    .include("relatedUsers", (r) => r.select("userId", "role"))
+    .first({ id: larpId });
 
   if (!larp) throw new Error("Larp not found");
   if (!isGmOrModerator(user, larp)) throw new Error("Insufficient permissions");
@@ -47,16 +40,13 @@ export async function saveLocalSignupSettings(
   const formData = normalizeFormData(data);
   const parsed = LocalSignupSettingsSchema.parse(formData);
 
-  await prisma.larp.update({
-    where: { id: larpId },
-    data: {
-      localSignupStatus: parsed.localSignupStatus,
-      localSignupCode:
-        parsed.localSignupStatus === LocalSignupStatus.CODE_REQUIRED
-          ? (parsed.localSignupCode ?? null)
-          : null,
-      relatedUserVisibility: parsed.relatedUserVisibility,
-    },
+  await db.orm.public.Larp.where({ id: larpId }).update({
+    localSignupStatus: parsed.localSignupStatus,
+    localSignupCode:
+      parsed.localSignupStatus === LocalSignupStatus.CODE_REQUIRED
+        ? (parsed.localSignupCode ?? null)
+        : null,
+    relatedUserVisibility: parsed.relatedUserVisibility,
   });
 
   revalidatePath(`/${locale}/larp/${larpId}`);

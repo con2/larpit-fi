@@ -1,11 +1,7 @@
 import { auth } from "@/auth";
 import { featureFlags } from "@/config";
-import {
-  EditStatus,
-  LarpLink,
-  LocalSignupStatus,
-  RelatedUserRole,
-} from "@/generated/prisma/client";
+import { EditStatus, LocalSignupStatus, RelatedUserRole } from "@/prisma/enums";
+import type { LarpLink } from "@/prisma/models";
 import { ensureLocation } from "@/models/Larp";
 import {
   getDeleteLarpInitialStatusForUser,
@@ -14,7 +10,8 @@ import {
   getUserFromSession,
   isGmOrModerator,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import {
@@ -44,38 +41,37 @@ import {
   RightRelatedLarpComponent,
 } from "./related/RelatedLarpComponent";
 
-export const relatedLarpInclude = {
-  select: {
-    id: true,
-    alias: true,
-    name: true,
-  },
-} as const;
+export const relatedLarpFields = ["id", "alias", "name", "startsAt"] as const;
+
+/** Ordering by a field of the included larp is not expressible in the query, so sort here. */
+export function byStartsAt(
+  a: { startsAt: string | null },
+  b: { startsAt: string | null },
+) {
+  return (a.startsAt ?? "").localeCompare(b.startsAt ?? "");
+}
 
 export async function getLarpPageData(
   where: { id: string } | { alias: string },
 ) {
-  return prisma.larp.findUnique({
-    where,
-    include: {
-      links: true,
-      relatedLarpsLeft: {
-        include: { right: relatedLarpInclude },
-        orderBy: { right: { startsAt: "asc" } },
-      },
-      relatedLarpsRight: {
-        include: { left: relatedLarpInclude },
-        orderBy: { left: { startsAt: "asc" } },
-      },
-      relatedUsers: {
-        where: { role: "GAME_MASTER" },
-        select: { userId: true, role: true },
-      },
-      municipality: {
-        select: { nameFi: true, nameOther: true, nameOtherLanguageCode: true },
-      },
-    },
-  });
+  const larp = await db.orm.public.Larp.include("links")
+    .include("relatedLarpsLeft", (r) =>
+      r.include("right", (l) => l.select(...relatedLarpFields)),
+    )
+    .include("relatedLarpsRight", (r) =>
+      r.include("left", (l) => l.select(...relatedLarpFields)),
+    )
+    .include("relatedUsers", (r) =>
+      r.where({ role: "GAME_MASTER" }).select("userId", "role"),
+    )
+    .include("municipality", (m) =>
+      m.select("nameFi", "nameOther", "nameOtherLanguageCode"),
+    )
+    .first(where);
+  if (!larp) return null;
+  larp.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
+  larp.relatedLarpsRight.sort((a, b) => byStartsAt(a.left, b.left));
+  return parseDates(larp);
 }
 
 export type LarpPageLarp = NonNullable<
@@ -337,20 +333,19 @@ export default async function LarpPage({
 
   // Fetch the current user's LOCAL_SIGNUP_* role for this larp (not in getLarpPageData since relatedUsers is filtered to GAME_MASTER)
   const userSignupRelatedUser = user
-    ? await prisma.relatedUser.findFirst({
-        where: {
-          larpId: larp.id,
-          userId: user.id,
-          role: {
-            in: [
-              RelatedUserRole.LOCAL_SIGNUP_YES,
-              RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-              RelatedUserRole.LOCAL_SIGNUP_NO,
-            ],
-          },
-        },
-        select: { userId: true, role: true },
+    ? await db.orm.public.RelatedUser.where({
+        larpId: larp.id,
+        userId: user.id,
       })
+        .where((r) =>
+          r.role.in([
+            RelatedUserRole.LOCAL_SIGNUP_YES,
+            RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+            RelatedUserRole.LOCAL_SIGNUP_NO,
+          ]),
+        )
+        .select("userId", "role")
+        .first()
     : null;
 
   const signupCheckRelatedUsers = [

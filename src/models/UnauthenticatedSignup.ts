@@ -1,13 +1,18 @@
-import {
-  RelatedUserRole,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
-import prisma from "@/prisma";
 import { randomUUID } from "crypto";
+
+import { iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
+
+const localSignupRoles = [
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+];
 
 /**
  * Create or update the pending (unverified) signup row for an unauthenticated user.
@@ -23,32 +28,32 @@ export async function submitUnauthenticatedSignup(
   const email = normalizeEmail(rawEmail);
   const verificationCode = randomUUID();
 
-  const existing = await prisma.unauthenticatedSignup.findFirst({
-    where: { larpId, email, verifiedAt: null },
-    select: { id: true },
-  });
+  const existing = await db.orm.public.UnauthenticatedSignup.where({
+    larpId,
+    email,
+  })
+    .where((s) => s.verifiedAt.isNull())
+    .select("id")
+    .first();
 
   if (existing) {
-    await prisma.unauthenticatedSignup.update({
-      where: { id: existing.id },
-      data: {
+    await db.orm.public.UnauthenticatedSignup.where({ id: existing.id }).update(
+      {
         displayName,
         signupStatus,
         visibility,
         verificationCode,
         verifiedAt: null,
       },
-    });
+    );
   } else {
-    await prisma.unauthenticatedSignup.create({
-      data: {
-        larpId,
-        email,
-        displayName,
-        signupStatus,
-        visibility,
-        verificationCode,
-      },
+    await db.orm.public.UnauthenticatedSignup.create({
+      larpId,
+      email,
+      displayName,
+      signupStatus,
+      visibility,
+      verificationCode,
     });
   }
 
@@ -66,8 +71,8 @@ export async function submitUnauthenticatedSignup(
 export async function verifyUnauthenticatedSignup(
   verificationCode: string,
 ): Promise<string | null> {
-  const signup = await prisma.unauthenticatedSignup.findUnique({
-    where: { verificationCode },
+  const signup = await db.orm.public.UnauthenticatedSignup.first({
+    verificationCode,
   });
 
   if (!signup || signup.verifiedAt !== null) return null;
@@ -75,54 +80,38 @@ export async function verifyUnauthenticatedSignup(
   const { larpId, email, signupStatus, visibility } = signup;
 
   // Check if a verified user account exists for this email
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true, emailVerified: true },
+  const user = await db.orm.public.User.select("id", "emailVerified").first({
+    email,
   });
 
   if (user && user.emailVerified !== null) {
     // Fold path: convert to RelatedUser
-    await prisma.$transaction([
-      // Remove all unauth signup rows for this (larp, email)
-      prisma.unauthenticatedSignup.deleteMany({ where: { larpId, email } }),
+    await db.transaction(async (tx) => {
+      await tx.orm.public.UnauthenticatedSignup.where({
+        larpId,
+        email,
+      }).deleteAndCount();
       // Replace any existing LOCAL_SIGNUP_* RelatedUser for this user on this larp
-      prisma.relatedUser.deleteMany({
-        where: {
-          larpId,
-          userId: user.id,
-          role: {
-            in: [
-              RelatedUserRole.LOCAL_SIGNUP_YES,
-              RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-              RelatedUserRole.LOCAL_SIGNUP_NO,
-            ],
-          },
-        },
-      }),
-      prisma.relatedUser.create({
-        data: { larpId, userId: user.id, role: signupStatus, visibility },
-      }),
-    ]);
+      await tx.orm.public.RelatedUser.where({ larpId, userId: user.id })
+        .where((r) => r.role.in(localSignupRoles))
+        .deleteAndCount();
+      await tx.orm.public.RelatedUser.create({
+        larpId,
+        userId: user.id,
+        role: signupStatus,
+        visibility,
+      });
+    });
   } else {
     // Keep path: promote pending row to verified, replacing any old verified row
-    const oldVerified = await prisma.unauthenticatedSignup.findFirst({
-      where: { larpId, email, verifiedAt: { not: null } },
-      select: { id: true },
+    await db.transaction(async (tx) => {
+      await tx.orm.public.UnauthenticatedSignup.where({ larpId, email })
+        .where((s) => s.verifiedAt.isNotNull())
+        .deleteAndCount();
+      await tx.orm.public.UnauthenticatedSignup.where({ id: signup.id }).update(
+        { verifiedAt: iso(new Date()) },
+      );
     });
-
-    await prisma.$transaction([
-      ...(oldVerified
-        ? [
-            prisma.unauthenticatedSignup.delete({
-              where: { id: oldVerified.id },
-            }),
-          ]
-        : []),
-      prisma.unauthenticatedSignup.update({
-        where: { id: signup.id },
-        data: { verifiedAt: new Date() },
-      }),
-    ]);
   }
 
   return larpId;
@@ -138,24 +127,17 @@ export async function upsertLocalSignup(
   signupStatus: RelatedUserRole,
   visibility: RelatedUserVisibility,
 ): Promise<void> {
-  await prisma.$transaction([
-    prisma.relatedUser.deleteMany({
-      where: {
-        larpId,
-        userId,
-        role: {
-          in: [
-            RelatedUserRole.LOCAL_SIGNUP_YES,
-            RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-            RelatedUserRole.LOCAL_SIGNUP_NO,
-          ],
-        },
-      },
-    }),
-    prisma.relatedUser.create({
-      data: { larpId, userId, role: signupStatus, visibility },
-    }),
-  ]);
+  await db.transaction(async (tx) => {
+    await tx.orm.public.RelatedUser.where({ larpId, userId })
+      .where((r) => r.role.in(localSignupRoles))
+      .deleteAndCount();
+    await tx.orm.public.RelatedUser.create({
+      larpId,
+      userId,
+      role: signupStatus,
+      visibility,
+    });
+  });
 }
 
 /**
@@ -167,5 +149,8 @@ export async function deleteUnauthenticatedSignupsForUser(
   rawEmail: string,
 ): Promise<void> {
   const email = normalizeEmail(rawEmail);
-  await prisma.unauthenticatedSignup.deleteMany({ where: { larpId, email } });
+  await db.orm.public.UnauthenticatedSignup.where({
+    larpId,
+    email,
+  }).deleteAndCount();
 }

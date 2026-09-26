@@ -1,5 +1,5 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -15,19 +15,10 @@ interface Props {
 async function getContent({ params }: Props) {
   const { alias, locale } = await params;
   const [larp, page] = await Promise.all([
-    prisma.larp.findUnique({
-      where: { alias: alias },
-      select: {
-        name: true,
-        tagline: true,
-      },
-    }),
-    prisma.page.findUnique({
-      where: { slug_language: { slug: alias, language: locale } },
-      select: {
-        title: true,
-        content: true,
-      },
+    db.orm.public.Larp.select("name", "tagline").first({ alias }),
+    db.orm.public.Page.select("title", "content").first({
+      slug: alias,
+      language: locale,
     }),
   ]);
   if (!larp && !page) {

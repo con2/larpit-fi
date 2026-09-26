@@ -1,6 +1,6 @@
 import MainHeading from "@/components/MainHeading";
 import { SubmitButton } from "@con2/components";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
 import Alert from "react-bootstrap/Alert";
@@ -33,17 +33,15 @@ export default async function VerifySignupPage({ params }: Props) {
   const signupStatusChoices =
     translations.LocalSignupPage.attributes.signupStatus.choices;
 
-  const signup = await prisma.unauthenticatedSignup.findUnique({
-    where: { verificationCode },
-    select: {
-      larpId: true,
-      displayName: true,
-      email: true,
-      signupStatus: true,
-      verifiedAt: true,
-      larp: { select: { name: true } },
-    },
-  });
+  const signup = await db.orm.public.UnauthenticatedSignup.select(
+    "larpId",
+    "displayName",
+    "email",
+    "signupStatus",
+    "verifiedAt",
+  )
+    .include("larp", (l) => l.select("name"))
+    .first({ verificationCode });
 
   if (!signup || signup.larpId !== larpId) {
     notFound();

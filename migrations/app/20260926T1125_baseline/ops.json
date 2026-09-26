@@ -1,0 +1,1851 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.EditAction",
+    "label": "Create enum type \"EditAction\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "EditAction"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"EditAction\"",
+        "sql": "CREATE TYPE \"public\".\"EditAction\" AS ENUM ('CREATE', 'UPDATE', 'CLAIM', 'DELETE')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.EditFormPreference",
+    "label": "Create enum type \"EditFormPreference\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "EditFormPreference"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"EditFormPreference\"",
+        "sql": "CREATE TYPE \"public\".\"EditFormPreference\" AS ENUM ('FULL', 'COMPACT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.EditStatus",
+    "label": "Create enum type \"EditStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "EditStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"EditStatus\"",
+        "sql": "CREATE TYPE \"public\".\"EditStatus\" AS ENUM ('PENDING_VERIFICATION', 'VERIFIED', 'AUTO_APPROVED', 'APPROVED', 'REJECTED', 'WITHDRAWN')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.Language",
+    "label": "Create enum type \"Language\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "Language"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"Language\"",
+        "sql": "CREATE TYPE \"public\".\"Language\" AS ENUM ('fi', 'en', 'sv', 'OTHER')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.LarpLinkType",
+    "label": "Create enum type \"LarpLinkType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "LarpLinkType"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"LarpLinkType\"",
+        "sql": "CREATE TYPE \"public\".\"LarpLinkType\" AS ENUM ('HOMEPAGE', 'PHOTOS', 'SOCIAL_MEDIA', 'PLAYER_GUIDE', 'OTHER', 'SIGNUP')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.LarpType",
+    "label": "Create enum type \"LarpType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "LarpType"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"LarpType\"",
+        "sql": "CREATE TYPE \"public\".\"LarpType\" AS ENUM ('ONE_SHOT', 'CAMPAIGN_LARP', 'CAMPAIGN', 'MULTIPLE_RUNS', 'OTHER_EVENT_SERIES', 'OTHER_EVENT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.LocalSignupStatus",
+    "label": "Create enum type \"LocalSignupStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "LocalSignupStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"LocalSignupStatus\"",
+        "sql": "CREATE TYPE \"public\".\"LocalSignupStatus\" AS ENUM ('DISABLED', 'PUBLIC', 'CODE_REQUIRED')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.Openness",
+    "label": "Create enum type \"Openness\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "Openness"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"Openness\"",
+        "sql": "CREATE TYPE \"public\".\"Openness\" AS ENUM ('OPEN', 'TARGETED', 'INVITE_ONLY')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.RelatedLarpType",
+    "label": "Create enum type \"RelatedLarpType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "RelatedLarpType"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"RelatedLarpType\"",
+        "sql": "CREATE TYPE \"public\".\"RelatedLarpType\" AS ENUM ('SEQUEL', 'SPINOFF', 'IN_CAMPAIGN', 'IN_SERIES', 'RUN_OF', 'RERUN_OF', 'PLAYED_AT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.RelatedUserRole",
+    "label": "Create enum type \"RelatedUserRole\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "RelatedUserRole"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"RelatedUserRole\"",
+        "sql": "CREATE TYPE \"public\".\"RelatedUserRole\" AS ENUM ('EDITOR', 'CREATED_BY', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER', 'FAVORITE', 'TEAM_MEMBER', 'LOCAL_SIGNUP_YES', 'LOCAL_SIGNUP_MAYBE', 'LOCAL_SIGNUP_NO')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.RelatedUserVisibility",
+    "label": "Create enum type \"RelatedUserVisibility\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "RelatedUserVisibility"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"RelatedUserVisibility\"",
+        "sql": "CREATE TYPE \"public\".\"RelatedUserVisibility\" AS ENUM ('PARTICIPANTS', 'GM', 'ONLY_ME')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.SubmitterRole",
+    "label": "Create enum type \"SubmitterRole\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "SubmitterRole"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"SubmitterRole\"",
+        "sql": "CREATE TYPE \"public\".\"SubmitterRole\" AS ENUM ('NONE', 'GAME_MASTER', 'VOLUNTEER', 'PLAYER', 'TEAM_MEMBER')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.TokenType",
+    "label": "Create enum type \"TokenType\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "TokenType"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"TokenType\"",
+        "sql": "CREATE TYPE \"public\".\"TokenType\" AS ENUM ('EMAIL_VERIFICATION', 'ACCOUNT_REMOVAL')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.UserRole",
+    "label": "Create enum type \"UserRole\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "UserRole"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"UserRole\"",
+        "sql": "CREATE TYPE \"public\".\"UserRole\" AS ENUM ('NOT_VERIFIED', 'VERIFIED', 'MODERATOR', 'ADMIN')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.account",
+    "label": "Create table \"account\"",
+    "summary": "Creates table \"account\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "account"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"account\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"account\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"account\"",
+        "sql": "CREATE TABLE \"public\".\"account\" (\n  \"access_token\" text,\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"expires_at\" int4,\n  \"id_token\" text,\n  \"provider\" text NOT NULL,\n  \"provider_account_id\" text NOT NULL,\n  \"refresh_token\" text,\n  \"scope\" text,\n  \"session_state\" text,\n  \"token_type\" text,\n  \"type\" text NOT NULL,\n  \"updated_at\" timestamp(3) NOT NULL,\n  \"user_id\" uuid NOT NULL,\n  PRIMARY KEY (\"provider\", \"provider_account_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"account\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"account\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.authenticator",
+    "label": "Create table \"authenticator\"",
+    "summary": "Creates table \"authenticator\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "authenticator"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"authenticator\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"authenticator\"",
+        "sql": "CREATE TABLE \"public\".\"authenticator\" (\n  \"counter\" int4 NOT NULL,\n  \"credential_backed_up\" bool NOT NULL,\n  \"credential_device_type\" text NOT NULL,\n  \"credential_id\" text NOT NULL,\n  \"credential_public_key\" text NOT NULL,\n  \"provider_account_id\" text NOT NULL,\n  \"transports\" text,\n  \"user_id\" uuid NOT NULL,\n  PRIMARY KEY (\"user_id\", \"credential_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"authenticator\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.country",
+    "label": "Create table \"country\"",
+    "summary": "Creates table \"country\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "country"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"country\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"country\"",
+        "sql": "CREATE TABLE \"public\".\"country\" (\n  \"code\" text,\n  \"id\" text NOT NULL,\n  \"name_en\" text,\n  \"name_fi\" text,\n  \"name_sv\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"country\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.holiday",
+    "label": "Create table \"holiday\"",
+    "summary": "Creates table \"holiday\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "holiday"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"holiday\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"holiday\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"holiday\"",
+        "sql": "CREATE TABLE \"public\".\"holiday\" (\n  \"date\" date NOT NULL,\n  \"title_en\" text NOT NULL,\n  \"title_fi\" text NOT NULL,\n  PRIMARY KEY (\"date\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"holiday\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"holiday\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.larp",
+    "label": "Create table \"larp\"",
+    "summary": "Creates table \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"larp\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"larp\"",
+        "sql": "CREATE TABLE \"public\".\"larp\" (\n  \"alias\" text,\n  \"cancelled_at\" timestamp(3),\n  \"description\" text,\n  \"ends_at\" timestamp(3),\n  \"fluff_text\" text,\n  \"id\" uuid NOT NULL,\n  \"language\" \"Language\" NOT NULL,\n  \"local_signup_code\" text,\n  \"local_signup_status\" \"LocalSignupStatus\" DEFAULT 'DISABLED'::\"LocalSignupStatus\" NOT NULL,\n  \"location_text\" text,\n  \"municipality_id\" text,\n  \"name\" text NOT NULL,\n  \"num_player_characters\" int4,\n  \"num_total_participants\" int4,\n  \"openness\" \"Openness\",\n  \"related_user_visibility\" \"RelatedUserVisibility\" DEFAULT 'GM'::\"RelatedUserVisibility\" NOT NULL,\n  \"signup_ends_at\" timestamp(3),\n  \"signup_starts_at\" timestamp(3),\n  \"starts_at\" timestamp(3),\n  \"tagline\" text,\n  \"type\" \"LarpType\" DEFAULT 'ONE_SHOT'::\"LarpType\" NOT NULL,\n  \"update_count\" int4 DEFAULT 0 NOT NULL,\n  \"updated_at\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"larp\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.larp_link",
+    "label": "Create table \"larp_link\"",
+    "summary": "Creates table \"larp_link\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "larp_link"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"larp_link\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_link\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"larp_link\"",
+        "sql": "CREATE TABLE \"public\".\"larp_link\" (\n  \"href\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"larp_id\" uuid NOT NULL,\n  \"title\" text,\n  \"type\" \"LarpLinkType\" DEFAULT 'HOMEPAGE'::\"LarpLinkType\" NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"larp_link\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_link\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.moderation_request",
+    "label": "Create table \"moderation_request\"",
+    "summary": "Creates table \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"moderation_request\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"moderation_request\"",
+        "sql": "CREATE TABLE \"public\".\"moderation_request\" (\n  \"action\" \"EditAction\" NOT NULL,\n  \"add_links\" jsonb DEFAULT '[]'::jsonb NOT NULL,\n  \"add_related_larps\" jsonb DEFAULT '[]'::jsonb NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"larp_id\" uuid,\n  \"message\" text,\n  \"new_content\" jsonb DEFAULT '{}'::jsonb NOT NULL,\n  \"remove_links\" jsonb DEFAULT '[]'::jsonb NOT NULL,\n  \"remove_related_larps\" jsonb DEFAULT '[]'::jsonb NOT NULL,\n  \"resolved_at\" timestamp(3),\n  \"resolved_by_id\" uuid,\n  \"resolved_message\" text,\n  \"status\" \"EditStatus\" NOT NULL,\n  \"submitter_email\" text NOT NULL,\n  \"submitter_id\" uuid,\n  \"submitter_name\" text NOT NULL,\n  \"submitter_role\" \"SubmitterRole\" DEFAULT 'NONE'::\"SubmitterRole\" NOT NULL,\n  \"verification_code\" uuid,\n  \"verified_at\" timestamp(3),\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"moderation_request\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.municipality",
+    "label": "Create table \"municipality\"",
+    "summary": "Creates table \"municipality\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "municipality"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"municipality\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"municipality\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"municipality\"",
+        "sql": "CREATE TABLE \"public\".\"municipality\" (\n  \"country_code\" text DEFAULT 'wd:Q33' NOT NULL,\n  \"id\" text NOT NULL,\n  \"lat\" float8 NOT NULL,\n  \"long\" float8 NOT NULL,\n  \"name_fi\" text,\n  \"name_other\" text,\n  \"name_other_language_code\" text,\n  \"name_sv\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"municipality\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"municipality\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.page",
+    "label": "Create table \"page\"",
+    "summary": "Creates table \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"page\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"page\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"page\"",
+        "sql": "CREATE TABLE \"public\".\"page\" (\n  \"content\" text NOT NULL,\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"language\" text NOT NULL,\n  \"slug\" text DEFAULT 'front-page' NOT NULL,\n  \"title\" text NOT NULL,\n  \"updated_at\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"slug\", \"language\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"page\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"page\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.related_larp",
+    "label": "Create table \"related_larp\"",
+    "summary": "Creates table \"related_larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "related_larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"related_larp\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"related_larp\"",
+        "sql": "CREATE TABLE \"public\".\"related_larp\" (\n  \"left_id\" uuid NOT NULL,\n  \"right_id\" uuid NOT NULL,\n  \"type\" \"RelatedLarpType\" NOT NULL,\n  PRIMARY KEY (\"left_id\", \"right_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"related_larp\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.related_user",
+    "label": "Create table \"related_user\"",
+    "summary": "Creates table \"related_user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "related_user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"related_user\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"related_user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"related_user\"",
+        "sql": "CREATE TABLE \"public\".\"related_user\" (\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"larp_id\" uuid NOT NULL,\n  \"role\" \"RelatedUserRole\" NOT NULL,\n  \"user_id\" uuid NOT NULL,\n  \"visibility\" \"RelatedUserVisibility\" DEFAULT 'ONLY_ME'::\"RelatedUserVisibility\" NOT NULL,\n  PRIMARY KEY (\"larp_id\", \"user_id\", \"role\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"related_user\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"related_user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.session",
+    "label": "Create table \"session\"",
+    "summary": "Creates table \"session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"session\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"session\"",
+        "sql": "CREATE TABLE \"public\".\"session\" (\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"expires\" timestamp(3) NOT NULL,\n  \"session_token\" text NOT NULL,\n  \"updated_at\" timestamp(3) NOT NULL,\n  \"user_id\" uuid NOT NULL\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"session\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.unauthenticated_signup",
+    "label": "Create table \"unauthenticated_signup\"",
+    "summary": "Creates table \"unauthenticated_signup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"unauthenticated_signup\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"unauthenticated_signup\"",
+        "sql": "CREATE TABLE \"public\".\"unauthenticated_signup\" (\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"display_name\" text NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"larp_id\" uuid NOT NULL,\n  \"signup_status\" \"RelatedUserRole\" NOT NULL,\n  \"updated_at\" timestamp(3) NOT NULL,\n  \"verification_code\" text NOT NULL,\n  \"verified_at\" timestamp(3),\n  \"visibility\" \"RelatedUserVisibility\" NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"unauthenticated_signup_signup_status_check\" CHECK ((signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))),\n  CONSTRAINT \"unauthenticated_signup_visibility_check\" CHECK ((visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"])))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"unauthenticated_signup\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.user",
+    "label": "Create table \"user\"",
+    "summary": "Creates table \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"user\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"user\"",
+        "sql": "CREATE TABLE \"public\".\"user\" (\n  \"created_at\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"edit_form_preference\" \"EditFormPreference\" DEFAULT 'FULL'::\"EditFormPreference\" NOT NULL,\n  \"email\" text NOT NULL,\n  \"email_verified\" timestamp(3),\n  \"id\" uuid NOT NULL,\n  \"image\" text,\n  \"name\" text,\n  \"role\" \"UserRole\" DEFAULT 'NOT_VERIFIED'::\"UserRole\" NOT NULL,\n  \"title_en\" text,\n  \"title_fi\" text,\n  \"updated_at\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"user\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.verification_token",
+    "label": "Create table \"verification_token\"",
+    "summary": "Creates table \"verification_token\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "verification_token"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"verification_token\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verification_token\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"verification_token\"",
+        "sql": "CREATE TABLE \"public\".\"verification_token\" (\n  \"expires\" timestamp(3) NOT NULL,\n  \"identifier\" text NOT NULL,\n  \"token\" text NOT NULL,\n  \"type\" \"TokenType\" DEFAULT 'EMAIL_VERIFICATION'::\"TokenType\" NOT NULL,\n  PRIMARY KEY (\"identifier\", \"token\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"verification_token\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"verification_token\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.authenticator.authenticator_credential_id_key",
+    "label": "Create index \"authenticator_credential_id_key\" on \"authenticator\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "authenticator_credential_id_key",
+        "table": "authenticator"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"authenticator_credential_id_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator_credential_id_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"authenticator_credential_id_key\"",
+        "sql": "CREATE UNIQUE INDEX \"authenticator_credential_id_key\" ON \"public\".\"authenticator\" (\"credential_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"authenticator_credential_id_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator_credential_id_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.country.country_code_key",
+    "label": "Create index \"country_code_key\" on \"country\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "country_code_key",
+        "table": "country"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"country_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"country_code_key\"",
+        "sql": "CREATE UNIQUE INDEX \"country_code_key\" ON \"public\".\"country\" (\"code\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"country_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.larp.larp_alias_key",
+    "label": "Create index \"larp_alias_key\" on \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "larp_alias_key",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"larp_alias_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_alias_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"larp_alias_key\"",
+        "sql": "CREATE UNIQUE INDEX \"larp_alias_key\" ON \"public\".\"larp\" (\"alias\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"larp_alias_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_alias_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.moderation_request.moderation_request_verification_code_key",
+    "label": "Create index \"moderation_request_verification_code_key\" on \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "moderation_request_verification_code_key",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"moderation_request_verification_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request_verification_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"moderation_request_verification_code_key\"",
+        "sql": "CREATE UNIQUE INDEX \"moderation_request_verification_code_key\" ON \"public\".\"moderation_request\" (\"verification_code\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"moderation_request_verification_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request_verification_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.session.session_session_token_key",
+    "label": "Create index \"session_session_token_key\" on \"session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "session_session_token_key",
+        "table": "session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"session_session_token_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_session_token_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"session_session_token_key\"",
+        "sql": "CREATE UNIQUE INDEX \"session_session_token_key\" ON \"public\".\"session\" (\"session_token\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"session_session_token_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session_session_token_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.unauthenticated_signup.unauthenticated_signup_larp_email_pending_uidx",
+    "label": "Create index \"unauthenticated_signup_larp_email_pending_uidx\" on \"unauthenticated_signup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "unauthenticated_signup_larp_email_pending_uidx",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"unauthenticated_signup_larp_email_pending_uidx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_larp_email_pending_uidx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"unauthenticated_signup_larp_email_pending_uidx\"",
+        "sql": "CREATE UNIQUE INDEX \"unauthenticated_signup_larp_email_pending_uidx\" ON \"public\".\"unauthenticated_signup\" (\"larp_id\", \"email\") WHERE ((verified_at IS NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"unauthenticated_signup_larp_email_pending_uidx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_larp_email_pending_uidx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.unauthenticated_signup.unauthenticated_signup_larp_email_verified_uidx",
+    "label": "Create index \"unauthenticated_signup_larp_email_verified_uidx\" on \"unauthenticated_signup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "unauthenticated_signup_larp_email_verified_uidx",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"unauthenticated_signup_larp_email_verified_uidx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_larp_email_verified_uidx\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"unauthenticated_signup_larp_email_verified_uidx\"",
+        "sql": "CREATE UNIQUE INDEX \"unauthenticated_signup_larp_email_verified_uidx\" ON \"public\".\"unauthenticated_signup\" (\"larp_id\", \"email\") WHERE ((verified_at IS NOT NULL))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"unauthenticated_signup_larp_email_verified_uidx\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_larp_email_verified_uidx\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.unauthenticated_signup.unauthenticated_signup_verification_code_key",
+    "label": "Create index \"unauthenticated_signup_verification_code_key\" on \"unauthenticated_signup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "unauthenticated_signup_verification_code_key",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"unauthenticated_signup_verification_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_verification_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"unauthenticated_signup_verification_code_key\"",
+        "sql": "CREATE UNIQUE INDEX \"unauthenticated_signup_verification_code_key\" ON \"public\".\"unauthenticated_signup\" (\"verification_code\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"unauthenticated_signup_verification_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_verification_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.user.user_email_key",
+    "label": "Create index \"user_email_key\" on \"user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "user_email_key",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"user_email_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user_email_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"user_email_key\"",
+        "sql": "CREATE UNIQUE INDEX \"user_email_key\" ON \"public\".\"user\" (\"email\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"user_email_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user_email_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.account.account_user_id_fkey",
+    "label": "Add foreign key \"account_user_id_fkey\" on \"account\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "account_user_id_fkey",
+        "table": "account"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"account_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "account_user_id_fkey",
+          "public",
+          "\"public\".\"account\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"account_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"account\"\nADD CONSTRAINT \"account_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"account_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "account_user_id_fkey",
+          "public",
+          "\"public\".\"account\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.authenticator.authenticator_user_id_fkey",
+    "label": "Add foreign key \"authenticator_user_id_fkey\" on \"authenticator\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "authenticator_user_id_fkey",
+        "table": "authenticator"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"authenticator_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "authenticator_user_id_fkey",
+          "public",
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"authenticator_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"authenticator\"\nADD CONSTRAINT \"authenticator_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"authenticator_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "authenticator_user_id_fkey",
+          "public",
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.larp.larp_municipality_id_fkey",
+    "label": "Add foreign key \"larp_municipality_id_fkey\" on \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "larp_municipality_id_fkey",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"larp_municipality_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_municipality_id_fkey",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"larp_municipality_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"larp\"\nADD CONSTRAINT \"larp_municipality_id_fkey\"\nFOREIGN KEY (\"municipality_id\")\nREFERENCES \"public\".\"municipality\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"larp_municipality_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_municipality_id_fkey",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.larp_link.larp_link_larp_id_fkey",
+    "label": "Add foreign key \"larp_link_larp_id_fkey\" on \"larp_link\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "larp_link_larp_id_fkey",
+        "table": "larp_link"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"larp_link_larp_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_link_larp_id_fkey",
+          "public",
+          "\"public\".\"larp_link\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"larp_link_larp_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"larp_link\"\nADD CONSTRAINT \"larp_link_larp_id_fkey\"\nFOREIGN KEY (\"larp_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"larp_link_larp_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_link_larp_id_fkey",
+          "public",
+          "\"public\".\"larp_link\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.moderation_request.moderation_request_larp_id_fkey",
+    "label": "Add foreign key \"moderation_request_larp_id_fkey\" on \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "moderation_request_larp_id_fkey",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"moderation_request_larp_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_larp_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"moderation_request_larp_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\"\nADD CONSTRAINT \"moderation_request_larp_id_fkey\"\nFOREIGN KEY (\"larp_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"moderation_request_larp_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_larp_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.moderation_request.moderation_request_resolved_by_id_fkey",
+    "label": "Add foreign key \"moderation_request_resolved_by_id_fkey\" on \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "moderation_request_resolved_by_id_fkey",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"moderation_request_resolved_by_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_resolved_by_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"moderation_request_resolved_by_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\"\nADD CONSTRAINT \"moderation_request_resolved_by_id_fkey\"\nFOREIGN KEY (\"resolved_by_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"moderation_request_resolved_by_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_resolved_by_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.moderation_request.moderation_request_submitter_id_fkey",
+    "label": "Add foreign key \"moderation_request_submitter_id_fkey\" on \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "moderation_request_submitter_id_fkey",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"moderation_request_submitter_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_submitter_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"moderation_request_submitter_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\"\nADD CONSTRAINT \"moderation_request_submitter_id_fkey\"\nFOREIGN KEY (\"submitter_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"moderation_request_submitter_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_submitter_id_fkey",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.municipality.municipality_country_code_fkey",
+    "label": "Add foreign key \"municipality_country_code_fkey\" on \"municipality\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "municipality_country_code_fkey",
+        "table": "municipality"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"municipality_country_code_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "municipality_country_code_fkey",
+          "public",
+          "\"public\".\"municipality\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"municipality_country_code_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"municipality\"\nADD CONSTRAINT \"municipality_country_code_fkey\"\nFOREIGN KEY (\"country_code\")\nREFERENCES \"public\".\"country\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"municipality_country_code_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "municipality_country_code_fkey",
+          "public",
+          "\"public\".\"municipality\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.related_larp.related_larp_left_id_fkey",
+    "label": "Add foreign key \"related_larp_left_id_fkey\" on \"related_larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "related_larp_left_id_fkey",
+        "table": "related_larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"related_larp_left_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_larp_left_id_fkey",
+          "public",
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"related_larp_left_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"related_larp\"\nADD CONSTRAINT \"related_larp_left_id_fkey\"\nFOREIGN KEY (\"left_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"related_larp_left_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_larp_left_id_fkey",
+          "public",
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.related_larp.related_larp_right_id_fkey",
+    "label": "Add foreign key \"related_larp_right_id_fkey\" on \"related_larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "related_larp_right_id_fkey",
+        "table": "related_larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"related_larp_right_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_larp_right_id_fkey",
+          "public",
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"related_larp_right_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"related_larp\"\nADD CONSTRAINT \"related_larp_right_id_fkey\"\nFOREIGN KEY (\"right_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"related_larp_right_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_larp_right_id_fkey",
+          "public",
+          "\"public\".\"related_larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.related_user.related_user_larp_id_fkey",
+    "label": "Add foreign key \"related_user_larp_id_fkey\" on \"related_user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "related_user_larp_id_fkey",
+        "table": "related_user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"related_user_larp_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_user_larp_id_fkey",
+          "public",
+          "\"public\".\"related_user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"related_user_larp_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"related_user\"\nADD CONSTRAINT \"related_user_larp_id_fkey\"\nFOREIGN KEY (\"larp_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"related_user_larp_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_user_larp_id_fkey",
+          "public",
+          "\"public\".\"related_user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.related_user.related_user_user_id_fkey",
+    "label": "Add foreign key \"related_user_user_id_fkey\" on \"related_user\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "related_user_user_id_fkey",
+        "table": "related_user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"related_user_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_user_user_id_fkey",
+          "public",
+          "\"public\".\"related_user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"related_user_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"related_user\"\nADD CONSTRAINT \"related_user_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"related_user_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "related_user_user_id_fkey",
+          "public",
+          "\"public\".\"related_user\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.session.session_user_id_fkey",
+    "label": "Add foreign key \"session_user_id_fkey\" on \"session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "session_user_id_fkey",
+        "table": "session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"session_user_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "session_user_id_fkey",
+          "public",
+          "\"public\".\"session\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"session_user_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"session\"\nADD CONSTRAINT \"session_user_id_fkey\"\nFOREIGN KEY (\"user_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"session_user_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "session_user_id_fkey",
+          "public",
+          "\"public\".\"session\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.unauthenticated_signup.unauthenticated_signup_larp_id_fkey",
+    "label": "Add foreign key \"unauthenticated_signup_larp_id_fkey\" on \"unauthenticated_signup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "unauthenticated_signup_larp_id_fkey",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"unauthenticated_signup_larp_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "unauthenticated_signup_larp_id_fkey",
+          "public",
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"unauthenticated_signup_larp_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\"\nADD CONSTRAINT \"unauthenticated_signup_larp_id_fkey\"\nFOREIGN KEY (\"larp_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"unauthenticated_signup_larp_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "unauthenticated_signup_larp_id_fkey",
+          "public",
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ]
+  }
+]

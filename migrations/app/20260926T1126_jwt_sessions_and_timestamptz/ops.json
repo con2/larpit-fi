@@ -1,0 +1,1038 @@
+[
+  {
+    "id": "dropTable.authenticator",
+    "label": "Drop table \"authenticator\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "authenticator"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"authenticator\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"authenticator\"",
+        "sql": "DROP TABLE \"public\".\"authenticator\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"authenticator\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"authenticator\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropTable.session",
+    "label": "Drop table \"session\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"session\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop table \"session\"",
+        "sql": "DROP TABLE \"public\".\"session\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"session\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"session\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alterType.account.created_at",
+    "label": "Alter type of \"account\".\"created_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_at",
+        "table": "account"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "account",
+          "created_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"created_at\"",
+        "sql": "ALTER TABLE \"public\".\"account\" ALTER COLUMN \"created_at\" TYPE timestamptz USING \"created_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "account",
+          "created_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.account.updated_at",
+    "label": "Alter type of \"account\".\"updated_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updated_at",
+        "table": "account"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updated_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "account",
+          "updated_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updated_at\"",
+        "sql": "ALTER TABLE \"public\".\"account\" ALTER COLUMN \"updated_at\" TYPE timestamptz USING \"updated_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updated_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "account",
+          "updated_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.cancelled_at",
+    "label": "Alter type of \"larp\".\"cancelled_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cancelled_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cancelled_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "cancelled_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"cancelled_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"cancelled_at\" TYPE timestamptz USING \"cancelled_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cancelled_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "cancelled_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.ends_at",
+    "label": "Alter type of \"larp\".\"ends_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "ends_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"ends_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "ends_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"ends_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"ends_at\" TYPE timestamptz USING \"ends_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"ends_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "ends_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.signup_ends_at",
+    "label": "Alter type of \"larp\".\"signup_ends_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "signup_ends_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"signup_ends_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_ends_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"signup_ends_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"signup_ends_at\" TYPE timestamptz USING \"signup_ends_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"signup_ends_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_ends_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.signup_starts_at",
+    "label": "Alter type of \"larp\".\"signup_starts_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "signup_starts_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"signup_starts_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_starts_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"signup_starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"signup_starts_at\" TYPE timestamptz USING \"signup_starts_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"signup_starts_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_starts_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.starts_at",
+    "label": "Alter type of \"larp\".\"starts_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "starts_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"starts_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "starts_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"starts_at\" TYPE timestamptz USING \"starts_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"starts_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "starts_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.updated_at",
+    "label": "Alter type of \"larp\".\"updated_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updated_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updated_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "updated_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updated_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"updated_at\" TYPE timestamptz USING \"updated_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updated_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "updated_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.moderation_request.resolved_at",
+    "label": "Alter type of \"moderation_request\".\"resolved_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "resolved_at",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"resolved_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "resolved_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"resolved_at\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ALTER COLUMN \"resolved_at\" TYPE timestamptz USING \"resolved_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"resolved_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "resolved_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.moderation_request.verified_at",
+    "label": "Alter type of \"moderation_request\".\"verified_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "verified_at",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"verified_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "verified_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"verified_at\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ALTER COLUMN \"verified_at\" TYPE timestamptz USING \"verified_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"verified_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "verified_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.page.created_at",
+    "label": "Alter type of \"page\".\"created_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_at",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "created_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"created_at\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ALTER COLUMN \"created_at\" TYPE timestamptz USING \"created_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "created_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.page.updated_at",
+    "label": "Alter type of \"page\".\"updated_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updated_at",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updated_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "updated_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updated_at\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ALTER COLUMN \"updated_at\" TYPE timestamptz USING \"updated_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updated_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "updated_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.related_user.created_at",
+    "label": "Alter type of \"related_user\".\"created_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_at",
+        "table": "related_user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "related_user",
+          "created_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"created_at\"",
+        "sql": "ALTER TABLE \"public\".\"related_user\" ALTER COLUMN \"created_at\" TYPE timestamptz USING \"created_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "related_user",
+          "created_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.unauthenticated_signup.created_at",
+    "label": "Alter type of \"unauthenticated_signup\".\"created_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_at",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "created_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"created_at\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\" ALTER COLUMN \"created_at\" TYPE timestamptz USING \"created_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "created_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.unauthenticated_signup.updated_at",
+    "label": "Alter type of \"unauthenticated_signup\".\"updated_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updated_at",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updated_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "updated_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updated_at\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\" ALTER COLUMN \"updated_at\" TYPE timestamptz USING \"updated_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updated_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "updated_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.unauthenticated_signup.verified_at",
+    "label": "Alter type of \"unauthenticated_signup\".\"verified_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "verified_at",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"verified_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "verified_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"verified_at\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\" ALTER COLUMN \"verified_at\" TYPE timestamptz USING \"verified_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"verified_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "verified_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.user.created_at",
+    "label": "Alter type of \"user\".\"created_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "created_at",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"created_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "created_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"created_at\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ALTER COLUMN \"created_at\" TYPE timestamptz USING \"created_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"created_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "created_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.user.email_verified",
+    "label": "Alter type of \"user\".\"email_verified\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "email_verified",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"email_verified\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "email_verified"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"email_verified\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ALTER COLUMN \"email_verified\" TYPE timestamptz USING \"email_verified\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"email_verified\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "email_verified",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.user.updated_at",
+    "label": "Alter type of \"user\".\"updated_at\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "updated_at",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"updated_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "updated_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"updated_at\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ALTER COLUMN \"updated_at\" TYPE timestamptz USING \"updated_at\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"updated_at\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "user",
+          "updated_at",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.verification_token.expires",
+    "label": "Alter type of \"verification_token\".\"expires\" to timestamptz",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "expires",
+        "table": "verification_token"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"expires\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "verification_token",
+          "expires"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"expires\"",
+        "sql": "ALTER TABLE \"public\".\"verification_token\" ALTER COLUMN \"expires\" TYPE timestamptz USING \"expires\" at time zone 'utc'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"expires\" has type \"timestamp with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "verification_token",
+          "expires",
+          "timestamp with time zone"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "setDefault.moderation_request.verification_code",
+    "label": "Set default on \"moderation_request\".\"verification_code\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "verification_code",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"verification_code\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "verification_code"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"verification_code\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ALTER COLUMN \"verification_code\" SET DEFAULT (gen_random_uuid())"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"verification_code\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "verification_code"
+        ]
+      }
+    ]
+  }
+]

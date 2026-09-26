@@ -16,7 +16,12 @@ const eslintConfig = [
     },
   },
   {
-    ignores: ["src/generated/**", ".claude/**"],
+    ignores: [
+      ".claude/**",
+      "src/prisma/contract.d.ts",
+      "migrations/**",
+      ".next/**",
+    ],
   },
 ];
 

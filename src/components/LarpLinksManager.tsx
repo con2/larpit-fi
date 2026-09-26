@@ -1,6 +1,6 @@
 "use client";
 
-import type { LarpLinkType } from "@/generated/prisma/client";
+import { LarpLinkType } from "@/prisma/enums";
 import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
 import { type ReactNode, useState } from "react";
 import {

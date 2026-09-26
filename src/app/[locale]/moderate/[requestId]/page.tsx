@@ -7,13 +7,14 @@ import {
   EditStatus,
   RelatedUserRole,
   SubmitterRole,
-} from "@/generated/prisma/client";
+} from "@/prisma/enums";
 import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
 import { larpToContent, parsePartialContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import {
   FormattedDateTime,
@@ -63,33 +64,21 @@ export default async function ModerationRequestPage({ params }: Props) {
     );
   }
 
-  const [request, user] = await Promise.all([
-    prisma.moderationRequest.findUnique({
-      where: {
-        id: requestId,
-      },
-      include: {
-        resolvedBy: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        larp: {
-          include: {
-            relatedUsers: { select: { userId: true, role: true } },
-          },
-        },
-      },
-    }),
+  const [requestRow, user] = await Promise.all([
+    db.orm.public.ModerationRequest.include("resolvedBy", (u) =>
+      u.select("id", "name"),
+    )
+      .include("larp", (l) =>
+        l.include("relatedUsers", (r) => r.select("userId", "role")),
+      )
+      .first({ id: requestId }),
     session?.user?.email
-      ? prisma.user.findUnique({
-          where: {
-            email: session.user.email,
-          },
+      ? db.orm.public.User.select("id", "role").first({
+          email: session.user.email,
         })
       : null,
   ]);
+  const request = requestRow && parseDates(requestRow);
   if (!canModerate(user)) {
     return (
       <MessageCard
@@ -126,10 +115,9 @@ export default async function ModerationRequestPage({ params }: Props) {
   ].filter((id): id is string => !!id);
   const municipalities =
     municipalityIds.length > 0
-      ? await prisma.municipality.findMany({
-          where: { id: { in: municipalityIds } },
-          select: { id: true, nameFi: true, nameSv: true, nameOther: true },
-        })
+      ? await db.orm.public.Municipality.where((m) => m.id.in(municipalityIds))
+          .select("id", "nameFi", "nameSv", "nameOther")
+          .all()
       : [];
   const municipalityNames = Object.fromEntries(
     municipalities.map((m) => [
@@ -145,19 +133,17 @@ export default async function ModerationRequestPage({ params }: Props) {
   // Warn the moderator if there are older, not-yet-resolved requests for the
   // same larp; they should be reviewed oldest-first (UUIDv7 ids sort by time).
   const olderPendingCount = request.larpId
-    ? await prisma.moderationRequest.count({
-        where: {
-          larpId: request.larpId,
-          id: { lt: request.id },
-          status: {
-            in: [
-              EditStatus.PENDING_VERIFICATION,
-              EditStatus.VERIFIED,
-              EditStatus.AUTO_APPROVED,
-            ],
-          },
-        },
-      })
+    ? await db.orm.public.ModerationRequest.where({ larpId: request.larpId })
+        .where((r) => r.id.lt(request.id))
+        .where((r) =>
+          r.status.in([
+            EditStatus.PENDING_VERIFICATION,
+            EditStatus.VERIFIED,
+            EditStatus.AUTO_APPROVED,
+          ]),
+        )
+        .aggregate((a) => ({ count: a.count() }))
+        .then((r) => r.count)
     : 0;
 
   // Roles granted by approving this request. Currently only the submitter's own
@@ -201,10 +187,9 @@ export default async function ModerationRequestPage({ params }: Props) {
 
   const referencedLarps =
     referencedLarpIds.length > 0
-      ? await prisma.larp.findMany({
-          where: { id: { in: referencedLarpIds } },
-          select: { id: true, alias: true, name: true },
-        })
+      ? await db.orm.public.Larp.where((l) => l.id.in(referencedLarpIds))
+          .select("id", "alias", "name")
+          .all()
       : [];
   const larpById = Object.fromEntries(referencedLarps.map((l) => [l.id, l]));
 

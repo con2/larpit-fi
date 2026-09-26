@@ -1,6 +1,7 @@
-import { Larp, LarpType } from "@/generated/prisma/client";
+import { LarpType } from "@/prisma/enums";
+import type { Larp } from "@/prisma/models";
 import { toPlainDate } from "@con2/components/helpers";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
@@ -59,9 +60,9 @@ export default async function CompactLarpFormComponent({
 }: Props) {
   const t = translations.Larp;
 
-  const municipalities = await prisma.municipality.findMany({
-    orderBy: { nameFi: "asc" },
-  });
+  const municipalities = await db.orm.public.Municipality.orderBy((m) =>
+    m.nameFi.asc(),
+  ).all();
   locale = toSupportedLanguage(locale);
 
   return (

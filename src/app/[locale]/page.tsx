@@ -2,9 +2,12 @@ import LarpCard from "@/components/LarpCard";
 import RecentChangesCard, {
   getRecentChanges,
 } from "@/components/RecentChangesCard";
-import { LarpType, Openness } from "@/generated/prisma/client";
+import { LarpType, Openness } from "@/prisma/enums";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
-import prisma from "@/prisma";
+import { or } from "@prisma/orm-postgres/orm-client";
+
+import { iso, parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Markdown } from "@con2/components";
@@ -30,34 +33,16 @@ async function getHomePageLarps() {
     Date.now() - cancelledLarpVisibleDays * 24 * 60 * 60 * 1000,
   );
 
-  return prisma.larp.findMany({
-    where: {
-      startsAt: {
-        not: null,
-      },
-      OR: [{ cancelledAt: null }, { cancelledAt: { gte: cancelledCutoff } }],
-      // XXX Prisma does not support the SQL IS NOT DISTINCT FROM operator
-      // openness: {
-      //   isNotDistinctFrom: Openness.INVITE_ONLY,
-      // },
-    },
-    orderBy: [
-      {
-        startsAt: {
-          sort: "desc",
-          nulls: "last",
-        },
-      },
-    ],
-    include: {
-      municipality: {
-        select: {
-          nameFi: true,
-        },
-      },
-    },
-    take,
-  });
+  return parseDates(
+    await db.orm.public.Larp.where((l) => l.startsAt.isNotNull())
+      .where((l) =>
+        or(l.cancelledAt.isNull(), l.cancelledAt.gte(iso(cancelledCutoff))),
+      )
+      .orderBy((l) => l.startsAt.desc())
+      .include("municipality", (m) => m.select("nameFi"))
+      .limit(take)
+      .all(),
+  );
 }
 
 type HomePageLarp = Awaited<ReturnType<typeof getHomePageLarps>>[number];
@@ -135,9 +120,7 @@ export default async function HomePage({ params }: Props) {
 
   const [larps, page, recentChanges] = await Promise.all([
     getHomePageLarps(),
-    prisma.page.findUnique({
-      where: { slug_language: { slug, language: locale } },
-    }),
+    db.orm.public.Page.first({ slug, language: locale }),
     getRecentChanges(),
   ]);
 

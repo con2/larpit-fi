@@ -6,7 +6,7 @@ import {
 } from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
 import { getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import {
@@ -51,21 +51,12 @@ export default async function ContactPage({ params }: Props) {
   const session = await auth();
   const user = await getUserFromSession(session);
 
-  const roles = await prisma.user.findMany({
-    where: {
-      role: {
-        in: ["ADMIN", "MODERATOR"],
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      role: true,
-      titleFi: true,
-      titleEn: true,
-    },
-    orderBy: [{ role: "desc" }, { name: "asc" }],
-  });
+  const roles = await db.orm.public.User.where((u) =>
+    u.role.in(["ADMIN", "MODERATOR"]),
+  )
+    .select("id", "name", "role", "titleFi", "titleEn")
+    .orderBy([(u) => u.role.desc(), (u) => u.name.asc()])
+    .all();
 
   return (
     <Container>

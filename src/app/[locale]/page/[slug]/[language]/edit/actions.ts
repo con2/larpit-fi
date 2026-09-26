@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { PageForm } from "@/models/Page";
 import { canEditPages, getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -29,13 +29,12 @@ export async function putPage(
     content,
   });
 
-  await prisma.page.upsert({
-    where: { slug_language: { slug: page.slug, language: page.language } },
+  await db.orm.public.Page.upsert({
+    create: page,
     update: {
       title: page.title,
       content: page.content,
     },
-    create: page,
   });
 
   revalidatePath(`/${locale}/page/${slug}/${language}`);

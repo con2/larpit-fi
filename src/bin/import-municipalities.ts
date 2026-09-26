@@ -2,7 +2,8 @@
 // Install manually before running this script: npm install rdflib
 import { parse, Store, Namespace, sym, Literal, Node } from "rdflib";
 import { readFile } from "fs/promises";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 
 function byXmlLang(nodes: Node[], lang: string) {
   return nodes.find(
@@ -58,8 +59,7 @@ function parseMunicipalities(xmlContent: string): Municipality[] {
 
 async function storeMunicipalities(municipalities: Municipality[]) {
   for (const municipality of municipalities) {
-    const result = await prisma.municipality.upsert({
-      where: { id: municipality.id },
+    const result = await db.orm.public.Municipality.upsert({
       update: {
         lat: municipality.lat,
         long: municipality.long,
@@ -87,5 +87,10 @@ async function main() {
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  main();
+  try {
+    await main();
+  } finally {
+    await db.close();
+    await pool.end();
+  }
 }

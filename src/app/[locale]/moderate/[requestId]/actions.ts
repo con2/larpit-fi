@@ -1,15 +1,20 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import {
   approveRequest,
   rejectRequest,
   Resolution,
   zResolution,
 } from "@/models/ModerationRequest";
-import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
-import prisma from "@/prisma";
+import {
+  canModerate,
+  getDeleteLarpInitialStatusForUser,
+  getUserFromSession,
+} from "@/models/User";
+import { iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
@@ -32,18 +37,8 @@ export async function resolveRequest(
   }
 
   const [request, actor] = await Promise.all([
-    prisma.moderationRequest.findUnique({
-      where: {
-        id: requestId,
-      },
-    }),
-    session?.user?.email
-      ? prisma.user.findUnique({
-          where: {
-            email: session.user.email,
-          },
-        })
-      : null,
+    db.orm.public.ModerationRequest.first({ id: requestId }),
+    getUserFromSession(session),
   ]);
 
   if (!request) {
@@ -111,18 +106,8 @@ export async function markChecked(
   }
 
   const [request, actor] = await Promise.all([
-    prisma.moderationRequest.findUnique({
-      where: {
-        id: requestId,
-      },
-    }),
-    session?.user?.email
-      ? prisma.user.findUnique({
-          where: {
-            email: session.user.email,
-          },
-        })
-      : null,
+    db.orm.public.ModerationRequest.first({ id: requestId }),
+    getUserFromSession(session),
   ]);
 
   if (!request) {
@@ -149,20 +134,11 @@ export async function markChecked(
     larpId: request.larpId,
   });
 
-  await prisma.moderationRequest.update({
-    where: {
-      id: request.id,
-    },
-    data: {
-      status: EditStatus.APPROVED,
-      resolvedAt: new Date(),
-      resolvedBy: {
-        connect: {
-          id: actor.id,
-        },
-      },
-      resolvedMessage: markChecked.reason || null,
-    },
+  await db.orm.public.ModerationRequest.where({ id: request.id }).update({
+    status: EditStatus.APPROVED,
+    resolvedAt: iso(new Date()),
+    resolvedById: actor.id,
+    resolvedMessage: markChecked.reason || null,
   });
 
   return void redirect(`/larp/${request.larpId}`);

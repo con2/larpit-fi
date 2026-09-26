@@ -1,5 +1,5 @@
-import { Larp, Municipality } from "@/generated/prisma/client";
-import prisma from "@/prisma";
+import type { Larp, Municipality } from "@/prisma/models";
+import { db } from "@/prisma/db";
 import type { Translations } from "@/translations/en";
 import {
   Card,
@@ -49,9 +49,10 @@ export default async function LarpLocationFormComponent({
   const newT = translations.NewLarpPage;
   const showHelpText = !compact;
 
-  const municipalities = await prisma.municipality.findMany({
-    orderBy: { nameFi: "asc" }, // TODO handle other languages
-  });
+  // TODO handle other languages
+  const municipalities = await db.orm.public.Municipality.orderBy((m) =>
+    m.nameFi.asc(),
+  ).all();
 
   return (
     <Card className="mb-4">

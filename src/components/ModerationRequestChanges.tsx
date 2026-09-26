@@ -1,4 +1,4 @@
-import { EditAction } from "@/generated/prisma/client";
+import { EditAction } from "@/prisma/enums";
 import { FormattedDate } from "@con2/components";
 import type { ModerationRequestContent } from "@/models/ModerationRequest";
 import type { Translations } from "@/translations/en";

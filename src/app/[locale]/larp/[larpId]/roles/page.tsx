@@ -7,10 +7,7 @@ import {
   FormattedDate,
   SubmitButton,
 } from "@con2/components";
-import {
-  RelatedUserRole,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
+import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import {
   canViewParticipantList,
   canViewRelatedUserEntry,
@@ -18,7 +15,8 @@ import {
   isGmOrModerator,
   localSignupRoles,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -68,28 +66,23 @@ export default async function RolesPage({ params, searchParams }: Props) {
   const session = await auth();
   const user = await getUserFromSession(session);
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      name: true,
-      relatedUserVisibility: true,
-      relatedUsers: {
-        select: {
-          userId: true,
-          role: true,
-          visibility: true,
-          createdAt: true,
-          user: { select: { id: true, name: true, email: true } },
-        },
-        orderBy: [{ createdAt: "asc" }],
-      },
-    },
-  });
+  const larpRow = await db.orm.public.Larp.select(
+    "id",
+    "name",
+    "relatedUserVisibility",
+  )
+    .include("relatedUsers", (r) =>
+      r
+        .select("userId", "role", "visibility", "createdAt")
+        .include("user", (u) => u.select("id", "name", "email"))
+        .orderBy((ru) => ru.createdAt.asc()),
+    )
+    .first({ id: larpId });
 
-  if (!larp) {
+  if (!larpRow) {
     notFound();
   }
+  const larp = parseDates(larpRow);
 
   const isGm = isGmOrModerator(user, larp);
 
@@ -103,19 +96,20 @@ export default async function RolesPage({ params, searchParams }: Props) {
   }
 
   const unauthSignups = isGm
-    ? await prisma.unauthenticatedSignup.findMany({
-        where: { larpId },
-        orderBy: [{ verifiedAt: "asc" }, { createdAt: "asc" }],
-        select: {
-          id: true,
-          displayName: true,
-          email: true,
-          signupStatus: true,
-          visibility: true,
-          verifiedAt: true,
-          createdAt: true,
-        },
-      })
+    ? parseDates(
+        await db.orm.public.UnauthenticatedSignup.where({ larpId })
+          .select(
+            "id",
+            "displayName",
+            "email",
+            "signupStatus",
+            "visibility",
+            "verifiedAt",
+            "createdAt",
+          )
+          .orderBy([(s) => s.verifiedAt.asc(), (s) => s.createdAt.asc()])
+          .all(),
+      )
     : [];
 
   const roleFilter = resolvedSearchParams.role === "signups" ? "signups" : "";

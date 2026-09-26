@@ -2,7 +2,9 @@ node_modules
 .next
 out
 build
-src/generated/prisma
+src/prisma/contract.json
+src/prisma/contract.d.ts
+migrations
 chart/templates
 data
 bin

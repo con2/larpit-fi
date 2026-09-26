@@ -1,4 +1,4 @@
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import PagePage from "../../PagePage";
 
 interface Props {
@@ -7,9 +7,7 @@ interface Props {
 
 export default async function PageWithLanguagePage({ params }: Props) {
   const { locale, language, slug } = await params;
-  const page = await prisma.page.findUnique({
-    where: { slug_language: { slug, language } },
-  });
+  const page = await db.orm.public.Page.first({ slug, language });
 
   return <PagePage page={page} locale={locale} />;
 }

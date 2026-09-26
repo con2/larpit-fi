@@ -1,4 +1,4 @@
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import PagePage from "../PagePage";
 import { redirect } from "next/navigation";
 
@@ -13,9 +13,7 @@ export default async function PageWithoutLanguagePage({ params }: Props) {
     redirect("/");
   }
 
-  const page = await prisma.page.findUnique({
-    where: { slug_language: { slug, language: locale } },
-  });
+  const page = await db.orm.public.Page.first({ slug, language: locale });
 
   return <PagePage page={page} locale={locale} />;
 }

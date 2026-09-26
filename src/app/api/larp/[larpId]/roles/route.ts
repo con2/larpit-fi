@@ -4,7 +4,8 @@ import {
   isGmOrModerator,
   localSignupRoles,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { NextResponse } from "next/server";
 import { validate as validateUuid } from "uuid";
 
@@ -25,14 +26,9 @@ export async function GET(
   const session = await auth();
   const user = await getUserFromSession(session);
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      name: true,
-      relatedUsers: { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await db.orm.public.Larp.select("id", "name")
+    .include("relatedUsers", (r) => r.select("userId", "role"))
+    .first({ id: larpId });
 
   if (!larp) {
     return new NextResponse("Not found", { status: 404 });
@@ -42,28 +38,27 @@ export async function GET(
     return new NextResponse("Forbidden", { status: 403 });
   }
 
-  const relatedUsers = await prisma.relatedUser.findMany({
-    where: { larpId },
-    select: {
-      role: true,
-      visibility: true,
-      createdAt: true,
-      user: { select: { name: true, email: true } },
-    },
-    orderBy: [{ createdAt: "asc" }],
-  });
+  const relatedUsers = parseDates(
+    await db.orm.public.RelatedUser.where({ larpId })
+      .select("role", "visibility", "createdAt")
+      .include("user", (u) => u.select("name", "email"))
+      .orderBy((r) => r.createdAt.asc())
+      .all(),
+  );
 
-  const unauthSignups = await prisma.unauthenticatedSignup.findMany({
-    where: { larpId, verifiedAt: { not: null } },
-    select: {
-      displayName: true,
-      email: true,
-      signupStatus: true,
-      visibility: true,
-      verifiedAt: true,
-    },
-    orderBy: [{ verifiedAt: "asc" }],
-  });
+  const unauthSignups = parseDates(
+    await db.orm.public.UnauthenticatedSignup.where({ larpId })
+      .where((s) => s.verifiedAt.isNotNull())
+      .select(
+        "displayName",
+        "email",
+        "signupStatus",
+        "visibility",
+        "verifiedAt",
+      )
+      .orderBy((s) => s.verifiedAt.asc())
+      .all(),
+  );
 
   const rows: string[][] = [
     ["Name", "Email", "Role", "Visibility", "Signed up at"],

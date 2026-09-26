@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import {
   Column,
   DataTable,
@@ -12,7 +12,8 @@ import {
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
 import { Container } from "react-bootstrap";
@@ -38,14 +39,8 @@ export default async function ModerationPage({ params, searchParams }: Props) {
     );
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-    select: {
-      id: true,
-      role: true,
-    },
+  const user = await db.orm.public.User.select("id", "role").first({
+    email: session.user.email,
   });
   if (!canModerate(user)) {
     return (
@@ -78,32 +73,24 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   const canModerateDeleteRequests =
     getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
 
-  const [requests, totalCount] = await Promise.all([
-    prisma.moderationRequest.findMany({
-      orderBy: { id: "desc" },
-      where: {
-        status: { in: statuses as EditStatus[] },
-        ...(canModerateDeleteRequests
-          ? {}
-          : { action: { not: EditAction.DELETE } }),
-      },
-      include: {
-        resolvedBy: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        larp: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    }),
-    prisma.moderationRequest.count(),
+  const selectedStatuses = statuses as EditStatus[];
+  let requestQuery = db.orm.public.ModerationRequest.where((r) =>
+    r.status.in(selectedStatuses),
+  );
+  if (!canModerateDeleteRequests) {
+    requestQuery = requestQuery.where((r) => r.action.neq(EditAction.DELETE));
+  }
+  const [requestRows, totalCount] = await Promise.all([
+    requestQuery
+      .include("resolvedBy", (u) => u.select("id", "name"))
+      .include("larp", (l) => l.select("id", "name"))
+      .orderBy((r) => r.id.desc())
+      .all(),
+    db.orm.public.ModerationRequest.aggregate((a) => ({
+      count: a.count(),
+    })).then((r) => r.count),
   ]);
+  const requests = parseDates(requestRows);
 
   const columns: Column<(typeof requests)[number]>[] = [
     {

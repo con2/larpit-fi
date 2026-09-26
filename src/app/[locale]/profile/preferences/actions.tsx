@@ -6,9 +6,10 @@ import ConfirmAccountRemoval, {
   confirmAccountRemovalSubject,
   confirmAccountRemovalText,
 } from "@/emails/ConfirmAccountRemoval";
-import { EditFormPreference, TokenType } from "@/generated/prisma/client";
+import { EditFormPreference, TokenType } from "@/prisma/enums";
 import { DisplayNameSchema, getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import { pretty, render } from "react-email";
 import { randomUUID } from "crypto";
@@ -34,31 +35,12 @@ export async function saveUserPreferences(locale: string, formData: FormData) {
     Object.fromEntries(formData.entries()),
   );
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { name, editFormPreference },
+  await db.orm.public.User.where({ id: user.id }).update({
+    name,
+    editFormPreference,
   });
 
   revalidatePath(`/${locale}/profile/preferences`);
-}
-
-export async function logOutAllSessions(locale: string, _formData: FormData) {
-  const session = await auth();
-  const user = await getUserFromSession(session);
-  if (!user) {
-    throw new Error("Not logged in");
-  }
-
-  // Database session strategy: a session with `expires` in the past is treated
-  // as invalid, so this logs the user out everywhere including the current
-  // session. We expire rather than delete to keep the rows.
-  await prisma.session.updateMany({
-    where: { userId: user.id },
-    data: { expires: new Date() },
-  });
-
-  revalidatePath(`/${locale}`);
-  return void redirect(`/`);
 }
 
 export async function requestAccountRemoval(
@@ -72,13 +54,11 @@ export async function requestAccountRemoval(
   }
 
   const token = randomUUID();
-  await prisma.verificationToken.create({
-    data: {
-      identifier: user.id,
-      token,
-      type: TokenType.ACCOUNT_REMOVAL,
-      expires: new Date(Date.now() + accountRemovalTokenValidityMs),
-    },
+  await db.orm.public.VerificationToken.create({
+    identifier: user.id,
+    token,
+    type: TokenType.ACCOUNT_REMOVAL,
+    expires: iso(new Date(Date.now() + accountRemovalTokenValidityMs)),
   });
 
   const language = toSupportedLanguage(locale);

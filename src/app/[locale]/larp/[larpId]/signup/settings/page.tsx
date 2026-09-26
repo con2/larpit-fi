@@ -2,12 +2,9 @@ import { auth } from "@/auth";
 import LocalSignupSettingsFormComponent from "@/components/LocalSignupSettingsFormComponent";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import {
-  LocalSignupStatus,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
+import { LocalSignupStatus, RelatedUserVisibility } from "@/prisma/enums";
 import { getUserFromSession, isGmOrModerator } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import Link from "next/link";
@@ -49,17 +46,15 @@ export default async function SignupSettingsPage({
   const session = await auth();
   const user = await getUserFromSession(session);
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      name: true,
-      localSignupStatus: true,
-      localSignupCode: true,
-      relatedUserVisibility: true,
-      relatedUsers: { select: { userId: true, role: true } },
-    },
-  });
+  const larp = await db.orm.public.Larp.select(
+    "id",
+    "name",
+    "localSignupStatus",
+    "localSignupCode",
+    "relatedUserVisibility",
+  )
+    .include("relatedUsers", (r) => r.select("userId", "role"))
+    .first({ id: larpId });
 
   if (!larp) {
     notFound();

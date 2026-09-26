@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import MainHeading from "@/components/MainHeading";
-import { canEditPages } from "@/models/User";
-import prisma from "@/prisma";
+import { canEditPages, getUserFromSession } from "@/models/User";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { MessageCard, SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
@@ -24,25 +24,13 @@ export default async function PageWithLanguagePage({ params }: Props) {
   const translations = getTranslations(locale);
   const t = translations.Page;
 
-  const page = await prisma.page.findUnique({
-    where: { slug_language: { slug, language } },
-  });
+  const page = await db.orm.public.Page.first({ slug, language });
   if (!page) {
     notFound();
   }
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          id: true,
-          role: true,
-        },
-      })
-    : null;
+  const user = await getUserFromSession(session);
 
   if (!canEditPages(user)) {
     return (

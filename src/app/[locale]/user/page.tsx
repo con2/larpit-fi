@@ -2,8 +2,8 @@ import { auth } from "@/auth";
 import { SubtlePrivacyPolicyLink } from "@/components/LoginLink";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import { canModerate } from "@/models/User";
-import prisma from "@/prisma";
+import { canModerate, getUserFromSession } from "@/models/User";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import {
@@ -20,16 +20,15 @@ interface Props {
 }
 
 async function getData() {
-  return prisma.user.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      email: true,
-      emailVerified: true,
-      name: true,
-      role: true,
-    },
-  });
+  return db.orm.public.User.select(
+    "id",
+    "email",
+    "emailVerified",
+    "name",
+    "role",
+  )
+    .orderBy((u) => u.name.asc())
+    .all();
 }
 
 type UsersPageUser = Awaited<ReturnType<typeof getData>>[number];
@@ -77,17 +76,7 @@ export default async function UsersPage({ params }: Props) {
 
   const session = await auth();
 
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          id: true,
-          role: true,
-        },
-      })
-    : null;
+  const user = await getUserFromSession(session);
   if (!user) {
     return (
       <Container>

@@ -1,7 +1,8 @@
 "use server";
 
-import { EditStatus } from "@/generated/prisma/client";
-import prisma from "@/prisma";
+import { EditStatus } from "@/prisma/enums";
+import { iso } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { validate as validateUuid } from "uuid";
@@ -11,20 +12,10 @@ export async function verifyRequest(locale: string, verificationCode: string) {
     throw new Error("Invalid verification code");
   }
 
-  const request = await prisma.moderationRequest.findUnique({
-    where: {
-      verificationCode,
-    },
-    include: {
-      submitter: {
-        select: {
-          id: true,
-          email: true,
-          emailVerified: true,
-        },
-      },
-    },
-  });
+  const request = await db.orm.public.ModerationRequest.include(
+    "submitter",
+    (u) => u.select("id", "email", "emailVerified"),
+  ).first({ verificationCode });
 
   if (!request) {
     throw new Error("Request not found");
@@ -36,15 +27,10 @@ export async function verifyRequest(locale: string, verificationCode: string) {
     return void redirect(`/verify/${verificationCode}`);
   }
 
-  await prisma.moderationRequest.update({
-    where: {
-      id: request.id,
-    },
-    data: {
-      // not setting verificationCode to null in case they click the link in email again
-      status: EditStatus.VERIFIED,
-      verifiedAt: new Date(),
-    },
+  await db.orm.public.ModerationRequest.where({ id: request.id }).update({
+    // not setting verificationCode to null in case they click the link in email again
+    status: EditStatus.VERIFIED,
+    verifiedAt: iso(new Date()),
   });
 
   if (
@@ -52,13 +38,8 @@ export async function verifyRequest(locale: string, verificationCode: string) {
     request.submitter.email === request.submitterEmail &&
     !request.submitter.emailVerified
   ) {
-    await prisma.user.update({
-      where: {
-        id: request.submitter.id,
-      },
-      data: {
-        emailVerified: new Date(),
-      },
+    await db.orm.public.User.where({ id: request.submitter.id }).update({
+      emailVerified: iso(new Date()),
     });
   }
 

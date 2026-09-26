@@ -1,8 +1,10 @@
-import prisma from "@/prisma";
 import { NextResponse } from "next/server";
 import { validate as uuidValidate } from "uuid";
+
+import { iso, parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 import { larpToApi } from "./helpers";
-import { LarpWhereInput } from "@/generated/prisma/models";
 
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 
@@ -30,6 +32,78 @@ function decodeCursor(
   } catch {
     return null;
   }
+}
+
+/**
+ * The page is keyed by (startsAt desc nulls last, id asc). NULLS LAST is not expressible in the
+ * ORM, so the ids are paged in SQL and the rows loaded afterwards in that order.
+ */
+async function pageOfLarpIds(
+  updatedAfter: Date | undefined,
+  cursor: { startsAt: Date | null; id: string } | undefined,
+  limit: number | undefined,
+): Promise<string[]> {
+  const params: unknown[] = [];
+  const param = (value: unknown) => {
+    params.push(value);
+    return `$${params.length}`;
+  };
+  const conditions: string[] = [];
+
+  if (updatedAfter) {
+    conditions.push(`updated_at > ${param(iso(updatedAfter))}`);
+  }
+
+  if (cursor) {
+    if (cursor.startsAt !== null) {
+      const startsAt = param(iso(cursor.startsAt));
+      conditions.push(
+        `(starts_at < ${startsAt} or (starts_at = ${startsAt} and id > ${param(cursor.id)}) or starts_at is null)`,
+      );
+    } else {
+      conditions.push(`(starts_at is null and id > ${param(cursor.id)})`);
+    }
+  }
+
+  const text = [
+    "select id from larp",
+    conditions.length > 0 ? `where ${conditions.join(" and ")}` : "",
+    "order by starts_at desc nulls last, id asc",
+    limit !== undefined ? `limit ${param(limit + 1)}` : "",
+  ].join(" ");
+  const result = await pool.query<{ id: string }>(text, params);
+  return result.rows.map((row) => row.id);
+}
+
+async function loadLarps(ids: string[], includeLinks: boolean) {
+  const larps = db.orm.public.Larp.where((l) => l.id.in(ids))
+    .select(
+      "id",
+      "alias",
+      "name",
+      "type",
+      "language",
+      "tagline",
+      "openness",
+      "startsAt",
+      "endsAt",
+      "signupStartsAt",
+      "signupEndsAt",
+      "locationText",
+      "numPlayerCharacters",
+      "numTotalParticipants",
+      "updatedAt",
+    )
+    .include("municipality", (m) => m.select("nameFi"));
+  const rows = parseDates(
+    includeLinks
+      ? await larps
+          .include("links", (l) => l.select("href", "type", "title"))
+          .all()
+      : await larps.all(),
+  );
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ids.map((id) => byId.get(id)!);
 }
 
 // NOTE: Keep in sync with src/app/api/openapi.json/route.ts
@@ -90,55 +164,8 @@ export async function GET(request: Request) {
     cursor = decoded;
   }
 
-  const conditions: LarpWhereInput[] = [];
-
-  if (updatedAfter) {
-    conditions.push({ updatedAt: { gt: updatedAfter } });
-  }
-
-  if (cursor) {
-    if (cursor.startsAt !== null) {
-      conditions.push({
-        OR: [
-          { startsAt: { lt: cursor.startsAt } },
-          { AND: [{ startsAt: cursor.startsAt }, { id: { gt: cursor.id } }] },
-          { startsAt: null },
-        ],
-      });
-    } else {
-      conditions.push({ AND: [{ startsAt: null }, { id: { gt: cursor.id } }] });
-    }
-  }
-
-  const where: LarpWhereInput | undefined =
-    conditions.length > 0 ? { AND: conditions } : undefined;
-
-  const larps = await prisma.larp.findMany({
-    where,
-    select: {
-      id: true,
-      alias: true,
-      name: true,
-      type: true,
-      language: true,
-      tagline: true,
-      openness: true,
-      startsAt: true,
-      endsAt: true,
-      signupStartsAt: true,
-      signupEndsAt: true,
-      locationText: true,
-      municipality: { select: { nameFi: true } },
-      numPlayerCharacters: true,
-      numTotalParticipants: true,
-      updatedAt: true,
-      links: includeLinks
-        ? { select: { href: true, type: true, title: true } }
-        : false,
-    },
-    orderBy: [{ startsAt: { sort: "desc", nulls: "last" } }, { id: "asc" }],
-    take: limit !== undefined ? limit + 1 : undefined,
-  });
+  const ids = await pageOfLarpIds(updatedAfter, cursor, limit);
+  const larps = ids.length > 0 ? await loadLarps(ids, includeLinks) : [];
 
   const hasMore = limit !== undefined && larps.length > limit;
   const items = hasMore ? larps.slice(0, limit) : larps;

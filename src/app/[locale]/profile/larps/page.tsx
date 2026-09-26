@@ -2,8 +2,12 @@ import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { LarpRow } from "@/components/LarpTable";
-import { LarpType, RelatedUserRole } from "@/generated/prisma/client";
-import prisma from "@/prisma";
+import { getUserFromSession } from "@/models/User";
+import { LarpType, RelatedUserRole } from "@/prisma/enums";
+import { compareNullsLast } from "@/helpers/sort";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { DimensionFilters } from "@con2/components";
@@ -24,57 +28,33 @@ async function getData(
   roles: RelatedUserRole[],
   types: LarpType[],
 ) {
-  const relatedUsers = await prisma.relatedUser.findMany({
-    where: {
-      userId: userId,
-      role: {
-        in: roles,
-      },
-    },
-    select: {
-      larpId: true,
-    },
-    distinct: ["larpId"],
-  });
+  const relatedUsers = await db.orm.public.RelatedUser.where({ userId })
+    .where((r) => r.role.in(roles))
+    .select("larpId")
+    .distinct("larpId")
+    .all();
+  const larpIds = relatedUsers.map((relatedUser) => relatedUser.larpId);
+  if (larpIds.length === 0) return [];
 
-  const larps = await prisma.larp.findMany({
-    where: {
-      id: {
-        in: relatedUsers.map((relatedUser) => relatedUser.larpId),
-      },
-      type: {
-        in: types,
-      },
-    },
-    include: {
-      municipality: {
-        select: {
-          nameFi: true,
-        },
-      },
-      relatedUsers: {
-        where: {
-          userId: userId,
-        },
-      },
-    },
-    orderBy: [
-      {
-        startsAt: { sort: "desc", nulls: "last" },
-      },
-    ],
-  });
+  const larps = await db.orm.public.Larp.where((l) => l.id.in(larpIds))
+    .where((l) => l.type.in(types))
+    .include("municipality", (m) => m.select("nameFi"))
+    .include("relatedUsers", (r) => r.where({ userId }))
+    .all();
 
-  return larps;
+  // Latest first, larps without a date last: the ORM cannot express NULLS LAST.
+  return parseDates(larps).sort((a, b) =>
+    compareNullsLast(b.startsAt, a.startsAt),
+  );
 }
 
 /** Count total larps the user has any role in (unfiltered) */
 async function getTotalCount(userId: string): Promise<number> {
-  const result = await prisma.$queryRaw<[{ count: bigint }]>`
+  const result = await query<{ count: string }>(sql`
     select count(distinct larp_id) as count
     from related_user
     where user_id = ${userId}
-  `;
+  `);
   return Number(result[0].count);
 }
 
@@ -164,13 +144,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   const t = translations.OwnLarpsPage;
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-      })
-    : null;
+  const user = await getUserFromSession(session);
   if (!user) {
     return (
       <Container>

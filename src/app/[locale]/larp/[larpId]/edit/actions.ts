@@ -6,7 +6,7 @@ import {
   EditFormPreference,
   EditStatus,
   RelatedUserRole,
-} from "@/generated/prisma/client";
+} from "@/prisma/enums";
 import { normalizeFormData } from "@con2/components/helpers";
 import {
   diffLarpLinks,
@@ -22,7 +22,9 @@ import {
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { toJson } from "@/prisma/json";
 import fi from "@/translations/fi";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -35,20 +37,16 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
     throw new Error("You must be logged in to edit a larp");
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    include: {
-      relatedUsers: {
-        where: {
-          userId: user.id,
-          role: {
-            in: [RelatedUserRole.EDITOR, RelatedUserRole.GAME_MASTER],
-          },
-        },
-      },
-      links: { select: { href: true, type: true, title: true } },
-    },
-  });
+  const larpRow = await db.orm.public.Larp.include("relatedUsers", (r) =>
+    r
+      .where({ userId: user.id })
+      .where((ru) =>
+        ru.role.in([RelatedUserRole.EDITOR, RelatedUserRole.GAME_MASTER]),
+      ),
+  )
+    .include("links", (l) => l.select("href", "type", "title"))
+    .first({ id: larpId });
+  const larp = larpRow && parseDates(larpRow);
 
   if (!larp?.id) {
     throw new Error("Larp not found");
@@ -82,23 +80,22 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const currentContent = larpToContent(larp);
   const diff = diffLarpContent(currentContent, newContent);
 
-  const request = await prisma.moderationRequest.create({
-    data: {
-      action: EditAction.UPDATE,
-      larpId: larp.id,
-      status,
-      submitterId: user.id,
-      submitterName,
-      submitterEmail,
-      submitterRole,
-      message,
-      newContent: diff,
-
-      ...diffLarpLinks(
-        larp.links.map((l) => ({ ...l, title: l.title ?? undefined })),
-        desiredLinks,
-      ),
-    },
+  const { addLinks, removeLinks } = diffLarpLinks(
+    larp.links.map((l) => ({ ...l, title: l.title ?? undefined })),
+    desiredLinks,
+  );
+  const request = await db.orm.public.ModerationRequest.create({
+    action: EditAction.UPDATE,
+    larpId: larp.id,
+    status,
+    submitterId: user.id,
+    submitterName,
+    submitterEmail,
+    submitterRole,
+    message: message ?? null,
+    newContent: toJson(diff),
+    addLinks: toJson(addLinks),
+    removeLinks: toJson(removeLinks),
   });
 
   if (status === EditStatus.VERIFIED) {
@@ -125,17 +122,11 @@ export async function setEditFormPreference(
   _formData: FormData,
 ) {
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true },
-      })
-    : null;
+  const user = await getUserFromSession(session);
   if (!user) throw new Error("Not logged in");
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { editFormPreference: preference },
+  await db.orm.public.User.where({ id: user.id }).update({
+    editFormPreference: preference,
   });
 
   revalidatePath(`/${locale}/larp/${larpId}/edit`);

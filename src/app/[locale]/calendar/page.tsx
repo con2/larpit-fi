@@ -2,7 +2,11 @@ import MainHeading from "@/components/MainHeading";
 import { publicUrl, timezone } from "@/config";
 import { toSupportedLanguage } from "@/i18n/locales";
 import { getLarpHref } from "@/models/Larp.client";
-import prisma from "@/prisma";
+import { and, or } from "@prisma/orm-postgres/orm-client";
+
+import { iso, parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
+import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import { MaybeExternalLink } from "@con2/components";
 import { toISODate } from "@con2/components/helpers";
@@ -67,10 +71,6 @@ function formatMonthOption(
   return `${year}/${String(month).padStart(2, "0")} ${monthName}`;
 }
 
-type LarpRow = Awaited<ReturnType<typeof prisma.larp.findMany>>[number] & {
-  municipality: { nameFi: string } | null;
-};
-
 export default async function CalendarPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { month: monthParam } = await searchParams;
@@ -106,19 +106,18 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       .toInstant().epochMilliseconds,
   );
 
-  const [larps, monthRows, holidays] = await Promise.all([
-    prisma.larp.findMany({
-      where: {
-        startsAt: { lt: gridEndDate },
-        OR: [
-          { endsAt: { gte: gridStartDate } },
-          { endsAt: null, startsAt: { gte: gridStartDate } },
-        ],
-      },
-      orderBy: { startsAt: "asc" },
-      include: { municipality: { select: { nameFi: true } } },
-    }) as Promise<LarpRow[]>,
-    prisma.$queryRaw<MonthRow[]>`
+  const [larpRows, monthRows, holidays] = await Promise.all([
+    db.orm.public.Larp.where((l) => l.startsAt.lt(iso(gridEndDate)))
+      .where((l) =>
+        or(
+          l.endsAt.gte(iso(gridStartDate)),
+          and(l.endsAt.isNull(), l.startsAt.gte(iso(gridStartDate))),
+        ),
+      )
+      .orderBy((l) => l.startsAt.asc())
+      .include("municipality", (m) => m.select("nameFi"))
+      .all(),
+    query<MonthRow>(sql`
       select
         extract(year from starts_at at time zone ${timezone})::int as year,
         extract(month from starts_at at time zone ${timezone})::int as month
@@ -126,16 +125,13 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       where starts_at is not null
       group by year, month
       order by year desc, month desc
-    `,
-    prisma.holiday.findMany({
-      where: {
-        date: {
-          gte: gridStartDate,
-          lt: gridEndDate,
-        },
-      },
-    }),
+    `),
+    db.orm.public.Holiday.where((h) => h.date.gte(toISODate(gridStart)))
+      .where((h) => h.date.lte(toISODate(gridEnd)))
+      .all(),
   ]);
+  const larps = parseDates(larpRows);
+  type LarpRow = (typeof larps)[number];
 
   // Group larps by day in Helsinki timezone; multi-day larps appear on every day [startDate, endDate]
   const larpsOnDay = new Map<string, LarpRow[]>();
@@ -163,7 +159,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     }
   }
 
-  const holidayByDate = new Map(holidays.map((h) => [toISODate(h.date), h]));
+  const holidayByDate = new Map(holidays.map((h) => [h.date, h]));
 
   // Build one entry per week row
   const weeks = [];

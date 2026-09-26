@@ -4,7 +4,7 @@ import LarpLinksManager from "@/components/LarpLinksManager";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
-import prisma from "@/prisma";
+import { getUserFromSession } from "@/models/User";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
@@ -25,12 +25,7 @@ export default async function NewLarpPage({ params }: Props) {
   const t = translations.NewLarpPage;
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { name: true, role: true, email: true },
-      })
-    : null;
+  const user = await getUserFromSession(session);
 
   return (
     <Container>

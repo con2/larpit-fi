@@ -1,4 +1,4 @@
-import { UserRole } from "@/generated/prisma/client";
+import { UserRole } from "@/prisma/enums";
 import { JSX, ReactNode } from "react";
 
 const translations = {
@@ -1592,16 +1592,6 @@ const translations = {
     },
     dangerZone: {
       title: "Danger zone",
-    },
-    logOutAllSessions: {
-      title: "Log out on all devices",
-      description: (
-        <>
-          Sign out from all devices and browsers, including this one. Use this
-          if you suspect someone else has access to your account.
-        </>
-      ),
-      confirmationMessage: "Log out from all devices, including this one?",
     },
     accountRemoval: {
       title: "Remove account",

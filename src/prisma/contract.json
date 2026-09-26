@@ -1,0 +1,3507 @@
+{
+  "schemaVersion": "1",
+  "targetFamily": "sql",
+  "target": "postgres",
+  "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
+  "roots": {
+    "account": {
+      "model": "Account",
+      "namespace": "public"
+    },
+    "country": {
+      "model": "Country",
+      "namespace": "public"
+    },
+    "holiday": {
+      "model": "Holiday",
+      "namespace": "public"
+    },
+    "larp": {
+      "model": "Larp",
+      "namespace": "public"
+    },
+    "larp_link": {
+      "model": "LarpLink",
+      "namespace": "public"
+    },
+    "moderation_request": {
+      "model": "ModerationRequest",
+      "namespace": "public"
+    },
+    "municipality": {
+      "model": "Municipality",
+      "namespace": "public"
+    },
+    "page": {
+      "model": "Page",
+      "namespace": "public"
+    },
+    "related_larp": {
+      "model": "RelatedLarp",
+      "namespace": "public"
+    },
+    "related_user": {
+      "model": "RelatedUser",
+      "namespace": "public"
+    },
+    "unauthenticated_signup": {
+      "model": "UnauthenticatedSignup",
+      "namespace": "public"
+    },
+    "user": {
+      "model": "User",
+      "namespace": "public"
+    },
+    "verification_token": {
+      "model": "VerificationToken",
+      "namespace": "public"
+    }
+  },
+  "domain": {
+    "namespaces": {
+      "public": {
+        "models": {
+          "Account": {
+            "fields": {
+              "accessToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "idToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "provider": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "providerAccountId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "refreshToken": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "scope": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "sessionState": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenType": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "user": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "accessToken": {
+                  "column": "access_token"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "expiresAt": {
+                  "column": "expires_at"
+                },
+                "idToken": {
+                  "column": "id_token"
+                },
+                "provider": {
+                  "column": "provider"
+                },
+                "providerAccountId": {
+                  "column": "provider_account_id"
+                },
+                "refreshToken": {
+                  "column": "refresh_token"
+                },
+                "scope": {
+                  "column": "scope"
+                },
+                "sessionState": {
+                  "column": "session_state"
+                },
+                "tokenType": {
+                  "column": "token_type"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                },
+                "userId": {
+                  "column": "user_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "account"
+            }
+          },
+          "Country": {
+            "fields": {
+              "code": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameEn": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameFi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameSv": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "municipalities": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "countryId"
+                  ]
+                },
+                "to": {
+                  "model": "Municipality",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "code": {
+                  "column": "code"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "nameEn": {
+                  "column": "name_en"
+                },
+                "nameFi": {
+                  "column": "name_fi"
+                },
+                "nameSv": {
+                  "column": "name_sv"
+                }
+              },
+              "namespaceId": "public",
+              "table": "country"
+            }
+          },
+          "Holiday": {
+            "fields": {
+              "date": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/date-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "titleEn": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "titleFi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "date": {
+                  "column": "date"
+                },
+                "titleEn": {
+                  "column": "title_en"
+                },
+                "titleFi": {
+                  "column": "title_fi"
+                }
+              },
+              "namespaceId": "public",
+              "table": "holiday"
+            }
+          },
+          "Larp": {
+            "fields": {
+              "alias": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "cancelledAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "endsAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "fluffText": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "language": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "Language"
+                  }
+                }
+              },
+              "localSignupCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "localSignupStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "LocalSignupStatus"
+                  }
+                }
+              },
+              "locationText": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "municipalityId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "numPlayerCharacters": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "numTotalParticipants": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "openness": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "Openness"
+                  }
+                }
+              },
+              "relatedUserVisibility": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  }
+                }
+              },
+              "signupEndsAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "signupStartsAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "startsAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "tagline": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "LarpType"
+                  }
+                }
+              },
+              "updateCount": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "links": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "LarpLink",
+                  "namespace": "public"
+                }
+              },
+              "municipality": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "municipalityId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Municipality",
+                  "namespace": "public"
+                }
+              },
+              "relatedLarpsLeft": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "leftId"
+                  ]
+                },
+                "to": {
+                  "model": "RelatedLarp",
+                  "namespace": "public"
+                }
+              },
+              "relatedLarpsRight": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rightId"
+                  ]
+                },
+                "to": {
+                  "model": "RelatedLarp",
+                  "namespace": "public"
+                }
+              },
+              "relatedUsers": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "RelatedUser",
+                  "namespace": "public"
+                }
+              },
+              "requests": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "ModerationRequest",
+                  "namespace": "public"
+                }
+              },
+              "unauthenticatedSignups": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "UnauthenticatedSignup",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "alias": {
+                  "column": "alias"
+                },
+                "cancelledAt": {
+                  "column": "cancelled_at"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "endsAt": {
+                  "column": "ends_at"
+                },
+                "fluffText": {
+                  "column": "fluff_text"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "language": {
+                  "column": "language"
+                },
+                "localSignupCode": {
+                  "column": "local_signup_code"
+                },
+                "localSignupStatus": {
+                  "column": "local_signup_status"
+                },
+                "locationText": {
+                  "column": "location_text"
+                },
+                "municipalityId": {
+                  "column": "municipality_id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "numPlayerCharacters": {
+                  "column": "num_player_characters"
+                },
+                "numTotalParticipants": {
+                  "column": "num_total_participants"
+                },
+                "openness": {
+                  "column": "openness"
+                },
+                "relatedUserVisibility": {
+                  "column": "related_user_visibility"
+                },
+                "signupEndsAt": {
+                  "column": "signup_ends_at"
+                },
+                "signupStartsAt": {
+                  "column": "signup_starts_at"
+                },
+                "startsAt": {
+                  "column": "starts_at"
+                },
+                "tagline": {
+                  "column": "tagline"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "updateCount": {
+                  "column": "update_count"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "larp"
+            }
+          },
+          "LarpLink": {
+            "fields": {
+              "href": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "larpId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "LarpLinkType"
+                  }
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "href": {
+                  "column": "href"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "larpId": {
+                  "column": "larp_id"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "type": {
+                  "column": "type"
+                }
+              },
+              "namespaceId": "public",
+              "table": "larp_link"
+            }
+          },
+          "ModerationRequest": {
+            "fields": {
+              "action": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "EditAction"
+                  }
+                }
+              },
+              "addLinks": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "addRelatedLarps": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "larpId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "message": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "newContent": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "removeLinks": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "removeRelatedLarps": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "resolvedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "resolvedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "resolvedMessage": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "EditStatus"
+                  }
+                }
+              },
+              "submitterEmail": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "submitterId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "submitterName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "submitterRole": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "SubmitterRole"
+                  }
+                }
+              },
+              "verificationCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "verifiedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              },
+              "resolvedBy": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "resolvedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "submitter": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "submitterId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "action": {
+                  "column": "action"
+                },
+                "addLinks": {
+                  "column": "add_links"
+                },
+                "addRelatedLarps": {
+                  "column": "add_related_larps"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "larpId": {
+                  "column": "larp_id"
+                },
+                "message": {
+                  "column": "message"
+                },
+                "newContent": {
+                  "column": "new_content"
+                },
+                "removeLinks": {
+                  "column": "remove_links"
+                },
+                "removeRelatedLarps": {
+                  "column": "remove_related_larps"
+                },
+                "resolvedAt": {
+                  "column": "resolved_at"
+                },
+                "resolvedById": {
+                  "column": "resolved_by_id"
+                },
+                "resolvedMessage": {
+                  "column": "resolved_message"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "submitterEmail": {
+                  "column": "submitter_email"
+                },
+                "submitterId": {
+                  "column": "submitter_id"
+                },
+                "submitterName": {
+                  "column": "submitter_name"
+                },
+                "submitterRole": {
+                  "column": "submitter_role"
+                },
+                "verificationCode": {
+                  "column": "verification_code"
+                },
+                "verifiedAt": {
+                  "column": "verified_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "moderation_request"
+            }
+          },
+          "Municipality": {
+            "fields": {
+              "countryId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lat": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "long": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameFi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameOther": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameOtherLanguageCode": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameSv": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "country": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "countryId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Country",
+                  "namespace": "public"
+                }
+              },
+              "larps": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "municipalityId"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "countryId": {
+                  "column": "country_code"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lat": {
+                  "column": "lat"
+                },
+                "long": {
+                  "column": "long"
+                },
+                "nameFi": {
+                  "column": "name_fi"
+                },
+                "nameOther": {
+                  "column": "name_other"
+                },
+                "nameOtherLanguageCode": {
+                  "column": "name_other_language_code"
+                },
+                "nameSv": {
+                  "column": "name_sv"
+                }
+              },
+              "namespaceId": "public",
+              "table": "municipality"
+            }
+          },
+          "Page": {
+            "fields": {
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "language": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "content": {
+                  "column": "content"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "language": {
+                  "column": "language"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "page"
+            }
+          },
+          "RelatedLarp": {
+            "fields": {
+              "leftId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "rightId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedLarpType"
+                  }
+                }
+              }
+            },
+            "relations": {
+              "left": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "leftId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              },
+              "right": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "rightId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "leftId": {
+                  "column": "left_id"
+                },
+                "rightId": {
+                  "column": "right_id"
+                },
+                "type": {
+                  "column": "type"
+                }
+              },
+              "namespaceId": "public",
+              "table": "related_larp"
+            }
+          },
+          "RelatedUser": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "larpId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedUserRole"
+                  }
+                }
+              },
+              "userId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "visibility": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  }
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "larpId": {
+                  "column": "larp_id"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "userId": {
+                  "column": "user_id"
+                },
+                "visibility": {
+                  "column": "visibility"
+                }
+              },
+              "namespaceId": "public",
+              "table": "related_user"
+            }
+          },
+          "UnauthenticatedSignup": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "displayName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "larpId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "signupStatus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedUserRole"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "verificationCode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "verifiedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "visibility": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  }
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "displayName": {
+                  "column": "display_name"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "larpId": {
+                  "column": "larp_id"
+                },
+                "signupStatus": {
+                  "column": "signup_status"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                },
+                "verificationCode": {
+                  "column": "verification_code"
+                },
+                "verifiedAt": {
+                  "column": "verified_at"
+                },
+                "visibility": {
+                  "column": "visibility"
+                }
+              },
+              "namespaceId": "public",
+              "table": "unauthenticated_signup"
+            }
+          },
+          "User": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "editFormPreference": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "EditFormPreference"
+                  }
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "emailVerified": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "image": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "role": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "UserRole"
+                  }
+                }
+              },
+              "titleEn": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "titleFi": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "accounts": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "Account",
+                  "namespace": "public"
+                }
+              },
+              "larps": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "userId"
+                  ]
+                },
+                "to": {
+                  "model": "RelatedUser",
+                  "namespace": "public"
+                }
+              },
+              "requestsResolvedByUser": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "resolvedById"
+                  ]
+                },
+                "to": {
+                  "model": "ModerationRequest",
+                  "namespace": "public"
+                }
+              },
+              "requestsSubmittedByUser": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "submitterId"
+                  ]
+                },
+                "to": {
+                  "model": "ModerationRequest",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "editFormPreference": {
+                  "column": "edit_form_preference"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "emailVerified": {
+                  "column": "email_verified"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "image": {
+                  "column": "image"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "role": {
+                  "column": "role"
+                },
+                "titleEn": {
+                  "column": "title_en"
+                },
+                "titleFi": {
+                  "column": "title_fi"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                }
+              },
+              "namespaceId": "public",
+              "table": "user"
+            }
+          },
+          "VerificationToken": {
+            "fields": {
+              "expires": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "identifier": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "token": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "TokenType"
+                  }
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "expires": {
+                  "column": "expires"
+                },
+                "identifier": {
+                  "column": "identifier"
+                },
+                "token": {
+                  "column": "token"
+                },
+                "type": {
+                  "column": "type"
+                }
+              },
+              "namespaceId": "public",
+              "table": "verification_token"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "namespaces": {
+      "public": {
+        "entries": {
+          "native_enum": {
+            "EditAction": {
+              "kind": "postgres-enum",
+              "members": [
+                "CREATE",
+                "UPDATE",
+                "CLAIM",
+                "DELETE"
+              ],
+              "typeName": "EditAction"
+            },
+            "EditFormPreference": {
+              "kind": "postgres-enum",
+              "members": [
+                "FULL",
+                "COMPACT"
+              ],
+              "typeName": "EditFormPreference"
+            },
+            "EditStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "PENDING_VERIFICATION",
+                "VERIFIED",
+                "AUTO_APPROVED",
+                "APPROVED",
+                "REJECTED",
+                "WITHDRAWN"
+              ],
+              "typeName": "EditStatus"
+            },
+            "Language": {
+              "kind": "postgres-enum",
+              "members": [
+                "fi",
+                "en",
+                "sv",
+                "OTHER"
+              ],
+              "typeName": "Language"
+            },
+            "LarpLinkType": {
+              "kind": "postgres-enum",
+              "members": [
+                "HOMEPAGE",
+                "PHOTOS",
+                "SOCIAL_MEDIA",
+                "PLAYER_GUIDE",
+                "OTHER",
+                "SIGNUP"
+              ],
+              "typeName": "LarpLinkType"
+            },
+            "LarpType": {
+              "kind": "postgres-enum",
+              "members": [
+                "ONE_SHOT",
+                "CAMPAIGN_LARP",
+                "CAMPAIGN",
+                "MULTIPLE_RUNS",
+                "OTHER_EVENT_SERIES",
+                "OTHER_EVENT"
+              ],
+              "typeName": "LarpType"
+            },
+            "LocalSignupStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "DISABLED",
+                "PUBLIC",
+                "CODE_REQUIRED"
+              ],
+              "typeName": "LocalSignupStatus"
+            },
+            "Openness": {
+              "kind": "postgres-enum",
+              "members": [
+                "OPEN",
+                "TARGETED",
+                "INVITE_ONLY"
+              ],
+              "typeName": "Openness"
+            },
+            "RelatedLarpType": {
+              "kind": "postgres-enum",
+              "members": [
+                "SEQUEL",
+                "SPINOFF",
+                "IN_CAMPAIGN",
+                "IN_SERIES",
+                "RUN_OF",
+                "RERUN_OF",
+                "PLAYED_AT"
+              ],
+              "typeName": "RelatedLarpType"
+            },
+            "RelatedUserRole": {
+              "kind": "postgres-enum",
+              "members": [
+                "EDITOR",
+                "CREATED_BY",
+                "GAME_MASTER",
+                "VOLUNTEER",
+                "PLAYER",
+                "FAVORITE",
+                "TEAM_MEMBER",
+                "LOCAL_SIGNUP_YES",
+                "LOCAL_SIGNUP_MAYBE",
+                "LOCAL_SIGNUP_NO"
+              ],
+              "typeName": "RelatedUserRole"
+            },
+            "RelatedUserVisibility": {
+              "kind": "postgres-enum",
+              "members": [
+                "PARTICIPANTS",
+                "GM",
+                "ONLY_ME"
+              ],
+              "typeName": "RelatedUserVisibility"
+            },
+            "SubmitterRole": {
+              "kind": "postgres-enum",
+              "members": [
+                "NONE",
+                "GAME_MASTER",
+                "VOLUNTEER",
+                "PLAYER",
+                "TEAM_MEMBER"
+              ],
+              "typeName": "SubmitterRole"
+            },
+            "TokenType": {
+              "kind": "postgres-enum",
+              "members": [
+                "EMAIL_VERIFICATION",
+                "ACCOUNT_REMOVAL"
+              ],
+              "typeName": "TokenType"
+            },
+            "UserRole": {
+              "kind": "postgres-enum",
+              "members": [
+                "NOT_VERIFIED",
+                "VERIFIED",
+                "MODERATOR",
+                "ADMIN"
+              ],
+              "typeName": "UserRole"
+            }
+          },
+          "table": {
+            "account": {
+              "columns": {
+                "access_token": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "expires_at": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "id_token": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "provider": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "provider_account_id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "refresh_token": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "scope": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "session_state": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "token_type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "user_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "user_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "account"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "provider",
+                  "provider_account_id"
+                ]
+              },
+              "uniques": []
+            },
+            "country": {
+              "columns": {
+                "code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "name_en": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name_fi": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name_sv": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "code"
+                  ],
+                  "name": "country_code_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "holiday": {
+              "columns": {
+                "date": {
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
+                  "nullable": false
+                },
+                "title_en": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "title_fi": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "date"
+                ]
+              },
+              "uniques": []
+            },
+            "larp": {
+              "columns": {
+                "alias": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "cancelled_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "ends_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "fluff_text": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "language": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "Language",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "Language"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Language",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "local_signup_code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "local_signup_status": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DISABLED"
+                  },
+                  "nativeType": "LocalSignupStatus",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "LocalSignupStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LocalSignupStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "location_text": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "municipality_id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "num_player_characters": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "num_total_participants": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": true
+                },
+                "openness": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "Openness",
+                  "nullable": true,
+                  "typeParams": {
+                    "typeName": "Openness"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Openness",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "related_user_visibility": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "GM"
+                  },
+                  "nativeType": "RelatedUserVisibility",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedUserVisibility",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "signup_ends_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "signup_starts_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "starts_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "tagline": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ONE_SHOT"
+                  },
+                  "nativeType": "LarpType",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "LarpType"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LarpType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "update_count": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "municipality_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "municipality"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "alias"
+                  ],
+                  "name": "larp_alias_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "larp_link": {
+              "columns": {
+                "href": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "HOMEPAGE"
+                  },
+                  "nativeType": "LarpLinkType",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "LarpLinkType"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LarpLinkType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp_link"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "moderation_request": {
+              "columns": {
+                "action": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "EditAction",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "EditAction"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EditAction",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "add_links": {
+                  "codecId": "pg/jsonb@1",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nativeType": "jsonb",
+                  "nullable": false
+                },
+                "add_related_larps": {
+                  "codecId": "pg/jsonb@1",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nativeType": "jsonb",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
+                "message": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "new_content": {
+                  "codecId": "pg/jsonb@1",
+                  "default": {
+                    "expression": "'{}'::jsonb",
+                    "kind": "function"
+                  },
+                  "nativeType": "jsonb",
+                  "nullable": false
+                },
+                "remove_links": {
+                  "codecId": "pg/jsonb@1",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nativeType": "jsonb",
+                  "nullable": false
+                },
+                "remove_related_larps": {
+                  "codecId": "pg/jsonb@1",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nativeType": "jsonb",
+                  "nullable": false
+                },
+                "resolved_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "resolved_by_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
+                "resolved_message": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "EditStatus",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "EditStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EditStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "submitter_email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "submitter_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
+                "submitter_name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "submitter_role": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "NONE"
+                  },
+                  "nativeType": "SubmitterRole",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "SubmitterRole"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "SubmitterRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "verification_code": {
+                  "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "gen_random_uuid()",
+                    "kind": "function"
+                  },
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
+                "verified_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "moderation_request"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "resolved_by_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "moderation_request"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "submitter_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "moderation_request"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "verification_code"
+                  ],
+                  "name": "moderation_request_verification_code_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "municipality": {
+              "columns": {
+                "country_code": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "wd:Q33"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "lat": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "long": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "name_fi": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name_other": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name_other_language_code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name_sv": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "country_code"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "municipality"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "country"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "page": {
+              "columns": {
+                "content": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "language": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "front-page"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "slug",
+                  "language"
+                ]
+              },
+              "uniques": []
+            },
+            "related_larp": {
+              "columns": {
+                "left_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "right_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "RelatedLarpType",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedLarpType"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedLarpType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "left_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "related_larp"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "right_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "related_larp"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "left_id",
+                  "right_id"
+                ]
+              },
+              "uniques": []
+            },
+            "related_user": {
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "role": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "RelatedUserRole",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedUserRole"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedUserRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "user_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "visibility": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ONLY_ME"
+                  },
+                  "nativeType": "RelatedUserVisibility",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedUserVisibility",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "related_user"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "user_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "related_user"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "larp_id",
+                  "user_id",
+                  "role"
+                ]
+              },
+              "uniques": []
+            },
+            "unauthenticated_signup": {
+              "checks": [
+                {
+                  "expression": "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))",
+                  "name": "unauthenticated_signup_signup_status_check"
+                },
+                {
+                  "expression": "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))",
+                  "name": "unauthenticated_signup_visibility_check"
+                }
+              ],
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "display_name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "signup_status": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "RelatedUserRole",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedUserRole"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedUserRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "verification_code": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "verified_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "visibility": {
+                  "codecId": "pg/enum@1",
+                  "nativeType": "RelatedUserVisibility",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RelatedUserVisibility"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RelatedUserVisibility",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "unauthenticated_signup"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "larp_id",
+                    "email"
+                  ],
+                  "name": "unauthenticated_signup_larp_email_pending_uidx",
+                  "unique": true,
+                  "where": "(verified_at IS NULL)"
+                },
+                {
+                  "columns": [
+                    "larp_id",
+                    "email"
+                  ],
+                  "name": "unauthenticated_signup_larp_email_verified_uidx",
+                  "unique": true,
+                  "where": "(verified_at IS NOT NULL)"
+                },
+                {
+                  "columns": [
+                    "verification_code"
+                  ],
+                  "name": "unauthenticated_signup_verification_code_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "user": {
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "edit_form_preference": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "FULL"
+                  },
+                  "nativeType": "EditFormPreference",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "EditFormPreference"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "EditFormPreference",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "email_verified": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "image": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "role": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "NOT_VERIFIED"
+                  },
+                  "nativeType": "UserRole",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "UserRole"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "UserRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "title_en": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "title_fi": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "email"
+                  ],
+                  "name": "user_email_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "verification_token": {
+              "columns": {
+                "expires": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "identifier": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "token": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "EMAIL_VERIFICATION"
+                  },
+                  "nativeType": "TokenType",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "TokenType"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TokenType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "identifier",
+                  "token"
+                ]
+              },
+              "uniques": []
+            }
+          },
+          "valueSet": {
+            "EditAction": {
+              "kind": "valueSet",
+              "values": [
+                "CREATE",
+                "UPDATE",
+                "CLAIM",
+                "DELETE"
+              ]
+            },
+            "EditFormPreference": {
+              "kind": "valueSet",
+              "values": [
+                "FULL",
+                "COMPACT"
+              ]
+            },
+            "EditStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PENDING_VERIFICATION",
+                "VERIFIED",
+                "AUTO_APPROVED",
+                "APPROVED",
+                "REJECTED",
+                "WITHDRAWN"
+              ]
+            },
+            "Language": {
+              "kind": "valueSet",
+              "values": [
+                "fi",
+                "en",
+                "sv",
+                "OTHER"
+              ]
+            },
+            "LarpLinkType": {
+              "kind": "valueSet",
+              "values": [
+                "HOMEPAGE",
+                "PHOTOS",
+                "SOCIAL_MEDIA",
+                "PLAYER_GUIDE",
+                "OTHER",
+                "SIGNUP"
+              ]
+            },
+            "LarpType": {
+              "kind": "valueSet",
+              "values": [
+                "ONE_SHOT",
+                "CAMPAIGN_LARP",
+                "CAMPAIGN",
+                "MULTIPLE_RUNS",
+                "OTHER_EVENT_SERIES",
+                "OTHER_EVENT"
+              ]
+            },
+            "LocalSignupStatus": {
+              "kind": "valueSet",
+              "values": [
+                "DISABLED",
+                "PUBLIC",
+                "CODE_REQUIRED"
+              ]
+            },
+            "Openness": {
+              "kind": "valueSet",
+              "values": [
+                "OPEN",
+                "TARGETED",
+                "INVITE_ONLY"
+              ]
+            },
+            "RelatedLarpType": {
+              "kind": "valueSet",
+              "values": [
+                "SEQUEL",
+                "SPINOFF",
+                "IN_CAMPAIGN",
+                "IN_SERIES",
+                "RUN_OF",
+                "RERUN_OF",
+                "PLAYED_AT"
+              ]
+            },
+            "RelatedUserRole": {
+              "kind": "valueSet",
+              "values": [
+                "EDITOR",
+                "CREATED_BY",
+                "GAME_MASTER",
+                "VOLUNTEER",
+                "PLAYER",
+                "FAVORITE",
+                "TEAM_MEMBER",
+                "LOCAL_SIGNUP_YES",
+                "LOCAL_SIGNUP_MAYBE",
+                "LOCAL_SIGNUP_NO"
+              ]
+            },
+            "RelatedUserVisibility": {
+              "kind": "valueSet",
+              "values": [
+                "PARTICIPANTS",
+                "GM",
+                "ONLY_ME"
+              ]
+            },
+            "SubmitterRole": {
+              "kind": "valueSet",
+              "values": [
+                "NONE",
+                "GAME_MASTER",
+                "VOLUNTEER",
+                "PLAYER",
+                "TEAM_MEMBER"
+              ]
+            },
+            "TokenType": {
+              "kind": "valueSet",
+              "values": [
+                "EMAIL_VERIFICATION",
+                "ACCOUNT_REMOVAL"
+              ]
+            },
+            "UserRole": {
+              "kind": "valueSet",
+              "values": [
+                "NOT_VERIFIED",
+                "VERIFIED",
+                "MODERATOR",
+                "ADMIN"
+              ]
+            }
+          }
+        },
+        "id": "public",
+        "kind": "postgres-schema"
+      }
+    },
+    "storageHash": "9f1a525d8836b563f0f6f18c2ba3355176637c3082086702b14519f2adddc16b"
+  },
+  "execution": {
+    "executionHash": "56b350f491dc29464dea6ae619c7c248112e4629dcc6b8fa3ed0541d183a749a",
+    "mutations": {
+      "defaults": [
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "account"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "larp"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "larp"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "larp_link"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "moderation_request"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "page"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "unauthenticated_signup"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "unauthenticated_signup"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "user"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "user"
+          }
+        }
+      ]
+    }
+  },
+  "capabilities": {
+    "postgres": {
+      "distinctOn": true,
+      "jsonAgg": true,
+      "lateral": true,
+      "limit": true,
+      "orderBy": true,
+      "returning": true
+    },
+    "sql": {
+      "checkConstraint": true,
+      "defaultInInsert": true,
+      "enums": true,
+      "lateral": true,
+      "returning": true,
+      "scalarList": true
+    }
+  },
+  "extensions": {},
+  "meta": {},
+  "_generated": {
+    "warning": "⚠️  GENERATED FILE - DO NOT EDIT",
+    "message": "This file is automatically generated by \"prisma contract emit\".",
+    "regenerate": "To regenerate, run: prisma contract emit"
+  }
+}

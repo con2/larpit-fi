@@ -1,23 +1,22 @@
-import type {
-  Larp,
-  Municipality,
-  RelatedUser,
-  User,
-} from "@/generated/prisma/client";
+import { fromMorningNull } from "@con2/components/helpers";
+import { publicUrl } from "@/config";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import {
   EditAction,
   EditStatus,
   RelatedUserRole,
   SubmitterRole,
-} from "@/generated/prisma/client";
+} from "@/prisma/enums";
+import { toJson } from "@/prisma/json";
+import type { Larp, Municipality, RelatedUser, User } from "@/prisma/models";
+import { query, sql } from "@/prisma/sql";
+import { getLarpHref } from "./Larp.client";
 import {
   approveRequest,
   larpToContent,
   ModerationRequestContent,
 } from "./ModerationRequest";
-import { fromMorningNull } from "@con2/components/helpers";
-import prisma from "@/prisma";
-import { publicUrl } from "@/config";
 
 // Re-export client-safe helpers for convenience
 export {
@@ -28,7 +27,6 @@ export {
   isSignupOpenOrOpeningSoon,
   isSignupOver,
 } from "./Larp.client";
-import { getLarpHref } from "./Larp.client";
 
 export function getLarpUrl(larp: Parameters<typeof getLarpHref>[0]): string {
   return `${publicUrl}${getLarpHref(larp)}`;
@@ -71,8 +69,8 @@ export async function findExistingLarpsForFillIn(
   name: string,
   startsAt: Date | null,
   endsAt: Date | null,
-) {
-  const rows = await prisma.$queryRaw<{ id: string }[]>`
+): Promise<Larp[]> {
+  const rows = await query<{ id: string }>(sql`
     select
       id
     from
@@ -86,17 +84,13 @@ export async function findExistingLarpsForFillIn(
       -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
       -- null end date means one-day larp (end = start)
       and starts_at is not null
-      and starts_at::date <= coalesce(${endsAt}::date, ${startsAt}::date)
-      and ${startsAt}::date <= coalesce(ends_at, starts_at)::date
-  `;
+      and starts_at::date <= coalesce(${endsAt}::timestamptz::date, ${startsAt}::timestamptz::date)
+      and ${startsAt}::timestamptz::date <= coalesce(ends_at, starts_at)::date
+  `);
+  if (rows.length === 0) return [];
 
-  return prisma.larp.findMany({
-    where: {
-      id: {
-        in: rows.map((r) => r.id),
-      },
-    },
-  });
+  const ids = rows.map((r) => r.id);
+  return parseDates(await db.orm.public.Larp.where((l) => l.id.in(ids)).all());
 }
 
 export type ImportAction =
@@ -202,33 +196,29 @@ export async function executeImportAction(
   const status = EditStatus.APPROVED;
 
   if (action.kind === "create") {
-    const request = await prisma.moderationRequest.create({
-      data: {
-        action: EditAction.CREATE,
-        status,
-        submitterId: user.id,
-        submitterName: user.name || "",
-        submitterEmail: user.email,
-        submitterRole: SubmitterRole.NONE,
-        message,
-        newContent: action.content,
-      },
+    const request = await db.orm.public.ModerationRequest.create({
+      action: EditAction.CREATE,
+      status,
+      submitterId: user.id,
+      submitterName: user.name || "",
+      submitterEmail: user.email,
+      submitterRole: SubmitterRole.NONE,
+      message,
+      newContent: toJson(action.content),
     });
     const larp = await approveRequest(request, user, message, status);
     return larp.id;
   } else {
-    const request = await prisma.moderationRequest.create({
-      data: {
-        action: EditAction.UPDATE,
-        status,
-        larpId: action.larpId,
-        submitterId: user.id,
-        submitterName: user.name || "",
-        submitterEmail: user.email,
-        submitterRole: SubmitterRole.NONE,
-        message,
-        newContent: action.fields,
-      },
+    const request = await db.orm.public.ModerationRequest.create({
+      action: EditAction.UPDATE,
+      status,
+      larpId: action.larpId,
+      submitterId: user.id,
+      submitterName: user.name || "",
+      submitterEmail: user.email,
+      submitterRole: SubmitterRole.NONE,
+      message,
+      newContent: toJson(action.fields),
     });
     const larp = await approveRequest(request, user, message, status);
     return larp.id;

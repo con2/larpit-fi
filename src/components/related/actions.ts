@@ -6,16 +6,30 @@ import {
   EditStatus,
   RelatedLarpType,
   RelatedUserRole,
-} from "@/generated/prisma/client";
+} from "@/prisma/enums";
 import { approveRequest } from "@/models/ModerationRequest";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { toJson } from "@/prisma/json";
 import fi from "@/translations/fi";
 import { redirect } from "next/navigation";
 import { validate as validateUuid } from "uuid";
+
+/** The larp with only the roles that let the user edit it. */
+function larpWithEditorRoles(larpId: string, userId: string) {
+  return db.orm.public.Larp.select("id", "name")
+    .include("relatedUsers", (r) =>
+      r
+        .where({ userId })
+        .where((ru) =>
+          ru.role.in([RelatedUserRole.EDITOR, RelatedUserRole.GAME_MASTER]),
+        ),
+    )
+    .first({ id: larpId });
+}
 
 export async function addRelatedLarp(
   locale: string,
@@ -52,17 +66,7 @@ export async function addRelatedLarp(
     throw new Error("A larp cannot be related to itself");
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    include: {
-      relatedUsers: {
-        where: {
-          userId: user.id,
-          role: { in: [RelatedUserRole.EDITOR, RelatedUserRole.GAME_MASTER] },
-        },
-      },
-    },
-  });
+  const larp = await larpWithEditorRoles(larpId, user.id);
 
   if (!larp) {
     throw new Error("Larp not found");
@@ -74,8 +78,9 @@ export async function addRelatedLarp(
   }
 
   // Check for duplicate: (leftId, rightId) must be unique
-  const existing = await prisma.relatedLarp.findUnique({
-    where: { leftId_rightId: { leftId: larpId, rightId } },
+  const existing = await db.orm.public.RelatedLarp.first({
+    leftId: larpId,
+    rightId,
   });
   if (existing) {
     return void redirect(
@@ -88,18 +93,16 @@ export async function addRelatedLarp(
     throw new Error("Missing submitter information");
   }
 
-  const request = await prisma.moderationRequest.create({
-    data: {
-      action: EditAction.UPDATE,
-      larpId,
-      status,
-      submitterId: user.id,
-      submitterName,
-      submitterEmail,
-      newContent: {},
-      addRelatedLarps: [{ leftId: larpId, rightId, type }],
-      removeRelatedLarps: [],
-    },
+  const request = await db.orm.public.ModerationRequest.create({
+    action: EditAction.UPDATE,
+    larpId,
+    status,
+    submitterId: user.id,
+    submitterName,
+    submitterEmail,
+    newContent: {},
+    addRelatedLarps: toJson([{ leftId: larpId, rightId, type }]),
+    removeRelatedLarps: [],
   });
 
   if (status === EditStatus.VERIFIED) {
@@ -153,30 +156,8 @@ export async function removeRelatedLarp(
   }
 
   const [larp, relatedLarp] = await Promise.all([
-    prisma.larp.findUnique({
-      where: { id: larpId },
-      select: {
-        id: true,
-        name: true,
-        relatedUsers: {
-          where: {
-            userId: user.id,
-            role: {
-              in: [RelatedUserRole.EDITOR, RelatedUserRole.GAME_MASTER],
-            },
-          },
-        },
-      },
-    }),
-    prisma.relatedLarp.findUnique({
-      where: {
-        leftId_rightId: {
-          leftId,
-          rightId,
-        },
-        type,
-      },
-    }),
+    larpWithEditorRoles(larpId, user.id),
+    db.orm.public.RelatedLarp.first({ leftId, rightId, type }),
   ]);
 
   if (!larp || !relatedLarp) {
@@ -194,18 +175,16 @@ export async function removeRelatedLarp(
     throw new Error("Missing submitter information");
   }
 
-  const request = await prisma.moderationRequest.create({
-    data: {
-      action: EditAction.UPDATE,
-      larpId: larp.id,
-      status,
-      submitterId: user.id,
-      submitterName,
-      submitterEmail,
-      newContent: {},
-      addRelatedLarps: [],
-      removeRelatedLarps: [{ leftId, rightId, type }],
-    },
+  const request = await db.orm.public.ModerationRequest.create({
+    action: EditAction.UPDATE,
+    larpId: larp.id,
+    status,
+    submitterId: user.id,
+    submitterName,
+    submitterEmail,
+    newContent: {},
+    addRelatedLarps: [],
+    removeRelatedLarps: toJson([{ leftId, rightId, type }]),
   });
 
   if (status === EditStatus.VERIFIED) {

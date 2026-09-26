@@ -1,6 +1,7 @@
 import { larppikuvatApiUrl } from "@/config";
 import { syncFromLarppikuvat } from "@/models/larppikuvatSync";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 
 async function main() {
   try {
@@ -9,7 +10,8 @@ async function main() {
       `larppikuvat sync: added ${result.added}, unchanged ${result.unchanged}, mismatched ${result.mismatched}, missing ${result.missing}`,
     );
   } finally {
-    await prisma.$disconnect();
+    await db.close();
+    await pool.end();
   }
 }
 

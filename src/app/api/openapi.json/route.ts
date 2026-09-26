@@ -1,10 +1,5 @@
 import { publicUrl } from "@/config";
-import {
-  Language,
-  LarpLinkType,
-  LarpType,
-  Openness,
-} from "@/generated/prisma/enums";
+import { Language, LarpLinkType, LarpType, Openness } from "@/prisma/enums";
 import { NextResponse } from "next/server";
 
 const spec = {

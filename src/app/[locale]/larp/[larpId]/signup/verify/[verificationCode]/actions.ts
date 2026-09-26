@@ -1,7 +1,7 @@
 "use server";
 
 import { verifyUnauthenticatedSignup } from "@/models/UnauthenticatedSignup";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -14,10 +14,11 @@ export async function verifySignup(
 ) {
   locale = toSupportedLanguage(locale);
 
-  const signup = await prisma.unauthenticatedSignup.findUnique({
-    where: { verificationCode },
-    select: { id: true, larpId: true, verifiedAt: true },
-  });
+  const signup = await db.orm.public.UnauthenticatedSignup.select(
+    "id",
+    "larpId",
+    "verifiedAt",
+  ).first({ verificationCode });
 
   if (!signup || signup.larpId !== larpId) {
     redirect(`/${locale}/larp/${larpId}`);

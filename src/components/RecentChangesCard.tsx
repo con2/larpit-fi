@@ -1,6 +1,6 @@
-import { EditAction } from "@/generated/prisma/enums";
+import { EditAction } from "@/prisma/enums";
 import { getLarpHref } from "@/models/Larp";
-import prisma from "@/prisma";
+import { query, sql } from "@/prisma/sql";
 import { FormattedDate } from "@con2/components";
 import Link from "next/link";
 import { CardBody, CardTitle, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -23,7 +23,7 @@ interface RecentChange {
 }
 
 export function getRecentChanges(limit: number = 12): Promise<RecentChange[]> {
-  return prisma.$queryRaw`
+  return query<RecentChange>(sql`
     select
       resolved_at as "resolvedAt",
       action,
@@ -58,7 +58,7 @@ export function getRecentChanges(limit: number = 12): Promise<RecentChange[]> {
     where
       rn = 1
     limit ${limit}
-  `;
+  `);
 }
 
 function EditIcon({ action }: { action: EditAction }) {

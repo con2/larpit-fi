@@ -1,6 +1,6 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import { publicUrl } from "@/config";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
+  const larp = await db.orm.public.Larp.select("id", "name", "tagline").first({
+    id: larpId,
   });
   if (!larp) {
     notFound();

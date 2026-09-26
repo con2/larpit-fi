@@ -41,7 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # generated files
-/src/generated/prisma/
+
 /data/
 
 # just in case
@@ -53,3 +53,6 @@ next-env.d.ts
 
 # husky
 .husky/_/
+
+# Turbopack mirrors its build cache under a nested directory named after package.json "name"
+larpit-fi/

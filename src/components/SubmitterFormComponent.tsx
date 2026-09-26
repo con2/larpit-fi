@@ -9,7 +9,7 @@ import {
 } from "react-bootstrap";
 import LoginLink, { LogoutLink, ProfileLink } from "./LoginLink";
 import type { Translations } from "@/translations/en";
-import { SubmitterRole } from "@/generated/prisma/client";
+import { SubmitterRole } from "@/prisma/enums";
 
 interface Props {
   user: {

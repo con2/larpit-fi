@@ -1,12 +1,10 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import {
-  RelatedUserRole,
-  RelatedUserVisibility,
-} from "@/generated/prisma/client";
+import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import { getLocalSignupStatusForUser, getUserFromSession } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import Link from "next/link";
@@ -59,23 +57,22 @@ export default async function SignupPage({ params, searchParams }: Props) {
     );
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: {
-      id: true,
-      name: true,
-      cancelledAt: true,
-      localSignupStatus: true,
-      localSignupCode: true,
-      relatedUsers: user
-        ? { where: { userId: user.id }, select: { userId: true, role: true } }
-        : { select: { userId: true, role: true }, take: 0 },
-    },
-  });
+  const larpRow = await db.orm.public.Larp.select(
+    "id",
+    "name",
+    "cancelledAt",
+    "localSignupStatus",
+    "localSignupCode",
+  )
+    .include("relatedUsers", (r) =>
+      r.where({ userId: user.id }).select("userId", "role"),
+    )
+    .first({ id: larpId });
 
-  if (!larp) {
+  if (!larpRow) {
     notFound();
   }
+  const larp = parseDates(larpRow);
 
   const codeParam = resolvedSearchParams.code ?? null;
   const _emailSent = !!resolvedSearchParams.emailSent;

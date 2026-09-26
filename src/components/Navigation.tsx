@@ -14,10 +14,11 @@ import { LanguageSwitcher } from "@con2/components";
 import UserMenu from "./UserMenu";
 import { isStaging } from "@/config";
 import { auth } from "@/auth";
-import prisma from "@/prisma";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { db } from "@/prisma/db";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import {
   getDeleteLarpInitialStatusForUser,
+  getUserFromSession,
   canEditPages,
   canManageUsers,
   canModerate,
@@ -36,24 +37,19 @@ export async function Navigation({ locale }: Props) {
   const session = await auth();
   const [user, numPendingNonDeleteRequests, numPendingDeleteRequests] =
     await Promise.all([
-      session?.user?.email
-        ? prisma.user.findUnique({
-            where: { email: session.user.email },
-            select: { id: true, name: true, email: true, role: true },
-          })
-        : null,
-      prisma.moderationRequest.count({
-        where: {
-          status: { in: [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED] },
-          action: { not: EditAction.DELETE },
-        },
-      }),
-      prisma.moderationRequest.count({
-        where: {
-          status: EditStatus.VERIFIED,
-          action: EditAction.DELETE,
-        },
-      }),
+      getUserFromSession(session),
+      db.orm.public.ModerationRequest.where((r) =>
+        r.status.in([EditStatus.VERIFIED, EditStatus.AUTO_APPROVED]),
+      )
+        .where((r) => r.action.neq(EditAction.DELETE))
+        .aggregate((a) => ({ count: a.count() }))
+        .then((r) => r.count),
+      db.orm.public.ModerationRequest.where({
+        status: EditStatus.VERIFIED,
+        action: EditAction.DELETE,
+      })
+        .aggregate((a) => ({ count: a.count() }))
+        .then((r) => r.count),
     ]);
 
   const isAdmin =

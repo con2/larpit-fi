@@ -5,7 +5,8 @@ import {
   ImportAction,
 } from "@/models/Larp";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
+import { pool } from "@/prisma/pool";
 import { parse } from "csv/sync";
 import { readFileSync } from "fs";
 import { zip } from "underscore";
@@ -134,7 +135,7 @@ async function main() {
     return;
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await db.orm.public.User.first({ id: userId });
   if (!user) {
     throw new Error("User not found: " + userId);
   }
@@ -162,5 +163,10 @@ async function main() {
 }
 
 if (import.meta.url === "file://" + process.argv[1]) {
-  main();
+  try {
+    await main();
+  } finally {
+    await db.close();
+    await pool.end();
+  }
 }

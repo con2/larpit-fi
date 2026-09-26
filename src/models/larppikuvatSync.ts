@@ -1,12 +1,14 @@
 import { publicUrl } from "@/config";
+import z from "zod";
+
+import { db } from "@/prisma/db";
 import {
   EditAction,
   EditStatus,
   LarpLinkType,
   SubmitterRole,
-} from "@/generated/prisma/client";
-import prisma from "@/prisma";
-import z from "zod";
+} from "@/prisma/enums";
+import { toJson } from "@/prisma/json";
 import { approveRequest } from "./ModerationRequest";
 
 const Subalbum = z.object({
@@ -78,15 +80,13 @@ export async function syncFromLarppikuvat({
   const root = RootAlbum.parse(await response.json());
   const origin = new URL(apiUrl).origin;
 
-  const user = await prisma.user.upsert({
-    where: { email: "yhteys@larppikuvat.fi" },
-    update: {},
-    create: {
+  const syncUsers = db.orm.public.User.select("id", "name", "email", "role");
+  const user =
+    (await syncUsers.first({ email: "yhteys@larppikuvat.fi" })) ??
+    (await syncUsers.create({
       email: "yhteys@larppikuvat.fi",
       name: "Larppikuvat.fi ylläpito",
-    },
-    select: { id: true, name: true, email: true, role: true },
-  });
+    }));
 
   const result: SyncResult = {
     added: 0,
@@ -102,13 +102,11 @@ export async function syncFromLarppikuvat({
     const albumHref = new URL(subalbum.path, origin).toString();
     const album = normalizeUrl(albumHref)!;
 
-    const larp = await prisma.larp.findUnique({
-      where: { id: larpId },
-      select: {
-        id: true,
-        links: { where: { type: LarpLinkType.PHOTOS }, select: { href: true } },
-      },
-    });
+    const larp = await db.orm.public.Larp.select("id")
+      .include("links", (links) =>
+        links.where({ type: LarpLinkType.PHOTOS }).select("href"),
+      )
+      .first({ id: larpId });
     if (!larp) {
       console.warn(
         `larppikuvat sync: album ${albumHref} points to unknown larp ${subalbum.eventMetadataUrl}`,
@@ -136,19 +134,17 @@ export async function syncFromLarppikuvat({
       continue;
     }
 
-    const request = await prisma.moderationRequest.create({
-      data: {
-        action: EditAction.UPDATE,
-        status: EditStatus.APPROVED,
-        larpId: larp.id,
-        submitterId: user.id,
-        submitterName: user.name || "",
-        submitterEmail: user.email,
-        submitterRole: SubmitterRole.NONE,
-        message: syncMessage,
-        newContent: {},
-        addLinks: [{ type: LarpLinkType.PHOTOS, href: albumHref }],
-      },
+    const request = await db.orm.public.ModerationRequest.create({
+      action: EditAction.UPDATE,
+      status: EditStatus.APPROVED,
+      larpId: larp.id,
+      submitterId: user.id,
+      submitterName: user.name || "",
+      submitterEmail: user.email,
+      submitterRole: SubmitterRole.NONE,
+      message: syncMessage,
+      newContent: {},
+      addLinks: toJson([{ type: LarpLinkType.PHOTOS, href: albumHref }]),
     });
     await approveRequest(request, user, syncMessage, EditStatus.APPROVED);
     console.log("AUDIT", "syncFromLarppikuvat", {

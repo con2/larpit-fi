@@ -1,13 +1,13 @@
 "use server";
 
 import { auth } from "@/auth";
-import { EditAction, EditStatus } from "@/generated/prisma/client";
+import { EditAction, EditStatus } from "@/prisma/enums";
 import { approveRequest } from "@/models/ModerationRequest";
 import {
   getDeleteLarpInitialStatusForUser,
   getUserFromSession,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { db } from "@/prisma/db";
 import fi from "@/translations/fi";
 import { redirect } from "next/navigation";
 
@@ -30,9 +30,8 @@ export async function deleteLarp(
     );
   }
 
-  const larp = await prisma.larp.findUnique({
-    where: { id: larpId },
-    select: { id: true, name: true },
+  const larp = await db.orm.public.Larp.select("id", "name").first({
+    id: larpId,
   });
 
   if (!larp?.id) {
@@ -46,17 +45,15 @@ export async function deleteLarp(
 
   const reason = data.get("reason")?.toString() || null;
 
-  const request = await prisma.moderationRequest.create({
-    data: {
-      action: EditAction.DELETE,
-      larpId: larp.id,
-      status,
-      submitterId: user.id,
-      submitterName,
-      submitterEmail,
-      message: reason,
-      newContent: {},
-    },
+  const request = await db.orm.public.ModerationRequest.create({
+    action: EditAction.DELETE,
+    larpId: larp.id,
+    status,
+    submitterId: user.id,
+    submitterName,
+    submitterEmail,
+    message: reason,
+    newContent: {},
   });
 
   if (status === EditStatus.APPROVED) {

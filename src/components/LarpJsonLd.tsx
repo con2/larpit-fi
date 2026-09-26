@@ -1,4 +1,4 @@
-import { Larp, Municipality } from "@/generated/prisma/client";
+import type { Larp, Municipality } from "@/prisma/models";
 import { getLarpUrl } from "@/models/Larp";
 
 type LarpJsonLdInput = Pick<

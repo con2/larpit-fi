@@ -11,13 +11,14 @@ import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
-import { EditFormPreference, SubmitterRole } from "@/generated/prisma/client";
+import { EditFormPreference, SubmitterRole } from "@/prisma/enums";
 import {
   getEditLarpInitialStatusForUserAndLarp,
   getHighestUserRoleForLarp,
   localSignupRoles,
 } from "@/models/User";
-import prisma from "@/prisma";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
 import Container from "react-bootstrap/Container";
@@ -48,36 +49,23 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   }
 
   const session = await auth();
-  const [user, larp] = await Promise.all([
+  const [user, larpRow] = await Promise.all([
     session?.user?.email
-      ? await prisma.user.findUnique({
-          where: { email: session.user.email },
-          select: {
-            id: true,
-            name: true,
-            role: true,
-            email: true,
-            editFormPreference: true,
-          },
-        })
+      ? db.orm.public.User.select(
+          "id",
+          "name",
+          "role",
+          "email",
+          "editFormPreference",
+        ).first({ email: session.user.email })
       : null,
-    await prisma.larp.findUnique({
-      where: { id: resolvedParams.larpId },
-      include: {
-        links: true,
-        relatedUsers: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    }),
+    db.orm.public.Larp.include("links")
+      .include("relatedUsers", (r) =>
+        r.include("user", (u) => u.select("id", "email")),
+      )
+      .first({ id: resolvedParams.larpId }),
   ]);
+  const larp = larpRow && parseDates(larpRow);
   if (!larp) {
     notFound();
   }

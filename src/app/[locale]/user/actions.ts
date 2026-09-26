@@ -1,13 +1,13 @@
 "use server";
 
 import { auth } from "@/auth";
-import { UserRole } from "@/generated/prisma/client";
-import { canManageUsers } from "@/models/User";
-import prisma from "@/prisma";
+import { UserRole } from "@/prisma/enums";
+import { canManageUsers, getUserFromSession } from "@/models/User";
+import { db } from "@/prisma/db";
 import { revalidatePath } from "next/cache";
 import z from "zod";
 
-const zUserRole = z.enum<typeof UserRole>(UserRole);
+const zUserRole = z.enum(UserRole);
 
 const SetUserRoleRequestSchema = z.object({
   role: zUserRole,
@@ -19,12 +19,7 @@ export async function setUserRole(
   formData: FormData,
 ) {
   const session = await auth();
-  const actor = session?.user?.email
-    ? await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, role: true },
-      })
-    : null;
+  const actor = await getUserFromSession(session);
   if (!actor) {
     throw new Error("User not found");
   }
@@ -45,10 +40,7 @@ export async function setUserRole(
     role,
   });
 
-  await prisma.user.update({
-    where: { id: userId },
-    data: { role },
-  });
+  await db.orm.public.User.where({ id: userId }).update({ role });
 
   revalidatePath(`/${locale}/user`);
 }

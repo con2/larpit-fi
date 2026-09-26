@@ -1,8 +1,11 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
-import { getDeleteLarpInitialStatusForUser } from "@/models/User";
-import prisma from "@/prisma";
+import {
+  getDeleteLarpInitialStatusForUser,
+  getUserFromSession,
+} from "@/models/User";
+import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
@@ -16,7 +19,7 @@ import {
 } from "react-bootstrap";
 import { validate as validateUuid } from "uuid";
 import { deleteLarp } from "./actions";
-import { EditStatus } from "@/generated/prisma/enums";
+import { EditStatus } from "@/prisma/enums";
 import Link from "next/link";
 
 interface Props {
@@ -40,15 +43,8 @@ export default async function DeleteLarpPage({ params }: Props) {
 
   const session = await auth();
   const [user, larp] = await Promise.all([
-    session?.user?.email
-      ? prisma.user.findUnique({
-          where: { email: session.user.email },
-          select: { id: true, name: true, role: true, email: true },
-        })
-      : null,
-    prisma.larp.findUnique({
-      where: { id: larpId },
-    }),
+    getUserFromSession(session),
+    db.orm.public.Larp.select("id", "name").first({ id: larpId }),
   ]);
 
   if (!larp) {
