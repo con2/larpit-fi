@@ -36,7 +36,8 @@ function decodeCursor(
 
 /**
  * The page is keyed by (startsAt desc nulls last, id asc). NULLS LAST is not expressible in the
- * ORM, so the ids are paged in SQL and the rows loaded afterwards in that order.
+ * ORM's `orderBy`, so the ids are paged in SQL and the rows loaded afterwards in that order. Fold
+ * this back into one ORM query once the ORM grows a nulls option (see `helpers/sort.ts`).
  */
 async function pageOfLarpIds(
   updatedAfter: Date | undefined,

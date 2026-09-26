@@ -1,4 +1,9 @@
-/** Orders by the given values with nulls after every non-null value, for use with Array.sort. */
+/**
+ * Orders by the given values with nulls after every non-null value, for use with Array.sort.
+ * Stands in for SQL `order by ... desc nulls last`, which the Prisma 8 ORM's `orderBy` cannot
+ * express (Postgres puts nulls first for DESC). Retire this, and the in-memory sorts that use it,
+ * once the ORM grows a nulls option; until then it is only fit for lists small enough to fetch whole.
+ */
 export function compareNullsLast(
   a: Date | null | undefined,
   b: Date | null | undefined,
