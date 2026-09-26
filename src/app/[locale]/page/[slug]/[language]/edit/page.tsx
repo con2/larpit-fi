@@ -3,7 +3,7 @@ import MainHeading from "@/components/MainHeading";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
-import { MessageCard, SubmitButton } from "@con2/components";
+import { MarkdownEditor, MessageCard, SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
 import {
   Card,
@@ -70,7 +70,7 @@ export default async function PageWithLanguagePage({ params }: Props) {
                 type="text"
                 id="PageEditorComponent-title"
                 name="title"
-                defaultValue={page?.title || ""}
+                defaultValue={page.title}
                 required
               />
             </div>
@@ -79,13 +79,12 @@ export default async function PageWithLanguagePage({ params }: Props) {
               <FormLabel htmlFor="PageEditorComponent-content">
                 {t.attributes.content.title}
               </FormLabel>
-              <FormControl
+              <MarkdownEditor
                 id="PageEditorComponent-content"
                 name="content"
-                as={"textarea"}
                 rows={15}
-                defaultValue={page?.content || ""}
-                style={{ fontFamily: "monospace", fontSize: "0.85em" }}
+                defaultValue={page.content}
+                locale={locale}
               />
             </div>
 

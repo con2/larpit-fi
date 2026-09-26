@@ -4,6 +4,7 @@ import RecentChangesCard, {
 } from "@/components/RecentChangesCard";
 import { LarpType, Openness } from "@/prisma/enums";
 import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
+import { frontPageSlug } from "@/models/Page";
 import { or } from "@prisma/orm-postgres/orm-client";
 
 import { iso, parseDates } from "@/prisma/dates";
@@ -107,7 +108,6 @@ function Section({
 }
 
 const limitPastLarps = 8;
-const slug = "front-page";
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
@@ -120,7 +120,7 @@ export default async function HomePage({ params }: Props) {
 
   const [larps, page, recentChanges] = await Promise.all([
     getHomePageLarps(),
-    db.orm.public.Page.first({ slug, language: locale }),
+    db.orm.public.Page.first({ slug: frontPageSlug, language: locale }),
     getRecentChanges(),
   ]);
 
