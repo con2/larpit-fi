@@ -4,7 +4,7 @@ import MainHeading from "@/components/MainHeading";
 import { LarpRow } from "@/components/LarpTable";
 import { getUserFromSession } from "@/models/User";
 import { LarpType, RelatedUserRole } from "@/prisma/enums";
-import { compareNullsLast } from "@/helpers/sort";
+import { compareDescNullsLast } from "@/helpers/sort";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { query, sql } from "@/prisma/sql";
@@ -44,7 +44,7 @@ async function getData(
 
   // Latest first, larps without a date last: the ORM cannot express NULLS LAST.
   return parseDates(larps).sort((a, b) =>
-    compareNullsLast(b.startsAt, a.startsAt),
+    compareDescNullsLast(a.startsAt, b.startsAt),
   );
 }
 

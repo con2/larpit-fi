@@ -14,7 +14,7 @@ import {
   getEditLarpInitialStatusForUserAndLarp,
   getUserFromSession,
 } from "@/models/User";
-import { compareNullsLast } from "@/helpers/sort";
+import { compareDescNullsLast } from "@/helpers/sort";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
@@ -99,7 +99,7 @@ export default async function RelatedLarpsPage({
   const larps = parseDates(larpRows).sort(
     (a, b) =>
       a.name.localeCompare(b.name, "fi") ||
-      compareNullsLast(b.startsAt, a.startsAt),
+      compareDescNullsLast(a.startsAt, b.startsAt),
   );
 
   const preselectedType =
