@@ -56,6 +56,15 @@ Use `sslmode=verify-full`, not `require`. `pg` treats `require`, `prefer` and `v
 aliases for `verify-full` today and only warns about them, but a future major version will give
 them their libpq meaning, which skips hostname verification.
 
+## Field ownership after the adoption from kubectl
+
+The Deployment, Service and CronJob were adopted from kubectl-applied manifests. Helm installs
+with server-side apply, and a field that Helm has not changed since the adoption is still owned by
+the placeholder `before-first-apply`. The first deploy that changes such a field fails with
+`Apply failed with 1 conflict: conflict with "before-first-apply"`. Deploy that one change by hand
+with `--force-conflicts` (the CI command from `.github/workflows/cicd.yaml` plus the flag); Helm
+then owns the field and later deploys need nothing special.
+
 ## Request body limit
 
 The `app` HTTPRoute caps request bodies at 1 MB with a Traefik Middleware. An HTTPRoute can only
