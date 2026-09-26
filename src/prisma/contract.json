@@ -2064,21 +2064,19 @@
                 }
               },
               "foreignKeys": [],
-              "indexes": [
-                {
-                  "columns": [
-                    "code"
-                  ],
-                  "name": "country_code_key",
-                  "unique": true
-                }
-              ],
+              "indexes": [],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "code"
+                  ]
+                }
+              ]
             },
             "holiday": {
               "columns": {
@@ -2305,21 +2303,19 @@
                   }
                 }
               ],
-              "indexes": [
-                {
-                  "columns": [
-                    "alias"
-                  ],
-                  "name": "larp_alias_key",
-                  "unique": true
-                }
-              ],
+              "indexes": [],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "alias"
+                  ]
+                }
+              ]
             },
             "larp_link": {
               "columns": {
@@ -2595,21 +2591,19 @@
                   }
                 }
               ],
-              "indexes": [
-                {
-                  "columns": [
-                    "verification_code"
-                  ],
-                  "name": "moderation_request_verification_code_key",
-                  "unique": true
-                }
-              ],
+              "indexes": [],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "verification_code"
+                  ]
+                }
+              ]
             },
             "municipality": {
               "columns": {
@@ -3030,13 +3024,6 @@
                   "name": "unauthenticated_signup_larp_email_verified_uidx",
                   "unique": true,
                   "where": "(verified_at IS NOT NULL)"
-                },
-                {
-                  "columns": [
-                    "verification_code"
-                  ],
-                  "name": "unauthenticated_signup_verification_code_key",
-                  "unique": true
                 }
               ],
               "primaryKey": {
@@ -3044,7 +3031,13 @@
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "verification_code"
+                  ]
+                }
+              ]
             },
             "user": {
               "columns": {
@@ -3135,21 +3128,19 @@
                 }
               },
               "foreignKeys": [],
-              "indexes": [
-                {
-                  "columns": [
-                    "email"
-                  ],
-                  "name": "user_email_key",
-                  "unique": true
-                }
-              ],
+              "indexes": [],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": []
+              "uniques": [
+                {
+                  "columns": [
+                    "email"
+                  ]
+                }
+              ]
             },
             "verification_token": {
               "columns": {
@@ -3340,7 +3331,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "9f1a525d8836b563f0f6f18c2ba3355176637c3082086702b14519f2adddc16b"
+    "storageHash": "148d0fef1f054eba6f3396ba6adc560a1843ab85b3df6fa4662ab5351d291ad1"
   },
   "execution": {
     "executionHash": "56b350f491dc29464dea6ae619c7c248112e4629dcc6b8fa3ed0541d183a749a",

@@ -42,13 +42,13 @@ async function resolveUser(profile: KompassiProfile): Promise<string> {
   if (account) return account.userId;
 
   const email = profile.email ?? "";
-  const existing = email ? await db.orm.public.User.first({ email }) : null;
-  const user =
-    existing ??
-    (await db.orm.public.User.create({
-      email,
-      name: profile.name ?? null,
-    }));
+  const user = email
+    ? await db.orm.public.User.upsert({
+        create: { email, name: profile.name ?? null },
+        update: {},
+        conflictOn: { email },
+      })
+    : await db.orm.public.User.create({ email, name: profile.name ?? null });
 
   await db.orm.public.Account.create({
     userId: user.id,

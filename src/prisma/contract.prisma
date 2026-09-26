@@ -114,7 +114,7 @@ namespace public {
   model User {
     id                      Uuid                        @id @default(uuid(4))
     name                    String?
-    email                   String
+    email                   String                      @unique
     // Set when the user first submits a request and verifies it. Independent of role:
     // role=VERIFIED means a moderator approved a request, granting the power to add larps
     // without pre-moderation.
@@ -134,7 +134,6 @@ namespace public {
     requestsResolvedByUser  ModerationRequest[]         @relation("RequestsResolvedByUser")
     requestsSubmittedByUser ModerationRequest[]         @relation("RequestsSubmittedByUser")
 
-    @@index([email], map: "user_email_key", unique: true)
     @@map("user")
   }
 
@@ -175,13 +174,12 @@ namespace public {
     // Wikidata id with wd: prefix, eg. wd:Q33
     id             String         @id
     // ISO 3166-1 alpha-2 country code, eg. FI
-    code           String?
+    code           String?        @unique
     nameFi         String?        @map("name_fi")
     nameSv         String?        @map("name_sv")
     nameEn         String?        @map("name_en")
     municipalities Municipality[]
 
-    @@index([code], map: "country_code_key", unique: true)
     @@map("country")
   }
 
@@ -208,7 +206,7 @@ namespace public {
     type                   pg.enum(LarpType)              @default("ONE_SHOT")
     language               pg.enum(Language)
     tagline                String?
-    alias                  String?
+    alias                  String?                        @unique
 
     locationText           String?                        @map("location_text")
     municipalityId         String?                        @map("municipality_id")
@@ -242,7 +240,6 @@ namespace public {
     requests               ModerationRequest[]
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
 
-    @@index([alias], map: "larp_alias_key", unique: true)
     @@map("larp")
   }
 
@@ -299,7 +296,7 @@ namespace public {
     submitterId        Uuid?                  @map("submitter_id")
     submitterRole      pg.enum(SubmitterRole) @default("NONE") @map("submitter_role")
 
-    verificationCode   Uuid?                  @default(dbgenerated("gen_random_uuid()")) @map("verification_code")
+    verificationCode   Uuid?                  @unique @default(dbgenerated("gen_random_uuid()")) @map("verification_code")
     verifiedAt         TimestamptzString?     @map("verified_at")
 
     newContent         Jsonb                  @default(dbgenerated("'{}'::jsonb")) @map("new_content")
@@ -318,7 +315,6 @@ namespace public {
     resolvedBy         User?                  @relation("RequestsResolvedByUser", fields:[resolvedById], references:[id], onDelete: SetNull, index: false)
     submitter          User?                  @relation("RequestsSubmittedByUser", fields:[submitterId], references:[id], onDelete: SetNull, index: false)
 
-    @@index([verificationCode], map: "moderation_request_verification_code_key", unique: true)
     @@map("moderation_request")
   }
 
@@ -341,7 +337,7 @@ namespace public {
     email            String
     signupStatus     pg.enum(RelatedUserRole)       @map("signup_status")
     visibility       pg.enum(RelatedUserVisibility)
-    verificationCode String                         @map("verification_code")
+    verificationCode String                         @unique @map("verification_code")
     verifiedAt       TimestamptzString?             @map("verified_at")
     createdAt        TimestamptzString              @default(now()) @map("created_at")
     updatedAt        temporal.updatedAtString()     @map("updated_at")
@@ -353,7 +349,6 @@ namespace public {
     @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: "(verified_at IS NOT NULL)", unique: true)
     @@check(expression: "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))", map: "unauthenticated_signup_signup_status_check")
     @@check(expression: "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))", map: "unauthenticated_signup_visibility_check")
-    @@index([verificationCode], map: "unauthenticated_signup_verification_code_key", unique: true)
     @@map("unauthenticated_signup")
   }
 

@@ -80,13 +80,19 @@ export async function syncFromLarppikuvat({
   const root = RootAlbum.parse(await response.json());
   const origin = new URL(apiUrl).origin;
 
-  const syncUsers = db.orm.public.User.select("id", "name", "email", "role");
-  const user =
-    (await syncUsers.first({ email: "yhteys@larppikuvat.fi" })) ??
-    (await syncUsers.create({
+  const user = await db.orm.public.User.select(
+    "id",
+    "name",
+    "email",
+    "role",
+  ).upsert({
+    create: {
       email: "yhteys@larppikuvat.fi",
       name: "Larppikuvat.fi ylläpito",
-    }));
+    },
+    update: {},
+    conflictOn: { email: "yhteys@larppikuvat.fi" },
+  });
 
   const result: SyncResult = {
     added: 0,

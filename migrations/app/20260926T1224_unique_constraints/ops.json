@@ -1,0 +1,407 @@
+[
+  {
+    "id": "dropIndex.country.country_code_key",
+    "label": "Drop index \"country_code_key\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "country_code_key",
+        "table": "country"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"country_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"country_code_key\"",
+        "sql": "DROP INDEX \"public\".\"country_code_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"country_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"country_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.larp.larp_alias_key",
+    "label": "Drop index \"larp_alias_key\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "larp_alias_key",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"larp_alias_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_alias_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"larp_alias_key\"",
+        "sql": "DROP INDEX \"public\".\"larp_alias_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"larp_alias_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_alias_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.moderation_request.moderation_request_verification_code_key",
+    "label": "Drop index \"moderation_request_verification_code_key\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "moderation_request_verification_code_key",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"moderation_request_verification_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request_verification_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"moderation_request_verification_code_key\"",
+        "sql": "DROP INDEX \"public\".\"moderation_request_verification_code_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"moderation_request_verification_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"moderation_request_verification_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.unauthenticated_signup.unauthenticated_signup_verification_code_key",
+    "label": "Drop index \"unauthenticated_signup_verification_code_key\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "unauthenticated_signup_verification_code_key",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"unauthenticated_signup_verification_code_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_verification_code_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"unauthenticated_signup_verification_code_key\"",
+        "sql": "DROP INDEX \"public\".\"unauthenticated_signup_verification_code_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"unauthenticated_signup_verification_code_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"unauthenticated_signup_verification_code_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "dropIndex.user.user_email_key",
+    "label": "Drop index \"user_email_key\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "user_email_key",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"user_email_key\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user_email_key\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop index \"user_email_key\"",
+        "sql": "DROP INDEX \"public\".\"user_email_key\"",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"user_email_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"user_email_key\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.country.country_code_key",
+    "label": "Add unique constraint on \"country\" (code)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "country_code_key",
+        "table": "country"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"country_code_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "country_code_key",
+          "public",
+          "\"public\".\"country\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"country_code_key\"",
+        "sql": "ALTER TABLE \"public\".\"country\" ADD CONSTRAINT \"country_code_key\" UNIQUE (\"code\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"country_code_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "country_code_key",
+          "public",
+          "\"public\".\"country\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.larp.larp_alias_key",
+    "label": "Add unique constraint on \"larp\" (alias)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "larp_alias_key",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"larp_alias_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_alias_key",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"larp_alias_key\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ADD CONSTRAINT \"larp_alias_key\" UNIQUE (\"alias\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"larp_alias_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_alias_key",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.moderation_request.moderation_request_verification_code_key",
+    "label": "Add unique constraint on \"moderation_request\" (verification_code)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "moderation_request_verification_code_key",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"moderation_request_verification_code_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_verification_code_key",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"moderation_request_verification_code_key\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ADD CONSTRAINT \"moderation_request_verification_code_key\" UNIQUE (\"verification_code\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"moderation_request_verification_code_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "moderation_request_verification_code_key",
+          "public",
+          "\"public\".\"moderation_request\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.unauthenticated_signup.unauthenticated_signup_verification_code_key",
+    "label": "Add unique constraint on \"unauthenticated_signup\" (verification_code)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "unauthenticated_signup_verification_code_key",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"unauthenticated_signup_verification_code_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "unauthenticated_signup_verification_code_key",
+          "public",
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"unauthenticated_signup_verification_code_key\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\" ADD CONSTRAINT \"unauthenticated_signup_verification_code_key\" UNIQUE (\"verification_code\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"unauthenticated_signup_verification_code_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "unauthenticated_signup_verification_code_key",
+          "public",
+          "\"public\".\"unauthenticated_signup\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.user.user_email_key",
+    "label": "Add unique constraint on \"user\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "user_email_key",
+        "table": "user"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"user_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "user_email_key",
+          "public",
+          "\"public\".\"user\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"user_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"user\" ADD CONSTRAINT \"user_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"user_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "user_email_key",
+          "public",
+          "\"public\".\"user\""
+        ]
+      }
+    ]
+  }
+]

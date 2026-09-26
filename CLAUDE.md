@@ -46,6 +46,8 @@ npm run db:verify           # Check that the database matches the contract
 
 - Contract source: `src/prisma/contract.prisma`. After editing, `prisma contract emit` regenerates `contract.json` + `contract.d.ts` (committed, never hand-edited).
 - Queries: `db.orm.public.<Model>` from `src/prisma/db.ts`. Enum values come from `src/prisma/enums.ts`, row types from `src/prisma/models.ts`. Raw SQL goes through the `sql` tag and `query`/`execute` in `src/prisma/sql.ts` (parameters become `$n` placeholders), or `pool.query` for hand-built statements. Use raw SQL for aggregate queries (COUNT, SUM, etc.) rather than fetching and counting in JS; note that `pg` returns bigint aggregates as strings.
+- Unique fields are real constraints, so `upsert({ conflictOn: { email } })` works for them; the
+  two partial unique indexes on `unauthenticated_signup` are not targetable that way.
 - Timestamps: the ORM reads and writes `timestamptz` columns as ISO strings. The app works with `Date`, so pass rows through `parseDates` when reading and `formatDates`/`iso` when writing (`src/prisma/dates.ts`). Every timestamp column is listed there by field name.
 - The ORM cannot order with `NULLS LAST` or by a field of an included relation; sort in JS (`compareNullsLast`) or page ids in SQL, as `src/app/api/larp/route.ts` does.
 - Migrations are TypeScript packages under `migrations/app/`; `ops.json` is compiled by running the migration file (`node migrations/app/<dir>/migration.ts`), never edited by hand. `migration plan` chains from the `db` ref (`migrations/app/refs/db.json`), which `db:migrate:dev` advances.
