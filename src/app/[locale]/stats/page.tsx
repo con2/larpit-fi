@@ -27,20 +27,21 @@ const sinceFilters: SinceFilter[] = [
   "LAUNCH",
 ];
 
-function getCutoffDate(since: SinceFilter): Date {
+/** First day included, as an ISO date. */
+function getCutoffDate(since: SinceFilter): string {
   const now = new Date();
   switch (since) {
     case "LAST_10_YEARS": {
       const year = now.getFullYear() - 10;
-      return new Date(`${year}-01-01`);
+      return `${year}-01-01`;
     }
     case "POST_COVID":
-      return new Date("2022-01-01");
+      return "2022-01-01";
     case "LAUNCH":
-      return new Date("2026-01-01");
+      return "2026-01-01";
     case "ALL_TIME":
     default:
-      return new Date("1960-01-01");
+      return "1960-01-01";
   }
 }
 
@@ -174,7 +175,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       municipality m
       join larp l on l.municipality_id = m.id
     where
-      l.starts_at >= ${cutoff}
+      l.starts_at >= ${cutoff}::date
       and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
       and l.cancelled_at is null
     group by m.id, m.name_fi
@@ -207,8 +208,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const yearRows = await query<YearRow>(sql`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
-        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date))
       ) as year
     )
     select
@@ -258,7 +259,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       month_range mr
       left join larp l on
         extract(month from l.starts_at) = mr.month
-        and l.starts_at >= ${cutoff}
+        and l.starts_at >= ${cutoff}::date
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
         and l.cancelled_at is null
     group by mr.month
@@ -301,7 +302,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       week_range wr
       left join larp l on
         extract(week from l.starts_at) = wr.week
-        and l.starts_at >= ${cutoff}
+        and l.starts_at >= ${cutoff}::date
         and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
         and l.cancelled_at is null
     group by wr.week
@@ -342,7 +343,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     from
       larp l
     where
-      (l.starts_at >= ${cutoff} or ${since === "ALL_TIME"}::boolean and l.starts_at is null)
+      (l.starts_at >= ${cutoff}::date or ${since === "ALL_TIME"}::boolean and l.starts_at is null)
     group by l.type
     having count(l.id) > 0
     order by count desc, l.type asc
@@ -376,7 +377,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     where
       l.language is not null
       and l.type in ('ONE_SHOT', 'CAMPAIGN_LARP')
-      and l.starts_at >= ${cutoff}
+      and l.starts_at >= ${cutoff}::date
     group by l.language
     having count(l.id) > 0
     order by count desc, l.language asc
@@ -406,8 +407,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const playersRows = await query<PlayersRow>(sql`
     with year_range as (
       select generate_series(
-        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff} and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
-        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}))
+        (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
+        least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date))
       ) as year
     ),
     normalized_data_points as (
@@ -421,7 +422,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         end as num_total_participants
       from larp
       where
-        starts_at >= ${cutoff}
+        starts_at >= ${cutoff}::date
         and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
         and cancelled_at is null
     )

@@ -1,4 +1,4 @@
-import { fromMorningNull } from "@con2/components/helpers";
+import { toISODateNull } from "@con2/components/helpers";
 import { publicUrl } from "@/config";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
@@ -67,8 +67,8 @@ export function ensureLocation(
 
 export async function findExistingLarpsForFillIn(
   name: string,
-  startsAt: Date | null,
-  endsAt: Date | null,
+  startsAt: string | null,
+  endsAt: string | null,
 ): Promise<Larp[]> {
   const rows = await query<{ id: string }>(sql`
     select
@@ -84,8 +84,8 @@ export async function findExistingLarpsForFillIn(
       -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
       -- null end date means one-day larp (end = start)
       and starts_at is not null
-      and starts_at::date <= coalesce(${endsAt}::timestamptz::date, ${startsAt}::timestamptz::date)
-      and ${startsAt}::timestamptz::date <= coalesce(ends_at, starts_at)::date
+      and starts_at <= coalesce(${endsAt}::date, ${startsAt}::date)
+      and ${startsAt}::date <= coalesce(ends_at, starts_at)
   `);
   if (rows.length === 0) return [];
 
@@ -151,8 +151,8 @@ export async function createLarpOrFillInMissingDetails(
 ): Promise<ImportAction> {
   const existingLarps = await findExistingLarpsForFillIn(
     content.name,
-    fromMorningNull(content.startsAt),
-    fromMorningNull(content.endsAt),
+    toISODateNull(content.startsAt),
+    toISODateNull(content.endsAt),
   );
 
   if (existingLarps.length === 0) {

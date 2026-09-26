@@ -362,7 +362,7 @@
               "endsAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-string@1",
+                  "codecId": "pg/date-string@1",
                   "kind": "scalar"
                 }
               },
@@ -465,21 +465,21 @@
               "signupEndsAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-string@1",
+                  "codecId": "pg/date-string@1",
                   "kind": "scalar"
                 }
               },
               "signupStartsAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-string@1",
+                  "codecId": "pg/date-string@1",
                   "kind": "scalar"
                 }
               },
               "startsAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-string@1",
+                  "codecId": "pg/date-string@1",
                   "kind": "scalar"
                 }
               },
@@ -2123,8 +2123,8 @@
                   "nullable": true
                 },
                 "ends_at": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
                   "nullable": true
                 },
                 "fluff_text": {
@@ -2232,18 +2232,18 @@
                   }
                 },
                 "signup_ends_at": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
                   "nullable": true
                 },
                 "signup_starts_at": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
                   "nullable": true
                 },
                 "starts_at": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "codecId": "pg/date-string@1",
+                  "nativeType": "date",
                   "nullable": true
                 },
                 "tagline": {
@@ -3331,7 +3331,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "148d0fef1f054eba6f3396ba6adc560a1843ab85b3df6fa4662ab5351d291ad1"
+    "storageHash": "155b6d561e265f7b59c949ff40ee03b5eeecd2555fb939a30b8a63dc3135c913"
   },
   "execution": {
     "executionHash": "56b350f491dc29464dea6ae619c7c248112e4629dcc6b8fa3ed0541d183a749a",

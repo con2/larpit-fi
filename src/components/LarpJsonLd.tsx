@@ -31,8 +31,8 @@ function larpToJsonLd(larp: LarpJsonLdInput) {
     url: getLarpUrl(larp),
     name: larp.name,
     ...(larp.tagline && { description: larp.tagline }),
-    ...(larp.startsAt && { startDate: larp.startsAt.toISOString() }),
-    ...(larp.endsAt && { endDate: larp.endsAt.toISOString() }),
+    ...(larp.startsAt && { startDate: larp.startsAt }),
+    ...(larp.endsAt && { endDate: larp.endsAt }),
     ...((larp.locationText || larp.municipality?.nameFi) && {
       location: {
         "@type": "Place",

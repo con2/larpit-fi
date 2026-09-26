@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "test:integration": "prisma contract emit && vitest run --config vitest.integration.config.ts",
     "email:dev": "npx email dev -d src/emails -p 3159",
     "contract:emit": "prisma contract emit",

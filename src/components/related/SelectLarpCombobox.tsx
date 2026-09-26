@@ -25,9 +25,10 @@ function formatDateRange(
 ): string {
   if (!startsAt) return "";
   const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  if (!endsAt || endsAt === startsAt) return fmt.format(new Date(startsAt));
-  const start = new Date(startsAt);
-  const end = new Date(endsAt);
+  // Local midnight, so the day never shifts when formatted in the browser's zone.
+  const start = new Date(`${startsAt}T00:00:00`);
+  if (!endsAt || endsAt === startsAt) return fmt.format(start);
+  const end = new Date(`${endsAt}T00:00:00`);
   if (start.getFullYear() === end.getFullYear()) {
     return fmt.formatRange(start, end);
   }

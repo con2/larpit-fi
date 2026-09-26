@@ -76,7 +76,7 @@ function groupLarpsByYear<Row extends LarpRow>(
       groupKey = "no-date";
       groupTitle = yearHeaders.noDate;
     } else {
-      const year = larp.startsAt.getFullYear();
+      const year = parseInt(larp.startsAt.slice(0, 4), 10);
       if (year === currentYear) {
         const endDate = ensureEndsAt(larp);
         const isFuture = endDate && endDate >= now;

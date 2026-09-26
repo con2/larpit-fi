@@ -1,17 +1,14 @@
 /**
  * Prisma 8 reads and writes timestamptz columns as ISO 8601 strings. The rest of the app works
  * with `Date`, so rows cross this boundary on the way in (`parseDates`) and out (`formatDates`).
- * Fields are recognized by name; every timestamp column in the contract is listed here.
+ * Fields are recognized by name; every timestamp column in the contract is listed here. Date
+ * columns (the larp dates, holidays) stay `YYYY-MM-DD` strings on both sides.
  */
 const timestampFields = new Set([
   "createdAt",
   "updatedAt",
   "emailVerified",
   "expires",
-  "startsAt",
-  "endsAt",
-  "signupStartsAt",
-  "signupEndsAt",
   "cancelledAt",
   "resolvedAt",
   "verifiedAt",
@@ -30,10 +27,6 @@ type TimestampField =
   | "updatedAt"
   | "emailVerified"
   | "expires"
-  | "startsAt"
-  | "endsAt"
-  | "signupStartsAt"
-  | "signupEndsAt"
   | "cancelledAt"
   | "resolvedAt"
   | "verifiedAt";

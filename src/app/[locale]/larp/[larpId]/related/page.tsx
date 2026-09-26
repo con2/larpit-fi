@@ -198,11 +198,7 @@ export default async function RelatedLarpsPage({
                 name="rightId"
                 className="mb-4"
                 title={t.actions.add.attributes.relatedLarp}
-                larps={larps.map((l) => ({
-                  ...l,
-                  startsAt: l.startsAt?.toISOString() ?? null,
-                  endsAt: l.endsAt?.toISOString() ?? null,
-                }))}
+                larps={larps}
                 locale={locale}
                 larpTypeChoices={larpTypeChoices}
                 defaultValue={resolvedSearchParams.rightId}

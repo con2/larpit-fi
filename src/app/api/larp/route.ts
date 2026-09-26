@@ -8,27 +8,30 @@ import { larpToApi } from "./helpers";
 
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 
+const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+
 /**
- * Cursor is base64url-encoded JSON: { s: number | null, i: string }
- * s = startsAt as unix timestamp in seconds (null if unset)
+ * Cursor is base64url-encoded JSON: { s: string | null, i: string }
+ * s = startsAt as an ISO date (null if unset)
  * i = larp id (UUID)
  *
  * The sort order is startsAt DESC NULLS LAST, id ASC, so the cursor
  * encodes the position of the last returned item in that order.
  */
-function encodeCursor(startsAt: Date | null, id: string): string {
-  const s = startsAt !== null ? Math.floor(startsAt.getTime() / 1000) : null;
-  return Buffer.from(JSON.stringify({ s, i: id })).toString("base64url");
+function encodeCursor(startsAt: string | null, id: string): string {
+  return Buffer.from(JSON.stringify({ s: startsAt, i: id })).toString(
+    "base64url",
+  );
 }
 
 function decodeCursor(
   cursor: string,
-): { startsAt: Date | null; id: string } | null {
+): { startsAt: string | null; id: string } | null {
   try {
     const { s, i } = JSON.parse(Buffer.from(cursor, "base64url").toString());
     if (typeof i !== "string" || !uuidValidate(i)) return null;
-    if (s !== null && !Number.isInteger(s)) return null;
-    return { startsAt: s !== null ? new Date(s * 1000) : null, id: i };
+    if (s !== null && !(typeof s === "string" && isoDate.test(s))) return null;
+    return { startsAt: s, id: i };
   } catch {
     return null;
   }
@@ -41,7 +44,7 @@ function decodeCursor(
  */
 async function pageOfLarpIds(
   updatedAfter: Date | undefined,
-  cursor: { startsAt: Date | null; id: string } | undefined,
+  cursor: { startsAt: string | null; id: string } | undefined,
   limit: number | undefined,
 ): Promise<string[]> {
   const params: unknown[] = [];
@@ -57,7 +60,7 @@ async function pageOfLarpIds(
 
   if (cursor) {
     if (cursor.startsAt !== null) {
-      const startsAt = param(iso(cursor.startsAt));
+      const startsAt = param(cursor.startsAt);
       conditions.push(
         `(starts_at < ${startsAt} or (starts_at = ${startsAt} and id > ${param(cursor.id)}) or starts_at is null)`,
       );
@@ -153,7 +156,7 @@ export async function GET(request: Request) {
     limit = parsed;
   }
 
-  let cursor: { startsAt: Date | null; id: string } | undefined;
+  let cursor: { startsAt: string | null; id: string } | undefined;
   if (afterParam !== null) {
     const decoded = decodeCursor(afterParam);
     if (!decoded) {

@@ -1,0 +1,186 @@
+[
+  {
+    "id": "alterType.larp.ends_at",
+    "label": "Alter type of \"larp\".\"ends_at\" to date",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "ends_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"ends_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "ends_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"ends_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"ends_at\" TYPE date USING (\"ends_at\" at time zone 'Europe/Helsinki')::date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"ends_at\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "ends_at",
+          "date"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.signup_ends_at",
+    "label": "Alter type of \"larp\".\"signup_ends_at\" to date",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "signup_ends_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"signup_ends_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_ends_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"signup_ends_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"signup_ends_at\" TYPE date USING (\"signup_ends_at\" at time zone 'Europe/Helsinki')::date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"signup_ends_at\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_ends_at",
+          "date"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.signup_starts_at",
+    "label": "Alter type of \"larp\".\"signup_starts_at\" to date",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "signup_starts_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"signup_starts_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_starts_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"signup_starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"signup_starts_at\" TYPE date USING (\"signup_starts_at\" at time zone 'Europe/Helsinki')::date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"signup_starts_at\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "signup_starts_at",
+          "date"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  },
+  {
+    "id": "alterType.larp.starts_at",
+    "label": "Alter type of \"larp\".\"starts_at\" to date",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "starts_at",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"starts_at\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "starts_at"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "alter type of \"starts_at\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"starts_at\" TYPE date USING (\"starts_at\" at time zone 'Europe/Helsinki')::date"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"starts_at\" has type \"date\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "starts_at",
+          "date"
+        ]
+      }
+    ],
+    "meta": {
+      "warning": "TABLE_REWRITE"
+    }
+  }
+]

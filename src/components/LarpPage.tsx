@@ -3,6 +3,7 @@ import { featureFlags } from "@/config";
 import { EditStatus, LocalSignupStatus, RelatedUserRole } from "@/prisma/enums";
 import type { LarpLink } from "@/prisma/models";
 import { ensureLocation } from "@/models/Larp";
+import { signupEndsAt, signupStartsAt } from "@/models/Larp.client";
 import {
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
@@ -168,14 +169,15 @@ function LarpInfoCard({
   // ending on the larp's start date.
   if (larp.signupStartsAt || larp.signupEndsAt) {
     const now = new Date();
-    const signupEffectiveEnd = larp.signupEndsAt ?? larp.startsAt;
+    const opensAt = signupStartsAt(larp);
+    const closesAt = signupEndsAt(larp);
     const signupChoices = t.attributes.signupStatus.choices;
 
     let signupStatusLabel: ReactNode;
     let signupInProgress = false;
-    if (larp.signupStartsAt && now < larp.signupStartsAt) {
+    if (opensAt && now < opensAt) {
       signupStatusLabel = signupChoices.upcoming;
-    } else if (signupEffectiveEnd && now > signupEffectiveEnd) {
+    } else if (closesAt && now > closesAt) {
       signupStatusLabel = signupChoices.closed;
     } else {
       signupStatusLabel = signupChoices.inProgress;

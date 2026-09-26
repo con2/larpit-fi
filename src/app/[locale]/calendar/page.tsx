@@ -4,7 +4,7 @@ import { toSupportedLanguage } from "@/i18n/locales";
 import { getLarpHref } from "@/models/Larp.client";
 import { and, or } from "@prisma/orm-postgres/orm-client";
 
-import { iso, parseDates } from "@/prisma/dates";
+import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
@@ -25,8 +25,6 @@ interface MonthRow {
   year: number;
   month: number;
 }
-
-const midnight = Temporal.PlainTime.from({ hour: 0, minute: 0, second: 0 });
 
 // A known Monday used only for deriving weekday header names
 const REFERENCE_MONDAY = Temporal.PlainDate.from("2024-01-01");
@@ -94,24 +92,12 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   // Grid always ends on the Sunday on or after the last day
   const gridEnd = monthLastDay.add({ days: 7 - monthLastDay.dayOfWeek });
 
-  const gridStartDate = new Date(
-    gridStart
-      .toZonedDateTime({ timeZone: timezone, plainTime: midnight })
-      .toInstant().epochMilliseconds,
-  );
-  const gridEndDate = new Date(
-    gridEnd
-      .add({ days: 1 })
-      .toZonedDateTime({ timeZone: timezone, plainTime: midnight })
-      .toInstant().epochMilliseconds,
-  );
-
   const [larpRows, monthRows, holidays] = await Promise.all([
-    db.orm.public.Larp.where((l) => l.startsAt.lt(iso(gridEndDate)))
+    db.orm.public.Larp.where((l) => l.startsAt.lte(toISODate(gridEnd)))
       .where((l) =>
         or(
-          l.endsAt.gte(iso(gridStartDate)),
-          and(l.endsAt.isNull(), l.startsAt.gte(iso(gridStartDate))),
+          l.endsAt.gte(toISODate(gridStart)),
+          and(l.endsAt.isNull(), l.startsAt.gte(toISODate(gridStart))),
         ),
       )
       .orderBy((l) => l.startsAt.asc())
@@ -119,8 +105,8 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       .all(),
     query<MonthRow>(sql`
       select
-        extract(year from starts_at at time zone ${timezone})::int as year,
-        extract(month from starts_at at time zone ${timezone})::int as month
+        extract(year from starts_at)::int as year,
+        extract(month from starts_at)::int as month
       from larp
       where starts_at is not null
       group by year, month
@@ -133,19 +119,13 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const larps = parseDates(larpRows);
   type LarpRow = (typeof larps)[number];
 
-  // Group larps by day in Helsinki timezone; multi-day larps appear on every day [startDate, endDate]
+  // Group larps by day; multi-day larps appear on every day [startDate, endDate]
   const larpsOnDay = new Map<string, LarpRow[]>();
   for (const larp of larps) {
     if (!larp.startsAt) continue;
-    const startDate = Temporal.Instant.fromEpochMilliseconds(
-      larp.startsAt.getTime(),
-    )
-      .toZonedDateTimeISO(timezone)
-      .toPlainDate();
+    const startDate = Temporal.PlainDate.from(larp.startsAt);
     const endDate = larp.endsAt
-      ? Temporal.Instant.fromEpochMilliseconds(larp.endsAt.getTime())
-          .toZonedDateTimeISO(timezone)
-          .toPlainDate()
+      ? Temporal.PlainDate.from(larp.endsAt)
       : startDate;
     for (
       let date = startDate;

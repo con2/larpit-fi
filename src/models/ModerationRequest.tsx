@@ -1,7 +1,5 @@
 import {
-  fromEveningNull,
-  fromJustBeforeMidnightNull,
-  fromMorningNull,
+  toISODateNull,
   toPlainDateNull,
   zPlainDateNull,
 } from "@con2/components/helpers";
@@ -212,10 +210,10 @@ export function contentToLarp(content: ModerationRequestContent) {
   return {
     ...rest,
     municipalityId: municipality,
-    startsAt: fromMorningNull(startsAt),
-    endsAt: fromEveningNull(endsAt),
-    signupStartsAt: fromEveningNull(signupStartsAt),
-    signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt),
+    startsAt: toISODateNull(startsAt),
+    endsAt: toISODateNull(endsAt),
+    signupStartsAt: toISODateNull(signupStartsAt),
+    signupEndsAt: toISODateNull(signupEndsAt),
     cancelledAt: isCancelled ? new Date() : null,
   };
 }
@@ -236,13 +234,13 @@ export function partialContentToLarp(
   return {
     ...rest,
     ...(municipality !== undefined ? { municipalityId: municipality } : {}),
-    ...(startsAt !== undefined ? { startsAt: fromMorningNull(startsAt) } : {}),
-    ...(endsAt !== undefined ? { endsAt: fromEveningNull(endsAt) } : {}),
+    ...(startsAt !== undefined ? { startsAt: toISODateNull(startsAt) } : {}),
+    ...(endsAt !== undefined ? { endsAt: toISODateNull(endsAt) } : {}),
     ...(signupStartsAt !== undefined
-      ? { signupStartsAt: fromEveningNull(signupStartsAt) }
+      ? { signupStartsAt: toISODateNull(signupStartsAt) }
       : {}),
     ...(signupEndsAt !== undefined
-      ? { signupEndsAt: fromJustBeforeMidnightNull(signupEndsAt) }
+      ? { signupEndsAt: toISODateNull(signupEndsAt) }
       : {}),
     ...(isCancelled !== undefined
       ? { cancelledAt: isCancelled ? new Date() : null }

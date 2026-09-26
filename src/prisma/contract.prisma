@@ -219,10 +219,10 @@ namespace public {
 
     updatedAt              temporal.updatedAtString()     @map("updated_at")
 
-    startsAt               TimestamptzString?             @map("starts_at")
-    endsAt                 TimestamptzString?             @map("ends_at")
-    signupStartsAt         TimestamptzString?             @map("signup_starts_at")
-    signupEndsAt           TimestamptzString?             @map("signup_ends_at")
+    startsAt               DateString?                    @map("starts_at")
+    endsAt                 DateString?                    @map("ends_at")
+    signupStartsAt         DateString?                    @map("signup_starts_at")
+    signupEndsAt           DateString?                    @map("signup_ends_at")
     openness               pg.enum(Openness)?
 
     localSignupStatus      pg.enum(LocalSignupStatus)     @default("DISABLED") @map("local_signup_status")
