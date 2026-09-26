@@ -32,13 +32,13 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
   const t = translations.Preferences;
 
   const session = await auth();
-  const user = session?.user?.email
+  const user = session?.user?.id
     ? await db.orm.public.User.select(
         "id",
         "name",
         "email",
         "editFormPreference",
-      ).first({ email: session.user.email })
+      ).first({ id: session.user.id })
     : null;
   if (!user) {
     return (

@@ -1,9 +1,6 @@
 import { auth } from "@/auth";
-import {
-  LogoutLink,
-  PrivacyPolicyLink,
-  ProfileLink,
-} from "@/components/LoginLink";
+import { PrivacyPolicyLink, ProfileLink } from "@/components/ExternalLinks";
+import { LogoutLink } from "@/components/LoginLink";
 import MainHeading from "@/components/MainHeading";
 import { getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";

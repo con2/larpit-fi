@@ -6,3 +6,5 @@ import contractJson from "./contract.json" with { type: "json" };
 
 /** Module-level singleton for the process lifetime; shares its connection pool with raw SQL. */
 export const db = postgres<Contract>({ contractJson, pg: pool });
+
+export type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];

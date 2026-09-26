@@ -65,6 +65,10 @@ export function ensureLocation(
   return null;
 }
 
+// Strips a run indicator such as " (2. pelautus)" from a larp name. Kept as a string parameter
+// because the sql tag cooks backslash escapes out of the template text.
+const runIndicatorPattern = String.raw`\s*\(\d+\..*\)$`;
+
 export async function findExistingLarpsForFillIn(
   name: string,
   startsAt: string | null,
@@ -79,8 +83,8 @@ export async function findExistingLarpsForFillIn(
       -- only consider actual larps
       type in ('ONE_SHOT', 'CAMPAIGN_LARP')
       -- strip run indicator like "(1. pelautus)" then normalize to letters and numbers only
-      and regexp_replace(lower(regexp_replace(name, '\s*\(\d+\..*\)$', '')), '[^a-z0-9]', '', 'g')
-        = regexp_replace(lower(regexp_replace(${name}, '\s*\(\d+\..*\)$', '')), '[^a-z0-9]', '', 'g')
+      and regexp_replace(lower(regexp_replace(name, ${runIndicatorPattern}, '')), '[^a-z0-9]', '', 'g')
+        = regexp_replace(lower(regexp_replace(${name}, ${runIndicatorPattern}, '')), '[^a-z0-9]', '', 'g')
       -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
       -- null end date means one-day larp (end = start)
       and starts_at is not null

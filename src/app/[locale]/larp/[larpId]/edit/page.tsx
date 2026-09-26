@@ -50,14 +50,14 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
 
   const session = await auth();
   const [user, larpRow] = await Promise.all([
-    session?.user?.email
+    session?.user?.id
       ? db.orm.public.User.select(
           "id",
           "name",
           "role",
           "email",
           "editFormPreference",
-        ).first({ email: session.user.email })
+        ).first({ id: session.user.id })
       : null,
     db.orm.public.Larp.include("links")
       .include("relatedUsers", (r) =>

@@ -23,7 +23,7 @@ export async function deleteLarp(
     throw new Error("You must be logged in to delete a larp");
   }
 
-  const status = await getDeleteLarpInitialStatusForUser(user);
+  const status = getDeleteLarpInitialStatusForUser(user);
   if (status === null) {
     throw new Error(
       "You do not have permission to make a deletion request for this larp",
@@ -48,7 +48,7 @@ export async function deleteLarp(
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.DELETE,
     larpId: larp.id,
-    status,
+    status: EditStatus.VERIFIED,
     submitterId: user.id,
     submitterName,
     submitterEmail,

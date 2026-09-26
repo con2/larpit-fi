@@ -7,7 +7,8 @@ import {
   FormSelect,
   FormText,
 } from "react-bootstrap";
-import LoginLink, { LogoutLink, ProfileLink } from "./LoginLink";
+import { ProfileLink } from "./ExternalLinks";
+import LoginLink, { LogoutLink } from "./LoginLink";
 import type { Translations } from "@/translations/en";
 import { SubmitterRole } from "@/prisma/enums";
 

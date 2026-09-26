@@ -1,5 +1,5 @@
 import { Card, CardBody, CardTitle, FormCheck } from "react-bootstrap";
-import { PrivacyPolicyLink } from "./LoginLink";
+import { PrivacyPolicyLink } from "./ExternalLinks";
 import type { Translations } from "@/translations/en";
 
 interface Props {

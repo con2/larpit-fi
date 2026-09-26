@@ -1,7 +1,7 @@
 import { and, or } from "@prisma/orm-postgres/orm-client";
 import z from "zod";
 
-import { db } from "@/prisma/db";
+import type { Tx } from "@/prisma/db";
 import { RelatedLarpType } from "@/prisma/enums";
 
 const zRelatedLarpType = z.enum(RelatedLarpType);
@@ -23,31 +23,24 @@ export const RelatedLarpRemovable = z.object({
 export type RelatedLarpRemovable = z.infer<typeof RelatedLarpRemovable>;
 
 export async function handleRelatedLarps(
+  tx: Tx,
   add: RelatedLarpAddable[],
   remove: RelatedLarpRemovable[],
 ) {
-  const promises: Promise<unknown>[] = [];
+  if (remove.length > 0) {
+    await tx.orm.public.RelatedLarp.where((r) =>
+      or(
+        ...remove.map(({ leftId, rightId }) =>
+          and(r.leftId.eq(leftId), r.rightId.eq(rightId)),
+        ),
+      ),
+    ).deleteAndCount();
+  }
 
   for (const { leftId, rightId, type } of add) {
-    promises.push(
-      db.orm.public.RelatedLarp.upsert({
-        create: { leftId, rightId, type },
-        update: { type },
-      }),
-    );
+    await tx.orm.public.RelatedLarp.upsert({
+      create: { leftId, rightId, type },
+      update: { type },
+    });
   }
-
-  if (remove.length > 0) {
-    promises.push(
-      db.orm.public.RelatedLarp.where((r) =>
-        or(
-          ...remove.map(({ leftId, rightId }) =>
-            and(r.leftId.eq(leftId), r.rightId.eq(rightId)),
-          ),
-        ),
-      ).deleteAndCount(),
-    );
-  }
-
-  await Promise.all(promises);
 }

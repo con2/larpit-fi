@@ -27,12 +27,14 @@ interface KompassiProfile {
   sub: string;
   name?: string;
   email?: string;
+  email_verified?: boolean;
 }
 
 /**
  * Finds the larpit.fi user for a Kompassi identity, creating the user and the account link on
  * first sign-in. An account row (provider + subject) is the authoritative link; a user without
- * one is matched by email, which is how the earlier database-session setup linked them.
+ * one for this subject is matched by email, which the signIn callback has required Kompassi to
+ * have verified.
  */
 async function resolveUser(profile: KompassiProfile): Promise<string> {
   const account = await db.orm.public.Account.first({
@@ -102,6 +104,10 @@ const config: NextAuthConfig = {
     },
   },
   callbacks: {
+    // Users are matched to Kompassi identities by email, so an unverified email must not sign in.
+    signIn({ profile }) {
+      return (profile as KompassiProfile | undefined)?.email_verified === true;
+    },
     async jwt({ token, account, profile }) {
       if (account && profile) {
         if (typeof account.expires_at === "number") {

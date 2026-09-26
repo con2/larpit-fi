@@ -87,7 +87,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.UPDATE,
     larpId: larp.id,
-    status,
+    status: EditStatus.VERIFIED,
     submitterId: user.id,
     submitterName,
     submitterEmail,

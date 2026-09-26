@@ -56,7 +56,8 @@ export async function createLarp(
 
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.CREATE,
-    status,
+    status:
+      status === EditStatus.PENDING_VERIFICATION ? status : EditStatus.VERIFIED,
     submitterId: user?.id ?? null,
     submitterName,
     submitterEmail,

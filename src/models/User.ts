@@ -128,11 +128,11 @@ export async function findAccountRemovalToken(userId: string, token: string) {
 }
 
 export async function getUserFromSession(
-  session: { user?: { email?: string | null } | null } | null | undefined,
+  session: { user?: { id?: string | null } | null } | null | undefined,
 ) {
-  return session?.user?.email
+  return session?.user?.id
     ? await db.orm.public.User.select("id", "role", "name", "email").first({
-        email: session.user.email,
+        id: session.user.id,
       })
     : null;
 }

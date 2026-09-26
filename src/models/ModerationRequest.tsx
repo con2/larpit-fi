@@ -12,7 +12,7 @@ import VerifyRequest, {
   verifyRequestText,
 } from "@/emails/VerifyRequest";
 import { formatDates, iso } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { db, type Tx } from "@/prisma/db";
 import {
   EditAction,
   EditStatus,
@@ -25,7 +25,6 @@ import {
   UserRole,
 } from "@/prisma/enums";
 import type { Larp, ModerationRequest, User } from "@/prisma/models";
-import { execute, sql } from "@/prisma/sql";
 import { toSupportedLanguage } from "@/translations";
 import {
   handleLarpLinks,
@@ -50,6 +49,10 @@ export const zOpenness = z.preprocess(
   z.enum(Openness).nullable().default(null),
 );
 export const zSubmitterRole = z.enum(SubmitterRole);
+const zCountNull = z.preprocess(
+  (value) => (value === "" ? null : value),
+  z.coerce.number().int().nonnegative().nullable().default(null),
+);
 export const zLanguage = z.enum(Language).default(Language.fi);
 
 export const ModerationRequestContent = z.object({
@@ -67,8 +70,8 @@ export const ModerationRequestContent = z.object({
     z.string().max(20).nullable().default(null),
   ),
 
-  numPlayerCharacters: z.coerce.number().nullable().default(null),
-  numTotalParticipants: z.coerce.number().nullable().default(null),
+  numPlayerCharacters: zCountNull,
+  numTotalParticipants: zCountNull,
 
   startsAt: zPlainDateNull,
   endsAt: zPlainDateNull,
@@ -113,7 +116,7 @@ export async function approveRequest(
   } else if (request.action === EditAction.UPDATE) {
     return approveUpdateLarpRequest(request, resolvedBy, reason, newStatus);
   } else if (request.action === EditAction.DELETE) {
-    return approveDeleteLarpRequest(request, resolvedBy, reason, newStatus);
+    return approveDeleteLarpRequest(request);
   } else {
     throw new Error(`Not implemented yet: ${request.action}`);
   }
@@ -248,7 +251,16 @@ export function partialContentToLarp(
   };
 }
 
+function assertApprovable(request: Pick<ModerationRequest, "id" | "status">) {
+  if (request.status !== EditStatus.VERIFIED) {
+    throw new Error(
+      `Request ${request.id} cannot be approved from status ${request.status}`,
+    );
+  }
+}
+
 async function handleRequestSubmitter(
+  tx: Tx,
   action: EditAction,
   larpId: string,
   submitterId: string,
@@ -265,7 +277,7 @@ async function handleRequestSubmitter(
   }
 
   for (const role of roles) {
-    await db.orm.public.RelatedUser.upsert({
+    await tx.orm.public.RelatedUser.upsert({
       create: {
         larpId,
         userId: submitterId,
@@ -278,7 +290,7 @@ async function handleRequestSubmitter(
 
   // Verify the user if they are not yet verified
   // so that they may create further larps without pre-moderation
-  await db.orm.public.User.where({
+  await tx.orm.public.User.where({
     id: submitterId,
     role: UserRole.NOT_VERIFIED,
   }).updateAndCount({ role: UserRole.VERIFIED });
@@ -308,34 +320,43 @@ export async function approveCreateLarpRequest(
     throw new Error("A larp has already been created from this request.");
   }
 
+  assertApprovable(request);
+
   const content = ModerationRequestContent.parse(request.newContent);
   const data = contentToLarp(content);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
 
-  const larp = await db.orm.public.Larp.select("id").create(formatDates(data));
-
-  if (request.submitterId) {
-    await handleRequestSubmitter(
-      request.action,
-      larp.id,
-      request.submitterId,
-      request.submitterRole,
+  return db.transaction(async (tx) => {
+    const larp = await tx.orm.public.Larp.select("id").create(
+      formatDates(data),
     );
-  }
 
-  await handleLarpLinks(larp.id, addLinks, []);
-  await handleRequestStatusUpdate(
-    request.id,
-    larp.id,
-    newStatus,
-    resolvedBy,
-    reason,
-  );
+    if (request.submitterId) {
+      await handleRequestSubmitter(
+        tx,
+        request.action,
+        larp.id,
+        request.submitterId,
+        request.submitterRole,
+      );
+    }
 
-  return larp;
+    await handleLarpLinks(tx, larp.id, addLinks, []);
+    await handleRequestStatusUpdate(
+      tx,
+      request.id,
+      larp.id,
+      newStatus,
+      resolvedBy,
+      reason,
+    );
+
+    return larp;
+  });
 }
 
 async function handleRequestStatusUpdate(
+  tx: Tx,
   requestId: string,
   larpId: string,
   newStatus: "APPROVED" | "AUTO_APPROVED",
@@ -352,7 +373,7 @@ async function handleRequestStatusUpdate(
     resolvedMessage = reason;
   }
 
-  await db.orm.public.ModerationRequest.where({ id: requestId }).update({
+  await tx.orm.public.ModerationRequest.where({ id: requestId }).update({
     larpId,
     resolvedAt,
     resolvedById,
@@ -388,56 +409,58 @@ export async function approveUpdateLarpRequest(
     throw new Error(`Update larp request without larpId: ${request.id}`);
   }
 
+  assertApprovable(request);
+
   const content = parsePartialContent(request.newContent);
   const data = formatDates(partialContentToLarp(content));
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
   const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
-
-  const larp = await db.orm.public.Larp.select("id").first({
-    id: request.larpId,
-  });
-
-  if (!larp) {
-    throw new Error("Larp not found");
-  }
-
-  if (Object.keys(data).length > 0) {
-    await db.orm.public.Larp.where({ id: larp.id }).update(data);
-  }
-  await execute(sql`
-    update larp
-    set update_count = update_count + 1, updated_at = now()
-    where id = ${larp.id}
-  `);
-
-  if (request.submitterId) {
-    await handleRequestSubmitter(
-      request.action,
-      larp.id,
-      request.submitterId,
-      request.submitterRole,
-    );
-  }
-
-  await handleLarpLinks(larp.id, addLinks, removeLinks);
-
   const addRelatedLarps = z
     .array(RelatedLarpAddable)
     .parse(request.addRelatedLarps);
   const removeRelatedLarps = z
     .array(RelatedLarpRemovable)
     .parse(request.removeRelatedLarps);
-  await handleRelatedLarps(addRelatedLarps, removeRelatedLarps);
+  const larpId = request.larpId;
 
-  await handleRequestStatusUpdate(
-    request.id,
-    larp.id,
-    newStatus,
-    resolvedBy,
-    reason,
-  );
+  return db.transaction(async (tx) => {
+    const larp = await tx.orm.public.Larp.select("id", "updateCount").first({
+      id: larpId,
+    });
 
-  return larp;
+    if (!larp) {
+      throw new Error("Larp not found");
+    }
+
+    await tx.orm.public.Larp.where({ id: larp.id }).update({
+      ...data,
+      updateCount: larp.updateCount + 1,
+    });
+
+    if (request.submitterId) {
+      await handleRequestSubmitter(
+        tx,
+        request.action,
+        larp.id,
+        request.submitterId,
+        request.submitterRole,
+      );
+    }
+
+    await handleLarpLinks(tx, larp.id, addLinks, removeLinks);
+    await handleRelatedLarps(tx, addRelatedLarps, removeRelatedLarps);
+
+    await handleRequestStatusUpdate(
+      tx,
+      request.id,
+      larp.id,
+      newStatus,
+      resolvedBy,
+      reason,
+    );
+
+    return { id: larp.id };
+  });
 }
 
 export async function rejectRequest(
@@ -461,10 +484,7 @@ export async function rejectRequest(
 }
 
 export async function approveDeleteLarpRequest(
-  request: Pick<ModerationRequest, "id" | "action" | "larpId">,
-  resolvedBy: Pick<User, "id" | "role">,
-  reason: string | null,
-  newStatus: "APPROVED" | "AUTO_APPROVED",
+  request: Pick<ModerationRequest, "id" | "action" | "status" | "larpId">,
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.DELETE) {
     throw new Error(`Not a delete larp request: ${request.id}`);
@@ -474,16 +494,11 @@ export async function approveDeleteLarpRequest(
     throw new Error(`Delete larp request without larpId: ${request.id}`);
   }
 
+  assertApprovable(request);
+
   const larpId = request.larpId;
 
-  // Update request status BEFORE deleting larp (cascade would delete it otherwise)
-  await handleRequestStatusUpdate(
-    request.id,
-    larpId,
-    newStatus,
-    resolvedBy,
-    reason,
-  );
+  // The request row cascades away with the larp, taking the resolution with it.
   await db.orm.public.Larp.where({ id: larpId }).delete();
 
   return { id: larpId };

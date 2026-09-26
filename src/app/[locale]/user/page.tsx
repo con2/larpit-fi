@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { SubtlePrivacyPolicyLink } from "@/components/LoginLink";
+import { SubtlePrivacyPolicyLink } from "@/components/ExternalLinks";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import MainHeading from "@/components/MainHeading";
 import { canModerate, getUserFromSession } from "@/models/User";

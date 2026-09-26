@@ -32,7 +32,7 @@ export async function resolveRequest(
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     throw new Error("Login required");
   }
 
@@ -58,6 +58,10 @@ export async function resolveRequest(
     getDeleteLarpInitialStatusForUser(actor) !== EditStatus.APPROVED
   ) {
     throw new Error("Only admins can approve deletion requests");
+  }
+
+  if (request.status !== EditStatus.VERIFIED) {
+    throw new Error(`Request cannot be resolved from status ${request.status}`);
   }
 
   const resolveRequest = ResolveRequest.parse(
@@ -89,8 +93,8 @@ export async function resolveRequest(
 
     case Resolution.REJECTED:
       await rejectRequest(request, actor, resolveRequest.reason || null);
-      revalidatePath(`/${locale}/moderation/${request.id}`);
-      revalidatePath(`/${locale}/moderation`);
+      revalidatePath(`/${locale}/moderate/${request.id}`);
+      revalidatePath(`/${locale}/moderate`);
       return void redirect(`/moderate`);
   }
 }
@@ -101,7 +105,7 @@ export async function markChecked(
   formData: FormData,
 ) {
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     throw new Error("Login required");
   }
 
@@ -120,6 +124,10 @@ export async function markChecked(
 
   if (!canModerate(actor)) {
     throw new Error("Insufficient privileges");
+  }
+
+  if (request.status !== EditStatus.AUTO_APPROVED) {
+    throw new Error(`Request cannot be checked from status ${request.status}`);
   }
 
   const markChecked = MarkCheckedRequest.parse(

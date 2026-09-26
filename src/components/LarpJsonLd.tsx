@@ -57,7 +57,9 @@ export default function LarpJsonLd({ larp }: { larp: LarpJsonLdInput }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(larpToJsonLd(larp)) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(larpToJsonLd(larp)).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }

@@ -255,7 +255,7 @@ describe("ModerationRequest integration tests", () => {
       newContent: {},
     });
 
-    await approveDeleteLarpRequest(request, user, "Duplicate page", "APPROVED");
+    await approveDeleteLarpRequest(request);
 
     const deletedLarp = await db.orm.public.Larp.first({ id: larp.id });
     expect(deletedLarp).toBeNull();
@@ -298,7 +298,7 @@ describe("ModerationRequest integration tests", () => {
       newContent: {},
     });
 
-    await approveDeleteLarpRequest(deleteRequest, user, null, "APPROVED");
+    await approveDeleteLarpRequest(deleteRequest);
 
     const remainingRequests = await db.orm.public.ModerationRequest.where({
       larpId: larp.id,
@@ -481,6 +481,83 @@ describe("ModerationRequest integration tests", () => {
     );
     const larp = await db.orm.public.Larp.first({ id: result.id });
     expect(larp?.updateCount).toBe(0);
+  });
+
+  it("approveUpdateLarpRequest refuses a request that is already approved", async () => {
+    const user = await db.orm.public.User.create(testUser);
+    const larp = await db.orm.public.Larp.create({
+      name: "Original Name",
+      language: Language.fi,
+    });
+    const request = await db.orm.public.ModerationRequest.create({
+      action: EditAction.UPDATE,
+      larpId: larp.id,
+      status: EditStatus.VERIFIED,
+      submitterName: user.name!,
+      submitterEmail: user.email,
+      submitterRole: SubmitterRole.NONE,
+      newContent: { name: "New Name" },
+      addLinks: [
+        { type: LarpLinkType.PHOTOS, href: "https://photos.example.com" },
+      ],
+    });
+
+    await approveUpdateLarpRequest(request, user, null, "APPROVED");
+    const approved = (await db.orm.public.ModerationRequest.first({
+      id: request.id,
+    }))!;
+
+    await expect(
+      approveUpdateLarpRequest(approved, user, null, "APPROVED"),
+    ).rejects.toThrow(/cannot be approved/);
+
+    const updated = await db.orm.public.Larp.include("links").first({
+      id: larp.id,
+    });
+    expect(updated?.updateCount).toBe(1);
+    expect(updated?.links).toHaveLength(1);
+  });
+
+  it("approveUpdateLarpRequest rolls back the larp update when a later step fails", async () => {
+    const user = await db.orm.public.User.create(testUser);
+    const larp = await db.orm.public.Larp.create({
+      name: "Original Name",
+      language: Language.fi,
+    });
+    const request = await db.orm.public.ModerationRequest.create({
+      action: EditAction.UPDATE,
+      larpId: larp.id,
+      status: EditStatus.VERIFIED,
+      submitterName: user.name!,
+      submitterEmail: user.email,
+      submitterRole: SubmitterRole.NONE,
+      newContent: { name: "New Name" },
+      addLinks: [
+        { type: LarpLinkType.PHOTOS, href: "https://photos.example.com" },
+      ],
+      addRelatedLarps: [
+        {
+          leftId: larp.id,
+          rightId: "00000000-0000-4000-8000-000000000000",
+          type: RelatedLarpType.RERUN_OF,
+        },
+      ],
+    });
+
+    await expect(
+      approveUpdateLarpRequest(request, user, null, "APPROVED"),
+    ).rejects.toThrow();
+
+    const unchanged = await db.orm.public.Larp.include("links").first({
+      id: larp.id,
+    });
+    expect(unchanged?.name).toBe("Original Name");
+    expect(unchanged?.updateCount).toBe(0);
+    expect(unchanged?.links).toHaveLength(0);
+    const untouched = await db.orm.public.ModerationRequest.first({
+      id: request.id,
+    });
+    expect(untouched?.status).toBe(EditStatus.VERIFIED);
   });
 
   it("rejectRequest sets status to REJECTED with reason", async () => {

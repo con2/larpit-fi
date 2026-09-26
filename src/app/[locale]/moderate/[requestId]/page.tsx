@@ -72,9 +72,9 @@ export default async function ModerationRequestPage({ params }: Props) {
         l.include("relatedUsers", (r) => r.select("userId", "role")),
       )
       .first({ id: requestId }),
-    session?.user?.email
+    session?.user?.id
       ? db.orm.public.User.select("id", "role").first({
-          email: session.user.email,
+          id: session.user.id,
         })
       : null,
   ]);

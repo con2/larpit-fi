@@ -142,7 +142,7 @@ export async function syncFromLarppikuvat({
 
     const request = await db.orm.public.ModerationRequest.create({
       action: EditAction.UPDATE,
-      status: EditStatus.APPROVED,
+      status: EditStatus.VERIFIED,
       larpId: larp.id,
       submitterId: user.id,
       submitterName: user.name || "",

@@ -3,7 +3,7 @@ import z from "zod";
 
 import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
 import { iso } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import type { Tx } from "@/prisma/db";
 import { LarpLinkType } from "@/prisma/enums";
 
 const zLarpLinkType = z.enum(LarpLinkType);
@@ -75,6 +75,7 @@ export function diffLarpLinks(
 }
 
 export async function handleLarpLinks(
+  tx: Tx,
   larpId: string,
   addLinks: LarpLinkUpsertable[],
   removeLinks: LarpLinkRemovable[],
@@ -84,47 +85,45 @@ export async function handleLarpLinks(
   }
 
   // Title-only edits produce the same (type, href) in both addLinks and
-  // removeLinks. Sequence delete-then-create in a transaction so that an
-  // earlier-completing insert cannot be wiped by the subsequent delete
-  // (whose WHERE matches by type+href, not title).
-  await db.transaction(async (tx) => {
-    if (removeLinks.length > 0) {
-      await tx.orm.public.LarpLink.where({ larpId })
-        .where((l) =>
-          or(
-            ...removeLinks.map(({ href, type }) =>
-              and(l.href.eq(href), l.type.eq(type)),
-            ),
+  // removeLinks. Sequence delete-then-create so that an earlier-completing
+  // insert cannot be wiped by the subsequent delete (whose WHERE matches by
+  // type+href, not title).
+  if (removeLinks.length > 0) {
+    await tx.orm.public.LarpLink.where({ larpId })
+      .where((l) =>
+        or(
+          ...removeLinks.map(({ href, type }) =>
+            and(l.href.eq(href), l.type.eq(type)),
           ),
-        )
-        .deleteAndCount();
-    }
+        ),
+      )
+      .deleteAndCount();
+  }
 
-    if (addLinks.length > 0) {
-      await tx.orm.public.LarpLink.createAndCount(
-        addLinks.map(({ type, href, title: providedTitle }) => {
-          href = href.trim();
+  if (addLinks.length > 0) {
+    await tx.orm.public.LarpLink.createAndCount(
+      addLinks.map(({ type, href, title: providedTitle }) => {
+        href = href.trim();
 
-          const title =
-            providedTitle?.trim() ||
-            (type === LarpLinkType.SOCIAL_MEDIA
-              ? socialMediaLinkTitleFromHref(href)
-              : null);
+        const title =
+          providedTitle?.trim() ||
+          (type === LarpLinkType.SOCIAL_MEDIA
+            ? socialMediaLinkTitleFromHref(href)
+            : null);
 
-          return {
-            larpId,
-            type,
-            href,
-            title,
-          };
-        }),
-      );
-    }
+        return {
+          larpId,
+          type,
+          href,
+          title,
+        };
+      }),
+    );
+  }
 
-    // API consumers polling with updatedAfter need to see link changes, and
-    // updatedAt only moves on writes to the larp row itself.
-    await tx.orm.public.Larp.where({ id: larpId }).update({
-      updatedAt: iso(new Date()),
-    });
+  // API consumers polling with updatedAfter need to see link changes, and
+  // updatedAt only moves on writes to the larp row itself.
+  await tx.orm.public.Larp.where({ id: larpId }).update({
+    updatedAt: iso(new Date()),
   });
 }

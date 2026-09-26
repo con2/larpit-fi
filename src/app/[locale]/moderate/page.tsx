@@ -31,7 +31,7 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   const t = translations.ModerationRequest;
 
   const session = await auth();
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     return (
       <Container>
         <LoginRequiredCard messages={translations.LoginRequired} />
@@ -40,7 +40,7 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   }
 
   const user = await db.orm.public.User.select("id", "role").first({
-    email: session.user.email,
+    id: session.user.id,
   });
   if (!canModerate(user)) {
     return (

@@ -96,7 +96,7 @@ export async function addRelatedLarp(
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.UPDATE,
     larpId,
-    status,
+    status: EditStatus.VERIFIED,
     submitterId: user.id,
     submitterName,
     submitterEmail,
@@ -178,7 +178,7 @@ export async function removeRelatedLarp(
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.UPDATE,
     larpId: larp.id,
-    status,
+    status: EditStatus.VERIFIED,
     submitterId: user.id,
     submitterName,
     submitterEmail,

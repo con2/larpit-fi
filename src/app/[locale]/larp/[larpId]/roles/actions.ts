@@ -64,7 +64,10 @@ export async function removeUnauthenticatedSignup(
     throw new Error("Insufficient permissions");
   }
 
-  await db.orm.public.UnauthenticatedSignup.where({ id: signupId }).delete();
+  await db.orm.public.UnauthenticatedSignup.where({
+    id: signupId,
+    larpId,
+  }).delete();
 
   revalidatePath(`/${locale}/larp/${larpId}/roles`);
   redirect(`/${locale}/larp/${larpId}/roles`);

@@ -31,10 +31,13 @@ describe("handleLarpLinks", () => {
     const longAgo = new Date("2020-01-01T00:00:00Z");
     const larp = await createLarpUpdatedAt(longAgo);
 
-    await handleLarpLinks(
-      larp.id,
-      [{ type: LarpLinkType.PHOTOS, href: "https://larppikuvat.fi/test" }],
-      [],
+    await db.transaction((tx) =>
+      handleLarpLinks(
+        tx,
+        larp.id,
+        [{ type: LarpLinkType.PHOTOS, href: "https://larppikuvat.fi/test" }],
+        [],
+      ),
     );
 
     const updated = parseDates(
@@ -47,7 +50,7 @@ describe("handleLarpLinks", () => {
     const longAgo = new Date("2020-01-01T00:00:00Z");
     const larp = await createLarpUpdatedAt(longAgo);
 
-    await handleLarpLinks(larp.id, [], []);
+    await db.transaction((tx) => handleLarpLinks(tx, larp.id, [], []));
 
     const unchanged = parseDates(
       (await db.orm.public.Larp.first({ id: larp.id }))!,
