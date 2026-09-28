@@ -9,6 +9,8 @@ export const timezone = "Europe/Helsinki";
 export const privacyPolicyUrl = "https://tracon.fi/tietosuoja/larpit-fi";
 
 export const databaseUrl = process.env.DATABASE_URL || "postgresql:///";
+/** Streaming replica for public read paths; unset means those reads go to the primary. */
+export const databaseReplicaUrl = process.env.DATABASE_URL_REPLICA || undefined;
 
 // kompassi SSO
 export const kompassiBaseUrl =

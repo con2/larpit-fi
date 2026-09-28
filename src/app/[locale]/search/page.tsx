@@ -1,8 +1,8 @@
 import LarpCard from "@/components/LarpCard";
 import MainHeading from "@/components/MainHeading";
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
-import { query, sql } from "@/prisma/sql";
+import { dbRead } from "@/prisma/db";
+import { queryRead, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import Container from "react-bootstrap/Container";
 
@@ -20,7 +20,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   // TODO index for search
   // https://github.com/prisma/prisma/issues/8950
   const matchingLarpIds = search
-    ? await query<{ id: string }>(sql`
+    ? await queryRead<{ id: string }>(sql`
         select id from larp
         where to_tsvector('finnish', name) @@ phraseto_tsquery('finnish', ${search})
       `)
@@ -28,7 +28,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const larps =
     matchingLarpIds.length > 0
       ? parseDates(
-          await db.orm.public.Larp.where((l) =>
+          await dbRead.orm.public.Larp.where((l) =>
             l.id.in(matchingLarpIds.map((m) => m.id)),
           )
             .include("municipality", (m) => m.select("nameFi"))

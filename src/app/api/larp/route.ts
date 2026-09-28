@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { validate as uuidValidate } from "uuid";
 
 import { iso, parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
-import { pool } from "@/prisma/pool";
+import { dbRead } from "@/prisma/db";
+import { readPool } from "@/prisma/pool";
 import { larpToApi } from "./helpers";
 
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
@@ -76,13 +76,13 @@ async function pageOfLarpIds(
     "order by starts_at desc nulls last, id asc",
     limit !== undefined ? `limit ${param(limit + 1)}` : "",
   ].join(" ");
-  const result = await pool.query<{ id: string }>(text, params);
+  const result = await readPool.query<{ id: string }>(text, params);
   return result.rows.map((row) => row.id);
 }
 
 /** Both directions of the relations touching the given larps, as stored. */
 async function relatedLarpsOf(ids: string[]) {
-  const rows = await db.orm.public.RelatedLarp.where((r) =>
+  const rows = await dbRead.orm.public.RelatedLarp.where((r) =>
     or(r.leftId.in(ids), r.rightId.in(ids)),
   ).all();
   const byLarp = new Map<string, typeof rows>();
@@ -99,7 +99,7 @@ async function loadLarps(
   includeLinks: boolean,
   includeRelatedLarps: boolean,
 ) {
-  const larps = db.orm.public.Larp.where((l) => l.id.in(ids))
+  const larps = dbRead.orm.public.Larp.where((l) => l.id.in(ids))
     .select(
       "id",
       "alias",

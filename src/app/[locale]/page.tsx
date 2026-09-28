@@ -8,7 +8,7 @@ import { frontPageSlug } from "@/models/Page";
 import { or } from "@prisma/orm-postgres/orm-client";
 
 import { iso, parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Markdown } from "@con2/components";
@@ -35,7 +35,7 @@ async function getHomePageLarps() {
   );
 
   return parseDates(
-    await db.orm.public.Larp.where((l) => l.startsAt.isNotNull())
+    await dbRead.orm.public.Larp.where((l) => l.startsAt.isNotNull())
       .where((l) =>
         or(l.cancelledAt.isNull(), l.cancelledAt.gte(iso(cancelledCutoff))),
       )
@@ -120,7 +120,7 @@ export default async function HomePage({ params }: Props) {
 
   const [larps, page, recentChanges] = await Promise.all([
     getHomePageLarps(),
-    db.orm.public.Page.first({ slug: frontPageSlug, language: locale }),
+    dbRead.orm.public.Page.first({ slug: frontPageSlug, language: locale }),
     getRecentChanges(),
   ]);
 

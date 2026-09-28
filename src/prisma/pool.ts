@@ -1,13 +1,14 @@
 import { Pool } from "pg";
 
-import { databaseUrl } from "@/config";
+import { databaseReplicaUrl, databaseUrl } from "@/config";
 
 declare global {
   var pgPool: Pool | undefined;
+  var pgReadPool: Pool | undefined;
 }
 
-function createPool(): Pool {
-  return new Pool({ connectionString: databaseUrl, max: 10 });
+function createPool(connectionString: string): Pool {
+  return new Pool({ connectionString, max: 10 });
 }
 
 /**
@@ -16,5 +17,16 @@ function createPool(): Pool {
  */
 export const pool: Pool =
   process.env.NODE_ENV === "production"
-    ? createPool()
-    : (globalThis.pgPool ??= createPool());
+    ? createPool(databaseUrl)
+    : (globalThis.pgPool ??= createPool(databaseUrl));
+
+/**
+ * Pool for reads that may trail the primary by replication lag: public pages and APIs whose
+ * data the current request did not just write. Without DATABASE_URL_REPLICA it is `pool`
+ * itself, so callers need not care whether a replica exists.
+ */
+export const readPool: Pool = databaseReplicaUrl
+  ? process.env.NODE_ENV === "production"
+    ? createPool(databaseReplicaUrl)
+    : (globalThis.pgReadPool ??= createPool(databaseReplicaUrl))
+  : pool;

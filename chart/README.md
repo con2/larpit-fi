@@ -44,7 +44,7 @@ tolerates unmanaged tables.
 ```sh
 kubectl create namespace larpit-production
 kubectl -n larpit-production create secret generic larpit \
-  --from-literal=DATABASE_URL='postgresql://larpit:...@siilo.tracon.fi/larpit?sslmode=verify-full' \
+  --from-literal=DATABASE_URL='postgresql://larpit:...@postgres-rw.postgres.svc.cluster.local:5432/larpit?sslmode=disable' \
   --from-literal=AUTH_SECRET="$(openssl rand -base64 32)" \
   --from-literal=KOMPASSI_OIDC_CLIENT_ID=... \
   --from-literal=KOMPASSI_OIDC_CLIENT_SECRET=...
@@ -52,9 +52,21 @@ kubectl -n larpit-production create secret generic larpit \
 
 The Kompassi OIDC client must allow the redirect URI `https://<hostname>/api/auth/callback/kompassi`.
 
-Use `sslmode=verify-full`, not `require`. `pg` treats `require`, `prefer` and `verify-ca` as
-aliases for `verify-full` today and only warns about them, but a future major version will give
-them their libpq meaning, which skips hostname verification.
+The database is the shared CloudNativePG cluster on qb; the role, database and password come
+from `infrastructure/kubernetes/postgres/README.md`, and its `update-secret.sh` writes both
+`DATABASE_URL` and `DATABASE_URL_REPLICA` into this Secret. Connections stay on the pod network
+and use `sslmode=disable`, because the operator rotates its own CA and nothing on qb keeps a
+copy of it fresh in this namespace.
+
+`DATABASE_URL_REPLICA` is optional. When set, the public read paths (front page, larp pages,
+listing, calendar, search, stats, the public API) query it and everything else still uses
+`DATABASE_URL`; when unset, all queries go to `DATABASE_URL`. On qb it points at the
+`postgres-ro` service, which has only the streaming replicas behind it.
+
+For a database reached over the internet, use `sslmode=verify-full`, not `require`. `pg` treats
+`require`, `prefer` and `verify-ca` as aliases for `verify-full` today and only warns about
+them, but a future major version will give them their libpq meaning, which skips hostname
+verification.
 
 ## Field ownership after the adoption from kubectl
 

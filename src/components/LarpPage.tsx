@@ -12,7 +12,7 @@ import {
   isGmOrModerator,
 } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { db, dbRead } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import {
@@ -55,7 +55,7 @@ export function byStartsAt(
 export async function getLarpPageData(
   where: { id: string } | { alias: string },
 ) {
-  const larp = await db.orm.public.Larp.include("links")
+  const larp = await dbRead.orm.public.Larp.include("links")
     .include("relatedLarpsLeft", (r) =>
       r.include("right", (l) => l.select(...relatedLarpFields)),
     )

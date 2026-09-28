@@ -1,6 +1,6 @@
 import { EditAction } from "@/prisma/enums";
 import { getLarpHref } from "@/models/Larp";
-import { query, sql } from "@/prisma/sql";
+import { queryRead, sql } from "@/prisma/sql";
 import { FormattedDate } from "@con2/components";
 import Link from "next/link";
 import { CardBody, CardTitle, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -23,7 +23,7 @@ interface RecentChange {
 }
 
 export function getRecentChanges(limit: number = 12): Promise<RecentChange[]> {
-  return query<RecentChange>(sql`
+  return queryRead<RecentChange>(sql`
     select
       resolved_at as "resolvedAt",
       action,

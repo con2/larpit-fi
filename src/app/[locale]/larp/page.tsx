@@ -3,7 +3,7 @@ import MainHeading from "@/components/MainHeading";
 import { Language, LarpType } from "@/prisma/enums";
 import { compareDescNullsLast } from "@/helpers/sort";
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { DimensionFilters } from "@con2/components";
@@ -29,7 +29,7 @@ async function getData(
   languages: Language[],
   cancelled: "hide" | "show" | "only",
 ) {
-  let larps = db.orm.public.Larp.where((l) => l.type.in(types))
+  let larps = dbRead.orm.public.Larp.where((l) => l.type.in(types))
     .where((l) => l.language.in(languages))
     .include("municipality", (m) => m.select("nameFi"));
   if (cancelled === "hide") {
@@ -115,7 +115,7 @@ export default async function LarpListPage({ params, searchParams }: Props) {
 
   const [larps, totalCount] = await Promise.all([
     getData(types, languages, cancelled),
-    db.orm.public.Larp.aggregate((a) => ({ count: a.count() })).then(
+    dbRead.orm.public.Larp.aggregate((a) => ({ count: a.count() })).then(
       (r) => r.count,
     ),
   ]);

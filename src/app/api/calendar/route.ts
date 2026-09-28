@@ -2,7 +2,7 @@ import { publicUrl } from "@/config";
 import { getLarpHref } from "@/models/Larp.client";
 import { toPlainDate } from "@con2/components/helpers";
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 
 const encoder = new TextEncoder();
 
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   const prefix = cancelledPrefix[locale];
 
   const larps = parseDates(
-    await db.orm.public.Larp.where((l) => l.startsAt.isNotNull())
+    await dbRead.orm.public.Larp.where((l) => l.startsAt.isNotNull())
       .select(
         "id",
         "alias",

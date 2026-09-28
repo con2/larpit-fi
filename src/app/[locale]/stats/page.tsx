@@ -1,7 +1,7 @@
 import MainHeading from "@/components/MainHeading";
 import { Column, DataTable, DimensionFilters } from "@con2/components";
 import { Language, LarpType } from "@/prisma/enums";
-import { query, sql } from "@/prisma/sql";
+import { queryRead, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -166,7 +166,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const muniRows = await query<MuniRow>(sql`
+  const muniRows = await queryRead<MuniRow>(sql`
     select
       m.id as "municipalityId",
       m.name_fi as "municipalityName",
@@ -205,7 +205,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const yearRows = await query<YearRow>(sql`
+  const yearRows = await queryRead<YearRow>(sql`
     with year_range as (
       select generate_series(
         (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
@@ -248,7 +248,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const monthRows = await query<MonthRow>(sql`
+  const monthRows = await queryRead<MonthRow>(sql`
     with month_range as (
       select generate_series(1, 12) as month
     )
@@ -291,7 +291,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const weekRows = await query<WeekRow>(sql`
+  const weekRows = await queryRead<WeekRow>(sql`
     with week_range as (
       select generate_series(1, 53) as week
     )
@@ -336,7 +336,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const typeRows = await query<TypeRow>(sql`
+  const typeRows = await queryRead<TypeRow>(sql`
     select
       l.type as type,
       count(l.id) as count
@@ -368,7 +368,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     },
   ];
 
-  const languageRows = await query<LanguageRow>(sql`
+  const languageRows = await queryRead<LanguageRow>(sql`
     select
       l.language as language,
       count(l.id) as count
@@ -404,7 +404,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   // some larps have 0 for numTotalParticipants denoting unknown total participants
   // some larps have null for numTotalParticipants denoting unknown total participants
   // either way, default them to numPlayerCharacters for normalization
-  const playersRows = await query<PlayersRow>(sql`
+  const playersRows = await queryRead<PlayersRow>(sql`
     with year_range as (
       select generate_series(
         (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),

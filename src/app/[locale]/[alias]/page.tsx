@@ -1,5 +1,5 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -15,8 +15,8 @@ interface Props {
 async function getContent({ params }: Props) {
   const { alias, locale } = await params;
   const [larp, page] = await Promise.all([
-    db.orm.public.Larp.select("name", "tagline").first({ alias }),
-    db.orm.public.Page.select("title", "content").first({
+    dbRead.orm.public.Larp.select("name", "tagline").first({ alias }),
+    dbRead.orm.public.Page.select("title", "content").first({
       slug: alias,
       language: locale,
     }),

@@ -1,6 +1,6 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import { publicUrl } from "@/config";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -25,7 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  const larp = await db.orm.public.Larp.select("id", "name", "tagline").first({
+  const larp = await dbRead.orm.public.Larp.select(
+    "id",
+    "name",
+    "tagline",
+  ).first({
     id: larpId,
   });
   if (!larp) {

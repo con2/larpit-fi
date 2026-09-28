@@ -1,5 +1,5 @@
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { dbRead } from "@/prisma/db";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 import { validate as uuidValidate } from "uuid";
@@ -21,7 +21,7 @@ export async function GET(
     notFound();
   }
 
-  const larpRow = await db.orm.public.Larp.select(
+  const larpRow = await dbRead.orm.public.Larp.select(
     "id",
     "alias",
     "name",

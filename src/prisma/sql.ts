@@ -1,6 +1,6 @@
 import type { QueryResultRow } from "pg";
 
-import { pool } from "@/prisma/pool";
+import { pool, readPool } from "@/prisma/pool";
 
 export interface SqlQuery {
   text: string;
@@ -27,6 +27,14 @@ export async function query<Row extends QueryResultRow>(
   q: SqlQuery,
 ): Promise<Row[]> {
   const result = await pool.query<Row>(q.text, q.values);
+  return result.rows;
+}
+
+/** Like `query`, on the read replica; for public read paths that tolerate replication lag. */
+export async function queryRead<Row extends QueryResultRow>(
+  q: SqlQuery,
+): Promise<Row[]> {
+  const result = await readPool.query<Row>(q.text, q.values);
   return result.rows;
 }
 

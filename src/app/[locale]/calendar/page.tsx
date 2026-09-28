@@ -5,8 +5,8 @@ import { getLarpHref } from "@/models/Larp.client";
 import { and, or } from "@prisma/orm-postgres/orm-client";
 
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
-import { query, sql } from "@/prisma/sql";
+import { dbRead } from "@/prisma/db";
+import { queryRead, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import { MaybeExternalLink } from "@con2/components";
 import { toISODate } from "@con2/components/helpers";
@@ -93,7 +93,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const gridEnd = monthLastDay.add({ days: 7 - monthLastDay.dayOfWeek });
 
   const [larpRows, monthRows, holidays] = await Promise.all([
-    db.orm.public.Larp.where((l) => l.startsAt.lte(toISODate(gridEnd)))
+    dbRead.orm.public.Larp.where((l) => l.startsAt.lte(toISODate(gridEnd)))
       .where((l) =>
         or(
           l.endsAt.gte(toISODate(gridStart)),
@@ -103,7 +103,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       .orderBy((l) => l.startsAt.asc())
       .include("municipality", (m) => m.select("nameFi"))
       .all(),
-    query<MonthRow>(sql`
+    queryRead<MonthRow>(sql`
       select
         extract(year from starts_at)::int as year,
         extract(month from starts_at)::int as month
@@ -112,7 +112,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       group by year, month
       order by year desc, month desc
     `),
-    db.orm.public.Holiday.where((h) => h.date.gte(toISODate(gridStart)))
+    dbRead.orm.public.Holiday.where((h) => h.date.gte(toISODate(gridStart)))
       .where((h) => h.date.lte(toISODate(gridEnd)))
       .all(),
   ]);
