@@ -1,8 +1,9 @@
 # larpit Helm chart
 
 Deploys larpit.fi: a Next.js Deployment (with a Prisma migration init container), the hourly
-Larppikuvat.fi sync CronJob, a per-namespace Gateway with HTTPRoutes, and a cert-manager
-Certificate. `.github/workflows/cicd.yaml` runs `helm upgrade --install larpit chart` into
+Larppikuvat.fi sync CronJob, and a per-namespace Gateway with HTTPRoutes whose TLS certificate
+cert-manager issues from the Gateway's `cert-manager.io/cluster-issuer` annotation.
+`.github/workflows/cicd.yaml` runs `helm upgrade --install larpit chart` into
 `larpit-production` on every push to main.
 
 ## Images
