@@ -1,0 +1,170 @@
+[
+  {
+    "id": "setDefault.larp.id",
+    "label": "Set default on \"larp\".\"id\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"id\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ALTER COLUMN \"id\" SET DEFAULT (uuidv7())"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "id"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.larp_link.id",
+    "label": "Set default on \"larp_link\".\"id\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id",
+        "table": "larp_link"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp_link",
+          "id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"id\"",
+        "sql": "ALTER TABLE \"public\".\"larp_link\" ALTER COLUMN \"id\" SET DEFAULT (uuidv7())"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "larp_link",
+          "id"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.moderation_request.id",
+    "label": "Set default on \"moderation_request\".\"id\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"id\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ALTER COLUMN \"id\" SET DEFAULT (uuidv7())"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "id"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "setDefault.unauthenticated_signup.id",
+    "label": "Set default on \"unauthenticated_signup\".\"id\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "id",
+        "table": "unauthenticated_signup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "set default on \"id\"",
+        "sql": "ALTER TABLE \"public\".\"unauthenticated_signup\" ALTER COLUMN \"id\" SET DEFAULT (uuidv7())"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"id\" has a default",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"column_default\" IS NOT NULL)) AS \"result\"",
+        "params": [
+          "public",
+          "unauthenticated_signup",
+          "id"
+        ]
+      }
+    ]
+  }
+]

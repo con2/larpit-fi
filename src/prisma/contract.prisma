@@ -201,7 +201,7 @@ namespace public {
 
   model Larp {
     // createdAt is derived from the UUIDv7 id
-    id                     Uuid                           @id @default(uuid(7))
+    id                     Uuid                           @id @default(dbgenerated("uuidv7()"))
     name                   String
     type                   pg.enum(LarpType)              @default("ONE_SHOT")
     language               pg.enum(Language)
@@ -270,7 +270,7 @@ namespace public {
   }
 
   model LarpLink {
-    id     Uuid                  @id @default(uuid(7))
+    id     Uuid                  @id @default(dbgenerated("uuidv7()"))
     larpId Uuid                  @map("larp_id")
     type   pg.enum(LarpLinkType) @default("HOMEPAGE")
     href   String
@@ -282,7 +282,7 @@ namespace public {
   }
 
   model ModerationRequest {
-    id                 Uuid                   @id @default(uuid(7))
+    id                 Uuid                   @id @default(dbgenerated("uuidv7()"))
     larpId             Uuid?                  @map("larp_id")
     action             pg.enum(EditAction)
     status             pg.enum(EditStatus)
@@ -331,7 +331,7 @@ namespace public {
   }
 
   model UnauthenticatedSignup {
-    id               Uuid                           @id @default(uuid(7))
+    id               Uuid                           @id @default(dbgenerated("uuidv7()"))
     larpId           Uuid                           @map("larp_id")
     displayName      String                         @map("display_name")
     email            String

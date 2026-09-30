@@ -2134,6 +2134,10 @@
                 },
                 "id": {
                   "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
                   "nativeType": "uuid",
                   "nullable": false
                 },
@@ -2326,6 +2330,10 @@
                 },
                 "id": {
                   "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
                   "nativeType": "uuid",
                   "nullable": false
                 },
@@ -2421,6 +2429,10 @@
                 },
                 "id": {
                   "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
                   "nativeType": "uuid",
                   "nullable": false
                 },
@@ -2935,6 +2947,10 @@
                 },
                 "id": {
                   "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
                   "nativeType": "uuid",
                   "nullable": false
                 },
@@ -3331,10 +3347,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "155b6d561e265f7b59c949ff40ee03b5eeecd2555fb939a30b8a63dc3135c913"
+    "storageHash": "2649fd5db40ceb62378597393d934f718060b8821703bfc7f482e6b7e6d12a16"
   },
   "execution": {
-    "executionHash": "56b350f491dc29464dea6ae619c7c248112e4629dcc6b8fa3ed0541d183a749a",
+    "executionHash": "a50bd8fc3a7c1305595b7b555bae869d46e2e4f1961766754574ab217e5f46b5",
     "mutations": {
       "defaults": [
         {
@@ -3354,17 +3370,6 @@
         },
         {
           "onCreate": {
-            "id": "uuidv7",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "larp"
-          }
-        },
-        {
-          "onCreate": {
             "id": "timestampNow",
             "kind": "generator"
           },
@@ -3376,28 +3381,6 @@
             "column": "updated_at",
             "namespace": "public",
             "table": "larp"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv7",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "larp_link"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv7",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "moderation_request"
           }
         },
         {
@@ -3413,17 +3396,6 @@
             "column": "updated_at",
             "namespace": "public",
             "table": "page"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "uuidv7",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "unauthenticated_signup"
           }
         },
         {
