@@ -27,7 +27,7 @@
   "dependencies": {
     "@con2/components": "github:con2/components#v5.1.0",
     "@js-temporal/polyfill": "^0.5.1",
-    "@prisma/orm-postgres": "8.0.0-rc.9",
+    "@prisma/orm-postgres": "8.0.0-rc.18",
     "@types/diff": "^7.0.2",
     "bootstrap": "^5.3.8",
     "csv": "^6.6.4",
@@ -53,8 +53,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@prisma/cli-engine": "0.3.0",
-    "@prisma/orm-toolchain": "8.0.0-rc.9",
+    "@prisma/cli-engine": "0.7.0",
+    "@prisma/orm-toolchain": "8.0.0-rc.18",
     "@types/node": "^26.6.3",
     "@types/pg": "8.20.4",
     "@types/react": "^19",
@@ -67,7 +67,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.9",
-    "prisma": "8.0.0-rc.13",
+    "prisma": "8.0.0-rc.23",
     "sass": "^1.105.1",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",

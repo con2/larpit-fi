@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { Translations } from "@/translations/en";
 import type { LarpPageLarp } from "../LarpPage";
 import Link from "next/link";
@@ -15,12 +16,13 @@ export function LeftRelatedLarpComponent({
   messages: Translations["Larp"];
   children?: React.ReactNode;
 }) {
+  const right = required(relatedLarp.right);
   return (
     <div>
       {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
         relatedLarp.type}{" "}
-      <Link href={getLarpHref(relatedLarp.right)} className="link-subtle">
-        {relatedLarp.right?.name}
+      <Link href={getLarpHref(right)} className="link-subtle">
+        {right.name}
       </Link>
       {children}
     </div>
@@ -36,10 +38,11 @@ export function RightRelatedLarpComponent({
   messages: Translations["Larp"];
   children?: React.ReactNode;
 }) {
+  const left = required(relatedLarp.left);
   return (
     <div>
-      <Link href={getLarpHref(relatedLarp.left)} className="link-subtle">
-        {relatedLarp.left?.name}
+      <Link href={getLarpHref(left)} className="link-subtle">
+        {left.name}
       </Link>{" "}
       {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
         relatedLarp.type}

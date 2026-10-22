@@ -201,7 +201,7 @@ namespace public {
 
   model Larp {
     // createdAt is derived from the UUIDv7 id
-    id                     Uuid                           @id @default(dbgenerated("uuidv7()"))
+    id                     Uuid                           @id @default(sql`uuidv7()`)
     name                   String
     type                   pg.enum(LarpType)              @default("ONE_SHOT")
     language               pg.enum(Language)
@@ -270,7 +270,7 @@ namespace public {
   }
 
   model LarpLink {
-    id     Uuid                  @id @default(dbgenerated("uuidv7()"))
+    id     Uuid                  @id @default(sql`uuidv7()`)
     larpId Uuid                  @map("larp_id")
     type   pg.enum(LarpLinkType) @default("HOMEPAGE")
     href   String
@@ -282,7 +282,7 @@ namespace public {
   }
 
   model ModerationRequest {
-    id                 Uuid                   @id @default(dbgenerated("uuidv7()"))
+    id                 Uuid                   @id @default(sql`uuidv7()`)
     larpId             Uuid?                  @map("larp_id")
     action             pg.enum(EditAction)
     status             pg.enum(EditStatus)
@@ -296,16 +296,16 @@ namespace public {
     submitterId        Uuid?                  @map("submitter_id")
     submitterRole      pg.enum(SubmitterRole) @default("NONE") @map("submitter_role")
 
-    verificationCode   Uuid?                  @unique @default(dbgenerated("gen_random_uuid()")) @map("verification_code")
+    verificationCode   Uuid?                  @unique @default(sql`gen_random_uuid()`) @map("verification_code")
     verifiedAt         TimestamptzString?     @map("verified_at")
 
-    newContent         Jsonb                  @default(dbgenerated("'{}'::jsonb")) @map("new_content")
+    newContent         Jsonb                  @default(sql`'{}'::jsonb`) @map("new_content")
 
-    removeLinks        Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_links")
-    addLinks           Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_links")
+    removeLinks        Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_links")
+    addLinks           Jsonb                  @default(sql`'[]'::jsonb`) @map("add_links")
 
-    removeRelatedLarps Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_related_larps")
-    addRelatedLarps    Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_related_larps")
+    removeRelatedLarps Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_related_larps")
+    addRelatedLarps    Jsonb                  @default(sql`'[]'::jsonb`) @map("add_related_larps")
 
     message            String?
 
@@ -331,7 +331,7 @@ namespace public {
   }
 
   model UnauthenticatedSignup {
-    id               Uuid                           @id @default(dbgenerated("uuidv7()"))
+    id               Uuid                           @id @default(sql`uuidv7()`)
     larpId           Uuid                           @map("larp_id")
     displayName      String                         @map("display_name")
     email            String
@@ -345,10 +345,10 @@ namespace public {
     larp             Larp                           @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
 
     // At most one pending and one verified signup per email and larp.
-    @@index([larpId, email], map: "unauthenticated_signup_larp_email_pending_uidx", where: "(verified_at IS NULL)", unique: true)
-    @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: "(verified_at IS NOT NULL)", unique: true)
-    @@check(expression: "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))", map: "unauthenticated_signup_signup_status_check")
-    @@check(expression: "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))", map: "unauthenticated_signup_visibility_check")
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_pending_uidx", where: sql`(verified_at IS NULL)`, unique: true)
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: sql`(verified_at IS NOT NULL)`, unique: true)
+    @@check(expression: sql`(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::"RelatedUserRole", 'LOCAL_SIGNUP_MAYBE'::"RelatedUserRole", 'LOCAL_SIGNUP_NO'::"RelatedUserRole"]))`, map: "unauthenticated_signup_signup_status_check")
+    @@check(expression: sql`(visibility = ANY (ARRAY['PARTICIPANTS'::"RelatedUserVisibility", 'GM'::"RelatedUserVisibility"]))`, map: "unauthenticated_signup_visibility_check")
     @@map("unauthenticated_signup")
   }
 

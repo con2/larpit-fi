@@ -40,6 +40,28 @@ rather than mislabels a database that does not match. The deploy then applies ev
 after the baseline. Drop the leftover `_prisma_migrations` table whenever convenient; Prisma 8
 tolerates unmanaged tables.
 
+### Re-signing after a Prisma release that restamps the contract
+
+Some Prisma 8 release candidates change how a contract is stored without changing the schema it
+describes (rc.15 moved column types from `nativeType` to `dataType`). Every storage hash then
+changes: the snapshot directories are renamed and the migration graph is rewritten, but the
+database marker still names the old hash, which no longer exists in the graph, so `db migrate`
+has nowhere to start from. Sign the database at the current contract before the first build on
+the new release rolls out. Without a migration name `db sign` targets the current contract and,
+as above, verifies the live schema first:
+
+```sh
+kubectl -n larpit-production run larpit-sign --rm -it --restart=Never \
+  --image=ghcr.io/con2/larpit-fi:<short sha>-migrate \
+  --overrides='{"spec":{"containers":[{"name":"sign","image":"ghcr.io/con2/larpit-fi:<short sha>-migrate","command":["node","src/bin/migrate.mjs","db","sign"],"envFrom":[{"secretRef":{"name":"larpit"}}]}]}}'
+```
+
+The `<short sha>` must be the new build, since only its image carries the renamed graph. CI
+deploys on push, so the new Deployment's migrate init container fails until the database is
+signed; the previous pods keep serving meanwhile, and the rollout completes on its own once the
+init container succeeds on a restart. The rc.9 to rc.18 upgrade moved the marker from
+`2649fd5d…` to `25c665b2…`.
+
 ## Prerequisites per namespace
 
 ```sh

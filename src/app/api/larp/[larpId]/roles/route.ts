@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { auth } from "@/auth";
 import {
   getUserFromSession,
@@ -68,9 +69,10 @@ export async function GET(
     const isLocalSignupRole = (localSignupRoles as readonly string[]).includes(
       entry.role,
     );
+    const entryUser = required(entry.user);
     rows.push([
-      entry.user.name ?? "",
-      isLocalSignupRole ? (entry.user.email ?? "") : "",
+      entryUser.name ?? "",
+      isLocalSignupRole ? (entryUser.email ?? "") : "",
       entry.role,
       entry.visibility,
       entry.createdAt.toISOString(),
