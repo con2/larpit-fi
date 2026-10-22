@@ -44,6 +44,13 @@ spec:
             - containerPort: 3000
           envFrom:
             {{- include "larpit.envFrom" . | nindent 12 }}
+          {{- if .Values.databasePooled }}
+          env:
+            # An explicit env entry wins over envFrom. The migrate init container and the sync
+            # CronJob keep the direct DATABASE_URL: one short-lived process each gains nothing.
+            - name: DATABASE_URL
+              valueFrom: { secretKeyRef: { name: {{ include "larpit.secretName" . }}, key: DATABASE_URL_POOLED } }
+          {{- end }}
           resources:
             {{- toYaml .Values.resources.node | nindent 12 }}
           securityContext:

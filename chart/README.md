@@ -54,10 +54,17 @@ kubectl -n larpit-production create secret generic larpit \
 The Kompassi OIDC client must allow the redirect URI `https://<hostname>/api/auth/callback/kompassi`.
 
 The database is the shared CloudNativePG cluster on qb; the role, database and password come
-from `infrastructure/kubernetes/postgres/README.md`, and its `update-secret.sh` writes both
-`DATABASE_URL` and `DATABASE_URL_REPLICA` into this Secret. Connections stay on the pod network
-and use `sslmode=disable`, because the operator rotates its own CA and nothing on qb keeps a
-copy of it fresh in this namespace.
+from `infrastructure/kubernetes/postgres/README.md`, and its `update-secret.sh` writes
+`DATABASE_URL`, `DATABASE_URL_POOLED` and `DATABASE_URL_REPLICA` into this Secret. Connections
+stay on the pod network and use `sslmode=disable`, because the operator rotates its own CA and
+nothing on qb keeps a copy of it fresh in this namespace.
+
+With `databasePooled: true` (production) the Next.js server takes `DATABASE_URL_POOLED`, the
+PgBouncer pooler in transaction mode, as its `DATABASE_URL`. Its `pg.Pool` holds up to 10
+connections per process open while idle; through the pooler those cost the shared database
+nothing. The migrate init container and the sync CronJob keep the direct URL. Nothing here needs
+session state: Prisma's migration lock is `pg_advisory_xact_lock` and `pg` sends unnamed
+statements.
 
 `DATABASE_URL_REPLICA` is optional. When set, the public read paths (front page, larp pages,
 listing, calendar, search, stats, the public API) query it and everything else still uses

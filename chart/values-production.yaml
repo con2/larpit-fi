@@ -3,5 +3,6 @@ kompassi:
   baseUrl: https://kompassi.eu
 larppikuvatSync:
   enabled: true
+databasePooled: true
 # Secret `larpit` in namespace larpit-production is managed out of band.
 existingSecretName: larpit
