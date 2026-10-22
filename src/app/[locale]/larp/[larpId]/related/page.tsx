@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { auth } from "@/auth";
 import { byStartsAt, relatedLarpFields } from "@/components/LarpPage";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
@@ -92,9 +93,15 @@ export default async function RelatedLarpsPage({
   if (!larpRow) {
     notFound();
   }
-  larpRow.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
-  larpRow.relatedLarpsRight.sort((a, b) => byStartsAt(a.left, b.left));
-  const larp = parseDates(larpRow);
+  const larp = parseDates({
+    ...larpRow,
+    relatedLarpsLeft: larpRow.relatedLarpsLeft
+      .map((related) => ({ ...related, right: required(related.right) }))
+      .sort((a, b) => byStartsAt(a.right, b.right)),
+    relatedLarpsRight: larpRow.relatedLarpsRight
+      .map((related) => ({ ...related, left: required(related.left) }))
+      .sort((a, b) => byStartsAt(a.left, b.left)),
+  });
   const larps = parseDates(larpRows).sort(
     (a, b) =>
       a.name.localeCompare(b.name, "fi") ||

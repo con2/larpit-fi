@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { auth } from "@/auth";
 import { setOwnLarpRole } from "@/app/[locale]/larp/[larpId]/ownRoleActions";
 import { featureFlags, headerImagesEnabled } from "@/config";
@@ -100,9 +101,13 @@ export async function getLarpPageData(
     .include("headerImage")
     .first(where);
   if (!larp) return null;
-  larp.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
-  larp.relatedLarpsRight.sort((a, b) => byStartsAt(a.left, b.left));
-  return parseDates(larp);
+  const relatedLarpsLeft = larp.relatedLarpsLeft
+    .map((related) => ({ ...related, right: required(related.right) }))
+    .sort((a, b) => byStartsAt(a.right, b.right));
+  const relatedLarpsRight = larp.relatedLarpsRight
+    .map((related) => ({ ...related, left: required(related.left) }))
+    .sort((a, b) => byStartsAt(a.left, b.left));
+  return parseDates({ ...larp, relatedLarpsLeft, relatedLarpsRight });
 }
 
 export type LarpPageLarp = NonNullable<

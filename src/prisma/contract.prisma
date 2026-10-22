@@ -1,4 +1,4 @@
-// use prisma-next
+// use prisma-8
 namespace public {
   native_enum UserRole {
     NOT_VERIFIED = "NOT_VERIFIED"
@@ -124,7 +124,7 @@ namespace public {
   }
 
   model User {
-    id                      Uuid                        @id @default(uuid(4))
+    id                      Uuid                        @id @onCreate(uuid(4))
     name                    String?
     email                   String                      @unique
     // Set when the user first submits a request and verifies it. Independent of role:
@@ -133,7 +133,7 @@ namespace public {
     emailVerified           TimestamptzString?          @map("email_verified")
     image                   String?
     createdAt               TimestamptzString           @default(now()) @map("created_at")
-    updatedAt               temporal.updatedAtString()  @map("updated_at")
+    updatedAt               TimestamptzString   @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
     titleFi                 String?                     @map("title_fi")
     titleEn                 String?                     @map("title_en")
@@ -165,7 +165,7 @@ namespace public {
     sessionState      String?                    @map("session_state")
 
     createdAt         TimestamptzString          @default(now()) @map("created_at")
-    updatedAt         temporal.updatedAtString() @map("updated_at")
+    updatedAt         TimestamptzString  @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
     user              User                       @relation(fields:[userId], references:[id], onDelete: Cascade, index: false)
 
@@ -214,7 +214,7 @@ namespace public {
 
   model Larp {
     // createdAt is derived from the UUIDv7 id
-    id                     Uuid                           @id @default(dbgenerated("uuidv7()"))
+    id                     Uuid                           @id @default(sql`uuidv7()`)
     name                   String
     type                   pg.enum(LarpType)              @default("ONE_SHOT")
     language               pg.enum(Language)
@@ -230,7 +230,7 @@ namespace public {
     fluffText              String?                        @map("fluff_text")
     description            String?
 
-    updatedAt              temporal.updatedAtString()     @map("updated_at")
+    updatedAt              TimestamptzString      @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
     startsAt               DateString?                    @map("starts_at")
     endsAt                 DateString?                    @map("ends_at")
@@ -285,7 +285,7 @@ namespace public {
   }
 
   model LarpLink {
-    id     Uuid                  @id @default(dbgenerated("uuidv7()"))
+    id     Uuid                  @id @default(sql`uuidv7()`)
     larpId Uuid                  @map("larp_id")
     type   pg.enum(LarpLinkType) @default("HOMEPAGE")
     href   String
@@ -297,7 +297,7 @@ namespace public {
   }
 
   model ModerationRequest {
-    id                 Uuid                   @id @default(dbgenerated("uuidv7()"))
+    id                 Uuid                   @id @default(sql`uuidv7()`)
     larpId             Uuid?                  @map("larp_id")
     action             pg.enum(EditAction)
     status             pg.enum(EditStatus)
@@ -311,16 +311,16 @@ namespace public {
     submitterId        Uuid?                  @map("submitter_id")
     submitterRole      pg.enum(SubmitterRole) @default("NONE") @map("submitter_role")
 
-    verificationCode   Uuid?                  @unique @default(dbgenerated("gen_random_uuid()")) @map("verification_code")
+    verificationCode   Uuid?                  @unique @default(sql`gen_random_uuid()`) @map("verification_code")
     verifiedAt         TimestamptzString?     @map("verified_at")
 
-    newContent         Jsonb                  @default(dbgenerated("'{}'::jsonb")) @map("new_content")
+    newContent         Jsonb                  @default(sql`'{}'::jsonb`) @map("new_content")
 
-    removeLinks        Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_links")
-    addLinks           Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_links")
+    removeLinks        Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_links")
+    addLinks           Jsonb                  @default(sql`'[]'::jsonb`) @map("add_links")
 
-    removeRelatedLarps Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("remove_related_larps")
-    addRelatedLarps    Jsonb                  @default(dbgenerated("'[]'::jsonb")) @map("add_related_larps")
+    removeRelatedLarps Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_related_larps")
+    addRelatedLarps    Jsonb                  @default(sql`'[]'::jsonb`) @map("add_related_larps")
 
     message            String?
 
@@ -339,7 +339,7 @@ namespace public {
     title     String
     content   String
     createdAt TimestamptzString          @default(now()) @map("created_at")
-    updatedAt temporal.updatedAtString() @map("updated_at")
+    updatedAt TimestamptzString  @onCreate(now()) @onUpdate(now()) @map("updated_at")
     headerImageId Uuid?                  @map("header_image_id")
 
     headerImage HeaderImage?             @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
@@ -349,7 +349,7 @@ namespace public {
   }
 
   model UnauthenticatedSignup {
-    id               Uuid                           @id @default(dbgenerated("uuidv7()"))
+    id               Uuid                           @id @default(sql`uuidv7()`)
     larpId           Uuid                           @map("larp_id")
     displayName      String                         @map("display_name")
     email            String
@@ -358,20 +358,20 @@ namespace public {
     verificationCode String                         @unique @map("verification_code")
     verifiedAt       TimestamptzString?             @map("verified_at")
     createdAt        TimestamptzString              @default(now()) @map("created_at")
-    updatedAt        temporal.updatedAtString()     @map("updated_at")
+    updatedAt        TimestamptzString      @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
     larp             Larp                           @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
 
     // At most one pending and one verified signup per email and larp.
-    @@index([larpId, email], map: "unauthenticated_signup_larp_email_pending_uidx", where: "(verified_at IS NULL)", unique: true)
-    @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: "(verified_at IS NOT NULL)", unique: true)
-    @@check(expression: "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))", map: "unauthenticated_signup_signup_status_check")
-    @@check(expression: "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))", map: "unauthenticated_signup_visibility_check")
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_pending_uidx", where: sql`(verified_at IS NULL)`, unique: true)
+    @@index([larpId, email], map: "unauthenticated_signup_larp_email_verified_uidx", where: sql`(verified_at IS NOT NULL)`, unique: true)
+    @@check(expression: sql`(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::"RelatedUserRole", 'LOCAL_SIGNUP_MAYBE'::"RelatedUserRole", 'LOCAL_SIGNUP_NO'::"RelatedUserRole"]))`, map: "unauthenticated_signup_signup_status_check")
+    @@check(expression: sql`(visibility = ANY (ARRAY['PARTICIPANTS'::"RelatedUserVisibility", 'GM'::"RelatedUserVisibility"]))`, map: "unauthenticated_signup_visibility_check")
     @@map("unauthenticated_signup")
   }
 
   model HeaderImage {
-    id                   Uuid                         @id @default(dbgenerated("uuidv7()"))
+    id                   Uuid                         @id @default(sql`uuidv7()`)
     source               pg.enum(HeaderImageSource)   @default("UPLOAD")
     larppikuvatPictureId String?                      @map("larppikuvat_picture_id")
     contentType          String                       @map("content_type")
@@ -388,7 +388,7 @@ namespace public {
     textTreatment        pg.enum(HeaderTextTreatment) @default("NONE") @map("text_treatment")
     uploadedById         Uuid?                        @map("uploaded_by_id")
     createdAt            TimestamptzString            @default(now()) @map("created_at")
-    updatedAt            temporal.updatedAtString()   @map("updated_at")
+    updatedAt            TimestamptzString    @onCreate(now()) @onUpdate(now()) @map("updated_at")
 
     uploadedBy           User?                        @relation("HeaderImagesUploadedByUser", fields:[uploadedById], references:[id], onDelete: SetNull, index: false)
     larps                Larp[]

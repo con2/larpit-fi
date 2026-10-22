@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/30b413faa834169413399e0e933803985b17eeb5aa753a0bedbe998704f8d126/contract';
-import endContract from '../../snapshots/30b413faa834169413399e0e933803985b17eeb5aa753a0bedbe998704f8d126/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/9bf918b93a85146ab41f68914f46530cb8facfbf4562e3f2b0d4eb83437998d0/contract';
+import endContract from '../../snapshots/9bf918b93a85146ab41f68914f46530cb8facfbf4562e3f2b0d4eb83437998d0/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,

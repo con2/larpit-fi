@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { SubmitButton } from "@con2/components";
 import { db } from "@/prisma/db";
@@ -49,7 +50,7 @@ export default async function VerifySignupPage({ params }: Props) {
   return (
     <LarpSubpage
       title={t.title}
-      larp={{ id: signup.larpId, name: signup.larp.name }}
+      larp={{ id: signup.larpId, name: required(signup.larp).name }}
     >
       {signup.verifiedAt ? (
         <Alert variant="success">{t.alreadyVerified}</Alert>
