@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { auth } from "@/auth";
 import { featureFlags } from "@/config";
 import { EditStatus, LocalSignupStatus, RelatedUserRole } from "@/prisma/enums";
@@ -70,8 +71,12 @@ export async function getLarpPageData(
     )
     .first(where);
   if (!larp) return null;
-  larp.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
-  larp.relatedLarpsRight.sort((a, b) => byStartsAt(a.left, b.left));
+  larp.relatedLarpsLeft.sort((a, b) =>
+    byStartsAt(required(a.right), required(b.right)),
+  );
+  larp.relatedLarpsRight.sort((a, b) =>
+    byStartsAt(required(a.left), required(b.left)),
+  );
   return parseDates(larp);
 }
 

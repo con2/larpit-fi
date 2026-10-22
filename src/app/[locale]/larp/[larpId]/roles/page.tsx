@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import { auth } from "@/auth";
 import MainHeading from "@/components/MainHeading";
 import {
@@ -146,16 +147,17 @@ export default async function RolesPage({ params, searchParams }: Props) {
     );
     const canRemove = isOwnRow || isGm;
     const isGmRole = entry.role === RelatedUserRole.GAME_MASTER;
+    const entryUser = required(entry.user);
 
     return {
       key: `${entry.userId}-${entry.role}`,
       muted: false,
-      name: entry.user.name ?? "—",
+      name: entryUser.name ?? "—",
       roleLabel: getRoleLabel(entry.role),
       visibilityLabel:
         visibilityLabels[entry.visibility as RelatedUserVisibility],
       signedUpAt: entry.createdAt,
-      email: isLocalSignup ? entry.user.email : "—",
+      email: isLocalSignup ? entryUser.email : "—",
       actions: canRemove ? (
         <Form
           action={removeRole.bind(

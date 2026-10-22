@@ -1,3 +1,4 @@
+import { required } from "@/prisma/include";
 import MainHeading from "@/components/MainHeading";
 import { SubmitButton } from "@con2/components";
 import { db } from "@/prisma/db";
@@ -51,7 +52,7 @@ export default async function VerifySignupPage({ params }: Props) {
     <Container>
       <MainHeading>{t.title}</MainHeading>
       <p className="mb-4">
-        <strong>{signup.larp.name}</strong>
+        <strong>{required(signup.larp).name}</strong>
       </p>
 
       {signup.verifiedAt ? (
