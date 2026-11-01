@@ -3,7 +3,8 @@ import { getLarpHref } from "@/models/Larp";
 import { queryRead, sql } from "@/prisma/sql";
 import { FormattedDate } from "@con2/components";
 import Link from "next/link";
-import { CardBody, CardTitle, OverlayTrigger, Tooltip } from "react-bootstrap";
+import TooltipTrigger from "./TooltipTrigger";
+import { CardBody, CardTitle } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { CalendarAddOn, CalendarEdit } from "@con2/components/icons";
 import { type Translations } from "@/translations/en";
@@ -88,11 +89,9 @@ export default function RecentChangesCard({
         {recentChanges.map((item, i) => (
           <div key={i} className="small">
             <FormattedDate locale={locale} date={item.resolvedAt} />{" "}
-            <OverlayTrigger
-              overlay={<Tooltip>{t.action[item.action].title}</Tooltip>}
-            >
+            <TooltipTrigger tooltip={t.action[item.action].title}>
               <EditIcon action={item.action} />
-            </OverlayTrigger>{" "}
+            </TooltipTrigger>{" "}
             <Link
               href={getLarpHref(item)}
               className={

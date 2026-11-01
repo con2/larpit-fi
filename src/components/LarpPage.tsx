@@ -32,11 +32,10 @@ import {
   CardText,
   CardTitle,
   Container,
-  OverlayTrigger,
   Row,
-  Tooltip,
 } from "react-bootstrap";
 import LarpJsonLd from "./LarpJsonLd";
+import TooltipTrigger from "./TooltipTrigger";
 import {
   LeftRelatedLarpComponent,
   RightRelatedLarpComponent,
@@ -116,9 +115,9 @@ function ChoiceWithDescription({
       {description && (
         <>
           {" "}
-          <OverlayTrigger overlay={<Tooltip>{description}</Tooltip>}>
+          <TooltipTrigger tooltip={description}>
             <InfoCircle />
-          </OverlayTrigger>
+          </TooltipTrigger>
         </>
       )}
     </div>

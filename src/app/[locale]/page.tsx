@@ -13,9 +13,10 @@ import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Markdown } from "@con2/components";
 import { InfoCircle } from "@con2/components/icons";
+import TooltipTrigger from "@/components/TooltipTrigger";
 import Link from "next/link";
 import { ReactNode } from "react";
-import { CardBody, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { CardBody } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import { partition } from "underscore";
 
@@ -85,9 +86,9 @@ function Section({
         {description && (
           <>
             {" "}
-            <OverlayTrigger overlay={<Tooltip>{description}</Tooltip>}>
+            <TooltipTrigger tooltip={description}>
               <InfoCircle />
-            </OverlayTrigger>
+            </TooltipTrigger>
           </>
         )}
       </h4>
