@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormText,
 } from "react-bootstrap";
-import { TextArea } from "@con2/components";
+import { MarkdownEditor, TextArea } from "@con2/components";
 
 interface Props {
   translations: Translations;
@@ -57,10 +57,10 @@ export function LarpPageContentFormComponent({
           <FormLabel htmlFor="LarpPageContentFormComponent-description">
             {t.attributes.description.label}
           </FormLabel>
-          <TextArea
+          <MarkdownEditor
             id="LarpPageContentFormComponent-description"
             name="description"
-            rows={5}
+            rows={10}
             defaultValue={larp?.description || ""}
             readOnly={readOnly}
             maxLength={2000}

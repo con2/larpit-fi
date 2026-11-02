@@ -13,7 +13,7 @@ import {
   FormLabel,
   FormSelect,
 } from "react-bootstrap";
-import { TextArea } from "@con2/components";
+import { MarkdownEditor, TextArea } from "@con2/components";
 
 interface Props {
   translations: Translations;
@@ -344,10 +344,10 @@ export default async function CompactLarpFormComponent({
             >
               {t.attributes.description.title}
             </FormLabel>
-            <TextArea
+            <MarkdownEditor
               id="CompactLarpFormComponent-description"
               name="description"
-              rows={5}
+              rows={10}
               defaultValue={larp?.description || ""}
               maxLength={2000}
               locale={locale}
