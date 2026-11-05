@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import { getLocalSignupStatusForUser, getUserFromSession } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
@@ -9,10 +9,9 @@ import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CardText, CardTitle } from "react-bootstrap";
+import { CardText } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
 import CardBody from "react-bootstrap/CardBody";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { submitSignup } from "./actions";
@@ -137,11 +136,9 @@ export default async function SignupPage({ params, searchParams }: Props) {
   const statusMessage = t.userSignupStatus.choices[signupStatus];
 
   return (
-    <Container>
-      <MainHeading>{larp.name}</MainHeading>
+    <LarpSubpage title={t.title} larp={larp}>
       <Card className="mb-4">
         <CardBody>
-          <CardTitle>{t.title}</CardTitle>
           {statusMessage && (
             <CardText className="mb-3">{statusMessage}</CardText>
           )}
@@ -182,6 +179,6 @@ export default async function SignupPage({ params, searchParams }: Props) {
           </Form>
         </CardBody>
       </Card>
-    </Container>
+    </LarpSubpage>
   );
 }

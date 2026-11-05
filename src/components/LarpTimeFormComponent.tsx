@@ -2,13 +2,10 @@ import type { Larp } from "@/prisma/models";
 import { toPlainDate } from "@con2/components/helpers";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormControl,
-  FormLabel,
-} from "react-bootstrap";
+import type { ReactNode } from "react";
+import { FormControl, FormLabel, FormText } from "react-bootstrap";
+import { FormSection } from "./FormSection";
+import styles from "./LarpForm.module.scss";
 
 interface Props {
   translations: Translations;
@@ -16,6 +13,8 @@ interface Props {
   larp: Pick<Larp, "openness" | "startsAt" | "endsAt"> | null;
   readOnly?: boolean;
   compact?: boolean;
+  /** Rendered at the end of the section, such as the location fields. */
+  children?: ReactNode;
 }
 
 function toISODateEmpty(
@@ -37,6 +36,7 @@ export function LarpTimeFormComponent({
   larp,
   readOnly,
   compact,
+  children,
 }: Props) {
   const newT = translations.NewLarpPage;
   const secTion = newT.sections.time;
@@ -45,39 +45,44 @@ export function LarpTimeFormComponent({
   const showHelpText = !compact;
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{secTion.title}</CardTitle>
-        {showHelpText && <div className="mb-4">{secTion.message}</div>}
-
-        <div className="row">
-          <div className="form-group col-md-6 mb-3">
-            <FormLabel htmlFor="LarpTimeFormComponent-startsAt">
-              {t.attributes.startsAt.title}
-            </FormLabel>
-            <FormControl
-              type="date"
-              id="LarpTimeFormComponent-startsAt"
-              name="startsAt"
-              defaultValue={toISODateEmpty(larp?.startsAt)}
-              readOnly={readOnly}
-            />
-          </div>
-
-          <div className="form-group col-md-6 mb-3">
-            <FormLabel htmlFor="LarpTimeFormComponent-endsAt">
-              {t.attributes.endsAt.title}
-            </FormLabel>
-            <FormControl
-              type="date"
-              id="LarpTimeFormComponent-endsAt"
-              name="endsAt"
-              defaultValue={toISODateEmpty(larp?.endsAt)}
-              readOnly={readOnly}
-            />
-          </div>
+    <FormSection
+      id="when"
+      title={secTion.title}
+      intro={secTion.message}
+      compact={compact}
+    >
+      <div className={styles.grid2}>
+        <div className={styles.field}>
+          <FormLabel htmlFor="LarpTimeFormComponent-startsAt">
+            {t.attributes.startsAt.title}
+          </FormLabel>
+          <FormControl
+            type="date"
+            id="LarpTimeFormComponent-startsAt"
+            name="startsAt"
+            defaultValue={toISODateEmpty(larp?.startsAt)}
+            readOnly={readOnly}
+          />
+          {showHelpText && (
+            <FormText>{t.attributes.startsAt.helpText}</FormText>
+          )}
         </div>
-      </CardBody>
-    </Card>
+
+        <div className={styles.field}>
+          <FormLabel htmlFor="LarpTimeFormComponent-endsAt">
+            {t.attributes.endsAt.title}
+          </FormLabel>
+          <FormControl
+            type="date"
+            id="LarpTimeFormComponent-endsAt"
+            name="endsAt"
+            defaultValue={toISODateEmpty(larp?.endsAt)}
+            readOnly={readOnly}
+          />
+          {showHelpText && <FormText>{t.attributes.endsAt.helpText}</FormText>}
+        </div>
+      </div>
+      {children}
+    </FormSection>
   );
 }

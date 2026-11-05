@@ -1,15 +1,8 @@
 import type { Larp, Municipality } from "@/prisma/models";
 import { db } from "@/prisma/db";
 import type { Translations } from "@/translations/en";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormControl,
-  FormLabel,
-  FormSelect,
-  FormText,
-} from "react-bootstrap";
+import { FormControl, FormLabel, FormSelect, FormText } from "react-bootstrap";
+import styles from "./LarpForm.module.scss";
 
 interface Props {
   translations: Translations;
@@ -55,62 +48,59 @@ export default async function LarpLocationFormComponent({
   ).all();
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{newT.sections.location.title}</CardTitle>
-        {showHelpText && (
-          <div className="mb-4">{newT.sections.location.message}</div>
-        )}
+    <div className={styles.subsection}>
+      {showHelpText && (
+        <div className={styles.intro}>{newT.sections.location.message}</div>
+      )}
 
-        <div className="row">
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpLocationFormComponent-locationText">
-              {t.attributes.locationText.label}
-            </FormLabel>
-            <FormControl
-              type="text"
-              id="LarpLocationFormComponent-locationText"
-              name="locationText"
-              defaultValue={larp?.locationText || ""}
-              readOnly={readOnly}
-            />
-            {showHelpText && (
-              <FormText>{t.attributes.locationText.helpText}</FormText>
-            )}
-          </div>
-          <div className="form-group mb-3 col-md-6">
-            <FormLabel htmlFor="LarpLocationFormComponent-municipality">
-              {t.attributes.municipality.label}
-            </FormLabel>
-            <FormSelect
-              id="LarpLocationFormComponent-municipality"
-              name="municipality"
-              defaultValue={larp?.municipalityId ?? ""}
-              disabled={readOnly}
-            >
-              <option value=""></option>
-              {municipalities.map((municipality) => {
-                const { language, name } = getMunicipalityName(
-                  municipality,
-                  locale,
-                );
-                return (
-                  <option
-                    key={municipality.id}
-                    value={municipality.id}
-                    lang={language ?? undefined}
-                  >
-                    {name}
-                  </option>
-                );
-              })}
-            </FormSelect>
-            {showHelpText && (
-              <FormText>{t.attributes.municipality.helpText}</FormText>
-            )}
-          </div>
+      <div className={styles.grid2}>
+        <div className={styles.field}>
+          <FormLabel htmlFor="LarpLocationFormComponent-locationText">
+            {t.attributes.locationText.label}
+          </FormLabel>
+          <FormControl
+            type="text"
+            id="LarpLocationFormComponent-locationText"
+            name="locationText"
+            defaultValue={larp?.locationText || ""}
+            readOnly={readOnly}
+          />
+          {showHelpText && (
+            <FormText>{t.attributes.locationText.helpText}</FormText>
+          )}
         </div>
-      </CardBody>
-    </Card>
+        <div className={styles.field}>
+          <FormLabel htmlFor="LarpLocationFormComponent-municipality">
+            {t.attributes.municipality.label}
+          </FormLabel>
+          <FormSelect
+            id="LarpLocationFormComponent-municipality"
+            name="municipality"
+            defaultValue={larp?.municipalityId ?? ""}
+            disabled={readOnly}
+          >
+            <option value=""></option>
+            {municipalities.map((municipality) => {
+              const { language, name } = getMunicipalityName(
+                municipality,
+                locale,
+              );
+              return (
+                <option
+                  key={municipality.id}
+                  value={municipality.id}
+                  lang={language ?? undefined}
+                >
+                  {name}
+                </option>
+              );
+            })}
+          </FormSelect>
+          {showHelpText && (
+            <FormText>{t.attributes.municipality.helpText}</FormText>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

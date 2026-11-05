@@ -1,59 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Select, { SingleValue } from "react-select";
-
 type Option = { value: string; label: string };
 
+/** Submits its form on change; the form's own submit button covers browsers without JavaScript. */
 export default function MonthSelect({
+  id,
   options,
   defaultValue,
+  className,
 }: {
+  id: string;
   options: Option[];
   defaultValue: string;
+  className?: string;
 }) {
-  const [jsEnabled, setJsEnabled] = useState(false);
-  const nativeRef = useRef<HTMLSelectElement>(null);
-
-  // Replace the native select with react-select after the first render
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setJsEnabled(true);
-  }, []);
-
-  function handleChange(opt: SingleValue<Option>) {
-    if (!opt || !nativeRef.current) return;
-    nativeRef.current.value = opt.value;
-    nativeRef.current.form?.requestSubmit();
-  }
-
-  const selectedOption = options.find((o) => o.value === defaultValue) ?? null;
-
   return (
-    <>
-      {/* Always rendered: provides form value and noscript fallback */}
-      <select
-        ref={nativeRef}
-        name="month"
-        defaultValue={defaultValue}
-        className="form-select"
-        style={jsEnabled ? { display: "none" } : undefined}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      {jsEnabled && (
-        <Select
-          options={options}
-          value={selectedOption}
-          onChange={handleChange}
-          isSearchable
-          noOptionsMessage={() => "—"}
-        />
-      )}
-    </>
+    <select
+      id={id}
+      name="month"
+      defaultValue={defaultValue}
+      className={`form-select ${className ?? ""}`}
+      onChange={(event) => event.currentTarget.form?.requestSubmit()}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
   );
 }

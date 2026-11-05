@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import { displayNameMaxLength } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
@@ -11,7 +10,6 @@ import {
   CardBody,
   CardText,
   CardTitle,
-  Container,
   Form,
   FormControl,
   FormLabel,
@@ -42,102 +40,111 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
     : null;
   if (!user) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{t.title}</h1>
+      </header>
 
-      {accountRemovalRequested ? (
-        <Alert variant="info">{t.accountRemoval.emailSent}</Alert>
-      ) : null}
+      <div
+        className="d-flex flex-column gap-4 py-5"
+        style={{ maxWidth: "48rem" }}
+      >
+        {accountRemovalRequested ? (
+          <Alert variant="info">{t.accountRemoval.emailSent}</Alert>
+        ) : null}
 
-      <Card className="mb-4">
-        <CardBody>
-          <Form action={saveUserPreferences.bind(null, locale)}>
-            <div className="form-group mb-3">
-              <FormLabel htmlFor="Preferences-name">
-                {t.attributes.name.label}
-              </FormLabel>
-              <FormControl
-                type="text"
-                id="Preferences-name"
-                name="name"
-                defaultValue={user.name ?? ""}
-                required
-                maxLength={displayNameMaxLength}
-              />
-              <FormText>{t.attributes.name.helpText}</FormText>
-            </div>
-
-            <div className="form-group mb-3">
-              <FormLabel htmlFor="Preferences-editFormPreference">
-                {t.attributes.editFormPreference.label}
-              </FormLabel>
-              <FormSelect
-                id="Preferences-editFormPreference"
-                name="editFormPreference"
-                defaultValue={user.editFormPreference}
-              >
-                {Object.entries(t.attributes.editFormPreference.choices).map(
-                  ([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ),
-                )}
-              </FormSelect>
-              <FormText>{t.attributes.editFormPreference.helpText}</FormText>
-            </div>
-
-            {/* TODO(#9): Update email from Kompassi on login. Help text for email field is inaccurate: in fact, Larpit.fi account is still tied to the same Kompassi account via numeric Kompassi user ID, but the email shown here is not updated. */}
-            {false && (
+        <Card>
+          <CardBody>
+            <Form action={saveUserPreferences.bind(null, locale)}>
               <div className="form-group mb-3">
-                <FormLabel htmlFor="Preferences-email">
-                  {t.attributes.email.label} 🔒
+                <FormLabel htmlFor="Preferences-name">
+                  {t.attributes.name.label}
                 </FormLabel>
                 <FormControl
-                  type="email"
-                  id="Preferences-email"
-                  defaultValue={user!.email}
-                  readOnly
+                  type="text"
+                  id="Preferences-name"
+                  name="name"
+                  defaultValue={user.name ?? ""}
+                  required
+                  maxLength={displayNameMaxLength}
                 />
-                <FormText>{t.attributes.email.helpText}</FormText>
+                <FormText>{t.attributes.name.helpText}</FormText>
               </div>
-            )}
 
-            <div className="d-flex">
-              <SubmitButton className="btn btn-primary">{t.save}</SubmitButton>
-            </div>
-          </Form>
-        </CardBody>
-      </Card>
+              <div className="form-group mb-3">
+                <FormLabel htmlFor="Preferences-editFormPreference">
+                  {t.attributes.editFormPreference.label}
+                </FormLabel>
+                <FormSelect
+                  id="Preferences-editFormPreference"
+                  name="editFormPreference"
+                  defaultValue={user.editFormPreference}
+                >
+                  {Object.entries(t.attributes.editFormPreference.choices).map(
+                    ([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ),
+                  )}
+                </FormSelect>
+                <FormText>{t.attributes.editFormPreference.helpText}</FormText>
+              </div>
 
-      <Card className="mb-4 border-danger">
-        <CardBody>
-          <CardTitle className="text-danger mb-3">
-            {t.dangerZone.title}
-          </CardTitle>
+              {/* TODO(#9): Update email from Kompassi on login. Help text for email field is inaccurate: in fact, Larpit.fi account is still tied to the same Kompassi account via numeric Kompassi user ID, but the email shown here is not updated. */}
+              {false && (
+                <div className="form-group mb-3">
+                  <FormLabel htmlFor="Preferences-email">
+                    {t.attributes.email.label} 🔒
+                  </FormLabel>
+                  <FormControl
+                    type="email"
+                    id="Preferences-email"
+                    defaultValue={user!.email}
+                    readOnly
+                  />
+                  <FormText>{t.attributes.email.helpText}</FormText>
+                </div>
+              )}
 
-          <div>
-            <CardTitle>{t.accountRemoval.title}</CardTitle>
-            <CardText>{t.accountRemoval.description}</CardText>
-            <Form action={requestAccountRemoval.bind(null, locale)}>
-              <SubmitButton
-                variant="danger"
-                className="btn btn-danger"
-                confirmationMessage={t.accountRemoval.confirmationMessage}
-              >
-                {t.accountRemoval.title}…
-              </SubmitButton>
+              <div className="d-flex">
+                <SubmitButton className="btn btn-primary">
+                  {t.save}
+                </SubmitButton>
+              </div>
             </Form>
-          </div>
-        </CardBody>
-      </Card>
-    </Container>
+          </CardBody>
+        </Card>
+
+        <Card className="border-danger">
+          <CardBody>
+            <CardTitle className="text-danger mb-3">
+              {t.dangerZone.title}
+            </CardTitle>
+
+            <div>
+              <CardTitle>{t.accountRemoval.title}</CardTitle>
+              <CardText>{t.accountRemoval.description}</CardText>
+              <Form action={requestAccountRemoval.bind(null, locale)}>
+                <SubmitButton
+                  variant="danger"
+                  className="btn btn-danger"
+                  confirmationMessage={t.accountRemoval.confirmationMessage}
+                >
+                  {t.accountRemoval.title}…
+                </SubmitButton>
+              </Form>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 }

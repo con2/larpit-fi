@@ -1,0 +1,326 @@
+$mono: var(--larpit-mono-font), ui-monospace, monospace;
+$display: var(--larpit-display-font), system-ui, sans-serif;
+
+.hero {
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.heroInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 40px 64px;
+  padding-block: 48px 44px;
+}
+
+.heroText {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h1 {
+    max-width: 18ch;
+    overflow-wrap: break-word;
+  }
+}
+
+// SignupCard renders nothing when there is nothing to say about signup.
+.heroAside {
+  flex: 1 1 300px;
+  min-width: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.cancelledTitle {
+  text-decoration: line-through;
+  text-decoration-color: var(--larpit-rowan);
+  text-decoration-thickness: 3px;
+}
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 8px 0 0;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  dt {
+    font-weight: 500;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 17px;
+  }
+}
+
+.mono {
+  font-family: $mono;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.emptyRelated {
+  margin: 6px 0 0;
+}
+
+// Fluff is the larp's in-world voice; the italic sets it apart from the practical description.
+.fluff {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-style: italic;
+  color: var(--larpit-text);
+
+  p {
+    margin: 0;
+    white-space: pre-line;
+  }
+}
+
+.ruledList {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--larpit-hairline);
+
+  > li {
+    border-bottom: 1px solid var(--larpit-hairline);
+  }
+}
+
+.linkRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  min-height: 44px;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--larpit-aurora);
+  }
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--larpit-muted);
+  }
+}
+
+.linkText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.linkTitle {
+  font-weight: 500;
+}
+
+.linkHost {
+  font-family: $mono;
+  font-size: 13px;
+  color: var(--larpit-dim);
+}
+
+.relatedRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 14px 0;
+
+  a {
+    color: inherit;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--larpit-aurora);
+    }
+  }
+}
+
+.signupCard {
+  gap: 16px;
+}
+
+.signupHead {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  > :first-child {
+    align-self: flex-start;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.bigLine {
+  font-family: $display;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 48;
+}
+
+.subLine {
+  font-size: 14px;
+  color: var(--larpit-muted);
+}
+
+.countdown {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--larpit-hairline);
+  overflow: hidden;
+}
+
+.countdownFill {
+  height: 100%;
+  background: var(--larpit-open);
+}
+
+.signupButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.actionList {
+  list-style: none;
+  margin: 0;
+  padding: 4px 24px;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 8px;
+
+  > li + li {
+    border-top: 1px solid var(--larpit-hairline);
+  }
+
+  form {
+    margin: 0;
+  }
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 14px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--larpit-muted);
+  }
+
+  &:hover {
+    color: var(--larpit-aurora);
+  }
+
+  &[aria-pressed="true"] {
+    color: var(--larpit-aurora);
+
+    svg {
+      color: var(--larpit-aurora);
+    }
+  }
+}
+
+.actionDestructive {
+  color: var(--larpit-rowan);
+
+  svg {
+    color: var(--larpit-rowan);
+  }
+
+  &:hover {
+    color: var(--larpit-rowan);
+    text-decoration: underline;
+  }
+}
+
+.headingAction {
+  text-transform: none;
+  letter-spacing: normal;
+
+  a {
+    color: var(--larpit-muted);
+
+    &:hover {
+      color: var(--larpit-text);
+    }
+  }
+}
+
+.actionHint {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--larpit-dim);
+}
+
+.pressedMark {
+  margin-left: auto;
+}
+
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--larpit-dim);
+
+  p {
+    margin: 0;
+  }
+}
+
+.localSignup {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: inherit;
+    border-color: var(--larpit-aurora);
+  }
+}
+
+.runSuffix {
+  color: var(--larpit-dim);
+  font-weight: 500;
+}

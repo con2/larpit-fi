@@ -1,8 +1,7 @@
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
 import { Card, CardBody, CardTitle } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
 
 interface Props {
   params: Promise<{
@@ -18,8 +17,7 @@ export default async function NewLarpThanksPage({ params }: Props) {
   const ediT = translations.EditLarpPage;
 
   return (
-    <Container>
-      <MainHeading>{ediT.title}</MainHeading>
+    <LarpSubpage title={ediT.title}>
       <Card>
         <CardBody>
           <CardTitle>{t.subpages.thanks.title}</CardTitle>
@@ -31,6 +29,6 @@ export default async function NewLarpThanksPage({ params }: Props) {
           </div>
         </CardBody>
       </Card>
-    </Container>
+    </LarpSubpage>
   );
 }

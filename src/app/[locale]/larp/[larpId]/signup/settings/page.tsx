@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import LocalSignupSettingsFormComponent from "@/components/LocalSignupSettingsFormComponent";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { LocalSignupStatus, RelatedUserVisibility } from "@/prisma/enums";
 import { getUserFromSession, isGmOrModerator } from "@/models/User";
 import { db } from "@/prisma/db";
@@ -9,15 +9,8 @@ import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormLabel,
-  FormSelect,
-} from "react-bootstrap";
+import { Card, CardBody, FormLabel, FormSelect } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { saveLocalSignupSettings } from "./actions";
@@ -62,20 +55,18 @@ export default async function SignupSettingsPage({
 
   if (!isGmOrModerator(user, larp)) {
     return (
-      <Container>
+      <LarpSubpage title={t.title} larp={larp}>
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </LarpSubpage>
     );
   }
 
   return (
-    <Container>
-      <MainHeading>{larp.name}</MainHeading>
+    <LarpSubpage title={t.title} larp={larp}>
       {saved && <Alert variant="success">{t.settingsSaved}</Alert>}
       <Form action={saveLocalSignupSettings.bind(null, locale, larpId)}>
         <Card className="mb-4">
           <CardBody>
-            <CardTitle>{t.title}</CardTitle>
             <div className="mb-4">{t.message}</div>
 
             <LocalSignupSettingsFormComponent
@@ -117,6 +108,6 @@ export default async function SignupSettingsPage({
           </CardBody>
         </Card>
       </Form>
-    </Container>
+    </LarpSubpage>
   );
 }

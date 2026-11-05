@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDateRange } from "@/helpers/dates";
 import { ReactNode, useState } from "react";
 import { FormLabel } from "react-bootstrap";
 import Select, { SingleValue } from "react-select";
@@ -18,30 +19,13 @@ type Option = {
   larp: SelectableLarpSerialized;
 };
 
-function formatDateRange(
-  locale: string,
-  startsAt: string | null,
-  endsAt: string | null,
-): string {
-  if (!startsAt) return "";
-  const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  // Local midnight, so the day never shifts when formatted in the browser's zone.
-  const start = new Date(`${startsAt}T00:00:00`);
-  if (!endsAt || endsAt === startsAt) return fmt.format(start);
-  const end = new Date(`${endsAt}T00:00:00`);
-  if (start.getFullYear() === end.getFullYear()) {
-    return fmt.formatRange(start, end);
-  }
-  return `${fmt.format(start)} – ${fmt.format(end)}`;
-}
-
 function makeLarpLabel(
   larp: SelectableLarpSerialized,
   larpTypeChoices: Record<string, string>,
   locale: string,
 ): string {
   const typeName = larpTypeChoices[larp.type] ?? larp.type;
-  const dateRange = formatDateRange(locale, larp.startsAt, larp.endsAt);
+  const dateRange = formatDateRange(larp.startsAt, larp.endsAt, locale);
   return dateRange
     ? `${larp.name} (${typeName}, ${dateRange})`
     : `${larp.name} (${typeName})`;

@@ -1,0 +1,482 @@
+$mono: var(--larpit-mono-font), ui-monospace, monospace;
+$display: var(--larpit-display-font), system-ui, sans-serif;
+$phone: 767.98px;
+
+// ---------- page layout ----------
+
+.pageIntro {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--larpit-muted);
+  max-width: 64ch;
+}
+
+.layout {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: flex-start;
+  gap: 40px 64px;
+  padding-block: 48px 80px;
+}
+
+.form {
+  flex: 999 1 560px;
+  min-width: 0;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  counter-reset: larp-form-section;
+}
+
+.formCompact {
+  gap: 32px;
+}
+
+.aside {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  @media (min-width: 900px) {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+.belowForm {
+  padding-bottom: 56px;
+}
+
+// ---------- sections ----------
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-margin-top: 24px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--larpit-text);
+
+  h2 {
+    font-size: 26px;
+  }
+}
+
+.sectionNumber::before {
+  counter-increment: larp-form-section;
+  content: counter(larp-form-section, decimal-leading-zero);
+  font-family: $mono;
+  font-size: 13px;
+  color: var(--larpit-dim);
+}
+
+.intro {
+  font-size: 15px;
+  color: var(--larpit-muted);
+  max-width: 66ch;
+
+  p {
+    margin: 0 0 8px;
+  }
+
+  > :last-child,
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  a {
+    color: var(--larpit-text);
+    text-decoration-color: var(--larpit-control-border);
+    text-underline-offset: 3px;
+  }
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ---------- fields ----------
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  :global(.form-label) {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  :global(.form-text) {
+    font-size: 13px;
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  input[type="date"],
+  input[type="number"] {
+    font-family: $mono;
+  }
+}
+
+.staticValue {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.nameInput {
+  font-family: $display;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 24;
+  min-height: 48px;
+}
+
+.fluff textarea {
+  font-family: $display;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > legend {
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0;
+    margin-bottom: 6px;
+    float: none;
+    width: auto;
+  }
+}
+
+.fieldset :global(.form-text) {
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.radioCards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radioCards2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pillRadios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.radioText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radioTitle {
+  font-weight: 500;
+}
+
+.radioDescription {
+  font-size: 13px;
+  color: var(--larpit-dim);
+  line-height: 1.4;
+}
+
+.check {
+  font-size: 14px;
+  color: var(--larpit-muted);
+
+  :global(.form-check-label) {
+    line-height: 1.5;
+  }
+}
+
+// ---------- links ----------
+
+.linkRows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linkRow {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+
+  @media (max-width: $phone) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--larpit-hairline);
+
+    > :nth-child(2),
+    > :nth-child(3) {
+      grid-column: 1 / -1;
+    }
+
+    > :nth-child(4) {
+      grid-row: 1;
+      grid-column: 2;
+    }
+  }
+}
+
+.linkRowRemoved {
+  opacity: 0.5;
+}
+
+.linkHeader {
+  @media (max-width: $phone) {
+    display: none;
+  }
+}
+
+.linkHref {
+  font-family: $mono;
+  font-size: 14px;
+}
+
+.iconButton {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--larpit-dim);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--larpit-rowan);
+    border-color: var(--larpit-rowan);
+  }
+}
+
+.addLink {
+  align-self: flex-start;
+}
+
+// ---------- submit card ----------
+
+.submitCard {
+  scroll-margin-top: 24px;
+
+  h2 {
+    font-size: 22px;
+  }
+}
+
+.submitRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.requiredSummary {
+  font-size: 13px;
+  color: var(--larpit-dim);
+  flex: 1 1 240px;
+
+  a {
+    color: var(--larpit-text);
+    text-decoration-color: var(--larpit-control-border);
+    text-underline-offset: 3px;
+  }
+}
+
+.requiredSummaryDone {
+  color: var(--larpit-aurora);
+}
+
+// ---------- section index rail ----------
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--larpit-hairline);
+  counter-reset: larp-form-rail;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    min-height: 44px;
+    border-bottom: 1px solid var(--larpit-hairline);
+    text-decoration: none;
+    font-size: 15px;
+    color: var(--larpit-muted);
+
+    &::before {
+      counter-increment: larp-form-rail;
+      content: counter(larp-form-rail, decimal-leading-zero);
+      font-family: $mono;
+      font-size: 12px;
+      width: 20px;
+      color: var(--larpit-dim);
+    }
+
+    &:hover,
+    &[aria-current="true"] {
+      color: var(--larpit-text);
+    }
+
+    &[aria-current="true"] {
+      box-shadow: inset 2px 0 0 var(--larpit-aurora);
+      padding-left: 12px;
+    }
+  }
+}
+
+.railDone::before {
+  color: var(--larpit-aurora) !important;
+}
+
+.railMissing::before {
+  color: var(--larpit-rowan) !important;
+}
+
+.railStatus {
+  margin-left: auto;
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--larpit-dim);
+  white-space: nowrap;
+
+  .railDone & {
+    color: var(--larpit-aurora);
+  }
+
+  .railMissing & {
+    color: var(--larpit-rowan);
+  }
+}
+
+// ---------- preview ----------
+
+.asideBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--larpit-muted);
+  line-height: 1.5;
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--larpit-text);
+    text-decoration-color: var(--larpit-control-border);
+    text-underline-offset: 3px;
+  }
+}
+
+.preview {
+  background: var(--larpit-surface);
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 8px;
+  padding: 16px 18px;
+
+  :global(.lf-row) {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  :global(.lf-row__date) {
+    flex-basis: 90px;
+    font-size: 13px;
+  }
+
+  :global(.lf-row__main) {
+    flex-basis: 160px;
+  }
+
+  :global(.lf-row__title) {
+    font-size: 18px;
+  }
+
+  :global(.lf-row__sub) {
+    font-size: 13px;
+  }
+
+  :global(.lf-row__tagline) {
+    font-size: 14px;
+  }
+}
+
+.placeholder {
+  color: var(--larpit-dim);
+  font-style: italic;
+}
+
+.previewNote {
+  font-size: 13px;
+  color: var(--larpit-dim);
+}
+
+// ---------- secondary pages ----------
+
+.narrow {
+  max-width: 720px;
+  padding-block: 48px 80px;
+}
+
+.formPreference {
+  padding-bottom: 56px;
+}

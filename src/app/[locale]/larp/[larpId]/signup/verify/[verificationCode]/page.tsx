@@ -1,4 +1,4 @@
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { SubmitButton } from "@con2/components";
 import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 import Alert from "react-bootstrap/Alert";
 import Card from "react-bootstrap/Card";
 import CardBody from "react-bootstrap/CardBody";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { verifySignup } from "./actions";
@@ -48,12 +47,10 @@ export default async function VerifySignupPage({ params }: Props) {
   }
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <p className="mb-4">
-        <strong>{signup.larp.name}</strong>
-      </p>
-
+    <LarpSubpage
+      title={t.title}
+      larp={{ id: signup.larpId, name: signup.larp.name }}
+    >
       {signup.verifiedAt ? (
         <Alert variant="success">{t.alreadyVerified}</Alert>
       ) : (
@@ -89,6 +86,6 @@ export default async function VerifySignupPage({ params }: Props) {
           </CardBody>
         </Card>
       )}
-    </Container>
+    </LarpSubpage>
   );
 }

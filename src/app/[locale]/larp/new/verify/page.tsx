@@ -1,7 +1,5 @@
-import MainHeading from "@/components/MainHeading";
 import { getTranslations } from "@/translations";
-import { Card, CardBody, CardTitle } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
+import styles from "@/components/LarpForm.module.scss";
 
 interface Props {
   params: Promise<{
@@ -16,14 +14,23 @@ export default async function NewLarpVerificationPage({ params }: Props) {
   const t = translations.NewLarpPage;
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <Card>
-        <CardBody>
-          <CardTitle>{t.subpages.verificationRequired.title}</CardTitle>
-          {t.subpages.verificationRequired.message}
-        </CardBody>
-      </Card>
-    </Container>
+    <>
+      <header className="lf-container lf-page-header">
+        <p className="lf-eyebrow">{t.eyebrow}</p>
+        <h1 className="lf-display-l">{t.title}</h1>
+      </header>
+      <div className="lf-container">
+        <div className={styles.narrow}>
+          <section className="lf-surface" aria-labelledby="verify-title">
+            <h2 className="lf-surface__title" id="verify-title">
+              {t.subpages.verificationRequired.title}
+            </h2>
+            <div className={styles.intro}>
+              {t.subpages.verificationRequired.message}
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
   );
 }

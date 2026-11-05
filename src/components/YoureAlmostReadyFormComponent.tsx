@@ -1,13 +1,9 @@
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormControl,
-  FormLabel,
-  FormText,
-} from "react-bootstrap";
+import { FormControl, FormLabel, FormText } from "react-bootstrap";
 import type { Translations } from "@/translations/en";
 import { SubmitButton } from "@con2/components";
+import { RequiredMark } from "./FormSection";
+import RequiredFieldsSummary from "./RequiredFieldsSummary";
+import styles from "./LarpForm.module.scss";
 
 interface Props {
   user: { email: string } | null;
@@ -24,56 +20,55 @@ export default function YoureAlmostReadyFormComponent({
   const requesT = translations.ModerationRequest;
 
   return (
-    <Card className="mb-5">
-      <CardBody>
-        {!compact && (
-          <>
-            <CardTitle>{t.sections.submit.title}</CardTitle>
-            <div className="mb-4">
-              {t.sections.submit.message}
-              {user ? null : t.sections.submit.notLoggedIn}
-            </div>
-          </>
-        )}
+    <section
+      id="submit"
+      className={`lf-surface ${styles.submitCard}`}
+      aria-labelledby={compact ? undefined : "submit-heading"}
+    >
+      {!compact && (
+        <>
+          <h2 className="lf-surface__title" id="submit-heading">
+            {t.sections.submit.title}
+          </h2>
+          <div className={styles.intro}>
+            {t.sections.submit.message}
+            {user ? null : t.sections.submit.notLoggedIn}
+          </div>
+        </>
+      )}
 
-        <div className="form-group mb-3">
-          <FormLabel
-            htmlFor="YoureAlmostReadyFormComponent-submit-message"
-            className={compact ? "form-text" : ""}
-          >
-            {requesT.attributes.message.label}
+      <div className={styles.field}>
+        <FormLabel htmlFor="YoureAlmostReadyFormComponent-submit-message">
+          {requesT.attributes.message.label}
+        </FormLabel>
+        <FormControl
+          as="textarea"
+          id="YoureAlmostReadyFormComponent-submit-message"
+          name="message"
+          rows={compact ? 3 : 5}
+        />
+        {!compact && <FormText>{requesT.attributes.message.helpText}</FormText>}
+      </div>
+
+      {user ? null : (
+        <div className={styles.field}>
+          <FormLabel htmlFor="YoureAlmostReadyFormComponent-submit-cat">
+            {t.sections.submit.attributes.cat.label}
+            <RequiredMark />
           </FormLabel>
           <FormControl
-            as="textarea"
-            id="YoureAlmostReadyFormComponent-submit-message"
-            name="message"
-            rows={5}
+            id="YoureAlmostReadyFormComponent-submit-cat"
+            name="cat"
+            required
           />
-          {!compact && (
-            <FormText>{requesT.attributes.message.helpText}</FormText>
-          )}
+          <FormText>{t.sections.submit.attributes.cat.helpText}</FormText>
         </div>
+      )}
 
-        {user ? null : (
-          <div className="form-group mb-5">
-            <FormLabel htmlFor="YoureAlmostReadyFormComponent-submit-cat">
-              {t.sections.submit.attributes.cat.label}*
-            </FormLabel>
-            <FormControl
-              id="YoureAlmostReadyFormComponent-submit-cat"
-              name="cat"
-              required
-            />
-            <FormText>{t.sections.submit.attributes.cat.helpText}</FormText>
-          </div>
-        )}
-
-        <div className="d-flex mb-2">
-          <SubmitButton className="btn btn-primary btn-lg flex-grow-1">
-            {t.actions.submit}
-          </SubmitButton>
-        </div>
-      </CardBody>
-    </Card>
+      <div className={styles.submitRow}>
+        <SubmitButton className="btn-lg">{t.actions.submit}</SubmitButton>
+        <RequiredFieldsSummary messages={t.requiredSummary} />
+      </div>
+    </section>
   );
 }

@@ -1,18 +1,10 @@
 import { auth } from "@/auth";
-import MainHeading from "@/components/MainHeading";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { MarkdownEditor, MessageCard, SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  Container,
-  Form,
-  FormControl,
-  FormLabel,
-} from "react-bootstrap";
+import { Card, CardBody, Form, FormControl, FormLabel } from "react-bootstrap";
 import { putPage } from "./actions";
 
 interface Props {
@@ -43,8 +35,10 @@ export default async function PageWithLanguagePage({ params }: Props) {
   }
 
   return (
-    <Container>
-      <MainHeading>{t.editTitle}</MainHeading>
+    <div className="lf-container">
+      <header className="lf-page-header mb-4">
+        <h1 className="lf-display-l">{t.editTitle}</h1>
+      </header>
       <Card className="mb-5">
         <CardBody>
           <Form action={putPage.bind(null, locale, slug, language)}>
@@ -94,6 +88,6 @@ export default async function PageWithLanguagePage({ params }: Props) {
           </Form>
         </CardBody>
       </Card>
-    </Container>
+    </div>
   );
 }

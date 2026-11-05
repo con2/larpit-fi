@@ -1,12 +1,8 @@
 import type { Larp } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
-import {
-  Card,
-  CardBody,
-  CardTitle,
-  FormLabel,
-  FormText,
-} from "react-bootstrap";
+import { FormLabel, FormText } from "react-bootstrap";
+import { FormSection } from "./FormSection";
+import styles from "./LarpForm.module.scss";
 import { MarkdownEditor, TextArea } from "@con2/components";
 
 interface Props {
@@ -31,46 +27,44 @@ export function LarpPageContentFormComponent({
   const showHelpText = !compact;
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{secTion.title}</CardTitle>
-        {showHelpText && <div className="mb-4">{secTion.message}</div>}
-
-        <div className="form-group mb-3">
-          <FormLabel htmlFor="LarpPageContentFormComponent-fluffText">
-            {t.attributes.fluffText.label}
-          </FormLabel>
-          <TextArea
-            id="LarpPageContentFormComponent-fluffText"
-            name="fluffText"
-            rows={5}
-            defaultValue={larp?.fluffText || ""}
-            readOnly={readOnly}
-            maxLength={2000}
-            locale={locale}
-          />
-          {showHelpText && (
-            <FormText>{t.attributes.fluffText.helpText}</FormText>
-          )}
-        </div>
-        <div className="form-group mb-1">
-          <FormLabel htmlFor="LarpPageContentFormComponent-description">
-            {t.attributes.description.label}
-          </FormLabel>
-          <MarkdownEditor
-            id="LarpPageContentFormComponent-description"
-            name="description"
-            rows={10}
-            defaultValue={larp?.description || ""}
-            readOnly={readOnly}
-            maxLength={2000}
-            locale={locale}
-          />
-          {showHelpText && (
-            <FormText>{t.attributes.description.helpText}</FormText>
-          )}
-        </div>
-      </CardBody>
-    </Card>
+    <FormSection
+      id="content"
+      title={secTion.title}
+      intro={secTion.message}
+      compact={compact}
+    >
+      <div className={`${styles.field} ${styles.fluff}`}>
+        <FormLabel htmlFor="LarpPageContentFormComponent-fluffText">
+          {t.attributes.fluffText.label}
+        </FormLabel>
+        <TextArea
+          id="LarpPageContentFormComponent-fluffText"
+          name="fluffText"
+          rows={6}
+          defaultValue={larp?.fluffText || ""}
+          readOnly={readOnly}
+          maxLength={2000}
+          locale={locale}
+        />
+        {showHelpText && <FormText>{t.attributes.fluffText.helpText}</FormText>}
+      </div>
+      <div className={styles.field}>
+        <FormLabel htmlFor="LarpPageContentFormComponent-description">
+          {t.attributes.description.label}
+        </FormLabel>
+        <MarkdownEditor
+          id="LarpPageContentFormComponent-description"
+          name="description"
+          rows={10}
+          defaultValue={larp?.description || ""}
+          readOnly={readOnly}
+          maxLength={2000}
+          locale={locale}
+        />
+        {showHelpText && (
+          <FormText>{t.attributes.description.helpText}</FormText>
+        )}
+      </div>
+    </FormSection>
   );
 }

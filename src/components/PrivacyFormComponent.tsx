@@ -1,28 +1,35 @@
-import { Card, CardBody, CardTitle, FormCheck } from "react-bootstrap";
+import { FormCheck } from "react-bootstrap";
 import { PrivacyPolicyLink } from "./ExternalLinks";
+import { RequiredMark } from "./FormSection";
 import type { Translations } from "@/translations/en";
+import styles from "./LarpForm.module.scss";
 
 interface Props {
   translations: Translations;
 }
 
 export default function PrivacyFormComponent({ translations }: Props) {
-  const t = translations.NewLarpPage;
+  const t = translations.NewLarpPage.sections.privacy;
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{t.sections.privacy.title}</CardTitle>
-        <div className="mb-4">
-          {t.sections.privacy.message(PrivacyPolicyLink)}
-        </div>
-        <FormCheck
-          type="checkbox"
-          id="NewLarpPage-privacy-consent"
-          label={<>{t.sections.privacy.consentCheckbox}*</>}
-          required
-        />
-      </CardBody>
-    </Card>
+    <div className={styles.subsection}>
+      <div className={styles.intro}>
+        <h3 className="lf-label mb-2">{t.title}</h3>
+        {t.message(PrivacyPolicyLink)}
+      </div>
+      <FormCheck
+        type="checkbox"
+        id="NewLarpPage-privacy-consent"
+        className={styles.check}
+        data-required-label={t.consentShort}
+        label={
+          <>
+            {t.consentCheckbox}
+            <RequiredMark />
+          </>
+        }
+        required
+      />
+    </div>
   );
 }

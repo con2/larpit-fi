@@ -1,0 +1,138 @@
+$mono: var(--larpit-mono-font), ui-monospace, monospace;
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timelineScroll {
+  overflow-x: auto;
+  padding-top: 12px;
+}
+
+.timeline {
+  min-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timelineBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 64px;
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.bar {
+  flex: 1;
+  min-height: 2px;
+  background: var(--larpit-control-border);
+  border-radius: 2px 2px 0 0;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--larpit-text);
+  }
+}
+
+.barCurrent {
+  background: var(--larpit-aurora);
+}
+
+.barUpcoming {
+  background: rgba(var(--larpit-ice-rgb), 0.5);
+}
+
+.barEmpty {
+  min-height: 1px;
+  background: var(--larpit-hairline);
+
+  &:hover {
+    background: var(--larpit-hairline);
+  }
+}
+
+.timelineLabels {
+  display: flex;
+  gap: 4px;
+  font-family: $mono;
+  font-size: 11px;
+  color: var(--larpit-dim);
+
+  > span {
+    flex: 1;
+    position: relative;
+    height: 14px;
+
+    > span {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  > span:first-child > span {
+    left: 0;
+    transform: none;
+  }
+
+  > span:last-child > span {
+    left: auto;
+    right: 0;
+    transform: none;
+  }
+}
+
+.labelCurrent {
+  color: var(--larpit-aurora);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-block: 32px 80px;
+}
+
+.year {
+  display: flex;
+  flex-direction: column;
+
+  :global(.lf-year) {
+    scroll-margin-top: 96px;
+  }
+}
+
+.expand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--larpit-hairline);
+  font-size: 14px;
+  color: var(--larpit-muted);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--larpit-text);
+  }
+}
+
+.more {
+  > summary {
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &[open] > summary {
+    display: none;
+  }
+}

@@ -1,12 +1,10 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import { Column, DataTable, MessageCard } from "@con2/components";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
-import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -29,9 +27,9 @@ export default async function PagesPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
   if (!canEditPages(user)) {
@@ -85,19 +83,18 @@ export default async function PagesPage({ params }: Props) {
   ];
 
   return (
-    <Container>
-      <MainHeading>{t.listTitle}</MainHeading>
-      <p className="text-center mb-3">
-        <Link className="link-subtle" href={`/page/new`}>
-          {t.actions.newPage.title}
-        </Link>
-      </p>
-      <DataTable
-        // TODO rounded doesn't work on bootstrap .table?
-        className="table table-striped border rounded"
-        columns={columns}
-        rows={pages}
-      />
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header mb-4">
+        <h1 className="lf-display-l">{t.listTitle}</h1>
+        <p className="m-0">
+          <Link className="lf-link-quiet" href={`/page/new`}>
+            {t.actions.newPage.title} →
+          </Link>
+        </p>
+      </header>
+      <div className="table-responsive mb-5">
+        <DataTable className="table" columns={columns} rows={pages} />
+      </div>
+    </div>
   );
 }

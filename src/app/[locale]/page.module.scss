@@ -1,0 +1,148 @@
+.hero {
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.heroInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 40px 64px;
+  padding-block: 88px 64px;
+
+  @media (max-width: 767.98px) {
+    padding-block: 48px 40px;
+  }
+}
+
+.heroText {
+  flex: 999 1 520px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.intro {
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--larpit-prose);
+  max-width: 60ch;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+
+  :global(.btn) {
+    font-size: 15px;
+    padding-inline: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.heroSecondary {
+  :global([data-bs-theme="dark"]) & {
+    border-color: rgba(var(--larpit-text-rgb), 0.3);
+    background: rgba(var(--larpit-ground-rgb), 0.3);
+    color: var(--larpit-text);
+  }
+}
+
+.quietAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
+  font-size: 15px;
+}
+
+.thisWeek {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.thisWeekHeading {
+  margin-bottom: 10px;
+  color: var(--larpit-muted);
+}
+
+.sidebarSectionHeading {
+  margin-bottom: 12px;
+}
+
+.cmsAside {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--larpit-muted);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--larpit-mono-font), ui-monospace, monospace;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--larpit-dim);
+    margin: 0 0 2px;
+  }
+
+  h1:not(:first-child),
+  h2:not(:first-child),
+  h3:not(:first-child),
+  h4:not(:first-child),
+  h5:not(:first-child),
+  h6:not(:first-child) {
+    margin-top: 30px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--larpit-text);
+    text-decoration: underline;
+    text-decoration-color: var(--larpit-control-border);
+    text-underline-offset: 3px;
+
+    &:hover {
+      color: var(--larpit-aurora);
+    }
+  }
+}

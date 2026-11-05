@@ -1,147 +1,97 @@
-import LarpCard from "@/components/LarpCard";
-import RecentChangesCard, {
-  getRecentChanges,
-} from "@/components/RecentChangesCard";
-import { LarpType, Openness } from "@/prisma/enums";
-import { ensureEndsAt, isSignupOpenOrOpeningSoon } from "@/models/Larp";
-import { frontPageSlug } from "@/models/Page";
-import { or } from "@prisma/orm-postgres/orm-client";
+import { Markdown } from "@con2/components";
+import { and, or } from "@prisma/orm-postgres/orm-client";
+import Link from "next/link";
+import { partition } from "underscore";
 
+import Aurora from "@/components/ui/Aurora";
+import CompactRow from "@/components/ui/CompactRow";
+import LarpRow from "@/components/ui/LarpRow";
+import { splitRunSuffix } from "@/helpers/larpName";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { formatShortDateRange, isoWeekOf } from "@/helpers/dates";
+import {
+  ensureEndsAt,
+  getLarpHref,
+  isSignupOpenOrOpeningSoon,
+} from "@/models/Larp";
+import { frontPageSlug, seeAlsoSlug } from "@/models/Page";
 import { iso, parseDates } from "@/prisma/dates";
 import { dbRead } from "@/prisma/db";
+import { Language, LarpType, Openness } from "@/prisma/enums";
 import { getTranslations } from "@/translations";
-import type { Translations } from "@/translations/en";
-import { Markdown } from "@con2/components";
-import { InfoCircle } from "@con2/components/icons";
-import TooltipTrigger from "@/components/TooltipTrigger";
-import Link from "next/link";
-import { ReactNode } from "react";
-import { CardBody } from "react-bootstrap";
-import Card from "react-bootstrap/Card";
-import { partition } from "underscore";
+import { getRecentChanges } from "./_home/recentChanges";
+import SearchLarpsButton from "./_home/SearchLarpsButton";
+import styles from "./page.module.scss";
 
 interface Props {
   params: Promise<{ locale: string }>;
 }
 
-// We show all upcoming larps and 8 past larps on the front page.
-// This is a reasonable guess as there are usually not that many upcoming larps.
-const take = 100;
-
 const cancelledLarpVisibleDays = 30;
+const signupOpeningSoonDays = 14;
+const thisWeekLimit = 5;
+const otherEventsLimit = 4;
+const otherEventTypes: LarpType[] = [
+  LarpType.OTHER_EVENT,
+  LarpType.OTHER_EVENT_SERIES,
+];
 
-async function getHomePageLarps() {
+/** Larps that have not ended before the given day, earliest first. */
+async function getHomePageLarps(since: string) {
   const cancelledCutoff = new Date(
     Date.now() - cancelledLarpVisibleDays * 24 * 60 * 60 * 1000,
   );
 
   return parseDates(
-    await dbRead.orm.public.Larp.where((l) => l.startsAt.isNotNull())
+    await dbRead.orm.public.Larp.where((l) =>
+      or(l.endsAt.gte(since), and(l.endsAt.isNull(), l.startsAt.gte(since))),
+    )
       .where((l) =>
         or(l.cancelledAt.isNull(), l.cancelledAt.gte(iso(cancelledCutoff))),
       )
-      .orderBy((l) => l.startsAt.desc())
+      .orderBy((l) => l.startsAt.asc())
       .include("municipality", (m) => m.select("nameFi"))
-      .limit(take)
       .all(),
   );
 }
 
-type HomePageLarp = Awaited<ReturnType<typeof getHomePageLarps>>[number];
-const signupOpeningSoonDays = 14;
-
-function Section({
-  title,
-  description,
-  larps,
-  locale,
-  messages,
-  children,
-  past,
-  countWord,
-}: {
-  title: string;
-  description?: ReactNode;
-  larps: HomePageLarp[];
-  locale: string;
-  messages: Translations["Larp"];
-  children?: React.ReactNode;
-  past?: boolean;
-  countWord?: { singular: string; plural: string };
-}) {
-  const count = larps.length;
-  const word = countWord ?? messages.clientAttributes.yearHeaders.larp;
-  const countLabel = count === 1 ? word.singular : word.plural;
-
-  return (
-    <div className="mb-5">
-      <h4 className="h-float mb-4">
-        {title}
-        {!past && (
-          <>
-            {" "}
-            ({count} {countLabel})
-          </>
-        )}
-        {description && (
-          <>
-            {" "}
-            <TooltipTrigger tooltip={description}>
-              <InfoCircle />
-            </TooltipTrigger>
-          </>
-        )}
-      </h4>
-      <div className="row">
-        {larps.map((larp) => (
-          <LarpCard
-            larp={larp}
-            locale={locale}
-            key={larp.id}
-            messages={messages}
-            past={past}
-          />
-        ))}
-      </div>
-      {children}
-    </div>
-  );
+function langOf(language: Language) {
+  return language === Language.OTHER ? undefined : language;
 }
-
-const limitPastLarps = 8;
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
   const t = translations.HomePage;
+  const navT = translations.Navigation.actions;
   const now = new Date();
+  const week = isoWeekOf(now);
+  const monday = week.monday.toString();
+  const sunday = week.sunday.toString();
 
-  // TODO currently gets all larps, then filters in memory
-  // still plenty fast enough, but should be optimized later
-
-  const [larps, page, recentChanges] = await Promise.all([
-    getHomePageLarps(),
+  const [larps, page, seeAlso, recentChanges] = await Promise.all([
+    getHomePageLarps(monday),
     dbRead.orm.public.Page.first({ slug: frontPageSlug, language: locale }),
+    dbRead.orm.public.Page.first({ slug: seeAlsoSlug, language: locale }),
     getRecentChanges(),
   ]);
 
-  const candidateLarps = larps.filter(
-    (larp) => larp.openness !== Openness.INVITE_ONLY && !!larp.startsAt,
+  const visibleLarps = larps.filter(
+    (larp) => larp.openness !== Openness.INVITE_ONLY,
+  );
+  const [otherEvents, actualLarps] = partition(visibleLarps, (larp) =>
+    otherEventTypes.includes(larp.type),
   );
 
-  // For upcoming events, earliest first is more useful
-  candidateLarps.reverse();
-
-  const [otherEvents, actualLarps] = partition(
-    candidateLarps,
-    (larp) => larp.type === LarpType.OTHER_EVENT,
+  const thisWeek = actualLarps.filter(
+    (larp) =>
+      larp.startsAt! <= sunday && (larp.endsAt ?? larp.startsAt!) >= monday,
   );
   const upcomingOtherEvents = otherEvents.filter(
     (larp) => ensureEndsAt(larp)! >= now,
   );
-  const [pastLarps, upcomingLarps] = partition(
-    actualLarps,
-    (larp) => ensureEndsAt(larp)! < now,
+  const upcomingLarps = actualLarps.filter(
+    (larp) => ensureEndsAt(larp)! >= now,
   );
   const [ongoingSignupLarps, otherUpcomingLarps] = partition(
     upcomingLarps,
@@ -150,88 +100,213 @@ export default async function HomePage({ params }: Props) {
       isSignupOpenOrOpeningSoon(larp, signupOpeningSoonDays),
   );
 
-  // We only show a fixed number of past larps
-  // For past larps, most recent first is more useful
-  pastLarps.reverse().splice(limitPastLarps);
+  const otherEventsHref = `/larp?type=${LarpType.OTHER_EVENT}`;
+  const upcomingOtherEventCount = upcomingOtherEvents.filter(
+    (larp) => larp.type === LarpType.OTHER_EVENT,
+  ).length;
 
   return (
-    <div className="container">
-      <div className="text-center mb-4">
-        <h2 className="mt-5">{translations.title}</h2>
-        <p className="fs-5 fst-italic h-float">
-          {translations.HomePage.tagline}
-        </p>
-      </div>
+    <>
+      <Aurora variant="home" />
 
-      <div className="row">
-        {page && (
-          <div className="col-lg-8 mb-5">
-            <Card className="h-100">
-              <CardBody>
+      <section className={styles.hero}>
+        <div className={`lf-container ${styles.heroInner}`}>
+          <div className={styles.heroText}>
+            <p className="lf-eyebrow">{t.tagline}</p>
+            <h1 className="lf-display-xl">{page?.title || t.title}</h1>
+            {page?.content.trim() && (
+              <div className={styles.intro}>
                 <Markdown input={page.content} />
-              </CardBody>
-            </Card>
+              </div>
+            )}
+            <div className={styles.actions}>
+              <Link href="/larp/new" className="btn btn-primary">
+                {navT.addLarp}
+              </Link>
+              <SearchLarpsButton
+                label={navT.search}
+                className={`btn btn-outline-secondary ${styles.heroSecondary}`}
+              />
+              <Link
+                href="/calendar#subscribe"
+                className={`lf-link-quiet ${styles.quietAction}`}
+              >
+                {t.actions.subscribeToCalendar} →
+              </Link>
+            </div>
           </div>
-        )}
-        <div className="col-lg-4 mb-5">
-          <RecentChangesCard
-            recentChanges={recentChanges}
-            locale={locale}
-            messages={{
-              section: t.sections.recentChanges,
-              action: translations.ModerationRequest.attributes.action.choices,
-            }}
-          />
-        </div>
-      </div>
 
-      {ongoingSignupLarps.length > 0 && (
-        <Section
-          title={t.sections.ongoingSignup.title}
-          description={t.sections.ongoingSignup.description(
-            signupOpeningSoonDays,
+          {thisWeek.length > 0 && (
+            <section
+              className={styles.thisWeek}
+              aria-labelledby="HomePage-thisWeek"
+            >
+              <h2
+                id="HomePage-thisWeek"
+                className={`lf-label ${styles.thisWeekHeading}`}
+              >
+                {t.sections.thisWeek.title}{" "}
+                <span className="lf-dim">
+                  · {t.sections.thisWeek.week(week.week)}
+                </span>
+              </h2>
+              <div className="lf-compact-list">
+                {thisWeek.slice(0, thisWeekLimit).map((larp) => {
+                  const { name, suffix } = splitRunSuffix(larp.name);
+                  const sub = [larp.municipality?.nameFi, suffix]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <CompactRow
+                      key={larp.id}
+                      href={getLarpHref(larp)}
+                      date={formatShortDateRange(
+                        larp.startsAt,
+                        larp.endsAt,
+                        locale,
+                      )}
+                      name={name}
+                      sub={sub || undefined}
+                      cancelled={!!larp.cancelledAt}
+                      lang={langOf(larp.language)}
+                    />
+                  );
+                })}
+              </div>
+              <Link href="/calendar" className="lf-more-link">
+                {t.sections.thisWeek.fullCalendar} →
+              </Link>
+            </section>
           )}
-          larps={ongoingSignupLarps}
-          locale={locale}
-          messages={translations.Larp}
-        />
-      )}
-      {otherUpcomingLarps.length > 0 && (
-        <Section
-          title={
-            // some may call it overkill
-            // we call it attention to detail
-            ongoingSignupLarps.length > 0
-              ? t.sections.upcomingWhenOngoingSignupPresent
-              : t.sections.upcomingWhenNoOngoingSignupPresent
-          }
-          larps={otherUpcomingLarps}
-          locale={locale}
-          messages={translations.Larp}
-        />
-      )}
-      {upcomingOtherEvents.length > 0 && (
-        <Section
-          title={t.sections.upcomingOtherEvents}
-          larps={upcomingOtherEvents}
-          locale={locale}
-          messages={translations.Larp}
-          countWord={t.otherEvent}
-        />
-      )}
-      {pastLarps.length > 0 && (
-        <Section
-          title={t.sections.past}
-          larps={pastLarps}
-          locale={locale}
-          messages={translations.Larp}
-          past={true}
-        >
-          <Link href="/larp" className="link-subtle">
-            {translations.Larp.listTitle}…
-          </Link>
-        </Section>
-      )}
-    </div>
+        </div>
+      </section>
+
+      <div className="lf-container lf-main-aside">
+        <div>
+          {ongoingSignupLarps.length > 0 && (
+            <section className="lf-section">
+              <SectionHeading
+                count={ongoingSignupLarps.length}
+                link={{
+                  href: "/calendar",
+                  title: t.sections.ongoingSignup.calendar,
+                }}
+              >
+                {t.sections.ongoingSignup.title}
+              </SectionHeading>
+              {ongoingSignupLarps.map((larp) => (
+                <LarpRow
+                  key={larp.id}
+                  larp={larp}
+                  locale={locale}
+                  messages={translations.Larp}
+                  prominentTagline
+                />
+              ))}
+            </section>
+          )}
+
+          {otherUpcomingLarps.length > 0 && (
+            <section className="lf-section">
+              <SectionHeading count={otherUpcomingLarps.length}>
+                {
+                  // some may call it overkill
+                  // we call it attention to detail
+                  ongoingSignupLarps.length > 0
+                    ? t.sections.upcomingWhenOngoingSignupPresent
+                    : t.sections.upcomingWhenNoOngoingSignupPresent
+                }
+              </SectionHeading>
+              {otherUpcomingLarps.map((larp) => (
+                <LarpRow
+                  key={larp.id}
+                  larp={larp}
+                  locale={locale}
+                  messages={translations.Larp}
+                />
+              ))}
+            </section>
+          )}
+        </div>
+
+        <aside>
+          {recentChanges.length > 0 && (
+            <section aria-labelledby="HomePage-recentChanges">
+              <h2
+                id="HomePage-recentChanges"
+                className={`lf-label ${styles.sidebarSectionHeading}`}
+              >
+                {t.sections.recentChanges.title}
+              </h2>
+              <div className="lf-compact-list">
+                {recentChanges.map((change) => (
+                  <CompactRow
+                    key={change.id}
+                    href={getLarpHref(change)}
+                    date={formatShortDateRange(change.resolvedAt, null, locale)}
+                    name={change.name}
+                    cancelled={change.isCancelled}
+                    lang={langOf(change.language)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {upcomingOtherEvents.length > 0 && (
+            <section aria-labelledby="HomePage-otherEvents">
+              <h2
+                id="HomePage-otherEvents"
+                className={`lf-label ${styles.sidebarSectionHeading}`}
+              >
+                {t.sections.otherEvents.title}
+              </h2>
+              <div className="lf-compact-list">
+                {upcomingOtherEvents.slice(0, otherEventsLimit).map((larp) => {
+                  const sub = [larp.municipality?.nameFi, larp.tagline]
+                    .filter(Boolean)
+                    .join(" · ");
+                  return (
+                    <CompactRow
+                      key={larp.id}
+                      href={getLarpHref(larp)}
+                      date={formatShortDateRange(
+                        larp.startsAt,
+                        larp.endsAt,
+                        locale,
+                      )}
+                      name={larp.name}
+                      sub={sub || undefined}
+                      cancelled={!!larp.cancelledAt}
+                      lang={langOf(larp.language)}
+                    />
+                  );
+                })}
+              </div>
+              <Link href={otherEventsHref} className="lf-more-link">
+                {t.sections.otherEvents.all(upcomingOtherEventCount)} →
+              </Link>
+            </section>
+          )}
+
+          {seeAlso?.content.trim() && (
+            <section className={styles.cmsAside}>
+              <h2 className="lf-label">{seeAlso.title}</h2>
+              <Markdown input={seeAlso.content} />
+            </section>
+          )}
+
+          <section className="lf-surface lf-surface--compact">
+            <h2 className="lf-surface__title">{t.sections.addLarp.title}</h2>
+            <p className="small lf-muted">{t.sections.addLarp.description}</p>
+            <div>
+              <Link href="/larp/new" className="btn btn-primary">
+                {navT.addLarp}
+              </Link>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </>
   );
 }

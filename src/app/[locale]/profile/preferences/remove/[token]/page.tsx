@@ -1,17 +1,9 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import { findAccountRemovalToken, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
 import { SubmitButton } from "@con2/components";
-import {
-  Card,
-  CardBody,
-  CardText,
-  CardTitle,
-  Container,
-  Form,
-} from "react-bootstrap";
+import { Card, CardBody, CardText, CardTitle, Form } from "react-bootstrap";
 import { confirmAccountRemoval } from "./actions";
 
 interface Props {
@@ -31,41 +23,45 @@ export default async function ConfirmAccountRemovalPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
 
   const verificationToken = await findAccountRemovalToken(user.id, token);
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <Card>
-        <CardBody>
-          {verificationToken ? (
-            <>
-              <CardTitle>{t.confirm.title}</CardTitle>
-              <CardText>{t.confirm.message}</CardText>
-              <Form action={confirmAccountRemoval.bind(null, locale, token)}>
-                <SubmitButton
-                  variant="danger"
-                  className="d-block btn btn-danger btn-lg w-100 mt-3"
-                  confirmationMessage={t.confirm.confirmationMessage}
-                >
-                  {t.confirm.submit}…
-                </SubmitButton>
-              </Form>
-            </>
-          ) : (
-            <>
-              <CardTitle>{t.invalidToken.title}</CardTitle>
-              <CardText>{t.invalidToken.message}</CardText>
-            </>
-          )}
-        </CardBody>
-      </Card>
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{t.title}</h1>
+      </header>
+      <div className="py-5" style={{ maxWidth: "48rem" }}>
+        <Card>
+          <CardBody>
+            {verificationToken ? (
+              <>
+                <CardTitle>{t.confirm.title}</CardTitle>
+                <CardText>{t.confirm.message}</CardText>
+                <Form action={confirmAccountRemoval.bind(null, locale, token)}>
+                  <SubmitButton
+                    variant="danger"
+                    className="d-block btn btn-danger btn-lg w-100 mt-3"
+                    confirmationMessage={t.confirm.confirmationMessage}
+                  >
+                    {t.confirm.submit}…
+                  </SubmitButton>
+                </Form>
+              </>
+            ) : (
+              <>
+                <CardTitle>{t.invalidToken.title}</CardTitle>
+                <CardText>{t.invalidToken.message}</CardText>
+              </>
+            )}
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 }

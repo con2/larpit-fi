@@ -8,8 +8,11 @@ import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormCo
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
 import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
+import { FormSection } from "@/components/FormSection";
+import LarpFormSidebar from "@/components/LarpFormSidebar";
+import styles from "@/components/LarpForm.module.scss";
+import { getLarpHref } from "@/models/Larp.client";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
 import { EditFormPreference, SubmitterRole } from "@/prisma/enums";
 import {
@@ -21,10 +24,12 @@ import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
-import Container from "react-bootstrap/Container";
+import Link from "next/link";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { editLarp, setEditFormPreference } from "./actions";
+
+const formId = "EditLarpPage-form";
 
 interface Props {
   params: Promise<{
@@ -81,115 +86,146 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
     return (
-      <Container>
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 
   const isCompact = user?.editFormPreference === EditFormPreference.COMPACT;
+  const newT = translations.NewLarpPage;
+  const linksMessages = { links: translations.Larp.attributes.links };
 
-  return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <div className="text-center mb-5">{t.policy[initialStatus]}</div>
-
-      <Form action={editLarp.bind(null, locale, larp!.id)}>
-        {isCompact ? (
-          <>
-            <SubmitterFormComponent
-              user={user}
-              role={role}
-              translations={translations}
-              compact
-            />
-            <CompactLarpFormComponent
-              translations={translations}
-              locale={locale}
-              larp={larp}
-            />
+  const form = (
+    <Form
+      id={formId}
+      className={`${styles.form} ${isCompact ? styles.formCompact : ""}`}
+      action={editLarp.bind(null, locale, larp.id)}
+    >
+      {isCompact ? (
+        <>
+          <SubmitterFormComponent
+            user={user}
+            role={role}
+            translations={translations}
+            compact
+          />
+          <CompactLarpFormComponent
+            translations={translations}
+            locale={locale}
+            larp={larp}
+          />
+          <FormSection id="links" title={newT.sections.links.title} compact>
             <LarpLinksManager
-              messages={{
-                links: translations.Larp.attributes.links,
-                linksSection: translations.NewLarpPage.sections.links,
-              }}
-              initialLinks={larp!.links}
-              compact
+              messages={linksMessages}
+              initialLinks={larp.links}
             />
-            <YoureAlmostReadyFormComponent
-              translations={translations}
-              user={user}
-              compact
-            />
-          </>
-        ) : (
-          <>
-            <SubmitterFormComponent
-              user={user}
-              role={role}
-              translations={translations}
-            />
-            <LarpBasicInfoFormComponent
-              translations={translations}
-              locale={locale}
-              larp={larp}
-            />
-            <LarpTimeFormComponent
-              translations={translations}
-              locale={locale}
-              larp={larp}
-            />
+          </FormSection>
+          <YoureAlmostReadyFormComponent
+            translations={translations}
+            user={user}
+            compact
+          />
+        </>
+      ) : (
+        <>
+          <SubmitterFormComponent
+            user={user}
+            role={role}
+            translations={translations}
+          />
+          <LarpBasicInfoFormComponent
+            translations={translations}
+            locale={locale}
+            larp={larp}
+          />
+          <LarpTimeFormComponent
+            translations={translations}
+            locale={locale}
+            larp={larp}
+          >
             <LarpLocationFormComponent
               translations={translations}
               locale={locale}
               larp={larp}
             />
-            <LarpSignupInfoFormComponent
-              translations={translations}
-              locale={locale}
-              larp={larp}
-            />
-            <LarpPageContentFormComponent
-              translations={translations}
-              locale={locale}
-              larp={larp}
-            />
+          </LarpTimeFormComponent>
+          <LarpSignupInfoFormComponent
+            translations={translations}
+            locale={locale}
+            larp={larp}
+          />
+          <LarpPageContentFormComponent
+            translations={translations}
+            locale={locale}
+            larp={larp}
+          />
+          <FormSection
+            id="links"
+            title={newT.sections.links.title}
+            intro={newT.sections.links.message}
+          >
             <LarpLinksManager
-              messages={{
-                links: translations.Larp.attributes.links,
-                linksSection: translations.NewLarpPage.sections.links,
-              }}
-              initialLinks={larp!.links}
+              messages={linksMessages}
+              initialLinks={larp.links}
             />
-            <LarpCancelledFormComponent
-              translations={translations}
-              larp={larp}
-            />
-            <YoureAlmostReadyFormComponent
-              translations={translations}
-              user={user}
-            />
-          </>
+          </FormSection>
+          <LarpCancelledFormComponent translations={translations} larp={larp} />
+          <YoureAlmostReadyFormComponent
+            translations={translations}
+            user={user}
+          />
+        </>
+      )}
+    </Form>
+  );
+
+  return (
+    <>
+      <header className="lf-container lf-page-header">
+        <p className="lf-eyebrow">
+          <Link href={getLarpHref(larp)} className="lf-row-link">
+            {larp.name}
+          </Link>
+        </p>
+        <h1 className="lf-display-l">{t.title}</h1>
+        <p className={styles.pageIntro}>{t.policy[initialStatus]}</p>
+      </header>
+
+      <div className={`lf-container ${styles.layout}`}>
+        {form}
+        {!isCompact && (
+          <LarpFormSidebar
+            formId={formId}
+            translations={translations}
+            locale={locale}
+            sections={[
+              { id: "who", title: newT.sections.contact.title },
+              { id: "basics", title: newT.sections.larp.title },
+              { id: "when", title: newT.sections.time.title },
+              { id: "signup", title: newT.sections.signup.title },
+              { id: "content", title: newT.sections.content.title },
+              { id: "links", title: newT.sections.links.title },
+              { id: "cancelled", title: newT.sections.cancelled.title },
+            ]}
+          />
         )}
-      </Form>
+      </div>
 
       {user && (
-        <div className="text-center mb-4">
+        <div className={`lf-container ${styles.formPreference}`}>
           <Form
-            className="d-inline"
             action={setEditFormPreference.bind(
               null,
               locale,
-              larp!.id,
+              larp.id,
               isCompact ? EditFormPreference.FULL : EditFormPreference.COMPACT,
             )}
           >
-            <button className="btn btn-link link-xxsubtle">
+            <button className="btn btn-link px-0">
               {isCompact ? t.switchToFullForm : t.switchToCompactForm}
             </button>
           </Form>
         </div>
       )}
-    </Container>
+    </>
   );
 }

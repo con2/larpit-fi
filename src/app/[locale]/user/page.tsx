@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { SubtlePrivacyPolicyLink } from "@/components/ExternalLinks";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import { canModerate, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
@@ -12,7 +11,7 @@ import {
   DataTable,
   MessageCard,
 } from "@con2/components";
-import { Container, FormLabel, FormSelect } from "react-bootstrap";
+import { FormLabel, FormSelect } from "react-bootstrap";
 import { setUserRole } from "./actions";
 
 interface Props {
@@ -79,9 +78,9 @@ export default async function UsersPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
   if (!canModerate(user)) {
@@ -126,17 +125,16 @@ export default async function UsersPage({ params }: Props) {
   ];
 
   return (
-    <Container>
-      <MainHeading>{t.listTitle}</MainHeading>
-      <p className="text-muted text-center">
-        {t.privacyWarning(SubtlePrivacyPolicyLink)}
-      </p>
-      <DataTable
-        // TODO rounded doesn't work on bootstrap .table?
-        className="table table-striped border rounded"
-        columns={columns}
-        rows={users}
-      />
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{t.listTitle}</h1>
+        <p className="lf-muted mb-0">
+          {t.privacyWarning(SubtlePrivacyPolicyLink)}
+        </p>
+      </header>
+      <div className="py-5 table-responsive">
+        <DataTable className="table" columns={columns} rows={users} />
+      </div>
+    </div>
   );
 }

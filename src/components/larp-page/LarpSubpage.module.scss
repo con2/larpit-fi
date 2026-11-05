@@ -1,0 +1,13 @@
+.page {
+  padding-bottom: 80px;
+
+  :global(.lf-link-quiet) {
+    align-self: flex-start;
+    white-space: normal;
+  }
+}
+
+.body {
+  padding-top: 40px;
+  max-width: 900px;
+}

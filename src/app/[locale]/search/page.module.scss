@@ -1,0 +1,16 @@
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 720px;
+
+  :global(.form-control) {
+    flex: 1 1 280px;
+    min-height: 48px;
+    font-size: 17px;
+  }
+}
+
+.results {
+  padding-block: 40px 80px;
+}

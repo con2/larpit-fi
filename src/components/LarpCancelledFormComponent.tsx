@@ -1,6 +1,8 @@
 import type { Larp } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
-import { Card, CardBody, CardTitle, FormCheck } from "react-bootstrap";
+import { FormCheck } from "react-bootstrap";
+import { FormSection } from "./FormSection";
+import styles from "./LarpForm.module.scss";
 
 interface Props {
   translations: Translations;
@@ -17,25 +19,23 @@ export default function LarpCancelledFormComponent({
 }: Props) {
   const t = translations.Larp;
   const newT = translations.NewLarpPage;
-  const showHelpText = !compact;
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{newT.sections.cancelled.title}</CardTitle>
-        {showHelpText && (
-          <div className="mb-4">{newT.sections.cancelled.message}</div>
-        )}
-
-        <FormCheck
-          type="checkbox"
-          id="LarpCancelledFormComponent-isCancelled"
-          name="isCancelled"
-          label={t.attributes.isCancelled.label}
-          defaultChecked={larp?.cancelledAt != null}
-          readOnly={readOnly}
-        />
-      </CardBody>
-    </Card>
+    <FormSection
+      id="cancelled"
+      title={newT.sections.cancelled.title}
+      intro={newT.sections.cancelled.message}
+      compact={compact}
+    >
+      <FormCheck
+        type="checkbox"
+        id="LarpCancelledFormComponent-isCancelled"
+        name="isCancelled"
+        className={styles.check}
+        label={t.attributes.isCancelled.label}
+        defaultChecked={larp?.cancelledAt != null}
+        readOnly={readOnly}
+      />
+    </FormSection>
   );
 }

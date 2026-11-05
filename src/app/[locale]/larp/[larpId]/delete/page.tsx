@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import {
   getDeleteLarpInitialStatusForUser,
   getUserFromSession,
@@ -9,14 +9,7 @@ import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { SubmitButton } from "@con2/components";
 import { notFound } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  Container,
-  Form,
-  FormControl,
-  FormLabel,
-} from "react-bootstrap";
+import { Card, CardBody, Form, FormControl, FormLabel } from "react-bootstrap";
 import { validate as validateUuid } from "uuid";
 import { deleteLarp } from "./actions";
 import { EditStatus } from "@/prisma/enums";
@@ -53,9 +46,9 @@ export default async function DeleteLarpPage({ params }: Props) {
 
   if (!session || !user) {
     return (
-      <Container>
+      <LarpSubpage title={t.title} larp={larp}>
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </LarpSubpage>
     );
   }
 
@@ -63,8 +56,7 @@ export default async function DeleteLarpPage({ params }: Props) {
     getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
+    <LarpSubpage title={t.title} larp={larp}>
       <Card className="mb-4">
         <CardBody>
           <p>
@@ -93,6 +85,6 @@ export default async function DeleteLarpPage({ params }: Props) {
           </Form>
         </CardBody>
       </Card>
-    </Container>
+    </LarpSubpage>
   );
 }

@@ -1,13 +1,12 @@
-import MainHeading from "@/components/MainHeading";
 import { EditAction, EditStatus } from "@/prisma/enums";
-import { FormattedDateTime, SubmitButton } from "@con2/components";
+import { SubmitButton } from "@con2/components";
+import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { notFound } from "next/navigation";
 import { Card, CardBody, CardTitle, Form } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
 import { validate as validateUuid } from "uuid";
 import { verifyRequest } from "./actions";
 
@@ -44,15 +43,21 @@ export default async function VerificationCodePage({ params }: Props) {
   }
 
   if (request.status !== EditStatus.PENDING_VERIFICATION) {
-    <Container>
-      <MainHeading>{translations.NewLarpPage.title}</MainHeading>
-      <Card>
-        <CardBody>
-          <CardTitle>{t.errors.notPendingVerification.title}</CardTitle>
-          {t.errors.notPendingVerification.message}
-        </CardBody>
-      </Card>
-    </Container>;
+    return (
+      <div className="lf-container">
+        <header className="lf-page-header">
+          <h1 className="lf-display-l">{translations.NewLarpPage.title}</h1>
+        </header>
+        <div className="py-5" style={{ maxWidth: "48rem" }}>
+          <Card>
+            <CardBody>
+              <CardTitle>{t.errors.notPendingVerification.title}</CardTitle>
+              {t.errors.notPendingVerification.message}
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   const newContent = ModerationRequestContent.parse(request.newContent);
@@ -81,30 +86,36 @@ export default async function VerificationCodePage({ params }: Props) {
   }
 
   return (
-    <Container>
-      <MainHeading>{title}</MainHeading>
-      <Card>
-        <CardBody>
-          <CardTitle>{t.title}</CardTitle>
-          {t.message}
-          <dl className="mt-3">
-            <dt>{translations.ModerationRequest.attributes.name.title}</dt>
-            <dd>{newContent.name}</dd>
-            <dt>{translations.ModerationRequest.attributes.createdAt.title}</dt>
-            <dd>
-              <FormattedDateTime
-                value={uuid7ToZonedDateTime(request.id)}
-                locale={locale}
-              />
-            </dd>
-          </dl>
-          <Form action={verifyRequest.bind(null, locale, verificationCode)}>
-            <SubmitButton className="d-block btn btn-primary btn-lg w-100 mt-4">
-              {t.actions.verify}
-            </SubmitButton>
-          </Form>
-        </CardBody>
-      </Card>
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{title}</h1>
+      </header>
+      <div className="py-5" style={{ maxWidth: "48rem" }}>
+        <Card>
+          <CardBody>
+            <CardTitle>{t.title}</CardTitle>
+            {t.message}
+            <dl className="mt-3">
+              <dt>{translations.ModerationRequest.attributes.name.title}</dt>
+              <dd>{newContent.name}</dd>
+              <dt>
+                {translations.ModerationRequest.attributes.createdAt.title}
+              </dt>
+              <dd>
+                <FormattedDateTime
+                  value={uuid7ToZonedDateTime(request.id)}
+                  locale={locale}
+                />
+              </dd>
+            </dl>
+            <Form action={verifyRequest.bind(null, locale, verificationCode)}>
+              <SubmitButton className="d-block btn btn-primary btn-lg w-100 mt-4">
+                {t.actions.verify}
+              </SubmitButton>
+            </Form>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
   );
 }

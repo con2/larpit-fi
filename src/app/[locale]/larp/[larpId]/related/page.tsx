@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { byStartsAt, relatedLarpFields } from "@/components/LarpPage";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { addRelatedLarp } from "@/components/related/actions";
 import {
   LeftRelatedLarpComponent,
@@ -30,7 +30,6 @@ import {
   FormLabel,
   FormSelect,
 } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 
@@ -113,11 +112,9 @@ export default async function RelatedLarpsPage({
   const editPolicy = getEditLarpInitialStatusForUserAndLarp(user, larp);
 
   return (
-    <Container>
-      <MainHeading>{larp.name}</MainHeading>
+    <LarpSubpage title={t.title} larp={larp}>
       <Card className="mb-4">
         <CardBody>
-          <CardTitle>{t.title}</CardTitle>
           {larp.relatedLarpsLeft.map((relatedLarp) => (
             <LeftRelatedLarpComponent
               key={relatedLarp.rightId}
@@ -232,6 +229,6 @@ export default async function RelatedLarpsPage({
           {ediT.policy[editPolicy]}
         </div>
       )}
-    </Container>
+    </LarpSubpage>
   );
 }

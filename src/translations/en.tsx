@@ -14,63 +14,155 @@ const translations = {
   },
   HomePage: {
     tagline: "Crowd-sourced archive of Finnish larp",
+    title: "Every Finnish larp, past and upcoming, in one place.",
+    actions: {
+      subscribeToCalendar: "Subscribe to the calendar",
+    },
     sections: {
-      recentChanges: {
-        title: "Recent changes",
+      thisWeek: {
+        title: "This week",
+        week: (week: number) => `wk ${week}`,
+        fullCalendar: "Full calendar",
       },
-      upcomingOtherEvents: "Upcoming conventions, meetups and other events",
       ongoingSignup: {
-        title: "Sign-up in progress or opening soon",
-        description: (days: number) => (
-          <>
-            This section shows larps whose signup is currently open or opening
-            in the next {days} days. Invite only larps are never shown on the
-            front page.
-          </>
-        ),
+        title: "Signing up now",
+        calendar: "Calendar",
       },
       upcomingWhenNoOngoingSignupPresent: "Upcoming larps",
       upcomingWhenOngoingSignupPresent: "Other upcoming larps",
-      past: "Some past larps",
+      recentChanges: {
+        title: "Recent changes",
+      },
+      otherEvents: {
+        title: "Conventions, festivals, meetups etc.",
+        all: (count: number) => `All ${count} upcoming events`,
+      },
+      addLarp: {
+        title: "Run a larp that isn’t here?",
+        description:
+          "Add it yourself in a couple of minutes. First additions are checked before publishing; later ones after.",
+      },
     },
-    otherEvent: { singular: "event", plural: "events" },
   },
   LarpPage: {
     actions: {
       edit: "Edit this page",
       delete: "Request deletion",
       adminDelete: "Delete this page",
-      manageRelatedLarps: "Manage related larps",
       manageSignupSettings: "Sign-up settings",
-      claim: (
-        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
-      ) => (
-        <>
-          Are you the GM or organizer? <ClaimLink>Claim this page</ClaimLink> to
-          edit the details!
-        </>
-      ),
+      editShort: "edit",
+      suggestChange: "Suggest a change",
+      claim: "I’m the GM — claim this page",
+    },
+    details: {
+      when: "When",
+      where: "Where",
+      participants: "Participants",
+      players: (numPlayerCharacters: number): string =>
+        numPlayerCharacters === 1 ? "player character" : "player characters",
+      ofTotal: (numTotalParticipants: number) =>
+        `of ${numTotalParticipants} participant${numTotalParticipants === 1 ? "" : "s"}`,
+      total: (numTotalParticipants: number): string =>
+        numTotalParticipants === 1 ? "participant" : "participants",
+    },
+    updated: (date: ReactNode) => <>Updated {date}</>,
+    signup: {
+      pill: {
+        open: "Signup open",
+        opensSoon: "Signup opens soon",
+      },
+      title: "Sign-up",
+      closes: (date: ReactNode) => <>Closes {date}</>,
+      closed: (date: ReactNode) => <>Closed {date}</>,
+      opens: (date: ReactNode) => <>Opens {date}</>,
+      opened: (date: ReactNode) => <>Opened {date}</>,
+      daysLeft: (days: number): string =>
+        days === 0
+          ? "Closes today"
+          : days === 1
+            ? "1 day left"
+            : `${days} days left`,
+      elapsed: "Share of the sign-up period already passed",
+      notAnnounced: "Sign-up dates have not been announced yet.",
+      cancelled: "This larp has been cancelled.",
+      signUpOnSite: "Sign up on the larp’s site",
+      visitSite: "Visit the larp’s site",
+    },
+    ownActions: {
+      title: "Your actions",
+      addToCalendar: "Add to calendar",
+      playing: "I’m playing in this larp",
+      played: "I played in this larp",
+      favourite: "Favourite",
+      signInFirst: "Sign in to mark this",
+    },
+    gm: {
+      claimedByYou: "You are managing this page as the GM.",
+      claimed: "The GM is managing this page.",
+    },
+    relatedLarps: {
+      empty: "No related larps yet.",
+      emptyHint: "Signed-in users can link reruns, sequels and campaign games.",
+    },
+    onThisPage: {
+      title: "On this page",
+      crowdSourced: "Details are crowd-sourced and may be out of date.",
     },
   },
   NewLarpPage: {
     title: "Add a larp",
+    eyebrow: "Contribute",
     message: (
       <>
-        <p>
-          To add a new larp, please fill out the following form with all the
-          relevant details. Fields marked with an asterisk (*) are required.
-        </p>
-        <p className="form-text">
-          You can also use this form to create events that are related to
-          larping but are not larps themselves, including (but not limited to)
-          meetups, workshops, larp festivals and conventions. In this case,
-          please excuse the use of the word &quot;larp&quot; on this form; it
-          shall larp whatever the type of the event you are adding.
-        </p>
+        Larps, but also meetups, workshops, larp festivals and conventions. You
+        don&apos;t have to be the GM. Fields marked{" "}
+        <span className="lf-accent">*</span> are required; the rest can be
+        filled in later by anyone.
       </>
     ),
     actions: {
       submit: "Submit",
+    },
+    sectionIndex: {
+      title: "Sections",
+      missing: "{count} missing",
+      done: "Done",
+      optional: "Optional",
+    },
+    preview: {
+      title: "How it will look in lists",
+      note: "Updates as you type.",
+      signupNote:
+        "While signup is approaching or open, open-signup larps are also highlighted on the front page.",
+      namePlaceholder: "Name of the larp",
+      noDate: "No date yet",
+      pill: {
+        openUntil: "Open until {date}",
+        opens: "Opens {date}",
+        openIndefinitely: "Signup open",
+        over: "Signup over",
+        inviteOnly: "Invite only",
+        cancelled: "Cancelled",
+      },
+    },
+    requiredSummary: {
+      allFilled: "All required fields are filled in.",
+      stillEmpty: "Required fields still empty ({count}):",
+    },
+    alreadyListed: {
+      title: "Already listed?",
+      message: (
+        SearchLink: ({ children }: { children: ReactNode }) => JSX.Element,
+      ) => (
+        <>
+          Check <SearchLink>search</SearchLink> first. Reruns get their own
+          page; link them as related afterwards.
+        </>
+      ),
+    },
+    opennessUnspecified: {
+      title: "Not known yet",
+      description: "Leave this selected if you don't know who can sign up.",
     },
     sections: {
       contact: {
@@ -132,6 +224,7 @@ const translations = {
             I consent to the processing of my personal data as described above.
           </>
         ),
+        consentShort: "consent to data processing",
       },
       larp: {
         title: "Details of the larp",
@@ -164,7 +257,7 @@ const translations = {
         ),
       },
       time: {
-        title: "When is the larp played?",
+        title: "When and where",
         message: (
           <>
             <p>
@@ -183,7 +276,6 @@ const translations = {
         ),
       },
       location: {
-        title: "Where is the larp played?",
         message: (
           <>
             Please provide the name of the venue and the municipality it is
@@ -660,6 +752,10 @@ const translations = {
           opensAt: (formattedDate: ReactNode) => (
             <>Signup opening at {formattedDate}</>
           ),
+          openUntilShort: (formattedDate: ReactNode) => (
+            <>Open until {formattedDate}</>
+          ),
+          opensShort: (formattedDate: ReactNode) => <>Opens {formattedDate}</>,
           over: <>Signup over</>,
           inviteOnly: <>Invite only</>,
           lookingForReservePlayers: <>Looking for reserve players</>,
@@ -1232,6 +1328,9 @@ const translations = {
       title: "Search term",
       placeholder: "Enter a search term and press Enter",
     },
+    submit: "Search",
+    results: "Results",
+    noResults: "No larp names match the search.",
   },
   User: {
     singleTitle: "User",
@@ -1275,17 +1374,47 @@ const translations = {
     },
   },
   OwnLarpsPage: {
-    title: "Own larps",
-    attributes: {
-      role: {
-        label: "Own role in this larp",
-      },
+    title: "My larps",
+    lede: "Larps you organize, played or marked as favourite. Only you can see this list.",
+    filters: {
+      label: "Show",
+      all: "All",
+      organizing: "Organizing",
+      played: "Played",
+      favourites: "Favourites",
     },
-    tableFooter: (showing: number, total: number) => (
-      <>
-        Showing {showing} larp{showing === 1 ? "" : "s"} (total {total}).
-      </>
-    ),
+    upcoming: "Upcoming",
+    noDate: "Date not known",
+    larpCount: (count: number) => `${count} larp${count === 1 ? "" : "s"}`,
+    showMore: (count: number, year: number) =>
+      `Show the other ${count} larp${count === 1 ? "" : "s"} of ${year}`,
+    roleTags: {
+      EDITOR: "Editor",
+      CREATED_BY: "Added by you",
+      GAME_MASTER: "GM",
+      TEAM_MEMBER: "Team",
+      VOLUNTEER: "Volunteer",
+      PLAYER: "Player",
+      FAVORITE: "Favourite",
+      LOCAL_SIGNUP_YES: "Signed up",
+      LOCAL_SIGNUP_MAYBE: "Maybe",
+      LOCAL_SIGNUP_NO: "Not coming",
+    },
+    pendingEdits: "My pending edits",
+    downloadCalendar: "Download my larps (.ics)",
+    calendarName: "Larpit.fi – My larps",
+    empty: {
+      all: "No larps here yet.",
+      organizing: "You are not marked as an organizer of any larp.",
+      played: "You have not marked any larp as played.",
+      favourites: "You have no favourite larps yet.",
+    },
+    missing: {
+      title: "Missing something?",
+      message:
+        "Mark larps as played or favourite on their pages. Organizer roles come from claiming a larp or from the moderators.",
+      browse: "Browse all larps",
+    },
   },
   RelatedUser: {
     title: "Related users",
@@ -1380,7 +1509,7 @@ const translations = {
     contactAdministratorNoContactForm: (
       <>
         You can contact the administrator via email at{" "}
-        <em>larpit-fi ät tracon.fi</em>.
+        <em className="text-nowrap">larpit-fi ät tracon.fi</em>.
       </>
     ),
     contactForm: (
@@ -1405,8 +1534,88 @@ const translations = {
       </p>
     ),
   },
+  LarpListPage: {
+    eyebrow: "The archive",
+    timeline: "Larps by year",
+    yearBar: (year: number, count: string) =>
+      `${year}: ${count} ${count === "1" ? "larp" : "larps"}`,
+    chips: {
+      type: {
+        default: "Larps",
+        other: "Other",
+        all: "All",
+        pick: "Types",
+        selected: (count: number) => `${count} types`,
+      },
+      language: {
+        all: "All",
+      },
+      cancelled: {
+        hide: "Hide",
+        show: "Show",
+        only: "Only",
+      },
+    },
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larp" : "larps"}`,
+    upcoming: "upcoming",
+    past: "past",
+    showOthers: (count: string, year: string) =>
+      `Show the other ${count} ${count === "1" ? "larp" : "larps"} of ${year}`,
+    showYear: (count: string, year: string) =>
+      count === "1"
+        ? `Show the larp of ${year}`
+        : `Show the ${count} larps of ${year}`,
+    showUndated: (count: string) =>
+      `Show ${count} ${count === "1" ? "larp" : "larps"} without a date`,
+    noDate: "Date not set",
+    empty: "No larps match these filters.",
+  },
   StatsPage: {
     title: "Statistics",
+    eyebrow: "The archive in numbers",
+    totals: {
+      label: "Totals",
+      pages: "Larps & events",
+      years: (first: number, last: number) => `Years, ${first}–${last}`,
+      thisYear: "Larps this year",
+      upcoming: "Upcoming larps",
+    },
+    peak: (year: string, count: string) => `peak ${year} · ${count}`,
+    allYears: "all years",
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larp" : "larps"}`,
+    monthSummary: (
+      busiest: string,
+      busiestCount: string,
+      quietest: string,
+      quietestCount: string,
+    ) =>
+      `The busiest month is ${busiest} with ${busiestCount} larps; the quietest is ${quietest} with ${quietestCount}.`,
+    topMunicipalities: "top 10",
+    allMunicipalities: (count: string) => `All ${count} municipalities`,
+    otherParticipants: "Other participants",
+    openness: {
+      title: "Signup openness",
+      notRecorded: "Not recorded",
+      unrecordedShare: (share: string) =>
+        `${share} of larps do not record their openness yet.`,
+    },
+    shape: {
+      title: "Shape of a larp",
+      oneDay: "last one day",
+      weekend: "are a full weekend, Fri–Sun",
+      medianPlayerCharacters: (count: string, max: string) =>
+        `player characters, median where known (${count} larps; largest ${max})`,
+      medianTotalParticipants: (count: string, max: string) =>
+        `participants in total, median where known (${count} larps; largest ${max})`,
+      medianSignupWindow: (count: string) =>
+        `days of signup, median where both ends are known (${count} larps)`,
+      medianLeadTime: (count: string) =>
+        `days from signup opening to the larp, median (${count} larps)`,
+      description:
+        "Larps only, cancelled ones excluded. Each figure counts the larps where the information is known.",
+    },
     message: (
       <>
         <p>
@@ -1423,6 +1632,12 @@ const translations = {
     filters: {
       since: {
         title: "Time period",
+        short: {
+          ALL_TIME: "All",
+          LAST_10_YEARS: "10 yrs",
+          POST_COVID: "2022–",
+          LAUNCH: "2026–",
+        },
         choices: {
           ALL_TIME: "All time",
           LAST_10_YEARS: "Last 10 full years",
@@ -1504,20 +1719,70 @@ const translations = {
   CalendarPage: {
     title: "Calendar",
     navigation: {
-      previousMonth: "Previous",
-      nextMonth: "Next",
-      goToMonth: "Go to month",
+      previousMonth: "Previous month",
+      nextMonth: "Next month",
+      goToMonth: "Jump to",
       go: "Go",
     },
     weekNumber: "Wk",
+    weekNumberTitle: "Week number",
     today: "Today",
-    keyboardNavigation: "Tip: You can change months with arrow keys.",
-    subscribe: (calendarUrl: string) => (
-      <>
-        Subscribe to the Larpit.fi calendar in eg. Google Calendar or Outlook:{" "}
-        <code>{calendarUrl}</code>
-      </>
-    ),
+    jumpToToday: "Jump to today",
+    keyboardNavigation: "← → change month · T today",
+    monthNames: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    weekdaysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    filters: {
+      label: "Filter the calendar",
+      all: "All",
+      larps: "Larps",
+      campaigns: "Campaigns",
+      events: "Events",
+      type: "Type",
+      signup: "Signup",
+      signupOpen: "Open",
+      language: "Language",
+      languages: {
+        fi: "In Finnish",
+        sv: "In Swedish",
+        en: "In English",
+      },
+    },
+    legend: {
+      title: "Legend",
+      signupOpen: "Signup open",
+      openingSoon: "Opening soon / campaign",
+      signupOver: "Signup over",
+      inviteOnly: "Invite only",
+      event: "Convention, festival, meetup",
+      cancelled: "Cancelled",
+    },
+    week: (weekNumber: number) => `Week ${weekNumber}`,
+    noLarps: "No larps.",
+    more: "+{count} more",
+    moreLabel: "Show {count} more on {date}",
+    showFewer: "Show fewer",
+    agendaFooter: "Month grid on wider screens",
+    subscribe: {
+      title: "Subscribe in your own calendar app",
+      button: "Subscribe",
+      urlLabel: "Calendar address",
+      copy: "Copy",
+      copied: "The calendar address has been copied to the clipboard.",
+      help: "Updates automatically as larps are added. The feed always contains every larp, whatever the filters above.",
+    },
   },
   LoginRequired: {
     title: "Login required",
@@ -1636,6 +1901,73 @@ const translations = {
           remove your account.
         </>
       ),
+    },
+  },
+  AppBar: {
+    mainNavigation: "Main",
+    search: "Search",
+    menu: "Menu",
+    closeMenu: "Close menu",
+    accountMenu: "Account menu",
+    viaKompassi: "via Kompassi",
+    myLarps: "My larps",
+    played: "Larps I’ve played",
+    favourites: "Favourites",
+    pendingEdits: "My pending edits",
+    profile: "Profile & visibility",
+    editInKompassi: "Edit name or email in Kompassi",
+    theme: "Theme",
+    themeChoices: { auto: "Auto", night: "Night", day: "Day" },
+    language: "Language",
+    administration: "Administration",
+  },
+  Footer: {
+    privacyPolicy: "Privacy policy",
+    source: "Source on GitHub",
+    api: "API",
+    note: "Crowd-sourced, volunteer-run.",
+  },
+  CommandPalette: {
+    title: "Search and commands",
+    inputLabel: "Search larps or type a command",
+    placeholder: "Search larps, places, years…",
+    commandsHint: "commands",
+    close: "Cancel",
+    larps: "Larps",
+    thisPage: "This page",
+    everywhere: "Everywhere",
+    recent: "Recent",
+    noResults: "No larps match.",
+    resultCount: "{shown} of {total}",
+    footerMove: "move",
+    footerOpen: "open",
+    footerNewTab: "new tab",
+    footerTip: "try a place, a year, or a name",
+    pill: {
+      cancelled: "Cancelled",
+      inviteOnly: "Invite only",
+      openUntil: "Open until {date}",
+      openIndefinitely: "Signup open",
+      opens: "Opens {date}",
+      over: "Signup over",
+    },
+    commands: {
+      addLarp: "Add a larp",
+      calendar: "Go to calendar",
+      allLarps: "Browse all larps",
+      stats: "Statistics",
+      themeToNight: "Switch to dark theme",
+      themeToDay: "Switch to light theme",
+      switchLanguage: "Vaihda suomeksi",
+      editLarp: "Edit this larp",
+      addRelated: "Add a related larp",
+      claim: "Claim this page as GM",
+      addToCalendar: "Add to calendar",
+      copyLink: "Copy link to this larp",
+      share: "Share…",
+      subscribe: "Subscribe to the calendar",
+      jumpToToday: "Jump to today",
+      copied: "Link copied",
     },
   },
   LanguageSwitcher: {

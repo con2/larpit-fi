@@ -1,8 +1,6 @@
-import MainHeading from "@/components/MainHeading";
 import { getTranslations } from "@/translations";
+import styles from "@/components/LarpForm.module.scss";
 import Link from "next/link";
-import { Card, CardBody, CardTitle } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
 
 interface Props {
   params: Promise<{
@@ -17,19 +15,26 @@ export default async function NewLarpThanksPage({ params }: Props) {
   const t = translations.NewLarpPage;
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <Card>
-        <CardBody>
-          <CardTitle>{t.subpages.thanks.title}</CardTitle>
-          {t.subpages.thanks.message}
-          <div>
-            <Link className="btn btn-primary mt-3" href="/">
-              {t.subpages.thanks.backToFrontPage}
-            </Link>
-          </div>
-        </CardBody>
-      </Card>
-    </Container>
+    <>
+      <header className="lf-container lf-page-header">
+        <p className="lf-eyebrow">{t.eyebrow}</p>
+        <h1 className="lf-display-l">{t.title}</h1>
+      </header>
+      <div className="lf-container">
+        <div className={styles.narrow}>
+          <section className="lf-surface" aria-labelledby="thanks-title">
+            <h2 className="lf-surface__title" id="thanks-title">
+              {t.subpages.thanks.title}
+            </h2>
+            <div className={styles.intro}>{t.subpages.thanks.message}</div>
+            <div>
+              <Link className="btn btn-primary" href="/">
+                {t.subpages.thanks.backToFrontPage}
+              </Link>
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
   );
 }

@@ -1,0 +1,132 @@
+$mono: var(--larpit-mono-font), ui-monospace, monospace;
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 28px;
+}
+
+.filterGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filterLabel {
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--larpit-dim);
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--larpit-control-border);
+  border-radius: 6px;
+
+  > a,
+  > .menu > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    min-height: 32px;
+    font-family: $mono;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--larpit-muted);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--larpit-text);
+    }
+
+    &[aria-current="true"] {
+      color: var(--larpit-ground);
+      background: var(--larpit-text);
+    }
+
+    @media (pointer: coarse) {
+      min-height: 44px;
+    }
+  }
+
+  > * + * {
+    border-left: 1px solid var(--larpit-control-border);
+  }
+
+  > :first-child,
+  > :first-child > summary {
+    border-radius: 5px 0 0 5px;
+  }
+
+  > :last-child,
+  > :last-child > summary {
+    border-radius: 0 5px 5px 0;
+  }
+}
+
+.menu {
+  position: relative;
+  display: inline-flex;
+
+  > summary {
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+}
+
+.menuList {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  min-width: 240px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  background: var(--larpit-palette-surface);
+  border: 1px solid var(--larpit-control-border);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    min-height: 40px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--larpit-text);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--larpit-raised);
+    }
+  }
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--larpit-control-border);
+  border-radius: 4px;
+  color: var(--larpit-aurora);
+
+  [aria-current="true"] > & {
+    border-color: var(--larpit-aurora);
+  }
+}

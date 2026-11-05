@@ -1,14 +1,8 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
 import { EditAction, EditStatus } from "@/prisma/enums";
-import {
-  Column,
-  DataTable,
-  FormattedDateTime,
-  MessageCard,
-  TableFooter,
-} from "@con2/components";
+import { Column, DataTable, MessageCard, TableFooter } from "@con2/components";
+import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
@@ -16,7 +10,6 @@ import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
-import { Container } from "react-bootstrap";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -33,9 +26,9 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
 
@@ -136,28 +129,31 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   ];
 
   return (
-    <Container>
-      <MainHeading>{t.listTitle}</MainHeading>
-      {isShowingAll ? (
-        <p className="text-muted text-center">{t.actions.showAll.active}</p>
-      ) : (
-        <p className="text-center">
-          <Link className="link-subtle" href="/moderate?status=ALL">
-            {t.actions.showAll.title}
-          </Link>
-        </p>
-      )}
-      <DataTable
-        // TODO rounded doesn't work on bootstrap .table?
-        className="table table-striped table-hover border rounded"
-        columns={columns}
-        rows={requests}
-        getRowHref={(row) => `/moderate/${row.id}`}
-      >
-        <TableFooter colSpan={columns.length}>
-          {t.tableFooter(requests.length, totalCount)}
-        </TableFooter>
-      </DataTable>
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{t.listTitle}</h1>
+        {isShowingAll ? (
+          <p className="lf-muted mb-0">{t.actions.showAll.active}</p>
+        ) : (
+          <p className="mb-0">
+            <Link className="lf-link-quiet" href="/moderate?status=ALL">
+              {t.actions.showAll.title} →
+            </Link>
+          </p>
+        )}
+      </header>
+      <div className="py-5 table-responsive">
+        <DataTable
+          className="table table-hover"
+          columns={columns}
+          rows={requests}
+          getRowHref={(row) => `/moderate/${row.id}`}
+        >
+          <TableFooter colSpan={columns.length}>
+            {t.tableFooter(requests.length, totalCount)}
+          </TableFooter>
+        </DataTable>
+      </div>
+    </div>
   );
 }

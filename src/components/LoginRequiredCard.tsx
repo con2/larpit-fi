@@ -1,7 +1,6 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { MessageCard } from "@con2/components";
 
 interface Props {
   messages: {
@@ -14,18 +13,26 @@ interface Props {
   container?: boolean;
 }
 
-/// Thin client wrapper around @con2/components' MessageCard for the
-/// "please sign in" gate. Kept as its own "use client" component (rather than
-/// inlining `action.onAction` at each call site) because most call sites are
-/// Server Components, and a function prop (the signIn callback) cannot be
-/// passed from a Server Component directly to a Client Component.
+/// The "please sign in" gate. A client component because most call sites are Server
+/// Components, which cannot pass the signIn callback to a Client Component.
 export function LoginRequiredCard({ messages: t, container = false }: Props) {
-  return (
-    <MessageCard
-      title={t.title}
-      message={t.message}
-      action={{ label: t.actions.login, onAction: () => signIn("kompassi") }}
-      container={container}
-    />
+  const card = (
+    <section className="lf-surface mb-4" aria-labelledby="login-required-title">
+      <h2 className="lf-surface__title" id="login-required-title">
+        {t.title}
+      </h2>
+      <p className="lf-muted">{t.message}</p>
+      <div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => signIn("kompassi")}
+        >
+          {t.actions.login}
+        </button>
+      </div>
+    </section>
   );
+
+  return container ? <div className="lf-container py-5">{card}</div> : card;
 }

@@ -1,9 +1,14 @@
 import { auth } from "@/auth";
+import { setOwnLarpRole } from "@/app/[locale]/larp/[larpId]/ownRoleActions";
 import { featureFlags } from "@/config";
-import { EditStatus, LocalSignupStatus, RelatedUserRole } from "@/prisma/enums";
-import type { LarpLink } from "@/prisma/models";
+import { formatShortDateRange } from "@/helpers/dates";
 import { ensureLocation } from "@/models/Larp";
-import { signupEndsAt, signupStartsAt } from "@/models/Larp.client";
+import {
+  ensureEndsAt,
+  getLarpHref,
+  signupEndsAt,
+  signupStartsAt,
+} from "@/models/Larp.client";
 import {
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
@@ -13,33 +18,48 @@ import {
 } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
 import { db, dbRead } from "@/prisma/db";
-import { getTranslations } from "@/translations";
-import { Translations } from "@/translations/en";
 import {
-  AlertNavigateOnClose,
-  Column,
-  FormattedDateRange,
-  Markdown,
-  Paragraphs,
-} from "@con2/components";
-import { InfoCircle, OpenInNewTab } from "@con2/components/icons";
+  EditStatus,
+  LarpLinkType,
+  LarpType,
+  LocalSignupStatus,
+  RelatedUserRole,
+} from "@/prisma/enums";
+import type { LarpLink } from "@/prisma/models";
+import { getTranslations, toSupportedLanguage } from "@/translations";
+import { Translations } from "@/translations/en";
+import { AlertNavigateOnClose, Markdown, Paragraphs } from "@con2/components";
+import { FormattedDate, FormattedDateRange } from "@/components/FormattedDates";
+import { toPlainDate } from "@con2/components/helpers";
+import { formatDateRange } from "@/helpers/dates";
+import { Temporal } from "@js-temporal/polyfill";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
-import {
-  Card,
-  CardBody,
-  CardText,
-  CardTitle,
-  Container,
-  Row,
-} from "react-bootstrap";
+import { splitRunSuffix } from "@/helpers/larpName";
 import LarpJsonLd from "./LarpJsonLd";
+import styles from "./LarpPage.module.scss";
 import TooltipTrigger from "./TooltipTrigger";
+import SignInButton from "./larp-page/SignInButton";
+import Aurora from "./ui/Aurora";
+import { PaletteContext, type PaletteCommand } from "./ui/CommandPalette";
+import StatusPill from "./ui/StatusPill";
+import TypeTag from "./ui/TypeTag";
 import {
-  LeftRelatedLarpComponent,
-  RightRelatedLarpComponent,
-} from "./related/RelatedLarpComponent";
+  CalendarIcon,
+  CheckIcon,
+  EditIcon,
+  ExternalIcon,
+  HeartIcon,
+  ListIcon,
+  ShieldIcon,
+  TrashIcon,
+  UserIcon,
+} from "./ui/icons";
+import {
+  getSignupPillState,
+  type SignupPillReason,
+} from "./ui/signupPillState";
 
 export const relatedLarpFields = ["id", "alias", "name", "startsAt"] as const;
 
@@ -78,228 +98,513 @@ export type LarpPageLarp = NonNullable<
   Awaited<ReturnType<typeof getLarpPageData>>
 >;
 
-function LarpLinkComponent({
-  link,
-  messages: t,
-}: {
-  link: LarpLink;
-  messages: Translations["Larp"];
-}) {
-  return (
-    <div>
-      <a
-        className="link-subtle"
-        href={link.href}
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        {link.title || t.attributes.links.types[link.type]?.title || link.type}{" "}
-        <OpenInNewTab />
-      </a>
-    </div>
+const ownRoles = [
+  RelatedUserRole.PLAYER,
+  RelatedUserRole.FAVORITE,
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+];
+
+const localSignupRoles: readonly RelatedUserRole[] = [
+  RelatedUserRole.LOCAL_SIGNUP_YES,
+  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
+  RelatedUserRole.LOCAL_SIGNUP_NO,
+];
+
+function weekday(date: string, locale: string) {
+  return Temporal.PlainDate.from(date).toLocaleString(
+    toSupportedLanguage(locale),
+    { weekday: "short" },
   );
 }
 
-function ChoiceWithDescription({
-  choices,
-  value,
-}: {
-  choices: Record<string, { title: string; description: string }>;
-  value: string;
-}) {
-  const title = choices[value]?.title || value;
-  const description = choices[value]?.description;
+function WeekdayDate({ date, locale }: { date: string; locale: string }) {
   return (
-    <div>
-      {title}
-      {description && (
-        <>
-          {" "}
-          <TooltipTrigger tooltip={description}>
-            <InfoCircle />
-          </TooltipTrigger>
-        </>
-      )}
-    </div>
+    <>
+      {weekday(date, locale)}
+      {"\u00a0"}
+      <FormattedDate date={date} locale={locale} />
+    </>
   );
 }
 
-function LarpInfoCard({
-  larp,
-  className = "",
-  messages: t,
+function WeekdayDateRange({
+  start,
+  end,
   locale,
 }: {
-  larp: LarpPageLarp;
-  className: string;
-  messages: Translations["Larp"];
+  start: string;
+  end: string | null;
   locale: string;
 }) {
-  const fields: Column<LarpPageLarp>[] = [];
+  if (!end || end === start)
+    return <WeekdayDate date={start} locale={locale} />;
+  const days = Temporal.PlainDate.from(end).since(start).days;
+  return (
+    <>
+      {days < 7 && `${weekday(start, locale)}–${weekday(end, locale)}\u00a0`}
+      <FormattedDateRange locale={locale} start={start} end={end} />
+    </>
+  );
+}
 
+function daysFromToday(date: string) {
+  return Temporal.PlainDate.from(date).since(toPlainDate(new Date())).days;
+}
+
+function hostOf(href: string) {
+  try {
+    return new URL(href).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
+function TagWithDescription({
+  description,
+  children,
+}: {
+  description?: string;
+  children: ReactNode;
+}) {
+  if (!description) return children;
+  return <TooltipTrigger tooltip={description}>{children}</TooltipTrigger>;
+}
+
+function Hero({
+  larp,
+  locale,
+  translations,
+  aside,
+}: {
+  larp: LarpPageLarp;
+  locale: string;
+  translations: Translations;
+  aside?: ReactNode;
+}) {
+  const t = translations.LarpPage;
+  const larpT = translations.Larp;
   const location = ensureLocation(larp);
-  if (location) {
-    fields.push({
-      slug: "location",
-      title: t.attributes.locationText.title,
-      getCellContents: () => (
-        <span lang={location.language}>{location.location}</span>
-      ),
-    });
+  const { numPlayerCharacters: players, numTotalParticipants: total } = larp;
+
+  let participants: ReactNode = null;
+  if (players && total) {
+    participants = (
+      <>
+        {players} <span className="lf-dim">{t.details.ofTotal(total)}</span>
+      </>
+    );
+  } else if (players) {
+    participants = (
+      <>
+        {players} <span className="lf-dim">{t.details.players(players)}</span>
+      </>
+    );
+  } else if (total) {
+    participants = (
+      <>
+        {total} <span className="lf-dim">{t.details.total(total)}</span>
+      </>
+    );
   }
 
-  if (larp.startsAt || larp.endsAt) {
-    fields.push({
-      slug: "dates",
-      title: t.attributes.dateRange.title,
-      getCellContents: (larp) => (
-        <FormattedDateRange
-          locale={locale}
-          start={larp.startsAt}
-          end={larp.endsAt}
-        />
-      ),
-    });
-  }
+  const titleParts = splitRunSuffix(larp.name);
+  const typeChoice = larpT.attributes.type.choices[larp.type];
+  const opennessChoice =
+    larp.openness && larpT.attributes.openness.choices[larp.openness];
 
-  // Show the full sign-up period and its status whenever either end is set.
-  // Unlike the space-optimized front-page badge, this stays visible even when
-  // sign-up is not in progress or opening soon. An unbounded end is treated as
-  // ending on the larp's start date.
-  if (larp.signupStartsAt || larp.signupEndsAt) {
-    const now = new Date();
-    const opensAt = signupStartsAt(larp);
-    const closesAt = signupEndsAt(larp);
-    const signupChoices = t.attributes.signupStatus.choices;
+  return (
+    <section className={styles.hero}>
+      <div className={`lf-container ${styles.heroInner}`}>
+        <div className={styles.heroText}>
+          <div className="lf-tags">
+            {larp.cancelledAt && (
+              <StatusPill kind="cancelled">
+                {larpT.attributes.signupStatus.choices.cancelled}
+              </StatusPill>
+            )}
+            <TagWithDescription description={typeChoice?.description}>
+              <TypeTag type={larp.type} messages={larpT} />
+            </TagWithDescription>
+            <span className="lf-tag">
+              {larpT.attributes.language.choices[larp.language] ??
+                larp.language}
+            </span>
+            {opennessChoice && (
+              <TagWithDescription description={opennessChoice.description}>
+                <span className="lf-tag">{opennessChoice.title}</span>
+              </TagWithDescription>
+            )}
+          </div>
+          <h1
+            className={`lf-display-l${larp.cancelledAt ? ` ${styles.cancelledTitle}` : ""}`}
+            lang={larp.language}
+          >
+            {titleParts.name}
+            {titleParts.suffix && (
+              <>
+                {" "}
+                <span className={styles.runSuffix}>{titleParts.suffix}</span>
+              </>
+            )}
+          </h1>
+          {larp.tagline && (
+            <p className="lf-lede" lang={larp.language}>
+              {larp.tagline}
+            </p>
+          )}
+          {(larp.startsAt || location || participants) && (
+            <dl className={styles.details}>
+              {larp.startsAt && (
+                <div>
+                  <dt className="lf-label">{t.details.when}</dt>
+                  <dd className={styles.mono}>
+                    <WeekdayDateRange
+                      start={larp.startsAt}
+                      end={larp.endsAt}
+                      locale={locale}
+                    />
+                  </dd>
+                </div>
+              )}
+              {location && (
+                <div>
+                  <dt className="lf-label">{t.details.where}</dt>
+                  <dd lang={location.language}>{location.location}</dd>
+                </div>
+              )}
+              {participants && (
+                <div>
+                  <dt className="lf-label">{t.details.participants}</dt>
+                  <dd className={styles.mono}>{participants}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+        </div>
+        {aside && <div className={styles.heroAside}>{aside}</div>}
+      </div>
+    </section>
+  );
+}
 
-    let signupStatusLabel: ReactNode;
-    let signupInProgress = false;
-    if (opensAt && now < opensAt) {
-      signupStatusLabel = signupChoices.upcoming;
-    } else if (closesAt && now > closesAt) {
-      signupStatusLabel = signupChoices.closed;
-    } else {
-      signupStatusLabel = signupChoices.inProgress;
-      signupInProgress = true;
+function LinkList({
+  links,
+  messages: t,
+}: {
+  links: LarpLink[];
+  messages: Translations["Larp"];
+}) {
+  return (
+    <ul className={styles.ruledList}>
+      {links.map((link) => {
+        const host = hostOf(link.href);
+        return (
+          <li key={link.id}>
+            <a
+              className={styles.linkRow}
+              href={link.href}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <span className={styles.linkText}>
+                <span className={styles.linkTitle}>
+                  {link.title ||
+                    t.attributes.links.types[link.type]?.title ||
+                    link.type}
+                </span>
+                {host && <span className={styles.linkHost}>{host}</span>}
+              </span>
+              <ExternalIcon size={18} />
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function RelatedLarpList({
+  larp,
+  messages: t,
+}: {
+  larp: LarpPageLarp;
+  messages: Translations["Larp"];
+}) {
+  return (
+    <ul className={styles.ruledList}>
+      {larp.relatedLarpsLeft.map((related) => (
+        <li key={`left-${related.rightId}`} className={styles.relatedRow}>
+          <span className="lf-dim">
+            {t.attributes.leftRelatedLarps.types[related.type] || related.type}
+          </span>
+          <Link href={getLarpHref(related.right)}>{related.right.name}</Link>
+          {related.right.startsAt && (
+            <span className="lf-data lf-dim">
+              {related.right.startsAt.slice(0, 4)}
+            </span>
+          )}
+        </li>
+      ))}
+      {larp.relatedLarpsRight.map((related) => (
+        <li key={`right-${related.leftId}`} className={styles.relatedRow}>
+          <Link href={getLarpHref(related.left)}>{related.left.name}</Link>
+          <span className="lf-dim">
+            {t.attributes.rightRelatedLarps.types[related.type] || related.type}
+          </span>
+          {related.left.startsAt && (
+            <span className="lf-data lf-dim">
+              {related.left.startsAt.slice(0, 4)}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SignupCard({
+  larp,
+  locale,
+  translations,
+}: {
+  larp: LarpPageLarp;
+  locale: string;
+  translations: Translations;
+}) {
+  const t = translations.LarpPage.signup;
+  const larpT = translations.Larp;
+  const now = new Date();
+  const endsAt = ensureEndsAt(larp);
+  if (endsAt && endsAt < now) return null;
+
+  const state = getSignupPillState(larp);
+  const choices = larpT.attributes.signupStatus.choices;
+  // The heading under the pill gives the date, so the pill only names the status.
+  const pillLabels: Record<SignupPillReason, ReactNode> = {
+    cancelled: choices.cancelled,
+    inviteOnly: choices.inviteOnly,
+    openUntil: t.pill.open,
+    openIndefinitely: t.pill.open,
+    opens: t.pill.opensSoon,
+    over: choices.over,
+  };
+  const opensAt = signupStartsAt(larp);
+  const closesAt = signupEndsAt(larp);
+  const closingDate = larp.signupEndsAt ?? larp.startsAt;
+  const siteLink =
+    larp.links.find((link) => link.type === LarpLinkType.SIGNUP) ??
+    larp.links.find((link) => link.type === LarpLinkType.HOMEPAGE);
+
+  let bigLine: ReactNode = null;
+  let subLine: ReactNode = null;
+  let elapsed: number | null = null;
+  let buttonLabel: string | null = null;
+  let message: ReactNode = null;
+
+  switch (state?.reason) {
+    case "cancelled":
+      message = t.cancelled;
+      break;
+    case "inviteOnly":
+      message = larpT.attributes.openness.choices.INVITE_ONLY.description;
+      break;
+    case "openUntil":
+    case "openIndefinitely": {
+      if (closingDate) {
+        bigLine = t.closes(<WeekdayDate date={closingDate} locale={locale} />);
+      }
+      const parts: ReactNode[] = [];
+      if (larp.signupStartsAt) {
+        parts.push(
+          t.opened(
+            <FormattedDate date={larp.signupStartsAt} locale={locale} />,
+          ),
+        );
+      }
+      if (closingDate) parts.push(t.daysLeft(daysFromToday(closingDate)));
+      subLine = joinWithDots(parts);
+      if (opensAt && closesAt && closesAt > opensAt) {
+        elapsed =
+          (now.getTime() - opensAt.getTime()) /
+          (closesAt.getTime() - opensAt.getTime());
+      }
+      buttonLabel = t.signUpOnSite;
+      break;
     }
-
-    fields.push({
-      slug: "signupStatus",
-      title: t.attributes.signupStatus.title,
-      getCellContents: () => (
-        <span className={signupInProgress ? "fw-bold text-success" : undefined}>
-          {signupStatusLabel} (
-          <FormattedDateRange
-            locale={locale}
-            start={larp.signupStartsAt}
-            end={larp.signupEndsAt ?? larp.startsAt}
-          />
-          )
-        </span>
-      ),
-    });
-  }
-
-  fields.push(
-    {
-      slug: "type",
-      title: t.attributes.type.title,
-      getCellContents: (larp) => (
-        <ChoiceWithDescription
-          choices={t.attributes.type.choices}
-          value={larp.type}
-        />
-      ),
-    },
-    {
-      slug: "language",
-      title: t.attributes.language.title,
-      getCellContents: (larp) =>
-        t.attributes.language.choices[larp.language] || larp.language,
-    },
-  );
-
-  if (larp.openness) {
-    fields.push({
-      slug: "openness",
-      title: t.attributes.openness.title,
-      getCellContents: (larp) => (
-        <ChoiceWithDescription
-          choices={t.attributes.openness.choices}
-          value={larp.openness!}
-        />
-      ),
-    });
-  }
-
-  const numParticipants = t.attributes.numParticipants.format(
-    larp.numPlayerCharacters,
-    larp.numTotalParticipants,
-  );
-  if (numParticipants) {
-    fields.push({
-      slug: "numParticipants",
-      title: t.attributes.numParticipants.title,
-      getCellContents: () => numParticipants,
-    });
-  }
-
-  const hasRelatedLarps =
-    larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
-  if (hasRelatedLarps) {
-    fields.push({
-      slug: "relatedLarps",
-      title: t.attributes.relatedLarps.title,
-      getCellContents: (larp) => (
-        <>
-          {larp.relatedLarpsLeft.map((relatedLarp) => (
-            <LeftRelatedLarpComponent
-              key={relatedLarp.rightId}
-              relatedLarp={relatedLarp}
-              messages={t}
-            />
-          ))}
-          {larp.relatedLarpsRight.map((relatedLarp) => (
-            <RightRelatedLarpComponent
-              key={relatedLarp.leftId}
-              relatedLarp={relatedLarp}
-              messages={t}
-            />
-          ))}
-        </>
-      ),
-    });
-  }
-
-  if (larp.links.length > 0) {
-    fields.push({
-      slug: "links",
-      title: t.attributes.links.title,
-      getCellContents: (larp) => (
-        <>
-          {larp.links.map((link) => (
-            <LarpLinkComponent key={link.id} link={link} messages={t} />
-          ))}
-        </>
-      ),
-    });
+    case "over":
+      if (larp.signupEndsAt) {
+        bigLine = t.closed(
+          <WeekdayDate date={larp.signupEndsAt} locale={locale} />,
+        );
+      }
+      break;
+    case "opens":
+    case undefined:
+      if (larp.signupStartsAt && opensAt && opensAt > now) {
+        bigLine = t.opens(
+          <WeekdayDate date={larp.signupStartsAt} locale={locale} />,
+        );
+        if (larp.signupEndsAt) {
+          subLine = t.closes(
+            <FormattedDate date={larp.signupEndsAt} locale={locale} />,
+          );
+        }
+      } else if (!larp.signupStartsAt && !larp.signupEndsAt) {
+        if (!siteLink || !larp.startsAt) return null;
+        message = t.notAnnounced;
+      } else {
+        return null;
+      }
+      buttonLabel = t.visitSite;
+      break;
   }
 
   return (
-    <Container className={className} style={{ maxWidth: "800px" }}>
-      <Card>
-        <CardBody className="pb-2 small">
-          {fields.map(({ slug, title, getCellContents }) => (
-            <Row key={slug} className="mb-1">
-              <div className="col-sm-3 fw-bold">{title}</div>
-              <div className="col-sm-9">
-                {getCellContents ? getCellContents(larp) : (larp as any)[slug]}
-              </div>
-            </Row>
-          ))}
-        </CardBody>
-      </Card>
-    </Container>
+    <section className={`lf-surface ${styles.signupCard}`} aria-label={t.title}>
+      <div className={styles.signupHead}>
+        {state && (
+          <StatusPill kind={state.kind}>{pillLabels[state.reason]}</StatusPill>
+        )}
+        {bigLine && <p className={styles.bigLine}>{bigLine}</p>}
+        {subLine && <p className={styles.subLine}>{subLine}</p>}
+        {message && <p className={styles.subLine}>{message}</p>}
+      </div>
+      {elapsed !== null && (
+        <div
+          className={styles.countdown}
+          role="progressbar"
+          aria-label={t.elapsed}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(clamp01(elapsed) * 100)}
+        >
+          <div
+            className={styles.countdownFill}
+            style={{ width: `${clamp01(elapsed) * 100}%` }}
+          />
+        </div>
+      )}
+      {buttonLabel && siteLink && (
+        <a
+          href={siteLink.href}
+          className={`btn btn-primary ${styles.signupButton}`}
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          {buttonLabel} <ExternalIcon size={14} />
+        </a>
+      )}
+    </section>
+  );
+}
+
+function clamp01(value: number) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function joinWithDots(parts: ReactNode[]) {
+  return parts.map((part, index) => (
+    <span key={index}>
+      {index > 0 && " · "}
+      {part}
+    </span>
+  ));
+}
+
+/** Other events, series and campaigns are not played as such; their individual larps are. */
+const playableTypes: LarpType[] = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
+
+interface PageAction {
+  href: string;
+  label: string;
+  icon: ReactNode;
+  destructive?: boolean;
+}
+
+function OwnActions({
+  larp,
+  signedIn,
+  played,
+  favourite,
+  calendarHref,
+  pageActions,
+  messages: t,
+}: {
+  larp: LarpPageLarp;
+  signedIn: boolean;
+  played: boolean;
+  favourite: boolean;
+  calendarHref: string | null;
+  pageActions: PageAction[];
+  messages: Translations["LarpPage"]["ownActions"];
+}) {
+  const endsAt = ensureEndsAt(larp);
+  const isUpcoming = !!endsAt && endsAt >= new Date();
+  const toggles = [
+    ...(playableTypes.includes(larp.type)
+      ? [
+          {
+            role: RelatedUserRole.PLAYER,
+            active: played,
+            label: isUpcoming ? t.playing : t.played,
+            icon: <CheckIcon size={18} />,
+          },
+        ]
+      : []),
+    {
+      role: RelatedUserRole.FAVORITE,
+      active: favourite,
+      label: t.favourite,
+      icon: <HeartIcon size={18} />,
+    },
+  ];
+
+  return (
+    <ul className={styles.actionList} aria-label={t.title}>
+      {calendarHref && (
+        <li>
+          <a href={calendarHref} className={styles.action}>
+            <CalendarIcon size={18} />
+            {t.addToCalendar}
+          </a>
+        </li>
+      )}
+      {toggles.map(({ role, active, label, icon }) => (
+        <li key={role}>
+          {signedIn ? (
+            <form action={setOwnLarpRole.bind(null, larp.id, role, !active)}>
+              <button
+                type="submit"
+                className={styles.action}
+                aria-pressed={active}
+              >
+                {icon}
+                {label}
+              </button>
+            </form>
+          ) : (
+            <SignInButton className={styles.action}>
+              {icon}
+              {label}
+              <span className={styles.actionHint}>{t.signInFirst}</span>
+            </SignInButton>
+          )}
+        </li>
+      ))}
+      {pageActions.map(({ href, label, icon, destructive }) => (
+        <li key={href}>
+          <Link
+            href={href}
+            className={`${styles.action}${destructive ? ` ${styles.actionDestructive}` : ""}`}
+          >
+            {icon}
+            {label}
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -329,34 +634,34 @@ export default async function LarpPage({
   const t = translations.LarpPage;
   const larpT = translations.Larp;
   const ediT = translations.EditLarpPage;
-  const deleTe = translations.DeleteLarpPage;
   const signupT = translations.LocalSignupPage;
+  const paletteT = translations.CommandPalette.commands;
 
-  // Fetch the current user's LOCAL_SIGNUP_* role for this larp (not in getLarpPageData since relatedUsers is filtered to GAME_MASTER)
-  const userSignupRelatedUser = user
+  // relatedUsers in getLarpPageData only holds GAME_MASTER rows, so the user's own roles are looked up here.
+  const userRoles = user
     ? await db.orm.public.RelatedUser.where({
         larpId: larp.id,
         userId: user.id,
       })
-        .where((r) =>
-          r.role.in([
-            RelatedUserRole.LOCAL_SIGNUP_YES,
-            RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-            RelatedUserRole.LOCAL_SIGNUP_NO,
-          ]),
-        )
+        .where((r) => r.role.in(ownRoles))
         .select("userId", "role")
-        .first()
-    : null;
+        .all()
+    : [];
+  const hasRole = (role: RelatedUserRole) =>
+    userRoles.some((related) => related.role === role);
 
-  const signupCheckRelatedUsers = [
-    ...larp.relatedUsers,
-    ...(userSignupRelatedUser ? [userSignupRelatedUser] : []),
-  ];
-
+  const userSignupRelatedUser = userRoles.find((related) =>
+    localSignupRoles.includes(related.role),
+  );
   const signupStatus = getLocalSignupStatusForUser(
     user,
-    { ...larp, relatedUsers: signupCheckRelatedUsers },
+    {
+      ...larp,
+      relatedUsers: [
+        ...larp.relatedUsers,
+        ...(userSignupRelatedUser ? [userSignupRelatedUser] : []),
+      ],
+    },
     code ?? null,
   );
 
@@ -364,207 +669,257 @@ export default async function LarpPage({
     ? `/larp/${larp.id}/signup?code=${encodeURIComponent(code)}`
     : `/larp/${larp.id}/signup`;
 
-  const SignupButton = ({
-    variant = "secondary",
-    title,
-    callToAction,
-    href,
-  }: {
-    variant: "primary" | "secondary" | "success" | "danger" | "warning";
-    title: string;
-    callToAction?: string;
-    href?: string;
-  }) => {
-    if (!href) {
-      return (
-        <Card>
-          <CardBody className={`text-${variant}`}>
-            <CardTitle className="mb-0 text-center">{title}</CardTitle>
-            {callToAction && (
-              <CardText className="mt-3">{callToAction}</CardText>
-            )}
-          </CardBody>
-        </Card>
-      );
-    }
-
-    return (
-      <Link
-        href={signupHref}
-        className={`btn btn-outline-${variant} p-3 w-100 bg-white`}
-      >
-        <CardTitle className="mb-0">{title}</CardTitle>
-        {callToAction && <CardText className="mt-2">{callToAction}</CardText>}
-      </Link>
-    );
+  const localSignupCards: Partial<
+    Record<typeof signupStatus, { title: string; callToAction: string }>
+  > = {
+    CAN_SIGN_UP: {
+      title: signupT.userSignupStatus.choices.CAN_SIGN_UP,
+      callToAction: signupT.userSignupStatus.actions.signUp,
+    },
+    LOCAL_SIGNUP_YES: {
+      title: signupT.userSignupStatus.choices.LOCAL_SIGNUP_YES,
+      callToAction: signupT.userSignupStatus.actions.change,
+    },
+    LOCAL_SIGNUP_MAYBE: {
+      title: signupT.userSignupStatus.choices.LOCAL_SIGNUP_MAYBE,
+      callToAction: signupT.userSignupStatus.actions.change,
+    },
+    LOCAL_SIGNUP_NO: {
+      title: signupT.userSignupStatus.choices.LOCAL_SIGNUP_NO,
+      callToAction: signupT.userSignupStatus.actions.change,
+    },
   };
+  const localSignupCard = featureFlags.localSignup
+    ? localSignupCards[signupStatus]
+    : undefined;
 
-  let signupCard: ReactNode = null;
-  if (signupStatus === "CANCELLED") {
-    signupCard = (
-      <SignupButton
-        variant="danger"
-        title={signupT.userSignupStatus.choices.CANCELLED}
-      />
-    );
-  } else if (signupStatus === "CAN_SIGN_UP") {
-    signupCard = (
-      <SignupButton
-        variant="primary"
-        title={signupT.userSignupStatus.choices.CAN_SIGN_UP}
-        callToAction={signupT.userSignupStatus.actions.signUp}
-        href={signupHref}
-      />
-    );
-  } else if (signupStatus === "LOCAL_SIGNUP_YES") {
-    signupCard = (
-      <SignupButton
-        variant="success"
-        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_YES}
-        callToAction={signupT.userSignupStatus.actions.change}
-        href={signupHref}
-      />
-    );
-  } else if (signupStatus === "LOCAL_SIGNUP_MAYBE") {
-    signupCard = (
-      <SignupButton
-        variant="warning"
-        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_MAYBE}
-        callToAction={signupT.userSignupStatus.actions.change}
-        href={signupHref}
-      />
-    );
-  } else if (signupStatus === "LOCAL_SIGNUP_NO") {
-    signupCard = (
-      <SignupButton
-        variant="danger"
-        title={signupT.userSignupStatus.choices.LOCAL_SIGNUP_NO}
-        callToAction={signupT.userSignupStatus.actions.change}
-        href={signupHref}
-      />
-    );
-  }
-
-  function ClaimLink({ children }: { children: ReactNode }) {
-    return (
-      <Link
-        href={`/larp/${larp!.id}/edit?role=GAME_MASTER`}
-        className="link-subtle"
-      >
-        {children}
-      </Link>
-    );
-  }
-
-  let gmity: ReactNode;
-  if (
-    larp.relatedUsers.some(
-      (related) =>
-        related.userId === user?.id &&
-        related.role === RelatedUserRole.GAME_MASTER,
-    )
-  ) {
-    gmity = <>✅ {larpT.attributes.isClaimedByGm.youAreTheGm}</>;
-  } else if (
-    larp.relatedUsers.some(
-      (related) => related.role === RelatedUserRole.GAME_MASTER,
-    )
-  ) {
-    gmity = <>✅ {larpT.attributes.isClaimedByGm.message}</>;
-  } else {
-    gmity = <>⚠️ {t.actions.claim(ClaimLink)}</>;
-  }
+  const isGm = larp.relatedUsers.some(
+    (related) =>
+      related.userId === user?.id &&
+      related.role === RelatedUserRole.GAME_MASTER,
+  );
+  const isClaimed = larp.relatedUsers.some(
+    (related) => related.role === RelatedUserRole.GAME_MASTER,
+  );
 
   const editPolicy = getEditLarpInitialStatusForUserAndLarp(user, larp);
   const deletePolicy = getDeleteLarpInitialStatusForUser(user);
 
+  const editHref = `/larp/${larp.id}/edit`;
+  const claimHref = `/larp/${larp.id}/edit?role=GAME_MASTER`;
+  const relatedHref = `/larp/${larp.id}/related`;
+  const calendarHref = larp.startsAt ? `/larp/${larp.id}/calendar.ics` : null;
+  const hasRelatedLarps =
+    larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
+
+  const paletteCommands: PaletteCommand[] = [
+    { id: "editLarp", label: paletteT.editLarp, icon: "edit", href: editHref },
+    {
+      id: "addRelated",
+      label: paletteT.addRelated,
+      icon: "related",
+      href: relatedHref,
+    },
+    ...(isClaimed
+      ? []
+      : [
+          {
+            id: "claim",
+            label: paletteT.claim,
+            icon: "shield" as const,
+            href: claimHref,
+          },
+        ]),
+    ...(calendarHref
+      ? [
+          {
+            id: "addToCalendar",
+            label: paletteT.addToCalendar,
+            icon: "calendar" as const,
+            href: calendarHref,
+          },
+        ]
+      : []),
+    {
+      id: "copyLink",
+      label: paletteT.copyLink,
+      icon: "link",
+      action: "copyLink",
+    },
+    { id: "share", label: paletteT.share, icon: "share", action: "share" },
+  ];
+
+  const currentYear = String(toPlainDate(new Date()).year);
+  const dateLabel = !larp.startsAt
+    ? ""
+    : larp.startsAt.startsWith(currentYear)
+      ? formatShortDateRange(larp.startsAt, larp.endsAt, locale)
+      : formatDateRange(larp.startsAt, larp.endsAt, locale);
+
+  const showRoles =
+    featureFlags.localSignup &&
+    larp.localSignupStatus !== LocalSignupStatus.DISABLED;
+  const showSignupSettings =
+    featureFlags.localSignup && !!editPolicy && isGmOrModerator(user, larp);
+
   return (
     <>
+      <Aurora variant="larp" />
       <LarpJsonLd larp={larp} />
-      <Container className="mb-5">
-        <div className="text-center" lang={larp.language}>
-          <h2 className="mt-5 mb-3">{larp.name}</h2>
-          <p className="fs-5 fst-italic h-float">{larp.tagline}</p>
-        </div>
-      </Container>
-      {signupCard && (
-        <Container className="mb-3" style={{ maxWidth: "800px" }}>
+      <PaletteContext
+        title={larp.name}
+        commands={paletteCommands}
+        recent={{ href: getLarpHref(larp), name: larp.name, dateLabel }}
+      />
+      <Hero
+        larp={larp}
+        locale={locale}
+        translations={translations}
+        aside={
+          <SignupCard larp={larp} locale={locale} translations={translations} />
+        }
+      />
+      <div className="lf-container lf-main-aside">
+        <article>
+          {(larp.fluffText || larp.description) && (
+            <div className={styles.body} lang={larp.language}>
+              {larp.fluffText && (
+                <div className={`lf-prose ${styles.fluff}`}>
+                  <Paragraphs text={larp.fluffText} />
+                </div>
+              )}
+              {larp.description && (
+                <div className="lf-prose">
+                  <Markdown input={larp.description} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {larp.links.length > 0 && (
+            <section>
+              <h2 className="lf-label">{larpT.attributes.links.title}</h2>
+              <LinkList links={larp.links} messages={larpT} />
+            </section>
+          )}
+
+          <section>
+            <h2 className="lf-label">
+              {larpT.attributes.relatedLarps.title}
+              {editPolicy && (
+                <>
+                  {" "}
+                  <span className={styles.headingAction}>
+                    (<Link href={relatedHref}>{t.actions.editShort}</Link>)
+                  </span>
+                </>
+              )}
+            </h2>
+            {hasRelatedLarps ? (
+              <RelatedLarpList larp={larp} messages={larpT} />
+            ) : (
+              <p className={`lf-empty ${styles.emptyRelated}`}>
+                {t.relatedLarps.empty} {t.relatedLarps.emptyHint}
+              </p>
+            )}
+          </section>
+        </article>
+
+        <aside>
           {signupVerified && (
             <AlertNavigateOnClose variant="success">
               {signupT.signupVerified}
             </AlertNavigateOnClose>
           )}
-          {signupCard}
-        </Container>
-      )}
-      <LarpInfoCard
-        larp={larp}
-        className="mb-5"
-        messages={translations.Larp}
-        locale={locale}
-      />
-      <Container className="mb-5" style={{ maxWidth: "800px" }}>
-        {larp.fluffText && (
-          <div className="mb-5 fst-italic">
-            <Paragraphs text={larp.fluffText} />
-          </div>
-        )}
-        {larp.description && (
-          <div className="mb-5">
-            <Markdown input={larp.description} />
-          </div>
-        )}
-        <div className="mb-2 form-text">{gmity}</div>
-        {featureFlags.localSignup &&
-          larp.localSignupStatus !== LocalSignupStatus.DISABLED && (
-            <div className="mb-2 form-text">
-              👥{" "}
-              <Link href={`/larp/${larp.id}/roles`} className="link-subtle">
-                {translations.RolesPage.title}
-              </Link>
-            </div>
-          )}
-        {editPolicy && (
-          <>
-            <div className="mb-2 form-text">
-              ✏️{" "}
-              <Link href={`/larp/${larp!.id}/edit`} className="link-subtle">
-                {t.actions.edit}
-              </Link>
-              : {ediT.policy[editPolicy]}
-            </div>
-            <div className="mb-2 form-text">
-              🔗{" "}
-              <Link href={`/larp/${larp!.id}/related`} className="link-subtle">
-                {t.actions.manageRelatedLarps}
-              </Link>
-              : {ediT.policy[editPolicy]}
-            </div>
-            {featureFlags.localSignup && isGmOrModerator(user, larp) && (
-              <div className="mb-2 form-text">
-                ⚙️{" "}
-                <Link
-                  href={`/larp/${larp.id}/signup/settings`}
-                  className="link-subtle"
-                >
-                  {t.actions.manageSignupSettings}
-                </Link>
-              </div>
-            )}
-          </>
-        )}
-        {deletePolicy && (
-          <div className="mb-2 form-text">
-            🗑️{" "}
-            <Link href={`/larp/${larp.id}/delete`} className="link-subtle">
-              {deletePolicy === EditStatus.APPROVED
-                ? t.actions.adminDelete
-                : t.actions.delete}
+          {localSignupCard && (
+            <Link
+              href={signupHref}
+              className={`lf-surface ${styles.localSignup}`}
+            >
+              <span className="lf-surface__title">{localSignupCard.title}</span>
+              <span className="lf-link-quiet">
+                {localSignupCard.callToAction} →
+              </span>
             </Link>
-            : {deleTe.policy[deletePolicy]}
-          </div>
-        )}
-      </Container>
+          )}
+          <OwnActions
+            larp={larp}
+            signedIn={!!user}
+            played={hasRole(RelatedUserRole.PLAYER)}
+            favourite={hasRole(RelatedUserRole.FAVORITE)}
+            calendarHref={calendarHref}
+            pageActions={[
+              {
+                href: editHref,
+                label:
+                  editPolicy && editPolicy !== EditStatus.VERIFIED
+                    ? t.actions.edit
+                    : t.actions.suggestChange,
+                icon: <EditIcon size={18} />,
+              },
+              ...(!isClaimed
+                ? [
+                    {
+                      href: claimHref,
+                      label: t.actions.claim,
+                      icon: <ShieldIcon size={18} />,
+                    },
+                  ]
+                : []),
+              ...(showRoles
+                ? [
+                    {
+                      href: `/larp/${larp.id}/roles`,
+                      label: translations.RolesPage.title,
+                      icon: <UserIcon size={18} />,
+                    },
+                  ]
+                : []),
+              ...(showSignupSettings
+                ? [
+                    {
+                      href: `/larp/${larp.id}/signup/settings`,
+                      label: t.actions.manageSignupSettings,
+                      icon: <ListIcon size={18} />,
+                    },
+                  ]
+                : []),
+              ...(deletePolicy
+                ? [
+                    {
+                      href: `/larp/${larp.id}/delete`,
+                      label:
+                        deletePolicy === EditStatus.APPROVED
+                          ? t.actions.adminDelete
+                          : t.actions.delete,
+                      icon: <TrashIcon size={18} />,
+                      destructive: true,
+                    },
+                  ]
+                : []),
+            ]}
+            messages={t.ownActions}
+          />
+          <section className={styles.note}>
+            <h2 className="lf-label">{t.onThisPage.title}</h2>
+            <p>
+              {isClaimed
+                ? isGm
+                  ? t.gm.claimedByYou
+                  : t.gm.claimed
+                : t.onThisPage.crowdSourced}
+            </p>
+            {editPolicy && <p>{ediT.policy[editPolicy]}</p>}
+            <p>
+              {t.updated(
+                <span className="lf-data">
+                  <FormattedDate date={larp.updatedAt} locale={locale} />
+                </span>,
+              )}
+            </p>
+          </section>
+        </aside>
+      </div>
     </>
   );
 }

@@ -5,14 +5,8 @@ import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
-import {
-  Card,
-  CardBody,
-  FormCheck,
-  FormControl,
-  FormLabel,
-  FormSelect,
-} from "react-bootstrap";
+import { RequiredMark } from "./FormSection";
+import { FormCheck, FormControl, FormLabel, FormSelect } from "react-bootstrap";
 import { MarkdownEditor, TextArea } from "@con2/components";
 
 interface Props {
@@ -67,15 +61,16 @@ export default async function CompactLarpFormComponent({
 
   return (
     <>
-      <Card className="mb-4">
-        <CardBody>
+      <section id="basics" className="lf-surface lf-surface--compact">
+        <div>
           <div className="row mb-3">
             <div className="form-group col-lg-4">
               <FormLabel
                 htmlFor="CompactLarpFormComponent-name"
                 className="form-text"
               >
-                {t.attributes.name.title}*
+                {t.attributes.name.title}
+                <RequiredMark />
               </FormLabel>
               <FormControl
                 type="text"
@@ -107,7 +102,8 @@ export default async function CompactLarpFormComponent({
                 htmlFor="CompactLarpFormComponent-type"
                 className="form-text"
               >
-                {t.attributes.type.title}*
+                {t.attributes.type.title}
+                <RequiredMark />
               </FormLabel>
               <FormSelect
                 id="CompactLarpFormComponent-type"
@@ -130,7 +126,8 @@ export default async function CompactLarpFormComponent({
                 htmlFor="CompactLarpFormComponent-language"
                 className="form-text"
               >
-                {t.attributes.language.title}*
+                {t.attributes.language.title}
+                <RequiredMark />
               </FormLabel>
               <FormSelect
                 id="CompactLarpFormComponent-language"
@@ -315,11 +312,11 @@ export default async function CompactLarpFormComponent({
               defaultChecked={larp?.cancelledAt != null}
             />
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </section>
 
-      <Card className="mb-4">
-        <CardBody>
+      <section id="content" className="lf-surface lf-surface--compact">
+        <div>
           <div className="form-group mb-3">
             <FormLabel
               htmlFor="CompactLarpFormComponent-fluffText"
@@ -353,8 +350,8 @@ export default async function CompactLarpFormComponent({
               locale={locale}
             />
           </div>
-        </CardBody>
-      </Card>
+        </div>
+      </section>
     </>
   );
 }

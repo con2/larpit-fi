@@ -1,0 +1,102 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.intro {
+  margin: 0;
+  font-size: 15px;
+  color: var(--larpit-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actions :global(.btn) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pendingCount {
+  font-family: var(--larpit-mono-font), ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--larpit-ember-on-tint);
+  background: var(--larpit-ember-tint);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chipCount {
+  color: var(--larpit-dim);
+  font-family: var(--larpit-mono-font), ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.filters :global(.lf-chip)[aria-current="true"] .chipCount {
+  color: inherit;
+  opacity: 0.6;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  padding-block: 40px 80px;
+}
+
+.roleTag {
+  gap: 6px;
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+  border-bottom: 1px solid var(--larpit-hairline);
+  font-size: 14px;
+  color: var(--larpit-muted);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--larpit-text);
+  }
+}
+
+.missing {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  font-size: 14px;
+  color: var(--larpit-muted);
+}
+
+.missingTitle {
+  font-weight: 500;
+  color: var(--larpit-text);
+}
+
+.missingText {
+  flex: 1 1 320px;
+}

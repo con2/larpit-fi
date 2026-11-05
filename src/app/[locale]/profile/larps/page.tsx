@@ -1,142 +1,90 @@
+import Link from "next/link";
+import { ReactNode } from "react";
+
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import MainHeading from "@/components/MainHeading";
-import { LarpRow } from "@/components/LarpTable";
+import {
+  CalendarIcon,
+  CheckIcon,
+  ClockIcon,
+  HeartIcon,
+  ShieldIcon,
+} from "@/components/ui/icons";
+import LarpRow from "@/components/ui/LarpRow";
+import SectionHeading, { YearHeading } from "@/components/ui/SectionHeading";
+import { LarpStatusPill } from "@/components/ui/StatusPill";
 import { getUserFromSession } from "@/models/User";
-import { LarpType, RelatedUserRole } from "@/prisma/enums";
-import { compareDescNullsLast } from "@/helpers/sort";
-import { parseDates } from "@/prisma/dates";
+import { EditStatus, RelatedUserRole } from "@/prisma/enums";
 import { db } from "@/prisma/db";
-import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
-import { DimensionFilters } from "@con2/components";
 import {
-  parseSearchParam,
-  createEnumValidator,
-} from "@con2/components/helpers";
-import { Container } from "react-bootstrap";
-import OwnLarpsTableClient from "./OwnLarpsTableClient";
+  countOwnLarps,
+  filterOwnLarps,
+  getRoleTags,
+  groupOwnLarps,
+  loadOwnLarps,
+  ownLarpsFilters,
+  parseOwnLarpsFilter,
+  type OwnLarp,
+  type OwnLarpsFilter,
+  type YearGroup,
+} from "./ownLarps";
+import styles from "./page.module.scss";
+import YearExpander from "./YearExpander";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ role?: string[]; type?: string[] }>;
+  searchParams: Promise<{ show?: string; year?: string }>;
 }
 
-async function getData(
-  userId: string,
-  roles: RelatedUserRole[],
-  types: LarpType[],
-) {
-  const relatedUsers = await db.orm.public.RelatedUser.where({ userId })
-    .where((r) => r.role.in(roles))
-    .select("larpId")
-    .distinct("larpId")
-    .all();
-  const larpIds = relatedUsers.map((relatedUser) => relatedUser.larpId);
-  if (larpIds.length === 0) return [];
+const rowsShownPerYear = 10;
 
-  const larps = await db.orm.public.Larp.where((l) => l.id.in(larpIds))
-    .where((l) => l.type.in(types))
-    .include("municipality", (m) => m.select("nameFi"))
-    .include("relatedUsers", (r) => r.where({ userId }))
-    .all();
-
-  // Latest first, larps without a date last: the ORM cannot express NULLS LAST.
-  return parseDates(larps).sort((a, b) =>
-    compareDescNullsLast(a.startsAt, b.startsAt),
-  );
-}
-
-/** Count total larps the user has any role in (unfiltered) */
-async function getTotalCount(userId: string): Promise<number> {
-  const result = await query<{ count: string }>(sql`
-    select count(distinct larp_id) as count
-    from related_user
-    where user_id = ${userId}
-  `);
-  return Number(result[0].count);
-}
-
-type OwnLarp = Awaited<ReturnType<typeof getData>>[number];
-
-/** Serialize OwnLarp for client component */
-export type OwnLarpRow = LarpRow & {
-  /** Pre-resolved role titles */
-  roleTitles: string[];
-  /** True if the user has a LOCAL_SIGNUP_* role on this larp */
-  hasLocalSignup: boolean;
+const filterIcons: Record<OwnLarpsFilter, ReactNode> = {
+  all: null,
+  organizing: <ShieldIcon size={12} />,
+  played: <CheckIcon size={12} />,
+  favourites: <HeartIcon size={12} />,
 };
 
-const localSignupRoleStrings: string[] = [
-  RelatedUserRole.LOCAL_SIGNUP_YES,
-  RelatedUserRole.LOCAL_SIGNUP_MAYBE,
-  RelatedUserRole.LOCAL_SIGNUP_NO,
-];
-
-function serializeLarps(
-  larps: OwnLarp[],
-  roleChoices: Record<string, string>,
-): OwnLarpRow[] {
-  return larps.map((larp) => ({
-    id: larp.id,
-    name: larp.name,
-    alias: larp.alias,
-    locationText: larp.locationText,
-    startsAt: larp.startsAt,
-    endsAt: larp.endsAt,
-    language: larp.language,
-    type: larp.type,
-    cancelledAt: larp.cancelledAt,
-    municipality: larp.municipality,
-    roleTitles: larp.relatedUsers.map((ru) => roleChoices[ru.role] ?? ru.role),
-    hasLocalSignup: larp.relatedUsers.some((ru) =>
-      localSignupRoleStrings.includes(ru.role),
-    ),
-  }));
+function roleIcon(role: RelatedUserRole): ReactNode {
+  switch (role) {
+    case RelatedUserRole.GAME_MASTER:
+    case RelatedUserRole.TEAM_MEMBER:
+    case RelatedUserRole.VOLUNTEER:
+    case RelatedUserRole.EDITOR:
+      return <ShieldIcon size={10} />;
+    case RelatedUserRole.PLAYER:
+      return <CheckIcon size={10} />;
+    case RelatedUserRole.FAVORITE:
+      return <HeartIcon size={10} />;
+    default:
+      return null;
+  }
 }
 
-const unimplementedRoles = [RelatedUserRole.EDITOR, RelatedUserRole.FAVORITE];
-const defaultTypes = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
-
-function getFilters(translations: Translations) {
-  const roleT = translations.RelatedUser;
-  const larpT = translations.Larp;
-  return [
-    {
-      slug: "role",
-      title: roleT.attributes.role.title,
-      values: [
-        { slug: "", title: roleT.filters.role.default },
-        { slug: "ALL", title: roleT.filters.role.all },
-        ...Object.entries(roleT.attributes.role.choices)
-          .filter(([slug]) => !(unimplementedRoles as string[]).includes(slug))
-          .map(([slug, { title }]) => ({ slug, title })),
-      ],
-    },
-    {
-      slug: "type",
-      title: larpT.filters.type.title,
-      values: [
-        { slug: "", title: larpT.filters.type.default },
-        { slug: "ALL", title: larpT.filters.type.all },
-        ...Object.entries(larpT.attributes.type.choices).map(
-          ([slug, { title }]) => ({
-            slug,
-            title,
-          }),
-        ),
-      ],
-    },
-  ];
+function filterHref(filter: OwnLarpsFilter, year?: number): string {
+  const params = new URLSearchParams();
+  if (filter !== "all") params.set("show", filter);
+  if (year !== undefined) params.set("year", String(year));
+  const search = params.toString();
+  const hash = year !== undefined ? `#year-${year}` : "";
+  return `/profile/larps${search ? `?${search}` : ""}${hash}`;
 }
 
-const defaultRoles = [
-  RelatedUserRole.GAME_MASTER,
-  RelatedUserRole.TEAM_MEMBER,
-  RelatedUserRole.VOLUNTEER,
-  RelatedUserRole.PLAYER,
-];
+/** Newest first. */
+async function getPendingEditIds(userId: string) {
+  const requests = await db.orm.public.ModerationRequest.where({
+    submitterId: userId,
+  })
+    .where((r) =>
+      r.status.in([EditStatus.PENDING_VERIFICATION, EditStatus.VERIFIED]),
+    )
+    .select("id")
+    .orderBy((r) => r.id.desc())
+    .all();
+  return requests.map((request) => request.id);
+}
 
 export default async function OwnLarpsPage({ params, searchParams }: Props) {
   const { locale } = await params;
@@ -147,47 +95,175 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <Container>
+      <div className="lf-container">
         <LoginRequiredCard messages={translations.LoginRequired} />
-      </Container>
+      </div>
     );
   }
 
-  const filters = getFilters(translations);
-  const { role: rolesParam, type: typesParam } = await searchParams;
+  const { show, year: yearParam } = await searchParams;
+  const filter = parseOwnLarpsFilter(show);
+  const expandedYear = Number(yearParam) || null;
 
-  const roles = parseSearchParam(rolesParam, {
-    defaults: defaultRoles,
-    allValues: Object.values(RelatedUserRole),
-    isValid: createEnumValidator(RelatedUserRole),
-  });
-
-  const types = parseSearchParam(typesParam, {
-    defaults: defaultTypes,
-    allValues: Object.values(LarpType),
-    isValid: createEnumValidator(LarpType),
-  });
-
-  const [rawLarps, totalCount] = await Promise.all([
-    getData(user.id, roles, types),
-    getTotalCount(user.id),
+  const [allLarps, pendingEditIds] = await Promise.all([
+    loadOwnLarps(user.id),
+    getPendingEditIds(user.id),
   ]);
-  const larps = serializeLarps(
-    rawLarps,
-    translations.Larp.clientAttributes.role.choices,
+  const counts = countOwnLarps(allLarps);
+  const larps = filterOwnLarps(allLarps, filter);
+  const { upcoming, years } = groupOwnLarps(larps);
+
+  const calendarHref =
+    filter === "all"
+      ? "/profile/larps/calendar.ics"
+      : `/profile/larps/calendar.ics?show=${filter}`;
+
+  const renderRow = (larp: OwnLarp, isUpcoming: boolean) => (
+    <LarpRow
+      key={larp.id}
+      larp={larp}
+      locale={locale}
+      messages={translations.Larp}
+      dateFormat={isUpcoming ? "full" : "short"}
+      aside={
+        <>
+          <RoleTags roles={larp.roles} messages={t} />
+          {isUpcoming && (
+            <LarpStatusPill
+              larp={larp}
+              messages={translations.Larp}
+              locale={locale}
+            />
+          )}
+        </>
+      }
+    />
   );
+
+  const renderYear = ({ year, larps: yearLarps }: YearGroup) => {
+    const headingId = year === null ? "year-unknown" : `year-${year}`;
+    const collapsed =
+      year !== null &&
+      year !== expandedYear &&
+      yearLarps.length > rowsShownPerYear + 1;
+    const shown = collapsed ? yearLarps.slice(0, rowsShownPerYear) : yearLarps;
+    const hidden = collapsed ? yearLarps.slice(rowsShownPerYear) : [];
+
+    return (
+      <section
+        key={headingId}
+        className="lf-section"
+        aria-labelledby={headingId}
+      >
+        <YearHeading
+          year={year ?? t.noDate}
+          count={t.larpCount(yearLarps.length)}
+          id={headingId}
+        />
+        {shown.map((larp) => renderRow(larp, false))}
+        {year !== null && hidden.length > 0 && (
+          <YearExpander
+            href={filterHref(filter, year)}
+            label={t.showMore(hidden.length, year)}
+          >
+            {hidden.map((larp) => renderRow(larp, false))}
+          </YearExpander>
+        )}
+      </section>
+    );
+  };
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <DimensionFilters dimensions={filters} locale={locale} />
-      <OwnLarpsTableClient
-        larps={larps}
-        messages={translations.Larp.clientAttributes}
-        locale={locale}
-        totalCount={totalCount}
-        manageLabel={translations.RolesPage.actions.manage}
-      />
-    </Container>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <div className={styles.header}>
+          <div className={styles.titles}>
+            {user.name && <p className="lf-eyebrow">{user.name}</p>}
+            <h1 className="lf-display-l">{t.title}</h1>
+            <p className={styles.intro}>{t.lede}</p>
+          </div>
+          <div className={styles.actions}>
+            {pendingEditIds.length > 0 && (
+              <Link
+                href={`/moderate/${pendingEditIds[0]}`}
+                className="btn btn-outline-secondary"
+              >
+                <ClockIcon size={14} />
+                {t.pendingEdits}
+                <span className={styles.pendingCount}>
+                  {pendingEditIds.length}
+                </span>
+              </Link>
+            )}
+            {larps.some((larp) => larp.startsAt) && (
+              <a
+                href={calendarHref}
+                className="btn btn-outline-primary"
+                download
+              >
+                <CalendarIcon size={14} />
+                {t.downloadCalendar}
+              </a>
+            )}
+          </div>
+        </div>
+
+        <nav aria-label={t.filters.label} className={styles.filters}>
+          {ownLarpsFilters.map((option) => (
+            <Link
+              key={option}
+              href={filterHref(option)}
+              className="lf-chip"
+              aria-current={option === filter ? "true" : undefined}
+            >
+              {filterIcons[option]}
+              {t.filters[option]}
+              <span className={styles.chipCount}>{counts[option]}</span>
+            </Link>
+          ))}
+        </nav>
+      </header>
+
+      <div className={styles.body}>
+        {larps.length === 0 && <p className="lf-empty">{t.empty[filter]}</p>}
+
+        {upcoming.length > 0 && (
+          <section className="lf-section" aria-labelledby="upcoming">
+            <SectionHeading id="upcoming" count={upcoming.length}>
+              {t.upcoming}
+            </SectionHeading>
+            {upcoming.map((larp) => renderRow(larp, true))}
+          </section>
+        )}
+
+        {years.map(renderYear)}
+
+        <div className={`lf-surface lf-surface--compact ${styles.missing}`}>
+          <span className={styles.missingTitle}>{t.missing.title}</span>
+          <span className={styles.missingText}>{t.missing.message}</span>
+          <Link href="/larp" className="btn btn-outline-secondary">
+            {t.missing.browse}
+          </Link>
+        </div>
+      </div>
+    </div>
   );
+}
+
+function RoleTags({
+  roles,
+  messages: t,
+}: {
+  roles: RelatedUserRole[];
+  messages: Translations["OwnLarpsPage"];
+}) {
+  return getRoleTags(roles).map((role) => (
+    <span
+      key={role}
+      className={`lf-tag lf-tag--role lf-tag--small ${styles.roleTag}`}
+    >
+      {roleIcon(role)}
+      {t.roleTags[role]}
+    </span>
+  ));
 }

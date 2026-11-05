@@ -1,0 +1,82 @@
+// Compile-time values are the Day palette; _tokens.scss swaps the colour-mode-dependent ones at
+// runtime through custom properties.
+
+$primary: #324abb;
+$success: #0f7a54;
+$info: #1f6fc2;
+$warning: #9a6306;
+$danger: #c23b3b;
+$secondary: #4a5570;
+
+$body-bg: #f5f7fb;
+$body-bg-dark: #0b1020;
+$body-color: #0b1020;
+$body-color-dark: #eaeef8;
+$headings-color: inherit;
+$border-color: #d9dfeb;
+$border-color-dark: #26324f;
+$secondary-color: #4a5570;
+$secondary-color-dark: #a3aecc;
+$link-color: $primary;
+$link-color-dark: #6fe7b7;
+$link-hover-color-dark: #6fe7b7;
+
+$font-family-sans-serif: var(--larpit-default-font), system-ui, sans-serif;
+$font-family-monospace: var(--larpit-mono-font), ui-monospace, monospace;
+$headings-font-family: var(--larpit-display-font), system-ui, sans-serif;
+$headings-font-weight: 700;
+$headings-line-height: 1.1;
+$font-size-base: 1rem;
+$line-height-base: 1.5;
+
+$border-radius: 6px;
+$border-radius-sm: 4px;
+$border-radius-lg: 8px;
+$border-radius-xl: 12px;
+$border-radius-pill: 999px;
+
+$card-bg: var(--larpit-surface);
+$card-border-color: var(--larpit-hairline);
+$card-border-radius: 8px;
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.25rem;
+$card-cap-bg: transparent;
+
+$input-bg: var(--larpit-surface);
+$input-border-color: var(--larpit-control-border);
+$input-color: var(--larpit-text);
+$input-placeholder-color: var(--larpit-dim);
+$input-padding-y: 0.6rem;
+$input-padding-x: 0.85rem;
+$form-select-bg: var(--larpit-surface);
+$form-check-input-bg: var(--larpit-surface);
+$form-check-input-border: 1px solid var(--larpit-control-border);
+$form-label-font-size: 0.875rem;
+$form-label-font-weight: 500;
+$form-text-font-size: 0.8125rem;
+$form-text-color: var(--larpit-dim);
+
+$dropdown-bg: var(--larpit-surface);
+$dropdown-border-color: var(--larpit-control-border);
+$dropdown-link-color: var(--larpit-text);
+$dropdown-link-hover-color: var(--larpit-text);
+$dropdown-link-hover-bg: var(--larpit-raised);
+$dropdown-link-active-color: var(--larpit-text);
+$dropdown-link-active-bg: var(--larpit-raised);
+
+$table-bg: transparent;
+$table-border-color: var(--larpit-hairline);
+$table-striped-bg: var(--larpit-raised);
+$table-hover-bg: var(--larpit-raised);
+
+$modal-content-bg: var(--larpit-surface);
+$modal-content-border-color: var(--larpit-control-border);
+$offcanvas-bg-color: var(--larpit-palette-surface);
+$offcanvas-color: var(--larpit-text);
+
+$btn-font-weight: 500;
+$btn-padding-y: 0.6rem;
+$btn-padding-x: 1.1rem;
+
+$enable-shadows: false;
+$enable-gradients: false;

@@ -1,0 +1,596 @@
+$mono: var(--larpit-mono-font), ui-monospace, monospace;
+$display: var(--larpit-display-font), system-ui, sans-serif;
+$grid-breakpoint: 820px;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-block: 44px 64px;
+}
+
+// ---------- header ----------
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 32px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.title {
+  font-size: clamp(30px, 6vw, 52px);
+}
+
+.year {
+  color: var(--larpit-dim);
+  font-weight: 500;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--larpit-control-border);
+  border-radius: 6px;
+  color: var(--larpit-text);
+
+  &:hover {
+    color: var(--larpit-aurora);
+    border-color: currentColor;
+  }
+}
+
+.todayLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 12px;
+  font-size: 14px;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.monthForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.monthSelect {
+  font-family: $mono;
+  font-size: 14px;
+  width: auto;
+  min-height: 44px;
+}
+
+.buttonIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ---------- month grid ----------
+
+.gridScroll {
+  overflow-x: auto;
+
+  @media (max-width: ($grid-breakpoint - 0.02px)) {
+    display: none;
+  }
+}
+
+.grid {
+  min-width: $grid-breakpoint;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--larpit-ground);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 48px repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  border-bottom: 1px solid var(--larpit-hairline);
+  background: var(--larpit-surface);
+}
+
+.weekday,
+.weekNumberHeader {
+  padding: 10px 12px;
+  font-family: $mono;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--larpit-dim);
+  font-weight: 500;
+}
+
+.weekNumberHeader {
+  padding-inline: 0;
+  text-align: center;
+}
+
+.weekendHeader {
+  color: var(--larpit-text);
+}
+
+.week {
+  --lanes: 4;
+  grid-template-rows: 38px repeat(var(--lanes), 30px) auto 10px;
+  border-bottom: 1px solid var(--larpit-hairline);
+  scroll-margin-top: 24px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.weekNumber {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  font-family: $mono;
+  font-size: 12px;
+  color: var(--larpit-dim);
+  border-right: 1px solid var(--larpit-hairline);
+}
+
+.day {
+  grid-row: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  align-content: flex-start;
+  gap: 2px 10px;
+  min-width: 0;
+  padding: 8px 12px;
+  border-right: 1px solid rgba(var(--larpit-hairline-rgb), 0.6);
+  font-family: $mono;
+  font-size: 13px;
+  color: var(--larpit-muted);
+}
+
+.sunday {
+  border-right: 0;
+}
+
+.weekend {
+  background: var(--larpit-weekend-tint);
+  color: var(--larpit-text);
+}
+
+.otherMonth {
+  color: var(--larpit-dim);
+  opacity: 0.6;
+}
+
+.dayNumber {
+  min-width: 22px;
+}
+
+.todayNumber {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 26px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--larpit-aurora);
+  color: var(--larpit-on-accent);
+  font-weight: 500;
+}
+
+.holiday {
+  min-width: 0;
+  font-family: var(--bs-body-font-family);
+  font-size: 12px;
+  color: var(--larpit-ember);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---------- calendar bars ----------
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 26px;
+  margin: 2px 6px;
+  padding: 0 10px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  &:hover,
+  &:focus-visible {
+    filter: brightness(1.15);
+    text-decoration: underline;
+  }
+}
+
+.week:not([data-expanded]) .collapsed {
+  display: none;
+}
+
+.continuesBefore {
+  margin-left: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.continuesAfter {
+  margin-right: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.barText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.place {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.dot {
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.dotHollow {
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+
+.kindOpen {
+  background: var(--larpit-open-tint);
+  color: var(--larpit-open-on-tint);
+}
+
+.kindSoon,
+.kindCampaign {
+  background: var(--larpit-ice-tint);
+  color: var(--larpit-ice-on-tint);
+}
+
+.kindOver {
+  background: var(--larpit-dim-tint);
+  color: var(--larpit-muted);
+
+  .dot {
+    color: var(--larpit-dim);
+  }
+}
+
+.kindEvent {
+  border: 1px dashed var(--larpit-control-border);
+  color: var(--larpit-muted);
+}
+
+.kindCancelled {
+  background: var(--larpit-rowan-tint);
+  color: var(--larpit-rowan-on-tint);
+
+  .barName {
+    text-decoration: line-through;
+  }
+}
+
+.moreCell {
+  grid-row: -3 / -2;
+  display: flex;
+  align-items: center;
+  padding: 2px 6px 0;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.moreButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 6px;
+  border: 0;
+  background: none;
+  font-family: $mono;
+  font-size: 12px;
+  color: var(--larpit-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--larpit-text);
+    text-decoration: underline;
+  }
+}
+
+.fewerCell {
+  grid-column: 2 / 9;
+  grid-row: -3 / -2;
+  justify-self: end;
+  padding: 2px 6px 0;
+  position: relative;
+  z-index: 1;
+}
+
+// ---------- agenda ----------
+
+.agenda {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: $grid-breakpoint) {
+    display: none;
+  }
+}
+
+.agendaWeekHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  padding: 18px 0 8px;
+  border-bottom: 2px solid var(--larpit-text);
+
+  &:first-child {
+    padding-top: 10px;
+  }
+}
+
+.agendaWeekTitle {
+  font-family: $display;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.agendaWeekRange {
+  font-family: $mono;
+  font-size: 12px;
+  color: var(--larpit-dim);
+  font-weight: 400;
+}
+
+.agendaDay {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.agendaDate {
+  flex: 0 0 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: $mono;
+  text-align: center;
+}
+
+.agendaWeekday {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--larpit-dim);
+}
+
+.agendaDayNumber {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.agendaToday {
+  color: var(--larpit-aurora);
+}
+
+.agendaHoliday {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--larpit-ember);
+  overflow-wrap: anywhere;
+}
+
+.agendaEntries {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agendaBar {
+  height: auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.endMarker {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-family: $mono;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.agendaEmpty {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--larpit-hairline);
+  font-size: 13px;
+  color: var(--larpit-dim);
+}
+
+.agendaFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  font-size: 13px;
+  color: var(--larpit-dim);
+
+  a {
+    color: var(--larpit-aurora);
+    text-decoration: none;
+    font-weight: 500;
+  }
+}
+
+// ---------- legend and subscribe ----------
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 32px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--larpit-muted);
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.swatch {
+  width: 18px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+
+.swatchOpen {
+  background: var(--larpit-open-tint);
+  border-color: rgba(var(--larpit-open-rgb), 0.4);
+}
+
+.swatchSoon {
+  background: var(--larpit-ice-tint);
+  border-color: rgba(var(--larpit-ice-rgb), 0.4);
+}
+
+.swatchOver {
+  background: var(--larpit-dim-tint);
+  border-color: rgba(var(--larpit-dim-rgb), 0.4);
+}
+
+.swatchEvent {
+  border: 1px dashed var(--larpit-control-border);
+}
+
+.swatchCancelled {
+  background: var(--larpit-rowan-tint);
+  border-color: rgba(var(--larpit-rowan-rgb), 0.4);
+}
+
+.swatchInviteOnly {
+  color: var(--larpit-dim);
+  margin-inline: 6px;
+}
+
+.keyboardHint {
+  margin: 0;
+  font-family: $mono;
+  font-size: 12px;
+  color: var(--larpit-dim);
+
+  @media (max-width: ($grid-breakpoint - 0.02px)) {
+    display: none;
+  }
+}
+
+.subscribe {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: var(--larpit-muted);
+}
+
+.subscribeTitle {
+  font-weight: 500;
+  color: var(--larpit-text);
+}
+
+.icsUrl {
+  min-width: 0;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 5px;
+  background: var(--larpit-ground);
+  font-family: $mono;
+  font-size: 13px;
+  color: var(--larpit-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subscribeHelp {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--larpit-dim);
+}

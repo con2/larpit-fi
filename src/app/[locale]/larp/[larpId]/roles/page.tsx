@@ -1,12 +1,12 @@
 import { auth } from "@/auth";
-import MainHeading from "@/components/MainHeading";
+import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import {
   Column,
   DataTable,
   DimensionFilters,
-  FormattedDate,
   SubmitButton,
 } from "@con2/components";
+import { FormattedDate } from "@/components/FormattedDates";
 import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import {
   canViewParticipantList,
@@ -23,7 +23,6 @@ import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import Alert from "react-bootstrap/Alert";
 import Badge from "react-bootstrap/Badge";
-import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { removeRole, removeUnauthenticatedSignup } from "./actions";
@@ -88,10 +87,9 @@ export default async function RolesPage({ params, searchParams }: Props) {
 
   if (!canViewParticipantList(user, larp, forceStrong)) {
     return (
-      <Container>
-        <MainHeading>{t.title}</MainHeading>
+      <LarpSubpage title={t.title} larp={larp}>
         <Alert variant="warning">{t.insufficientPrivileges}</Alert>
-      </Container>
+      </LarpSubpage>
     );
   }
 
@@ -276,10 +274,7 @@ export default async function RolesPage({ params, searchParams }: Props) {
   });
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <p>{t.message}</p>
-
+    <LarpSubpage title={t.title} larp={larp} lede={t.message}>
       {isGm && (
         <div className="mb-3">
           <Link
@@ -311,6 +306,6 @@ export default async function RolesPage({ params, searchParams }: Props) {
         className="table table-striped mb-4"
         responsive
       />
-    </Container>
+    </LarpSubpage>
   );
 }

@@ -15,64 +15,156 @@ const translations: Translations = {
   },
   HomePage: {
     tagline: "Suomalaisen larppaamisen joukkoistettu arkisto",
+    title: "Kaikki suomalaiset larpit, menneet ja tulevat, yhdessä paikassa.",
+    actions: {
+      subscribeToCalendar: "Tilaa kalenteri",
+    },
     sections: {
-      recentChanges: {
-        title: "Tuoreet muutokset",
+      thisWeek: {
+        title: "Tällä viikolla",
+        week: (week: number) => `vk ${week}`,
+        fullCalendar: "Koko kalenteri",
       },
-      upcomingOtherEvents: "Tulevat conit, miitit ja muut tapahtumat",
       ongoingSignup: {
-        title: "Ilmoittautuminen käynnissä tai avautumassa pian",
-        description: (days: number) => (
-          <>
-            Tämä osio näyttää larpit, joiden ilmoittautuminen on parhaillaan
-            käynnissä tai avautumassa seuraavien {days} päivän aikana.
-            Kutsupelejä ei näytetä etusivulla.
-          </>
-        ),
+        title: "Ilmoittautuminen auki",
+        calendar: "Kalenteri",
       },
       upcomingWhenNoOngoingSignupPresent: "Tulevat larpit",
       upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",
-      past: "Viimeaikaisia larppeja",
+      recentChanges: {
+        title: "Tuoreet muutokset",
+      },
+      otherEvents: {
+        title: "Conit, festivaalit, miitit ym.",
+        all: (count: number) => `Kaikki ${count} tulevaa tapahtumaa`,
+      },
+      addLarp: {
+        title: "Järjestätkö larpin, jota täällä ei vielä ole?",
+        description:
+          "Lisää se itse parissa minuutissa. Ensimmäiset lisäyksesi tarkistetaan ennen julkaisua, myöhemmät jälkikäteen.",
+      },
     },
-    otherEvent: { singular: "tapahtuma", plural: "tapahtumaa" },
   },
   LarpPage: {
     actions: {
       edit: "Muokkaa tätä sivua",
       delete: "Pyydä poistamista",
       adminDelete: "Poista tämä sivu",
-      manageRelatedLarps: "Muokkaa suhteita muihin larppeihin",
       manageSignupSettings: "Ilmoittautumisasetukset",
-      claim: (
-        ClaimLink: ({ children }: { children: ReactNode }) => JSX.Element,
-      ) => (
-        <>
-          Oletko tämän larpin pelinjohtaja tai tapahtuman järjestäjä?{" "}
-          <ClaimLink>Ota sivu hallintaasi</ClaimLink> muokataksesi tietoja!
-        </>
-      ),
+      editShort: "muokkaa",
+      suggestChange: "Ehdota muutosta",
+      claim: "Pelinjohtaja! Ota sivu hallintaan!",
+    },
+    details: {
+      when: "Milloin",
+      where: "Missä",
+      participants: "Osallistujat",
+      players: () => "pelaajahahmoa",
+      ofTotal: (numTotalParticipants: number) =>
+        `/ ${numTotalParticipants} osallistujaa`,
+      total: (numTotalParticipants: number) =>
+        numTotalParticipants === 1 ? "osallistuja" : "osallistujaa",
+    },
+    updated: (date: ReactNode) => <>Päivitetty {date}</>,
+    signup: {
+      pill: {
+        open: "Ilmoittautuminen auki",
+        opensSoon: "Ilmo avautuu pian",
+      },
+      title: "Ilmoittautuminen",
+      closes: (date: ReactNode) => <>Sulkeutuu {date}</>,
+      closed: (date: ReactNode) => <>Sulkeutui {date}</>,
+      opens: (date: ReactNode) => <>Avautuu {date}</>,
+      opened: (date: ReactNode) => <>Avautui {date}</>,
+      daysLeft: (days: number) =>
+        days === 0
+          ? "Sulkeutuu tänään"
+          : days === 1
+            ? "1 päivä jäljellä"
+            : `${days} päivää jäljellä`,
+      elapsed: "Ilmoittautumisajasta kulunut",
+      notAnnounced: "Ilmoittautumisen ajankohtaa ei ole vielä kerrottu.",
+      cancelled: "Tämä larppi on peruttu.",
+      signUpOnSite: "Ilmoittaudu larpin sivuilla",
+      visitSite: "Larpin sivuille",
+    },
+    ownActions: {
+      title: "Omat toiminnot",
+      addToCalendar: "Lisää kalenteriin",
+      playing: "Pelaan tässä larpissa",
+      played: "Pelasin tässä larpissa",
+      favourite: "Suosikki",
+      signInFirst: "Kirjaudu sisään merkitäksesi",
+    },
+    gm: {
+      claimedByYou: "Hallinnoit tätä sivua pelinjohtajana.",
+      claimed: "Pelinjohtaja hallinnoi tätä sivua.",
+    },
+    relatedLarps: {
+      empty: "Ei vielä liittyviä larppeja.",
+      emptyHint:
+        "Kirjautuneet käyttäjät voivat linkittää uusintoja, jatko-osia ja kampanjan pelejä.",
+    },
+    onThisPage: {
+      title: "Tästä sivusta",
+      crowdSourced: "Tiedot ovat joukkoistettuja ja voivat olla vanhentuneita.",
     },
   },
   NewLarpPage: {
     title: "Lisää larppi",
+    eyebrow: "Osallistu",
     message: (
       <>
-        <p>
-          Täytä alla oleva lomake lisätäksesi uuden larpin. Tähdellä (*)
-          merkityt kentät ovat pakollisia.
-        </p>
-        <p className="form-text">
-          Voit käyttää tätä lomaketta myös sellaisten tapahtumien
-          ilmoittamiseen, jotka eivät ole larppeja mutta liittyvät jollain
-          tavalla larppaamiseen. Tällaisia voivat olla esimerkiksi miitit,
-          työpajat, larppifestivaalit ja conit. Tässä tapauksessa suhtaudu
-          luovasti sanan &quot;larppi&quot; käyttöön tällä lomakkeella: se
-          larpatkoon juuri sitä minkä tyyppistä tapahtumaa olet luomassa.
-        </p>
+        Larppien lisäksi myös miitit, työpajat, larppifestivaalit ja conit.
+        Sinun ei tarvitse olla pelinjohtaja. Merkillä{" "}
+        <span className="lf-accent">*</span> merkityt kentät ovat pakollisia;
+        loput voi kuka tahansa täydentää myöhemmin.
       </>
     ),
     actions: {
       submit: "Lähetä",
+    },
+    sectionIndex: {
+      title: "Osiot",
+      missing: "{count} puuttuu",
+      done: "Valmis",
+      optional: "Vapaaehtoinen",
+    },
+    preview: {
+      title: "Näin larppi näkyy listauksissa",
+      note: "Päivittyy kirjoittaessasi.",
+      signupNote:
+        "Avoimen ilmoittautumisen larpit nostetaan esiin myös etusivulla, kun ilmoittautuminen on alkamassa tai käynnissä.",
+      namePlaceholder: "Larpin nimi",
+      noDate: "Ei vielä päivää",
+      pill: {
+        openUntil: "Auki {date} asti",
+        opens: "Aukeaa {date}",
+        openIndefinitely: "Ilmoittautuminen auki",
+        over: "Ilmoittautuminen päättynyt",
+        inviteOnly: "Vain kutsutut",
+        cancelled: "Peruttu",
+      },
+    },
+    requiredSummary: {
+      allFilled: "Kaikki pakolliset kentät on täytetty.",
+      stillEmpty: "Pakollisia kenttiä täyttämättä ({count}):",
+    },
+    alreadyListed: {
+      title: "Onko larppi jo listattu?",
+      message: (
+        SearchLink: ({ children }: { children: ReactNode }) => JSX.Element,
+      ) => (
+        <>
+          Tarkista ensin <SearchLink>haulla</SearchLink>. Uusintapelautukset
+          saavat oman sivunsa; liitä ne jälkikäteen toisiinsa liittyviksi
+          larpeiksi.
+        </>
+      ),
+    },
+    opennessUnspecified: {
+      title: "Ei vielä tiedossa",
+      description: "Jätä tämä valituksi, jos et tiedä kuka voi ilmoittautua.",
     },
     sections: {
       contact: {
@@ -139,6 +231,7 @@ const translations: Translations = {
             tavalla.
           </>
         ),
+        consentShort: "suostumus henkilötietojen käsittelyyn",
       },
       larp: {
         title: "Larpin perustiedot",
@@ -169,7 +262,7 @@ const translations: Translations = {
         ),
       },
       time: {
-        title: "Milloin larppi pelataan?",
+        title: "Aika ja paikka",
         message: (
           <>
             <p>
@@ -186,7 +279,6 @@ const translations: Translations = {
         ),
       },
       location: {
-        title: "Missä larppi pelataan?",
         message: (
           <>
             Tässä voit syöttää pelipaikan nimen ja paikkakunnan, jossa se
@@ -677,6 +769,12 @@ const translations: Translations = {
           opensAt: (formattedDate: ReactNode) => (
             <>Ilmoittautuminen avautuu {formattedDate}</>
           ),
+          openUntilShort: (formattedDate: ReactNode) => (
+            <>Auki {formattedDate} asti</>
+          ),
+          opensShort: (formattedDate: ReactNode) => (
+            <>Avautuu {formattedDate}</>
+          ),
           over: <>Ilmoittautuminen ohi</>,
           inviteOnly: <>Kutsupeli</>,
           lookingForReservePlayers: <>Hakee varapelaajia</>,
@@ -785,7 +883,7 @@ const translations: Translations = {
         },
       },
       relatedLarps: {
-        title: "Suhde muihin larppeihin",
+        title: "Suhteet muihin larppeihin",
         noRelatedLarps:
           "Tällä larpilla ei vielä ole suhteita muihin larppeihin.",
         actions: {
@@ -931,7 +1029,7 @@ const translations: Translations = {
         all: "Kaikki kielet",
       },
       cancelled: {
-        title: "Peruttu",
+        title: "Perutut",
         hide: "Piilota perutut larpit",
         show: "Näytä myös perutut larpit",
         only: "Näytä vain perutut larpit",
@@ -1258,6 +1356,9 @@ const translations: Translations = {
       title: "Hakusana",
       placeholder: "Syötä hakusana ja paina rivinvaihtoa",
     },
+    submit: "Hae",
+    results: "Tulokset",
+    noResults: "Yhdenkään larpin nimi ei vastaa hakua.",
   },
   User: {
     singleTitle: "Käyttäjä",
@@ -1303,16 +1404,47 @@ const translations: Translations = {
   },
   OwnLarpsPage: {
     title: "Omat larpit",
-    attributes: {
-      role: {
-        label: "Oma rooli tässä larpissa",
-      },
+    lede: "Larpit, joita järjestät, joita olet pelannut tai jotka olet merkinnyt suosikiksi. Vain sinä näet tämän listan.",
+    filters: {
+      label: "Näytä",
+      all: "Kaikki",
+      organizing: "Järjestän",
+      played: "Pelatut",
+      favourites: "Suosikit",
     },
-    tableFooter: (showing: number, total: number) => (
-      <>
-        Näytetään {showing} larppi{showing === 1 ? "" : "a"} (yhteensä {total}).
-      </>
-    ),
+    upcoming: "Tulossa",
+    noDate: "Päivämäärä ei tiedossa",
+    larpCount: (count: number) =>
+      `${count} ${count === 1 ? "larppi" : "larppia"}`,
+    showMore: (count: number, year: number) =>
+      `Näytä vuoden ${year} loput ${count} ${count === 1 ? "larppi" : "larppia"}`,
+    roleTags: {
+      EDITOR: "Muokkaaja",
+      CREATED_BY: "Lisäämäsi",
+      GAME_MASTER: "Pelinjohtaja",
+      TEAM_MEMBER: "Tiimi",
+      VOLUNTEER: "Vapaaehtoinen",
+      PLAYER: "Pelaaja",
+      FAVORITE: "Suosikki",
+      LOCAL_SIGNUP_YES: "Ilmoittautunut",
+      LOCAL_SIGNUP_MAYBE: "Ehkä",
+      LOCAL_SIGNUP_NO: "Ei tule",
+    },
+    pendingEdits: "Odottavat muokkaukseni",
+    downloadCalendar: "Lataa larppini (.ics)",
+    calendarName: "Larpit.fi – Omat larpit",
+    empty: {
+      all: "Täällä ei ole vielä larppeja.",
+      organizing: "Sinua ei ole merkitty minkään larpin järjestäjäksi.",
+      played: "Et ole merkinnyt yhtään larppia pelatuksi.",
+      favourites: "Sinulla ei ole vielä suosikkilarppeja.",
+    },
+    missing: {
+      title: "Puuttuuko jotain?",
+      message:
+        "Merkitse larppeja pelatuiksi tai suosikeiksi niiden sivuilla. Järjestäjäroolit tulevat larpin omaksi merkitsemisestä tai moderaattoreilta.",
+      browse: "Selaa kaikkia larppeja",
+    },
   },
   RelatedUser: {
     title: "Liitetyt käyttäjät",
@@ -1405,7 +1537,7 @@ const translations: Translations = {
     contactAdministratorNoContactForm: (
       <>
         Larpit.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta{" "}
-        <em>larpit-fi ät tracon.fi</em>.
+        <em className="text-nowrap">larpit-fi ät tracon.fi</em>.
       </>
     ),
     contactForm: (
@@ -1431,8 +1563,88 @@ const translations: Translations = {
       </p>
     ),
   },
+  LarpListPage: {
+    eyebrow: "Arkisto",
+    timeline: "Larpit vuosittain",
+    yearBar: (year: number, count: string) =>
+      `${year}: ${count} ${count === "1" ? "larppi" : "larppia"}`,
+    chips: {
+      type: {
+        default: "Larpit",
+        other: "Muut",
+        all: "Kaikki",
+        pick: "Tyypit",
+        selected: (count: number) => `${count} tyyppiä`,
+      },
+      language: {
+        all: "Kaikki",
+      },
+      cancelled: {
+        hide: "Piilota",
+        show: "Näytä",
+        only: "Näytä vain",
+      },
+    },
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larppi" : "larppia"}`,
+    upcoming: "tulevat",
+    past: "menneet",
+    showOthers: (count: string, year: string) =>
+      `Näytä vuoden ${year} muut ${count} ${count === "1" ? "larppi" : "larppia"}`,
+    showYear: (count: string, year: string) =>
+      count === "1"
+        ? `Näytä vuoden ${year} larppi`
+        : `Näytä vuoden ${year} ${count} larppia`,
+    showUndated: (count: string) =>
+      `Näytä ${count} ${count === "1" ? "larppi" : "larppia"} ilman päivämäärää`,
+    noDate: "Päivämäärä puuttuu",
+    empty: "Yksikään larppi ei vastaa näitä suodattimia.",
+  },
   StatsPage: {
     title: "Tilastoja",
+    eyebrow: "Arkisto lukuina",
+    totals: {
+      label: "Yhteensä",
+      pages: "Larpit ja tapahtumat",
+      years: (first: number, last: number) => `Vuotta, ${first}–${last}`,
+      thisYear: "Larppia tänä vuonna",
+      upcoming: "Tulevaa larppia",
+    },
+    peak: (year: string, count: string) => `huippu ${year} · ${count}`,
+    allYears: "kaikki vuodet",
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larppi" : "larppia"}`,
+    monthSummary: (
+      busiest: string,
+      busiestCount: string,
+      quietest: string,
+      quietestCount: string,
+    ) =>
+      `Vilkkain kuukausi on ${busiest} (${busiestCount} larppia), hiljaisin ${quietest} (${quietestCount}).`,
+    topMunicipalities: "10 eniten",
+    allMunicipalities: (count: string) => `Kaikki ${count} kuntaa`,
+    otherParticipants: "Muut osallistujat",
+    openness: {
+      title: "Ilmoittautumisen avoimuus",
+      notRecorded: "Ei tiedossa",
+      unrecordedShare: (share: string) =>
+        `${share} larpeista ei ole vielä merkitty avoimuutta.`,
+    },
+    shape: {
+      title: "Larpin muoto",
+      oneDay: "kestää yhden päivän",
+      weekend: "on koko viikonlopun, pe–su",
+      medianPlayerCharacters: (count: string, max: string) =>
+        `pelaajahahmoa, mediaani larpeista, joilta tieto löytyy (${count} larppia; suurin ${max})`,
+      medianTotalParticipants: (count: string, max: string) =>
+        `osallistujaa yhteensä, mediaani larpeista, joilta tieto löytyy (${count} larppia; suurin ${max})`,
+      medianSignupWindow: (count: string) =>
+        `päivää ilmoittautumisaikaa, mediaani larpeista, joilta molemmat päivät löytyvät (${count} larppia)`,
+      medianLeadTime: (count: string) =>
+        `päivää ilmoittautumisen alusta larppiin, mediaani (${count} larppia)`,
+      description:
+        "Vain larpit, perutut pois lukien. Jokainen luku lasketaan niistä larpeista, joilta tieto löytyy.",
+    },
     message: (
       <>
         <p>
@@ -1449,6 +1661,12 @@ const translations: Translations = {
     filters: {
       since: {
         title: "Ajanjakso",
+        short: {
+          ALL_TIME: "Kaikki",
+          LAST_10_YEARS: "10 v",
+          POST_COVID: "2022–",
+          LAUNCH: "2026–",
+        },
         choices: {
           ALL_TIME: "Aikojen alusta asti",
           LAST_10_YEARS: "Viimeiset 10 kokonaista vuotta",
@@ -1535,20 +1753,70 @@ const translations: Translations = {
   CalendarPage: {
     title: "Kalenteri",
     navigation: {
-      previousMonth: "Edellinen",
-      nextMonth: "Seuraava",
-      goToMonth: "Siirry kuukauteen",
+      previousMonth: "Edellinen kuukausi",
+      nextMonth: "Seuraava kuukausi",
+      goToMonth: "Siirry",
       go: "Siirry",
     },
     weekNumber: "Vk",
+    weekNumberTitle: "Viikkonumero",
     today: "Tänään",
-    keyboardNavigation: "Vinkki: Voit vaihtaa kuukausia nuolinäppäimillä.",
-    subscribe: (calendarUrl: string) => (
-      <>
-        Tilaa Larpit.fi-kalenteri esim. Google Calendariin tai Outlookiin:{" "}
-        <code>{calendarUrl}</code>
-      </>
-    ),
+    jumpToToday: "Hyppää tähän päivään",
+    keyboardNavigation: "← → vaihda kuukautta · T tänään",
+    monthNames: [
+      "Tammikuu",
+      "Helmikuu",
+      "Maaliskuu",
+      "Huhtikuu",
+      "Toukokuu",
+      "Kesäkuu",
+      "Heinäkuu",
+      "Elokuu",
+      "Syyskuu",
+      "Lokakuu",
+      "Marraskuu",
+      "Joulukuu",
+    ],
+    weekdaysShort: ["ma", "ti", "ke", "to", "pe", "la", "su"],
+    filters: {
+      label: "Rajaa kalenteria",
+      all: "Kaikki",
+      larps: "Larpit",
+      campaigns: "Kampanjat",
+      events: "Tapahtumat",
+      type: "Tyyppi",
+      signup: "Ilmo",
+      signupOpen: "Auki",
+      language: "Kieli",
+      languages: {
+        fi: "Suomeksi",
+        sv: "Ruotsiksi",
+        en: "Englanniksi",
+      },
+    },
+    legend: {
+      title: "Selitteet",
+      signupOpen: "Ilmoittautuminen auki",
+      openingSoon: "Ilmoittautuminen aukeaa pian / kampanja",
+      signupOver: "Ilmoittautuminen päättynyt",
+      inviteOnly: "Vain kutsutuille",
+      event: "Conit, festivaalit, tapaamiset",
+      cancelled: "Peruttu",
+    },
+    week: (weekNumber: number) => `Viikko ${weekNumber}`,
+    noLarps: "Ei larppeja.",
+    more: "+{count} lisää",
+    moreLabel: "Näytä {count} lisää päivältä {date}",
+    showFewer: "Näytä vähemmän",
+    agendaFooter: "Kuukausinäkymä leveämmillä näytöillä",
+    subscribe: {
+      title: "Tilaa omaan kalenterisovellukseesi",
+      button: "Tilaa",
+      urlLabel: "Kalenterin osoite",
+      copy: "Kopioi",
+      copied: "Kalenterin osoite on kopioitu leikepöydälle.",
+      help: "Päivittyy automaattisesti, kun larppeja lisätään. Syöte sisältää aina kaikki larpit yllä olevista rajauksista riippumatta.",
+    },
   },
   LoginRequired: {
     title: "Kirjautuminen vaaditaan",
@@ -1668,6 +1936,73 @@ const translations: Translations = {
           poistoa uudelleen asetuksistasi, jos haluat yhä poistaa tilisi.
         </>
       ),
+    },
+  },
+  AppBar: {
+    mainNavigation: "Päävalikko",
+    search: "Hae",
+    menu: "Valikko",
+    closeMenu: "Sulje valikko",
+    accountMenu: "Käyttäjävalikko",
+    viaKompassi: "Kompassin kautta",
+    myLarps: "Omat larpit",
+    played: "Pelaamani larpit",
+    favourites: "Suosikit",
+    pendingEdits: "Odottavat muokkaukseni",
+    profile: "Profiili ja näkyvyys",
+    editInKompassi: "Muokkaa nimeä tai sähköpostia Kompassissa",
+    theme: "Teema",
+    themeChoices: { auto: "Auto", night: "Yö", day: "Päivä" },
+    language: "Kieli",
+    administration: "Ylläpito",
+  },
+  Footer: {
+    privacyPolicy: "Tietosuojaseloste",
+    source: "Lähdekoodi GitHubissa",
+    api: "API",
+    note: "Joukkoistettu, vapaaehtoisvoimin ylläpidetty.",
+  },
+  CommandPalette: {
+    title: "Haku ja komennot",
+    inputLabel: "Hae larppeja tai kirjoita komento",
+    placeholder: "Hae larppeja, paikkakuntia, vuosia…",
+    commandsHint: "komennot",
+    close: "Peruuta",
+    larps: "Larpit",
+    thisPage: "Tämä sivu",
+    everywhere: "Kaikkialla",
+    recent: "Viimeksi katsotut",
+    noResults: "Ei osumia.",
+    resultCount: "{shown}/{total}",
+    footerMove: "liiku",
+    footerOpen: "avaa",
+    footerNewTab: "uusi välilehti",
+    footerTip: "kokeile paikkakuntaa, vuotta tai nimeä",
+    pill: {
+      cancelled: "Peruutettu",
+      inviteOnly: "Kutsupeli",
+      openUntil: "Auki {date} asti",
+      openIndefinitely: "Ilmo auki",
+      opens: "Avautuu {date}",
+      over: "Ilmo ohi",
+    },
+    commands: {
+      addLarp: "Lisää larppi",
+      calendar: "Siirry kalenteriin",
+      allLarps: "Selaa kaikkia larppeja",
+      stats: "Tilastoja",
+      themeToNight: "Vaihda tummaan teemaan",
+      themeToDay: "Vaihda vaaleaan teemaan",
+      switchLanguage: "Switch to English",
+      editLarp: "Muokkaa tätä larppia",
+      addRelated: "Lisää liittyvä larppi",
+      claim: "Ota sivu haltuun pelinjohtajana",
+      addToCalendar: "Lisää kalenteriin",
+      copyLink: "Kopioi linkki tähän larppiin",
+      share: "Jaa…",
+      subscribe: "Tilaa kalenteri",
+      jumpToToday: "Siirry tähän päivään",
+      copied: "Linkki kopioitu",
     },
   },
   LanguageSwitcher: {

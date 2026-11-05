@@ -2,16 +2,10 @@
 
 import { LarpLinkType } from "@/prisma/enums";
 import { socialMediaLinkTitleFromHref } from "@/helpers/socialMediaLinkTitle";
-import { type ReactNode, useState } from "react";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardTitle,
-  FormControl,
-  FormSelect,
-  Table,
-} from "react-bootstrap";
+import { useState } from "react";
+import { Button, FormControl, FormSelect } from "react-bootstrap";
+import { PlusIcon } from "./ui/icons";
+import styles from "./LarpForm.module.scss";
 
 // Hand-maintained to avoid pulling the Prisma runtime into the client bundle.
 // `satisfies` ties this to the Prisma enum so additions there will fail type-check here.
@@ -61,16 +55,24 @@ interface Messages {
     columnTitle: string;
     types: Record<LinkType, { title: string }>;
   };
-  linksSection: {
-    title: string;
-    message?: ReactNode;
-  };
 }
 
 interface Props {
   messages: Messages;
   initialLinks?: LinkData[];
-  compact?: boolean;
+}
+
+function CloseIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <path
+        d="M2 2 L12 12 M12 2 L2 12"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 let newRowCounter = 0;
@@ -78,10 +80,8 @@ let newRowCounter = 0;
 export default function LarpLinksManager({
   messages,
   initialLinks = [],
-  compact,
 }: Props) {
   const t = messages.links;
-  const tSection = messages.linksSection;
 
   const [rows, setRows] = useState<LinkRow[]>(() =>
     initialLinks
@@ -141,133 +141,117 @@ export default function LarpLinksManager({
   }
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>{tSection.title}</CardTitle>
-        {!compact && tSection.message && (
-          <div className="mb-3">{tSection.message}</div>
-        )}
-        <input type="hidden" name="link_count" value={rows.length} />
-        {rows.length > 0 && (
-          <Table size="sm" className="mb-2 align-middle">
-            <thead>
-              <tr>
-                <th scope="col">{t.columnType}</th>
-                <th scope="col">{t.columnUrl}</th>
-                <th scope="col">{t.columnTitle}</th>
-                <th scope="col"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => {
-                const isRemoved = row.kind === "existing" && row.removed;
-                const titleRequired = !isRemoved && row.type === "OTHER";
-                return (
-                  <tr
-                    key={row.kind === "existing" ? `e-${i}` : row.key}
-                    className={isRemoved ? "opacity-50" : undefined}
-                  >
-                    <td style={{ minWidth: "9rem" }}>
-                      <FormSelect
-                        name={`link_${i}_type`}
-                        value={row.type}
-                        onChange={(e) =>
-                          updateRow(i, { type: e.target.value as LinkType })
-                        }
-                        disabled={isRemoved}
-                        size="sm"
-                      >
-                        {LINK_TYPES.map((type) => (
-                          <option key={type} value={type}>
-                            {t.types[type].title}
-                          </option>
-                        ))}
-                      </FormSelect>
-                    </td>
-                    <td>
-                      <FormControl
-                        type="url"
-                        name={`link_${i}_href`}
-                        value={row.href}
-                        onChange={(e) => {
-                          const href = e.target.value;
-                          const updates: { href: string; title?: string } = {
-                            href,
-                          };
-                          if (row.type === "SOCIAL_MEDIA" && !row.title) {
-                            const suggested =
-                              socialMediaLinkTitleFromHref(href);
-                            if (suggested) updates.title = suggested;
-                          }
-                          updateRow(i, updates);
-                        }}
-                        disabled={isRemoved}
-                        required={!isRemoved}
-                        size="sm"
-                        placeholder="https://…"
-                      />
-                    </td>
-                    <td style={{ minWidth: "8rem" }}>
-                      <FormControl
-                        type="text"
-                        name={`link_${i}_title`}
-                        value={row.title}
-                        onChange={(e) =>
-                          updateRow(i, { title: e.target.value })
-                        }
-                        disabled={isRemoved}
-                        required={titleRequired}
-                        size="sm"
-                        placeholder={
-                          titleRequired
-                            ? t.titleRequiredPlaceholder
-                            : t.titlePlaceholder
-                        }
-                      />
-                    </td>
-                    <td className="text-nowrap">
-                      {isRemoved && (
-                        <input
-                          type="hidden"
-                          name={`link_${i}_removed`}
-                          value="1"
-                        />
-                      )}
-                      {isRemoved ? (
-                        <Button
-                          type="button"
-                          variant="outline-secondary"
-                          size="sm"
-                          onClick={() => undoRemove(i)}
-                        >
-                          {t.undoRemove}
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => removeRow(i)}
-                        >
-                          {t.removeLink}
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        )}
-        <Button
-          type="button"
-          variant="outline-primary"
-          size="sm"
-          onClick={addRow}
-        >
-          {t.addLink}
-        </Button>
-      </CardBody>
-    </Card>
+    <>
+      <input type="hidden" name="link_count" value={rows.length} />
+      {rows.length > 0 && (
+        <div className={styles.linkRows}>
+          <div
+            className={`${styles.linkRow} ${styles.linkHeader}`}
+            aria-hidden="true"
+          >
+            <span className="lf-label">{t.columnType}</span>
+            <span className="lf-label">{t.columnUrl}</span>
+            <span className="lf-label">{t.columnTitle}</span>
+            <span />
+          </div>
+          {rows.map((row, i) => {
+            const isRemoved = row.kind === "existing" && row.removed;
+            const titleRequired = !isRemoved && row.type === "OTHER";
+            return (
+              <div
+                key={row.kind === "existing" ? `e-${i}` : row.key}
+                className={`${styles.linkRow} ${isRemoved ? styles.linkRowRemoved : ""}`}
+              >
+                <FormSelect
+                  name={`link_${i}_type`}
+                  aria-label={t.columnType}
+                  value={row.type}
+                  onChange={(e) =>
+                    updateRow(i, { type: e.target.value as LinkType })
+                  }
+                  disabled={isRemoved}
+                >
+                  {LINK_TYPES.map((type) => (
+                    <option key={type} value={type}>
+                      {t.types[type].title}
+                    </option>
+                  ))}
+                </FormSelect>
+                <FormControl
+                  type="url"
+                  id={`LarpLinksManager-${i}-href`}
+                  name={`link_${i}_href`}
+                  aria-label={t.columnUrl}
+                  className={styles.linkHref}
+                  value={row.href}
+                  onChange={(e) => {
+                    const href = e.target.value;
+                    const updates: { href: string; title?: string } = {
+                      href,
+                    };
+                    if (row.type === "SOCIAL_MEDIA" && !row.title) {
+                      const suggested = socialMediaLinkTitleFromHref(href);
+                      if (suggested) updates.title = suggested;
+                    }
+                    updateRow(i, updates);
+                  }}
+                  disabled={isRemoved}
+                  required={!isRemoved}
+                  placeholder="https://…"
+                />
+                <FormControl
+                  type="text"
+                  id={`LarpLinksManager-${i}-title`}
+                  name={`link_${i}_title`}
+                  aria-label={t.columnTitle}
+                  value={row.title}
+                  onChange={(e) => updateRow(i, { title: e.target.value })}
+                  disabled={isRemoved}
+                  required={titleRequired}
+                  placeholder={
+                    titleRequired
+                      ? t.titleRequiredPlaceholder
+                      : t.titlePlaceholder
+                  }
+                />
+                <div>
+                  {isRemoved && (
+                    <input type="hidden" name={`link_${i}_removed`} value="1" />
+                  )}
+                  {isRemoved ? (
+                    <Button
+                      type="button"
+                      variant="outline-secondary"
+                      onClick={() => undoRemove(i)}
+                    >
+                      {t.undoRemove}
+                    </Button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.iconButton}
+                      aria-label={t.removeLink}
+                      title={t.removeLink}
+                      onClick={() => removeRow(i)}
+                    >
+                      <CloseIcon />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <Button
+        type="button"
+        variant="outline-secondary"
+        className={styles.addLink}
+        onClick={addRow}
+      >
+        <PlusIcon size={12} />
+        {t.addLink}
+      </Button>
+    </>
   );
 }

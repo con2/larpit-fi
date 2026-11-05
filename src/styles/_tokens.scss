@@ -1,0 +1,129 @@
+// Nordic Night tokens. One set of role names, two values each; `data-bs-theme` on <html> picks one.
+// Bootstrap's own SCSS variables are fed from the Day values in _bootstrap-variables.scss, and the
+// colour-mode-dependent ones are overridden here as custom properties, because Bootstrap 5.3 only
+// compiles theme colours ($primary etc.) once.
+
+$larpit-day: (
+  ground: #f5f7fb,
+  surface: #ffffff,
+  raised: #eef1f7,
+  hairline: #d9dfeb,
+  control-border: #b9c2d6,
+  text: #0b1020,
+  prose: #2a3450,
+  muted: #4a5570,
+  dim: #5e6a88,
+  aurora: #324abb,
+  open: #0f7a54,
+  ice: #1f6fc2,
+  ember: #9a6306,
+  rowan: #c23b3b,
+  on-accent: #ffffff,
+  palette-surface: #ffffff,
+);
+
+$larpit-night: (
+  ground: #0b1020,
+  surface: #121a2f,
+  raised: #1a2541,
+  hairline: #26324f,
+  control-border: #3a4766,
+  text: #eaeef8,
+  prose: #d5dbea,
+  muted: #a3aecc,
+  dim: #8591b3,
+  aurora: #6fe7b7,
+  open: #6fe7b7,
+  ice: #8cc6ff,
+  ember: #f2b05a,
+  rowan: #ff8a8a,
+  "violet": #be96ff,
+  on-accent: #0b1020,
+  palette-surface: #0e1426,
+);
+
+$larpit-tinted-roles: (aurora, open, ice, ember, rowan, dim);
+
+@function rgb-triplet($color) {
+  @return red($color), green($color), blue($color);
+}
+
+@mixin larpit-palette($palette, $tint-alpha, $is-dark) {
+  @each $role, $value in $palette {
+    --larpit-#{$role}: #{$value};
+    --larpit-#{$role}-rgb: #{rgb-triplet($value)};
+  }
+  @each $role in $larpit-tinted-roles {
+    $value: map-get($palette, $role);
+    --larpit-#{$role}-tint: #{rgba($value, $tint-alpha)};
+    // Text on its own tint: at Day's 10 % tint the plain role colour falls just short of 4.5:1.
+    --larpit-#{$role}-on-tint: #{if(
+        $is-dark,
+        $value,
+        mix($value, map-get($palette, text), 90%)
+      )};
+  }
+  --larpit-aurora-select-tint: #{rgba(map-get($palette, aurora), 0.06)};
+  --larpit-weekend-tint: #{if(
+      $is-dark,
+      rgba(255, 255, 255, 0.02),
+      rgba(11, 16, 32, 0.025)
+    )};
+
+  $semantic: (
+    primary: aurora,
+    success: open,
+    info: ice,
+    warning: ember,
+    danger: rowan,
+    secondary: muted,
+  );
+
+  --bs-body-bg: #{map-get($palette, ground)};
+  --bs-body-bg-rgb: #{rgb-triplet(map-get($palette, ground))};
+  --bs-body-color: #{map-get($palette, text)};
+  --bs-body-color-rgb: #{rgb-triplet(map-get($palette, text))};
+  --bs-emphasis-color: #{map-get($palette, text)};
+  --bs-heading-color: #{map-get($palette, text)};
+  --bs-secondary-color: #{map-get($palette, muted)};
+  --bs-secondary-color-rgb: #{rgb-triplet(map-get($palette, muted))};
+  --bs-tertiary-color: #{map-get($palette, dim)};
+  --bs-secondary-bg: #{map-get($palette, raised)};
+  --bs-tertiary-bg: #{map-get($palette, raised)};
+  --bs-border-color: #{map-get($palette, hairline)};
+  --bs-border-color-translucent: #{map-get($palette, hairline)};
+  --bs-link-color: #{map-get($palette, aurora)};
+  --bs-link-color-rgb: #{rgb-triplet(map-get($palette, aurora))};
+  --bs-link-hover-color: #{map-get($palette, aurora)};
+  --bs-link-hover-color-rgb: #{rgb-triplet(map-get($palette, aurora))};
+  --bs-focus-ring-color: #{rgba(map-get($palette, aurora), 0.35)};
+  --bs-form-valid-color: #{map-get($palette, aurora)};
+  --bs-form-valid-border-color: #{map-get($palette, aurora)};
+  --bs-form-invalid-color: #{map-get($palette, rowan)};
+  --bs-form-invalid-border-color: #{map-get($palette, rowan)};
+  --bs-code-color: #{map-get($palette, ember)};
+
+  @each $name, $role in $semantic {
+    $value: map-get($palette, $role);
+    --bs-#{$name}: #{$value};
+    --bs-#{$name}-rgb: #{rgb-triplet($value)};
+    --bs-#{$name}-text-emphasis: #{$value};
+    --bs-#{$name}-bg-subtle: #{rgba($value, $tint-alpha)};
+    --bs-#{$name}-border-subtle: #{rgba($value, 0.4)};
+  }
+
+  @if $is-dark {
+    color-scheme: dark;
+  } @else {
+    color-scheme: light;
+  }
+}
+
+:root,
+[data-bs-theme="light"] {
+  @include larpit-palette($larpit-day, 0.1, false);
+}
+
+[data-bs-theme="dark"] {
+  @include larpit-palette($larpit-night, 0.12, true);
+}

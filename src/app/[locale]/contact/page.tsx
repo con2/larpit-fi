@@ -1,17 +1,15 @@
 import { auth } from "@/auth";
 import { PrivacyPolicyLink, ProfileLink } from "@/components/ExternalLinks";
 import { LogoutLink } from "@/components/LoginLink";
-import MainHeading from "@/components/MainHeading";
 import { getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
+import styles from "./page.module.scss";
 import { SubmitButton } from "@con2/components";
 import {
   Card,
   CardBody,
-  CardText,
   CardTitle,
-  Container,
   Form,
   FormCheck,
   FormControl,
@@ -56,28 +54,30 @@ export default async function ContactPage({ params }: Props) {
     .all();
 
   return (
-    <Container>
-      <MainHeading>{t.title}</MainHeading>
-      <p className="text-center mb-5">{t.contactAdministratorNoContactForm}</p>
-      <p className="text-center">{t.teamConsistsOf}</p>
-      <Row className="mb-5">
-        {roles.map((role) => (
-          <div key={role.id} className="col-md-4">
-            <Card className="mb-4">
-              <CardBody>
-                <CardTitle>{role.name}</CardTitle>
-                <CardText>
-                  {getUserTitleInLanguage(role, locale) ||
-                    userT.attributes.role.choices[role.role].title}
-                </CardText>
-              </CardBody>
-            </Card>
-          </div>
-        ))}
-      </Row>
+    <div className="lf-container">
+      <header className="lf-page-header">
+        <h1 className="lf-display-l">{t.title}</h1>
+        <p className={`lf-lede ${styles.lede}`}>
+          {t.contactAdministratorNoContactForm}
+        </p>
+      </header>
+      <section className={styles.team} aria-labelledby="ContactPage-team">
+        <p id="ContactPage-team">{t.teamConsistsOf}</p>
+        <ul className={styles.teamList}>
+          {roles.map((role) => (
+            <li key={role.id} className={styles.member}>
+              <span className="lf-title">{role.name}</span>
+              <span className={styles.memberTitle}>
+                {getUserTitleInLanguage(role, locale) ||
+                  userT.attributes.role.choices[role.role].title}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
       {contactFormEnabled && (
         <>
-          <div className="text-center mb-4">{t.contactForm}</div>
+          <div className="mb-4">{t.contactForm}</div>
           <Card className="mb-5">
             <CardBody>
               <CardTitle>{t.title}</CardTitle>
@@ -233,7 +233,7 @@ export default async function ContactPage({ params }: Props) {
           </Card>
         </>
       )}
-      <div className="text-center mb-4">{t.administrative}</div>
-    </Container>
+      <div className="lf-muted mb-5">{t.administrative}</div>
+    </div>
   );
 }
