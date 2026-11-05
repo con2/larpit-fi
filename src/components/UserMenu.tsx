@@ -50,6 +50,7 @@ interface Props {
   locale: string;
   locales: readonly string[];
   kompassiProfileUrl: string;
+  themeSwitching: boolean;
 }
 
 export function getInitials(user: UserMenuUser): string {
@@ -77,6 +78,7 @@ export default function UserMenu({
   locale,
   locales,
   kompassiProfileUrl,
+  themeSwitching,
 }: Props) {
   const pathname = usePathname();
   // Remembering where the menu was opened closes it when a link inside navigates away.
@@ -204,10 +206,12 @@ export default function UserMenu({
           </div>
 
           <div className="lf-menu__group">
-            <div className="lf-menu__setting">
-              <span>{t.theme}</span>
-              <ThemeSegmented label={t.theme} choices={t.themeChoices} />
-            </div>
+            {themeSwitching && (
+              <div className="lf-menu__setting">
+                <span>{t.theme}</span>
+                <ThemeSegmented label={t.theme} choices={t.themeChoices} />
+              </div>
+            )}
             <div className="lf-menu__setting">
               <span>{t.language}</span>
               <LanguageSegmented

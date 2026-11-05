@@ -8,6 +8,7 @@ import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import { CommandPaletteProvider } from "@/components/ui/CommandPalette";
+import { featureFlags } from "@/config";
 import { routing } from "@/i18n/routing";
 import {
   autoThemeScript,
@@ -40,9 +41,9 @@ export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const translations = getTranslations(locale);
-  const themePreference = parseThemePreference(
-    (await cookies()).get(themeCookieName)?.value,
-  );
+  const themePreference = featureFlags.themeSwitching
+    ? parseThemePreference((await cookies()).get(themeCookieName)?.value)
+    : "day";
   const typeTitles = Object.fromEntries(
     Object.entries(translations.Larp.attributes.type.choices).map(
       ([type, choice]) => [type, choice.title],
@@ -61,12 +62,15 @@ export default async function RootLayout({ children, params }: Props) {
         suppressHydrationWarning
       >
         <head>
-          <script dangerouslySetInnerHTML={{ __html: autoThemeScript }} />
+          {featureFlags.themeSwitching && (
+            <script dangerouslySetInnerHTML={{ __html: autoThemeScript }} />
+          )}
         </head>
         <body>
           <CommandPaletteProvider
             locale={locale}
             messages={translations.CommandPalette}
+            themeSwitching={featureFlags.themeSwitching}
             typeTitles={typeTitles}
           >
             <div className="lf-page">

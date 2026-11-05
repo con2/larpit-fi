@@ -182,6 +182,7 @@ interface ProviderProps {
   locale: string;
   messages: Translations["CommandPalette"];
   typeTitles: Record<LarpType, string>;
+  themeSwitching: boolean;
 }
 
 export function CommandPaletteProvider({
@@ -189,6 +190,7 @@ export function CommandPaletteProvider({
   locale,
   messages,
   typeTitles,
+  themeSwitching,
 }: ProviderProps) {
   const pathname = usePathname();
   // Remembering where the palette was opened closes it when a result navigates away.
@@ -272,6 +274,7 @@ export function CommandPaletteProvider({
           typeTitles={typeTitles}
           pageContext={pageContext}
           pathname={pathname}
+          themeSwitching={themeSwitching}
         />
       )}
     </CommandPaletteContext.Provider>
@@ -337,6 +340,7 @@ interface DialogProps {
   locale: string;
   messages: Translations["CommandPalette"];
   typeTitles: Record<LarpType, string>;
+  themeSwitching: boolean;
   pageContext: PalettePageContext | null;
   pathname: string;
 }
@@ -348,6 +352,7 @@ function CommandPaletteDialog({
   typeTitles,
   pageContext,
   pathname,
+  themeSwitching,
 }: DialogProps) {
   const router = useRouter();
   const inputId = useId();
@@ -418,15 +423,19 @@ function CommandPaletteDialog({
       shortcut: "G L",
     },
     { id: "stats", label: t.commands.stats, icon: "stats", href: "/stats" },
-    {
-      id: "theme",
-      label:
-        effectiveTheme === "dark"
-          ? t.commands.themeToDay
-          : t.commands.themeToNight,
-      icon: "theme",
-      action: "switchTheme",
-    },
+    ...(themeSwitching
+      ? [
+          {
+            id: "theme",
+            label:
+              effectiveTheme === "dark"
+                ? t.commands.themeToDay
+                : t.commands.themeToNight,
+            icon: "theme" as const,
+            action: "switchTheme" as const,
+          },
+        ]
+      : []),
     {
       id: "language",
       label: t.commands.switchLanguage,

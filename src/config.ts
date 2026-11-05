@@ -58,4 +58,6 @@ export const larppikuvatApiUrl =
 
 export const featureFlags = {
   localSignup: false,
+  /** Off: everyone gets the Day theme and the theme controls are hidden. */
+  themeSwitching: false,
 } as const;

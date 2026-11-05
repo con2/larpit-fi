@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { auth } from "@/auth";
-import { isStaging, kompassiProfileUrl } from "@/config";
+import { featureFlags, isStaging, kompassiProfileUrl } from "@/config";
 import type { SupportedLanguage } from "@/i18n/locales";
 import {
   canEditPages,
@@ -182,6 +182,7 @@ export default async function AppBar({ locale }: Props) {
               locale={locale}
               locales={languageOrder}
               kompassiProfileUrl={kompassiProfileUrl}
+              themeSwitching={featureFlags.themeSwitching}
             />
           </span>
           <MobileMenu
@@ -192,6 +193,7 @@ export default async function AppBar({ locale }: Props) {
             userMenuMessages={translations.UserMenu}
             locale={locale}
             locales={languageOrder}
+            themeSwitching={featureFlags.themeSwitching}
           />
         </div>
       </div>

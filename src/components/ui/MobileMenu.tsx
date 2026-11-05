@@ -20,6 +20,7 @@ interface Props {
   userMenuMessages: Translations["UserMenu"];
   locale: string;
   locales: readonly string[];
+  themeSwitching: boolean;
 }
 
 export default function MobileMenu({
@@ -30,6 +31,7 @@ export default function MobileMenu({
   userMenuMessages,
   locale,
   locales,
+  themeSwitching,
 }: Props) {
   const pathname = usePathname();
   // Remembering where the menu was opened closes it when a link inside navigates away.
@@ -105,10 +107,12 @@ export default function MobileMenu({
             )}
           </div>
           <div className="lf-menu__group">
-            <div className="lf-menu__setting">
-              <span>{t.theme}</span>
-              <ThemeSegmented label={t.theme} choices={t.themeChoices} />
-            </div>
+            {themeSwitching && (
+              <div className="lf-menu__setting">
+                <span>{t.theme}</span>
+                <ThemeSegmented label={t.theme} choices={t.themeChoices} />
+              </div>
+            )}
             <div className="lf-menu__setting">
               <span>{t.language}</span>
               <LanguageSegmented
