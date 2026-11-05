@@ -6,7 +6,7 @@ $grid-breakpoint: 820px;
   display: flex;
   flex-direction: column;
   gap: 28px;
-  padding-block: 44px 64px;
+  padding-block: 48px 64px;
 }
 
 // ---------- header ----------
@@ -108,7 +108,7 @@ $grid-breakpoint: 820px;
   border: 1px solid var(--larpit-hairline);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--larpit-ground);
+  background: var(--larpit-surface);
 }
 
 .columns {
@@ -189,8 +189,8 @@ $grid-breakpoint: 820px;
 }
 
 .otherMonth {
-  color: var(--larpit-dim);
-  opacity: 0.6;
+  color: rgba(var(--larpit-dim-rgb), 0.6);
+  background: var(--larpit-ground);
 }
 
 .dayNumber {
@@ -590,7 +590,7 @@ $grid-breakpoint: 820px;
 }
 
 .subscribeHelp {
-  margin-left: auto;
+  flex-basis: 100%;
   font-size: 13px;
   color: var(--larpit-dim);
 }

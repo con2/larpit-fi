@@ -489,7 +489,7 @@ function SignupCard({
       {buttonLabel && siteLink && (
         <a
           href={siteLink.href}
-          className={`btn btn-primary ${styles.signupButton}`}
+          className={`btn btn-success ${styles.signupButton}`}
           rel="noopener noreferrer"
           target="_blank"
         >

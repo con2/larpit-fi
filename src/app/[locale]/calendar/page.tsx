@@ -179,7 +179,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
             id: "subscribe",
             label: translations.CommandPalette.commands.subscribe,
             icon: "calendar",
-            href: webcalUrl,
+            href: "#subscribe",
           },
           {
             id: "jumpToToday",
@@ -259,13 +259,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
               </button>
             </noscript>
           </form>
-          <a
-            href={webcalUrl}
-            className={`btn btn-outline-primary ${styles.buttonIcon}`}
-          >
-            <CalendarIcon size={14} />
-            {t.subscribe.button}
-          </a>
         </div>
       </header>
 
@@ -392,10 +385,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         >
           {t.subscribe.title}
         </h2>
-        <a href={webcalUrl} className={`btn btn-primary ${styles.buttonIcon}`}>
-          <CalendarIcon size={14} />
-          {t.subscribe.button}
-        </a>
         <code className={styles.icsUrl} aria-label={t.subscribe.urlLabel}>
           {icalUrl}
         </code>
@@ -404,6 +393,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           className="btn btn-outline-secondary"
           messages={{ title: t.subscribe.copy, success: t.subscribe.copied }}
         />
+        <a href={webcalUrl} className={`btn btn-primary ${styles.buttonIcon}`}>
+          <CalendarIcon size={14} />
+          {t.subscribe.button}
+        </a>
         <span className={styles.subscribeHelp}>{t.subscribe.help}</span>
       </section>
     </div>

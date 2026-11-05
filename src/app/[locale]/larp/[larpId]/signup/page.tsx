@@ -156,7 +156,7 @@ export default async function SignupPage({ params, searchParams }: Props) {
               {visibilityRadios()}
               <Form.Text>{t.attributes.visibility.helpText}</Form.Text>
             </div>
-            <SubmitButton>{t.actions.submit}</SubmitButton>
+            <SubmitButton variant="success">{t.actions.submit}</SubmitButton>
             {signupStatus !== "CAN_SIGN_UP" && (
               <SubmitButton
                 variant="outline-danger"

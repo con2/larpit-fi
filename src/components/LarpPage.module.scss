@@ -253,10 +253,26 @@ $display: var(--larpit-display-font), system-ui, sans-serif;
   }
 
   &[aria-pressed="true"] {
-    color: var(--larpit-aurora);
+    // Reaches into the list's side padding so the filled row reads as a block.
+    width: calc(100% + 24px);
+    margin-inline: -12px;
+    padding-inline: 12px;
+    border-radius: 6px;
+    background: var(--larpit-aurora);
+    color: var(--larpit-on-accent);
+    font-weight: 600;
 
     svg {
-      color: var(--larpit-aurora);
+      color: var(--larpit-on-accent);
+    }
+
+    &:hover {
+      background: color-mix(
+        in srgb,
+        var(--larpit-aurora) 86%,
+        var(--larpit-text)
+      );
+      color: var(--larpit-on-accent);
     }
   }
 }
