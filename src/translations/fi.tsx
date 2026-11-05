@@ -114,10 +114,11 @@ const translations: Translations = {
     eyebrow: "Osallistu",
     message: (
       <>
-        Larppien lisäksi myös miitit, työpajat, larppifestivaalit ja conit.
-        Sinun ei tarvitse olla pelinjohtaja. Merkillä{" "}
-        <span className="lf-accent">*</span> merkityt kentät ovat pakollisia;
-        loput voi kuka tahansa täydentää myöhemmin.
+        Larppien lisäksi voit lisätä sivustolle myös esimerkiksi miittejä,
+        työpajoja sekä larppausaiheisia festivaaleja ja coneja. Kuka tahansa voi
+        lisätä tapahtuman – lisääjän ei tarvitse olla järjestäjä tai
+        pelinjohtaja! Merkillä <span className="lf-accent">*</span> merkityt
+        kentät ovat pakollisia; loput voi kuka tahansa täydentää myöhemmin.
       </>
     ),
     actions: {
