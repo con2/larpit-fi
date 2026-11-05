@@ -421,16 +421,32 @@ $lf-phone: 767.98px;
   }
 }
 
+// One text baseline across the bar: the logo, the nav links and the button labels. Phones centre
+// instead, as their buttons are icons without text.
 .lf-appbar__inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 12px 28px;
-  min-height: 68px;
+  padding-block: 12px;
 
   @media (max-width: $lf-phone) {
+    align-items: center;
     gap: 8px;
+    padding-block: 0;
     min-height: 72px;
+  }
+}
+
+// The logo and the nav links differ in size; they share a text baseline.
+.lf-appbar__start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 28px;
+
+  @media (max-width: $lf-phone) {
+    margin-right: auto;
   }
 }
 
@@ -504,11 +520,21 @@ $lf-phone: 767.98px;
   }
 }
 
+// Every item is a 44 px box with its 15 px label centred, so borders and text baselines line up.
 .lf-appbar__actions {
   margin-left: auto;
   display: flex;
   align-items: center;
   gap: 18px;
+
+  > span {
+    display: flex;
+    align-items: center;
+  }
+
+  .btn {
+    font-size: 15px;
+  }
 
   @media (max-width: $lf-phone) {
     gap: 8px;
@@ -536,7 +562,7 @@ $lf-phone: 767.98px;
   border: 1px solid var(--larpit-control-border);
   color: var(--larpit-muted);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15px;
   padding: 9px 10px 9px 14px;
   border-radius: 6px;
   min-height: 44px;
@@ -601,11 +627,13 @@ $lf-phone: 767.98px;
 
 .lf-lang {
   font-family: $lf-mono;
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   color: var(--larpit-muted);
   text-decoration: none;
-  padding: 8px 0;
+  display: inline-block;
+  line-height: 44px;
+  padding: 0;
   white-space: nowrap;
 
   [data-bs-theme="dark"] & {
@@ -1147,7 +1175,7 @@ $lf-phone: 767.98px;
   min-height: 44px;
   color: var(--larpit-text);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
 
   &[aria-expanded="true"] {

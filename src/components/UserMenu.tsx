@@ -153,12 +153,7 @@ export default function UserMenu({
             <span className="lf-disc lf-disc--large" aria-hidden="true">
               {initials}
             </span>
-            <span className="d-flex flex-column" style={{ minWidth: 0 }}>
-              <span className="fw-medium text-truncate">{displayName}</span>
-              <span className="lf-data small lf-dim text-truncate">
-                {t.viaKompassi}
-              </span>
-            </span>
+            <span className="fw-medium text-truncate">{displayName}</span>
           </div>
 
           <div className="lf-menu__group">

@@ -147,31 +147,56 @@ export function isOrganizing(roles: RelatedUserRole[]): boolean {
 export interface YearGroup {
   /** null for larps without a start date */
   year: number | null;
+  /** Set only for the current year, which is split into its upcoming and past larps. */
+  part: "upcoming" | "past" | null;
+  /** The first group of a year carries the `year-YYYY` anchor. */
+  anchor: string;
   larps: OwnLarp[];
 }
 
+export function isUpcomingLarp(larp: OwnLarp, now: Date = new Date()) {
+  const endsAt = ensureEndsAt(larp);
+  return !!endsAt && endsAt >= now;
+}
+
 /**
- * Splits larps that have not ended yet into `upcoming`; the rest are grouped by the year they
- * start in, keeping the order of the input.
+ * Groups larps by the year they start in, keeping the order of the input. The current year is split
+ * into its upcoming and past larps when it has both, as on the All larps page.
  */
 export function groupOwnLarps(
   larps: OwnLarp[],
   now: Date = new Date(),
-): { upcoming: OwnLarp[]; years: YearGroup[] } {
-  const upcoming: OwnLarp[] = [];
-  const years: YearGroup[] = [];
+): YearGroup[] {
+  const currentYear = now.getFullYear();
+  const byKey = new Map<string, YearGroup>();
 
   for (const larp of larps) {
-    const endsAt = ensureEndsAt(larp);
-    if (endsAt && endsAt >= now) {
-      upcoming.push(larp);
-      continue;
-    }
     const year = larp.startsAt ? Number(larp.startsAt.slice(0, 4)) : null;
-    const group = years.at(-1);
-    if (group && group.year === year) group.larps.push(larp);
-    else years.push({ year, larps: [larp] });
+    const part =
+      year === currentYear
+        ? isUpcomingLarp(larp, now)
+          ? "upcoming"
+          : "past"
+        : null;
+    const key = `${year ?? "unknown"}-${part ?? ""}`;
+    const group = byKey.get(key);
+    if (group) group.larps.push(larp);
+    else
+      byKey.set(key, {
+        year,
+        part,
+        anchor: year === null ? "unknown" : String(year),
+        larps: [larp],
+      });
   }
 
-  return { upcoming, years };
+  const groups = [...byKey.values()];
+  const currentYearParts = groups.filter((group) => group.part);
+  if (currentYearParts.length === 1) {
+    currentYearParts[0].part = null;
+  } else if (currentYearParts.length === 2) {
+    const past = currentYearParts.find((group) => group.part === "past")!;
+    past.anchor = `${currentYear}-past`;
+  }
+  return groups;
 }

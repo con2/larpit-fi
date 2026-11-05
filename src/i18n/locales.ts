@@ -8,7 +8,7 @@ export const supportedLanguages: readonly SupportedLanguage[] = [
   "en",
   "fi",
 ] as const;
-export const defaultLanguage: SupportedLanguage = "en";
+export const defaultLanguage: SupportedLanguage = "fi";
 
 export function isSupportedLanguage(
   language?: string,

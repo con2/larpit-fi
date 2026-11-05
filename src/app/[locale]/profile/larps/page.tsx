@@ -11,7 +11,7 @@ import {
   ShieldIcon,
 } from "@/components/ui/icons";
 import LarpRow from "@/components/ui/LarpRow";
-import SectionHeading, { YearHeading } from "@/components/ui/SectionHeading";
+import { YearHeading } from "@/components/ui/SectionHeading";
 import { LarpStatusPill } from "@/components/ui/StatusPill";
 import { getUserFromSession } from "@/models/User";
 import { EditStatus, RelatedUserRole } from "@/prisma/enums";
@@ -23,6 +23,7 @@ import {
   filterOwnLarps,
   getRoleTags,
   groupOwnLarps,
+  isUpcomingLarp,
   loadOwnLarps,
   ownLarpsFilters,
   parseOwnLarpsFilter,
@@ -111,24 +112,26 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   ]);
   const counts = countOwnLarps(allLarps);
   const larps = filterOwnLarps(allLarps, filter);
-  const { upcoming, years } = groupOwnLarps(larps);
+  const groups = groupOwnLarps(larps);
+  const listT = translations.LarpListPage;
 
   const calendarHref =
     filter === "all"
       ? "/profile/larps/calendar.ics"
       : `/profile/larps/calendar.ics?show=${filter}`;
 
-  const renderRow = (larp: OwnLarp, isUpcoming: boolean) => (
+  const renderRow = (larp: OwnLarp) => (
     <LarpRow
       key={larp.id}
       larp={larp}
       locale={locale}
       messages={translations.Larp}
-      dateFormat={isUpcoming ? "full" : "short"}
+      dateFormat="short"
+      past={!isUpcomingLarp(larp)}
       aside={
         <>
           <RoleTags roles={larp.roles} messages={t} />
-          {isUpcoming && (
+          {isUpcomingLarp(larp) && (
             <LarpStatusPill
               larp={larp}
               messages={translations.Larp}
@@ -140,8 +143,8 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
     />
   );
 
-  const renderYear = ({ year, larps: yearLarps }: YearGroup) => {
-    const headingId = year === null ? "year-unknown" : `year-${year}`;
+  const renderYear = ({ year, part, anchor, larps: yearLarps }: YearGroup) => {
+    const headingId = `year-${anchor}`;
     const collapsed =
       year !== null &&
       year !== expandedYear &&
@@ -156,17 +159,25 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
         aria-labelledby={headingId}
       >
         <YearHeading
-          year={year ?? t.noDate}
+          year={
+            part ? (
+              <>
+                {year} <span className="lf-count">{listT[part]}</span>
+              </>
+            ) : (
+              (year ?? t.noDate)
+            )
+          }
           count={t.larpCount(yearLarps.length)}
           id={headingId}
         />
-        {shown.map((larp) => renderRow(larp, false))}
+        {shown.map(renderRow)}
         {year !== null && hidden.length > 0 && (
           <YearExpander
             href={filterHref(filter, year)}
             label={t.showMore(hidden.length, year)}
           >
-            {hidden.map((larp) => renderRow(larp, false))}
+            {hidden.map(renderRow)}
           </YearExpander>
         )}
       </section>
@@ -227,16 +238,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
       <div className={styles.body}>
         {larps.length === 0 && <p className="lf-empty">{t.empty[filter]}</p>}
 
-        {upcoming.length > 0 && (
-          <section className="lf-section" aria-labelledby="upcoming">
-            <SectionHeading id="upcoming" count={upcoming.length}>
-              {t.upcoming}
-            </SectionHeading>
-            {upcoming.map((larp) => renderRow(larp, true))}
-          </section>
-        )}
-
-        {years.map(renderYear)}
+        {groups.map(renderYear)}
 
         <div className={`lf-surface lf-surface--compact ${styles.missing}`}>
           <span className={styles.missingTitle}>{t.missing.title}</span>

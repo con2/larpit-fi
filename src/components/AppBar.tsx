@@ -140,12 +140,14 @@ export default async function AppBar({ locale }: Props) {
         <div className="lf-appbar__aurora-darken" />
       </div>
       <div className="lf-container lf-appbar__inner">
-        <Link href="/" className="lf-logo">
-          larpit<span>.fi</span>
-          {isStaging && <span className="lf-staging">staging</span>}
-        </Link>
-        <div className="lf-desktop-only">
-          <NavLinks items={navItems} label={t.mainNavigation} />
+        <div className="lf-appbar__start">
+          <Link href="/" className="lf-logo">
+            larpit<span>.fi</span>
+            {isStaging && <span className="lf-staging">staging</span>}
+          </Link>
+          <div className="lf-desktop-only">
+            <NavLinks items={navItems} label={t.mainNavigation} />
+          </div>
         </div>
         <div className="lf-appbar__actions">
           <SearchButton label={t.search} />
@@ -160,13 +162,15 @@ export default async function AppBar({ locale }: Props) {
           >
             <PlusIcon />
           </Link>
-          <span className="lf-desktop-only">
-            <LanguageToggle
-              locale={locale}
-              locales={languageOrder}
-              label={t.language}
-            />
-          </span>
+          {!menuUser && (
+            <span className="lf-desktop-only">
+              <LanguageToggle
+                locale={locale}
+                locales={languageOrder}
+                label={t.language}
+              />
+            </span>
+          )}
           <span className="lf-desktop-only">
             <UserMenu
               appBarMessages={t}

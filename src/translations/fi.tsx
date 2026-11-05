@@ -1411,7 +1411,6 @@ const translations: Translations = {
       played: "Pelatut",
       favourites: "Suosikit",
     },
-    upcoming: "Tulossa",
     noDate: "Päivämäärä ei tiedossa",
     larpCount: (count: number) =>
       `${count} ${count === 1 ? "larppi" : "larppia"}`,
@@ -1943,7 +1942,6 @@ const translations: Translations = {
     menu: "Valikko",
     closeMenu: "Sulje valikko",
     accountMenu: "Käyttäjävalikko",
-    viaKompassi: "Kompassin kautta",
     myLarps: "Omat larpit",
     played: "Pelaamani larpit",
     favourites: "Suosikit",

@@ -1382,7 +1382,6 @@ const translations = {
       played: "Played",
       favourites: "Favourites",
     },
-    upcoming: "Upcoming",
     noDate: "Date not known",
     larpCount: (count: number) => `${count} larp${count === 1 ? "" : "s"}`,
     showMore: (count: number, year: number) =>
@@ -1908,7 +1907,6 @@ const translations = {
     menu: "Menu",
     closeMenu: "Close menu",
     accountMenu: "Account menu",
-    viaKompassi: "via Kompassi",
     myLarps: "My larps",
     played: "Larps I’ve played",
     favourites: "Favourites",
