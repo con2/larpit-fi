@@ -27,7 +27,6 @@ const translations: Translations = {
       },
       ongoingSignup: {
         title: "Ilmoittautuminen auki",
-        calendar: "Kalenteri",
       },
       upcomingWhenNoOngoingSignupPresent: "Tulevat larpit",
       upcomingWhenOngoingSignupPresent: "Muut tulevat larpit",

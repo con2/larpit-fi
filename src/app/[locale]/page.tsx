@@ -185,13 +185,7 @@ export default async function HomePage({ params }: Props) {
         <div>
           {ongoingSignupLarps.length > 0 && (
             <section className="lf-section">
-              <SectionHeading
-                count={ongoingSignupLarps.length}
-                link={{
-                  href: "/calendar",
-                  title: t.sections.ongoingSignup.calendar,
-                }}
-              >
+              <SectionHeading count={ongoingSignupLarps.length}>
                 {t.sections.ongoingSignup.title}
               </SectionHeading>
               {ongoingSignupLarps.map((larp) => (

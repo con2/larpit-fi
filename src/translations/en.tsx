@@ -26,7 +26,6 @@ const translations = {
       },
       ongoingSignup: {
         title: "Signing up now",
-        calendar: "Calendar",
       },
       upcomingWhenNoOngoingSignupPresent: "Upcoming larps",
       upcomingWhenOngoingSignupPresent: "Other upcoming larps",
