@@ -75,6 +75,9 @@ export const headerImagesEnabled = !!s3.bucket;
 
 export const featureFlags = {
   localSignup: false,
-  /** Off: everyone gets the Day theme and the theme controls are hidden. */
-  themeSwitching: false,
+  /**
+   * Off: everyone gets the plain Day theme and the theme controls are hidden. On: Night mode and
+   * the theme controls, and in Day mode a night-sky app bar and aurora hero over the day page.
+   */
+  nordicNight: false,
 } as const;

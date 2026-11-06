@@ -57,7 +57,7 @@ import LarpJsonLd from "./LarpJsonLd";
 import styles from "./LarpPage.module.scss";
 import TooltipTrigger from "./TooltipTrigger";
 import SignInButton from "./larp-page/SignInButton";
-import Aurora from "./ui/Aurora";
+import Aurora, { nightSkyProps } from "./ui/Aurora";
 import { PaletteContext, type PaletteCommand } from "./ui/CommandPalette";
 import StatusPill from "./ui/StatusPill";
 import TypeTag from "./ui/TypeTag";
@@ -237,14 +237,20 @@ function Hero({
 
   return (
     <section
-      className={`${styles.hero}${headerImage ? ` ${heroWithImageClassName}` : ""}`}
-      {...heroImageProps(headerImage)}
+      {...(headerImage
+        ? {
+            className: `${styles.hero} ${heroWithImageClassName}`,
+            ...heroImageProps(headerImage),
+          }
+        : nightSkyProps(styles.hero))}
     >
-      {headerImage && (
+      {headerImage ? (
         <HeaderImageBackdrop
           view={headerImage}
           messages={translations.HeaderImage}
         />
+      ) : (
+        <Aurora variant="larp" />
       )}
       <div className={`lf-container ${styles.heroInner}`}>
         <div className={`${styles.heroText} ${heroTextClassName}`}>
@@ -821,7 +827,6 @@ export default async function LarpPage({
 
   return (
     <>
-      {!headerImage && <Aurora variant="larp" />}
       <LarpJsonLd larp={larp} />
       <PaletteContext
         title={typesetDashes(larp.name)}

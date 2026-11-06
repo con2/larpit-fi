@@ -8,7 +8,7 @@ import HeaderImageBackdrop, {
   heroTextClassName,
   heroWithImageClassName,
 } from "@/components/header-image/HeaderImageBackdrop";
-import Aurora from "@/components/ui/Aurora";
+import Aurora, { nightSkyProps } from "@/components/ui/Aurora";
 import CompactRow from "@/components/ui/CompactRow";
 import LarpRow from "@/components/ui/LarpRow";
 import { splitRunSuffix, typesetDashes } from "@/helpers/larpName";
@@ -119,17 +119,21 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      {!headerImage && <Aurora variant="home" />}
-
       <section
-        className={`${styles.hero}${headerImage ? ` ${heroWithImageClassName}` : ""}`}
-        {...heroImageProps(headerImage)}
+        {...(headerImage
+          ? {
+              className: `${styles.hero} ${heroWithImageClassName}`,
+              ...heroImageProps(headerImage),
+            }
+          : nightSkyProps(styles.hero))}
       >
-        {headerImage && (
+        {headerImage ? (
           <HeaderImageBackdrop
             view={headerImage}
             messages={translations.HeaderImage}
           />
+        ) : (
+          <Aurora variant="home" />
         )}
         <div className={`lf-container ${styles.heroInner}`}>
           <div className={`${styles.heroText} ${heroTextClassName}`}>

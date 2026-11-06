@@ -14,6 +14,7 @@ import { db } from "@/prisma/db";
 import { EditAction, EditStatus, RelatedUserRole } from "@/prisma/enums";
 import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
+import { nightSkyProps } from "./ui/Aurora";
 import { SearchButton } from "./ui/CommandPalette";
 import { PlusIcon } from "./ui/icons";
 import MobileMenu from "./ui/MobileMenu";
@@ -134,7 +135,7 @@ export default async function AppBar({ locale }: Props) {
   const menuUser = user ? { name: user.name, email: user.email } : null;
 
   return (
-    <header className="lf-appbar">
+    <header {...nightSkyProps("lf-appbar")}>
       <div className="lf-appbar__aurora" aria-hidden="true">
         <div className="lf-appbar__aurora-glows" />
         <div className="lf-appbar__aurora-darken" />
@@ -186,7 +187,7 @@ export default async function AppBar({ locale }: Props) {
               locale={locale}
               locales={languageOrder}
               kompassiProfileUrl={kompassiProfileUrl}
-              themeSwitching={featureFlags.themeSwitching}
+              themeSwitching={featureFlags.nordicNight}
             />
           </span>
           <MobileMenu
@@ -197,7 +198,7 @@ export default async function AppBar({ locale }: Props) {
             userMenuMessages={translations.UserMenu}
             locale={locale}
             locales={languageOrder}
-            themeSwitching={featureFlags.themeSwitching}
+            themeSwitching={featureFlags.nordicNight}
           />
         </div>
       </div>

@@ -41,7 +41,7 @@ export default async function RootLayout({ children, params }: Props) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   const translations = getTranslations(locale);
-  const themePreference = featureFlags.themeSwitching
+  const themePreference = featureFlags.nordicNight
     ? parseThemePreference((await cookies()).get(themeCookieName)?.value)
     : "day";
   const typeTitles = Object.fromEntries(
@@ -62,7 +62,7 @@ export default async function RootLayout({ children, params }: Props) {
         suppressHydrationWarning
       >
         <head>
-          {featureFlags.themeSwitching && (
+          {featureFlags.nordicNight && (
             <script dangerouslySetInnerHTML={{ __html: autoThemeScript }} />
           )}
         </head>
@@ -70,7 +70,7 @@ export default async function RootLayout({ children, params }: Props) {
           <CommandPaletteProvider
             locale={locale}
             messages={translations.CommandPalette}
-            themeSwitching={featureFlags.themeSwitching}
+            themeSwitching={featureFlags.nordicNight}
             typeTitles={typeTitles}
           >
             <div className="lf-page">

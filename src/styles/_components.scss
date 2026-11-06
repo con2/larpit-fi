@@ -245,8 +245,11 @@ $lf-phone: 767.98px;
     position: absolute;
   }
 
-  [data-bs-theme="light"] & {
-    display: none;
+  // Drawn only on night ground: Night mode, or the night sky of the app bar and hero in Day mode.
+  display: none;
+
+  [data-bs-theme="dark"] & {
+    display: block;
   }
 }
 
@@ -400,7 +403,7 @@ $lf-phone: 767.98px;
   display: none;
 }
 
-[data-bs-theme="dark"] .lf-page:has(.lf-aurora) h1 {
+[data-bs-theme="dark"]:has(> .lf-aurora) h1 {
   text-shadow: 0 2px 24px rgba(11, 16, 32, 0.5);
 }
 
@@ -415,6 +418,7 @@ $lf-phone: 767.98px;
   border-bottom: 1px solid var(--larpit-hairline);
   background: var(--larpit-surface);
 
+  &[data-bs-theme="dark"],
   [data-bs-theme="dark"] & {
     background: transparent;
     border-bottom-color: rgba(234, 238, 248, 0.14);
@@ -670,6 +674,46 @@ $lf-phone: 767.98px;
   &:hover {
     color: var(--larpit-aurora);
   }
+}
+
+// ---------- night sky ----------
+
+// With Nordic Night on, the app bar and an aurora hero carry `.lf-night-sky` and
+// `data-bs-theme="dark"`, which changes nothing in Night mode. In Day mode they become a night sky
+// over the day page, ending at the hero's bottom hairline. These come after the app bar rules,
+// which they override in Day mode at the same specificity.
+[data-bs-theme="light"] .lf-night-sky {
+  color: var(--larpit-text);
+  background: var(--larpit-ground);
+}
+
+// The hero's aurora starts at the top of the page, behind the app bar, so the bar lets it through.
+[data-bs-theme="light"] .lf-page:has(.lf-night-sky > .lf-aurora) .lf-appbar {
+  background: transparent;
+}
+
+[data-bs-theme="light"] .lf-night-sky:has(> .lf-aurora) {
+  // The clip makes the hero a stacking context, so its ground paints below the aurora. Night ends
+  // at the hero's bottom edge and reaches up behind the app bar, where the shadow lays the ground.
+  clip-path: inset(-100vh 0 0 0);
+  box-shadow: 0 0 0 100vh var(--larpit-ground);
+
+  // The night sky is shorter than the aurora, so it fades out later than in Night mode.
+  .lf-aurora__fade {
+    background: linear-gradient(
+      to bottom,
+      rgba(11, 16, 32, 0) 0%,
+      rgba(11, 16, 32, 0.2) 50%,
+      rgba(11, 16, 32, 0.55) 80%,
+      #0b1020 100%
+    );
+  }
+}
+
+// The user menu drops from the bar over the day page, so it stays Day.
+[data-bs-theme="light"] .lf-night-sky .lf-menu {
+  @include larpit-palette($larpit-day, 0.1, false);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
 }
 
 // ---------- footer ----------
