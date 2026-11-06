@@ -18,18 +18,45 @@ export function typesetMarkdownDashes(markdown: string): string {
     .join("");
 }
 
-const runSuffixPattern = /\s*\((\d+\..*)\)$/;
+const runKeyword = /\brun\b|pelautu/i;
+const bracketedTail = /\s*[([]([^()[\]]*)[)\]]$/;
+const tailSeparator = /\s+[-–—]\s+|,\s+/g;
+const unseparatedTail = /\s+((?:\d+|[IVX]+)\.?\s*pelautu\p{L}*)$/iu;
 
 /**
- * Splits "Ehtoo (2. pelautus)" into the name and the rerun suffix shown in dim weight. The name
- * is typeset with `typesetDashes` first.
+ * Splits off the run identifier of a larp name, such as "2. pelautus" or "Run 3", for showing
+ * in a dimmer weight. The name is typeset with `typesetDashes` first.
+ *
+ * The run identifier is the last part of the name, in brackets or after a dash or a comma, if it
+ * mentions a run ("run", or the stem "pelautu" to cover inflections and compounds). Failing that,
+ * a trailing "3. pelautus" without a separator counts too. Any other last part stays in the name,
+ * so "Pohjolan tuho – Kurssi 233: Kutsutut" (campaign, subcampaign, larp) is not split.
  */
 export function splitRunSuffix(rawName: string): {
   name: string;
   suffix: string | null;
 } {
   const name = typesetDashes(rawName);
-  const match = name.match(runSuffixPattern);
-  if (!match) return { name, suffix: null };
-  return { name: name.slice(0, match.index), suffix: match[1] };
+
+  const bracketed = name.match(bracketedTail);
+  if (bracketed) {
+    return runKeyword.test(bracketed[1])
+      ? { name: name.slice(0, bracketed.index), suffix: bracketed[1] }
+      : { name, suffix: null };
+  }
+
+  const lastSeparator = [...name.matchAll(tailSeparator)].at(-1);
+  if (lastSeparator) {
+    const tail = name.slice(lastSeparator.index + lastSeparator[0].length);
+    if (runKeyword.test(tail)) {
+      return { name: name.slice(0, lastSeparator.index), suffix: tail };
+    }
+  }
+
+  const unseparated = name.match(unseparatedTail);
+  if (unseparated) {
+    return { name: name.slice(0, unseparated.index), suffix: unseparated[1] };
+  }
+
+  return { name, suffix: null };
 }
