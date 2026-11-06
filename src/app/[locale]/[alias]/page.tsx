@@ -1,8 +1,8 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import { larpMetadata } from "@/components/larp-page/larpMetadata";
-import { dbRead } from "@/prisma/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{
@@ -14,11 +14,12 @@ interface Props {
 
 async function getContent({ params }: Props) {
   const { alias, locale } = await params;
+  const { db: reader } = await getReader();
   const [larp, page] = await Promise.all([
-    dbRead.orm.public.Larp.select("name", "tagline")
+    reader.orm.public.Larp.select("name", "tagline")
       .include("headerImage")
       .first({ alias }),
-    dbRead.orm.public.Page.select("title", "content").first({
+    reader.orm.public.Page.select("title", "content").first({
       slug: alias,
       language: locale,
     }),

@@ -2,13 +2,13 @@
 
 import { ensureEndsAt, getLarpHref } from "@/models/Larp.client";
 import { parseDates } from "@/prisma/dates";
-import { dbRead } from "@/prisma/db";
 import { LarpType } from "@/prisma/enums";
-import { queryRead, sql } from "@/prisma/sql";
+import { sql } from "@/prisma/sql";
 import { formatShortDateRange } from "@/helpers/dates";
 import { formatDateRange } from "@/helpers/dates";
 import { getSignupPillState, type SignupPillState } from "./signupPillState";
 import { typesetDashes } from "@/helpers/larpName";
+import { getReader } from "@/prisma/reader";
 
 export interface LarpSearchResult {
   id: string;
@@ -49,7 +49,8 @@ export async function searchLarps(
   const prefix = `${escapeLike(term)}%`;
   const year = /^\d{4}$/.test(term) ? parseInt(term, 10) : null;
 
-  const rows = await queryRead<{ id: string; total: string }>(sql`
+  const { db: reader, query: readQuery } = await getReader();
+  const rows = await readQuery<{ id: string; total: string }>(sql`
     select
       l.id,
       count(*) over () as total
@@ -74,7 +75,7 @@ export async function searchLarps(
 
   const ids = rows.map((row) => row.id);
   const larps = parseDates(
-    await dbRead.orm.public.Larp.where((l) => l.id.in(ids))
+    await reader.orm.public.Larp.where((l) => l.id.in(ids))
       .include("municipality", (m) => m.select("nameFi"))
       .all(),
   );

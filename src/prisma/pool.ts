@@ -23,7 +23,8 @@ export const pool: Pool =
 /**
  * Pool for reads that may trail the primary by replication lag: public pages and APIs whose
  * data the current request did not just write. Without DATABASE_URL_REPLICA it is `pool`
- * itself, so callers need not care whether a replica exists.
+ * itself, so callers need not care whether a replica exists. Pages get it through
+ * `getReader()`, which keeps signed-in requests on the primary.
  */
 export const readPool: Pool = databaseReplicaUrl
   ? process.env.NODE_ENV === "production"

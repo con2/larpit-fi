@@ -13,8 +13,7 @@ import FilterBar, {
 import { getSignupPillState } from "@/components/ui/signupPillState";
 import { publicUrl, timezone } from "@/config";
 import { parseDates } from "@/prisma/dates";
-import { dbRead } from "@/prisma/db";
-import { queryRead, sql } from "@/prisma/sql";
+import { sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 
 import Agenda from "./Agenda";
@@ -34,6 +33,7 @@ import {
 import { weekMondays } from "./calendarLayout";
 import MonthGrid, { weekId } from "./MonthGrid";
 import MonthSelect from "./MonthSelect";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -103,8 +103,9 @@ export default async function CalendarPage({ params, searchParams }: Props) {
   const gridStart = mondays[0];
   const gridEnd = mondays[mondays.length - 1].add({ days: 6 });
 
+  const { db: reader, query: readQuery } = await getReader();
   const [larpRows, monthRows, holidays] = await Promise.all([
-    dbRead.orm.public.Larp.where((l) => l.startsAt.lte(toISODate(gridEnd)))
+    reader.orm.public.Larp.where((l) => l.startsAt.lte(toISODate(gridEnd)))
       .where((l) =>
         or(
           l.endsAt.gte(toISODate(gridStart)),
@@ -114,7 +115,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       .orderBy((l) => l.startsAt.asc())
       .include("municipality", (m) => m.select("nameFi"))
       .all(),
-    queryRead<MonthRow>(sql`
+    readQuery<MonthRow>(sql`
       select
         extract(year from starts_at)::int as year,
         extract(month from starts_at)::int as month
@@ -123,7 +124,7 @@ export default async function CalendarPage({ params, searchParams }: Props) {
       group by year, month
       order by year desc, month desc
     `),
-    dbRead.orm.public.Holiday.where((h) => h.date.gte(toISODate(gridStart)))
+    reader.orm.public.Holiday.where((h) => h.date.gte(toISODate(gridStart)))
       .where((h) => h.date.lte(toISODate(gridEnd)))
       .all(),
   ]);

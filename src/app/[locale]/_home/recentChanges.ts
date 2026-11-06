@@ -1,5 +1,6 @@
 import { EditAction, Language } from "@/prisma/enums";
-import { queryRead, sql } from "@/prisma/sql";
+import { getReader } from "@/prisma/reader";
+import { sql } from "@/prisma/sql";
 
 export interface RecentChange {
   resolvedAt: Date;
@@ -11,8 +12,11 @@ export interface RecentChange {
   isCancelled: boolean;
 }
 
-export function getRecentChanges(limit: number = 7): Promise<RecentChange[]> {
-  return queryRead<RecentChange>(sql`
+export async function getRecentChanges(
+  limit: number = 7,
+): Promise<RecentChange[]> {
+  const { query: readQuery } = await getReader();
+  return readQuery<RecentChange>(sql`
     select
       resolved_at as "resolvedAt",
       action,

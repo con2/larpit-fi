@@ -23,7 +23,7 @@ import {
   isGmOrModerator,
 } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
-import { db, dbRead } from "@/prisma/db";
+import { db } from "@/prisma/db";
 import {
   EditStatus,
   LarpLinkType,
@@ -78,6 +78,7 @@ import {
   getSignupPillState,
   type SignupPillReason,
 } from "./ui/signupPillState";
+import { getReader } from "@/prisma/reader";
 
 export const relatedLarpFields = ["id", "alias", "name", "startsAt"] as const;
 
@@ -92,7 +93,8 @@ export function byStartsAt(
 export async function getLarpPageData(
   where: { id: string } | { alias: string },
 ) {
-  const larp = await dbRead.orm.public.Larp.include("links")
+  const { db: reader } = await getReader();
+  const larp = await reader.orm.public.Larp.include("links")
     .include("relatedLarpsLeft", (r) =>
       r.include("right", (l) => l.select(...relatedLarpFields)),
     )

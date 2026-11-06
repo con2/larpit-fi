@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ReactNode } from "react";
 
 import { Language, LarpType, Openness } from "@/prisma/enums";
-import { queryRead, sql } from "@/prisma/sql";
+import { sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import {
   ChartTable,
@@ -19,6 +19,7 @@ import FilterBar, {
   type FilterOption,
 } from "@/components/ui/FilterBar";
 import styles from "./page.module.scss";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -200,6 +201,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const translations = getTranslations(locale);
   const t = translations.StatsPage;
   const larpT = translations.Larp;
+  const { query: readQuery } = await getReader();
 
   const { since: sinceParam } = await searchParams;
   const since: SinceFilter =
@@ -231,7 +233,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     [totals],
     [shape],
   ] = await Promise.all([
-    queryRead<MuniRow>(sql`
+    readQuery<MuniRow>(sql`
       select
         m.id as "municipalityId",
         m.name_fi as "municipalityName",
@@ -247,7 +249,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       having count(l.id) > 0
       order by count desc, m.name_fi asc
     `),
-    queryRead<YearRow>(sql`
+    readQuery<YearRow>(sql`
       with year_range as (
         select generate_series(
           (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
@@ -266,7 +268,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       group by yr.year
       order by yr.year asc
     `),
-    queryRead<MonthRow>(sql`
+    readQuery<MonthRow>(sql`
       with month_range as (
         select generate_series(1, 12) as month
       )
@@ -283,7 +285,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       group by mr.month
       order by mr.month asc
     `),
-    queryRead<WeekRow>(sql`
+    readQuery<WeekRow>(sql`
       with week_range as (
         select generate_series(1, 53) as week
       )
@@ -300,7 +302,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       group by wr.week
       order by wr.week asc
     `),
-    queryRead<TypeRow>(sql`
+    readQuery<TypeRow>(sql`
       select
         l.type as type,
         count(l.id) as count
@@ -312,7 +314,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       having count(l.id) > 0
       order by count desc, l.type asc
     `),
-    queryRead<LanguageRow>(sql`
+    readQuery<LanguageRow>(sql`
       select
         l.language as language,
         count(l.id) as count
@@ -326,7 +328,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       having count(l.id) > 0
       order by count desc, l.language asc
     `),
-    queryRead<OpennessRow>(sql`
+    readQuery<OpennessRow>(sql`
       select
         l.openness as openness,
         count(l.id) as count
@@ -341,7 +343,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     // some larps have 0 for numTotalParticipants denoting unknown total participants
     // some larps have null for numTotalParticipants denoting unknown total participants
     // either way, default them to numPlayerCharacters for normalization
-    queryRead<PlayersRow>(sql`
+    readQuery<PlayersRow>(sql`
       with year_range as (
         select generate_series(
           (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
@@ -373,7 +375,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
       group by yr.year
       order by yr.year asc
     `),
-    queryRead<TotalsRow>(sql`
+    readQuery<TotalsRow>(sql`
       select
         count(*) filter (
           where extract(year from starts_at) = ${currentYear}
@@ -386,7 +388,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
         and cancelled_at is null
     `),
-    queryRead<ShapeRow>(sql`
+    readQuery<ShapeRow>(sql`
       select
         count(*) as larps,
         count(*) filter (where ends_at is null or ends_at = starts_at) as "oneDay",

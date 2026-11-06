@@ -30,7 +30,10 @@ export async function query<Row extends QueryResultRow>(
   return result.rows;
 }
 
-/** Like `query`, on the read replica; for public read paths that tolerate replication lag. */
+/**
+ * Like `query`, on the read replica; for public read paths that tolerate replication lag. Pages
+ * get it through `getReader()`, which keeps signed-in requests on the primary.
+ */
 export async function queryRead<Row extends QueryResultRow>(
   q: SqlQuery,
 ): Promise<Row[]> {

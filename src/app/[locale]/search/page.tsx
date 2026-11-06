@@ -2,10 +2,10 @@ import LarpRow from "@/components/ui/LarpRow";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { ensureEndsAt } from "@/models/Larp";
 import { parseDates } from "@/prisma/dates";
-import { dbRead } from "@/prisma/db";
-import { queryRead, sql } from "@/prisma/sql";
+import { sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import styles from "./page.module.scss";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -17,11 +17,12 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const { search } = await searchParams;
   const translations = getTranslations(locale);
   const t = translations.SearchPage;
+  const { db: reader, query: readQuery } = await getReader();
 
   // TODO index for search
   // https://github.com/prisma/prisma/issues/8950
   const matchingLarpIds = search
-    ? await queryRead<{ id: string }>(sql`
+    ? await readQuery<{ id: string }>(sql`
         select id from larp
         where to_tsvector('finnish', name) @@ phraseto_tsquery('finnish', ${search})
       `)
@@ -29,7 +30,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const larps =
     matchingLarpIds.length > 0
       ? parseDates(
-          await dbRead.orm.public.Larp.where((l) =>
+          await reader.orm.public.Larp.where((l) =>
             l.id.in(matchingLarpIds.map((m) => m.id)),
           )
             .include("municipality", (m) => m.select("nameFi"))

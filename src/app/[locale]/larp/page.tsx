@@ -16,13 +16,13 @@ import { YearHeading } from "@/components/ui/SectionHeading";
 import TypeTag from "@/components/ui/TypeTag";
 import { compareDescNullsLast } from "@/helpers/sort";
 import { parseDates } from "@/prisma/dates";
-import { dbRead } from "@/prisma/db";
 import { Language, LarpType } from "@/prisma/enums";
-import { queryRead, sql } from "@/prisma/sql";
+import { sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import type { Translations } from "@/translations/en";
 import ExpandYearOnHash from "./ExpandYearOnHash";
 import styles from "./page.module.scss";
+import { getReader } from "@/prisma/reader";
 
 type SearchParam = string | string[] | undefined;
 
@@ -85,7 +85,8 @@ async function getYearCounts(
   cancelled: Cancelled,
   today: string,
 ) {
-  return queryRead<YearCountRow>(sql`
+  const { query: readQuery } = await getReader();
+  return readQuery<YearCountRow>(sql`
     select
       extract(year from starts_at)::int as year,
       count(*) filter (
@@ -115,7 +116,8 @@ async function getLarpsOfYears(
 ): Promise<LarpRowLarp[]> {
   if (groups.length === 0) return [];
 
-  let larps = dbRead.orm.public.Larp.where((l) => l.type.in(types))
+  const { db: reader } = await getReader();
+  let larps = reader.orm.public.Larp.where((l) => l.type.in(types))
     .where((l) => l.language.in(languages))
     .where((l) =>
       or(

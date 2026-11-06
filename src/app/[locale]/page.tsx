@@ -22,12 +22,12 @@ import {
 import { headerImageViewOrNull } from "@/models/HeaderImage";
 import { frontPageSlug, seeAlsoSlug } from "@/models/Page";
 import { iso, parseDates } from "@/prisma/dates";
-import { dbRead } from "@/prisma/db";
 import { Language, LarpType, Openness } from "@/prisma/enums";
 import { getTranslations } from "@/translations";
 import { getRecentChanges } from "./_home/recentChanges";
 import SearchLarpsButton from "./_home/SearchLarpsButton";
 import styles from "./page.module.scss";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -48,8 +48,9 @@ async function getHomePageLarps(since: string) {
     Date.now() - cancelledLarpVisibleDays * 24 * 60 * 60 * 1000,
   );
 
+  const { db: reader } = await getReader();
   return parseDates(
-    await dbRead.orm.public.Larp.where((l) =>
+    await reader.orm.public.Larp.where((l) =>
       or(l.endsAt.gte(since), and(l.endsAt.isNull(), l.startsAt.gte(since))),
     )
       .where((l) =>
@@ -75,13 +76,14 @@ export default async function HomePage({ params }: Props) {
   const monday = week.monday.toString();
   const sunday = week.sunday.toString();
 
+  const { db: reader } = await getReader();
   const [larps, page, seeAlso, recentChanges] = await Promise.all([
     getHomePageLarps(monday),
-    dbRead.orm.public.Page.include("headerImage").first({
+    reader.orm.public.Page.include("headerImage").first({
       slug: frontPageSlug,
       language: locale,
     }),
-    dbRead.orm.public.Page.first({ slug: seeAlsoSlug, language: locale }),
+    reader.orm.public.Page.first({ slug: seeAlsoSlug, language: locale }),
     getRecentChanges(),
   ]);
 

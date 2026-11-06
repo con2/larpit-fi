@@ -1,10 +1,10 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import { larpMetadata } from "@/components/larp-page/larpMetadata";
 import { publicUrl } from "@/config";
-import { dbRead } from "@/prisma/db";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate as uuidValidate } from "uuid";
+import { getReader } from "@/prisma/reader";
 
 interface Props {
   params: Promise<{
@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  const larp = await dbRead.orm.public.Larp.select("id", "name", "tagline")
+  const { db: reader } = await getReader();
+  const larp = await reader.orm.public.Larp.select("id", "name", "tagline")
     .include("headerImage")
     .first({ id: larpId });
   if (!larp) {
