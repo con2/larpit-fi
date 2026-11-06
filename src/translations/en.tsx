@@ -82,6 +82,10 @@ const translations = {
       signUpOnSite: "Sign up on the larp’s site",
       visitSite: "Visit the larp’s site",
     },
+    pendingEdits: (numPendingEdits: number) =>
+      numPendingEdits === 1
+        ? "You have an edit to this larp pending moderation."
+        : `You have ${numPendingEdits} edits to this larp pending moderation.`,
     ownActions: {
       title: "Your actions",
       addToCalendar: "Add to calendar",

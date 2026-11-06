@@ -41,6 +41,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
+import { Alert } from "react-bootstrap";
 import { splitRunSuffix } from "@/helpers/larpName";
 import HeaderImageBackdrop, {
   heroImageProps,
@@ -659,15 +660,24 @@ export default async function LarpPage({
   const paletteT = translations.CommandPalette.commands;
 
   // relatedUsers in getLarpPageData only holds GAME_MASTER rows, so the user's own roles are looked up here.
-  const userRoles = user
-    ? await db.orm.public.RelatedUser.where({
-        larpId: larp.id,
-        userId: user.id,
-      })
-        .where((r) => r.role.in(ownRoles))
-        .select("userId", "role")
-        .all()
-    : [];
+  const [userRoles, numPendingEdits] = user
+    ? await Promise.all([
+        db.orm.public.RelatedUser.where({
+          larpId: larp.id,
+          userId: user.id,
+        })
+          .where((r) => r.role.in(ownRoles))
+          .select("userId", "role")
+          .all(),
+        db.orm.public.ModerationRequest.where({
+          larpId: larp.id,
+          submitterId: user.id,
+          status: EditStatus.VERIFIED,
+        })
+          .aggregate((a) => ({ count: a.count() }))
+          .then((r) => r.count),
+      ])
+    : [[], 0];
   const hasRole = (role: RelatedUserRole) =>
     userRoles.some((related) => related.role === role);
 
@@ -877,6 +887,9 @@ export default async function LarpPage({
                 {localSignupCard.callToAction} →
               </span>
             </Link>
+          )}
+          {numPendingEdits > 0 && (
+            <Alert variant="info">{t.pendingEdits(numPendingEdits)}</Alert>
           )}
           <OwnActions
             larp={larp}

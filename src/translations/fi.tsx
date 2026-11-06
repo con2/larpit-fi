@@ -83,6 +83,10 @@ const translations: Translations = {
       signUpOnSite: "Ilmoittaudu larpin sivuilla",
       visitSite: "Larpin sivuille",
     },
+    pendingEdits: (numPendingEdits: number) =>
+      numPendingEdits === 1
+        ? "Sinulla on muutosehdotus tähän larppiin odottamassa moderointia."
+        : `Sinulla on ${numPendingEdits} muutosehdotusta tähän larppiin odottamassa moderointia.`,
     ownActions: {
       title: "Omat toiminnot",
       addToCalendar: "Lisää kalenteriin",
