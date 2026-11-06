@@ -37,13 +37,16 @@ interface KompassiProfile {
  * have verified.
  */
 async function resolveUser(profile: KompassiProfile): Promise<string> {
+  const email = profile.email ?? "";
   const account = await db.orm.public.Account.first({
     provider: kompassiProvider,
     providerAccountId: profile.sub,
   });
-  if (account) return account.userId;
+  if (account) {
+    await syncEmail(account.userId, email);
+    return account.userId;
+  }
 
-  const email = profile.email ?? "";
   const user = email
     ? await db.orm.public.User.upsert({
         create: { email, name: profile.name ?? null },
@@ -59,6 +62,17 @@ async function resolveUser(profile: KompassiProfile): Promise<string> {
     providerAccountId: profile.sub,
   });
   return user.id;
+}
+
+/**
+ * Keeps the user's email in step with Kompassi, which is where the user changes it. If another
+ * larpit.fi user already holds the new address, the old one is kept rather than failing sign-in.
+ */
+async function syncEmail(userId: string, email: string) {
+  if (!email) return;
+  const holder = await db.orm.public.User.first({ email });
+  if (holder) return; // either already up to date or taken by someone else
+  await db.orm.public.User.where({ id: userId }).update({ email });
 }
 
 const config: NextAuthConfig = {
