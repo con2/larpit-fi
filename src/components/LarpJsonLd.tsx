@@ -1,4 +1,4 @@
-import type { Larp, Municipality } from "@/prisma/models";
+import type { Country, Larp, Municipality } from "@/prisma/models";
 import { getLarpUrl } from "@/models/Larp";
 
 type LarpJsonLdInput = Pick<
@@ -13,15 +13,15 @@ type LarpJsonLdInput = Pick<
   | "language"
   | "cancelledAt"
 > & {
-  municipality: Pick<
-    Municipality,
-    "nameFi" | "nameOther" | "nameOtherLanguageCode"
-  > | null;
+  municipality:
+    | (Pick<Municipality, "nameFi" | "nameOther" | "nameOtherLanguageCode"> & {
+        country: Pick<Country, "code">;
+      })
+    | null;
 };
 
 function larpToJsonLd(larp: LarpJsonLdInput) {
   // TODO: eventAttendanceMode (add isOnline to Larp model)
-  // TODO: hard-coded country in address (there is Country model but we don't yet support municipalities outside Finland)
   return {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -41,7 +41,9 @@ function larpToJsonLd(larp: LarpJsonLdInput) {
           address: {
             "@type": "PostalAddress",
             addressLocality: larp.municipality.nameFi,
-            addressCountry: "FI",
+            ...(larp.municipality.country.code && {
+              addressCountry: larp.municipality.country.code,
+            }),
           },
         }),
       },

@@ -88,7 +88,7 @@ Paths containing braces, such as `src/app/[locale]/page.tsx`, need to be quoted 
 
 ## Important caveats
 
-- If you start adding municipalities outside Finland to the `Municipality` model, there is a hard-coded country in `LarpJsonLd` that you need to fix to come from the `Country` model. The concept of municipality may also not transfer as-is to other countries.
+- The concept of municipality may not transfer as-is to countries other than Finland.
 
 ## Worktree use
 

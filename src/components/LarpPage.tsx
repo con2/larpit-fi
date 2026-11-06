@@ -96,7 +96,9 @@ export async function getLarpPageData(
       r.where({ role: "GAME_MASTER" }).select("userId", "role"),
     )
     .include("municipality", (m) =>
-      m.select("nameFi", "nameOther", "nameOtherLanguageCode"),
+      m
+        .select("nameFi", "nameOther", "nameOtherLanguageCode")
+        .include("country", (c) => c.select("code")),
     )
     .include("headerImage")
     .first(where);
@@ -107,7 +109,16 @@ export async function getLarpPageData(
   const relatedLarpsRight = larp.relatedLarpsRight
     .map((related) => ({ ...related, left: required(related.left) }))
     .sort((a, b) => byStartsAt(a.left, b.left));
-  return parseDates({ ...larp, relatedLarpsLeft, relatedLarpsRight });
+  const municipality = larp.municipality && {
+    ...larp.municipality,
+    country: required(larp.municipality.country),
+  };
+  return parseDates({
+    ...larp,
+    municipality,
+    relatedLarpsLeft,
+    relatedLarpsRight,
+  });
 }
 
 export type LarpPageLarp = NonNullable<
