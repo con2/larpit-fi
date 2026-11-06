@@ -46,6 +46,7 @@ const translations: Translations = {
   },
   LarpPage: {
     actions: {
+      alias: "Sivun osoite",
       headerImage: "Otsikkokuva",
       edit: "Muokkaa tätä sivua",
       delete: "Pyydä poistamista",
@@ -546,6 +547,22 @@ const translations: Translations = {
         all: "Kaikki",
         signups: "Ilmoittautumiset",
       },
+    },
+  },
+  LarpAliasPage: {
+    title: "Sivun osoite",
+    lede: "Lyhyt osoite larpin sivulle. Jätä tyhjäksi poistaaksesi sen; sivu löytyy aina myös pysyvästä osoitteestaan.",
+    label: "Lyhyt osoite",
+    helpText: (url: string) => `Larpin sivu löytyy osoitteesta ${url}`,
+    save: "Tallenna",
+    errors: {
+      invalidFormat:
+        "Käytä vain pieniä kirjaimia a–z, numeroita ja niiden välissä yksittäisiä väliviivoja.",
+      tooLong: (maxLength: number) =>
+        `Osoite voi olla enintään ${maxLength} merkkiä pitkä.`,
+      reserved: "Tämä osoite on varattu sivuston omaan käyttöön.",
+      takenByLarp: "Toinen larppi käyttää jo tätä osoitetta.",
+      takenByPage: "Sisältösivu käyttää jo tätä osoitetta.",
     },
   },
   DeleteLarpPage: {

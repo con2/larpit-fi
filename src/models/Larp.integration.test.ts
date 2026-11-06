@@ -1,0 +1,149 @@
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+
+import { db } from "@/prisma/db";
+import { Language, UserRole } from "@/prisma/enums";
+import { pool } from "@/prisma/pool";
+import { truncateAll } from "@/test/truncate";
+import { setLarpAlias } from "./Larp";
+
+const moderator = { role: UserRole.MODERATOR };
+
+async function createLarp(alias: string | null = null) {
+  return db.orm.public.Larp.create({
+    name: "Test Larp",
+    language: Language.fi,
+    alias,
+  });
+}
+
+async function aliasOf(larpId: string) {
+  const larp = await db.orm.public.Larp.select("alias").first({ id: larpId });
+  return larp?.alias;
+}
+
+describe("setLarpAlias", () => {
+  beforeEach(truncateAll);
+  afterAll(async () => {
+    await db.close();
+    await pool.end();
+  });
+
+  it("sets a normalized alias", async () => {
+    const larp = await createLarp();
+
+    const result = await setLarpAlias(moderator, larp.id, "  Lumi-Kuningatar ");
+
+    expect(result).toEqual({ ok: true, alias: "lumi-kuningatar" });
+    expect(await aliasOf(larp.id)).toBe("lumi-kuningatar");
+  });
+
+  it("clears the alias when given an empty string", async () => {
+    const larp = await createLarp("vanha");
+
+    const result = await setLarpAlias(moderator, larp.id, "   ");
+
+    expect(result).toEqual({ ok: true, alias: null });
+    expect(await aliasOf(larp.id)).toBeNull();
+  });
+
+  it("lets a larp keep its own alias", async () => {
+    const larp = await createLarp("oma");
+
+    const result = await setLarpAlias(moderator, larp.id, "oma");
+
+    expect(result).toEqual({ ok: true, alias: "oma" });
+  });
+
+  it.each([UserRole.NOT_VERIFIED, UserRole.VERIFIED])(
+    "rejects a %s user",
+    async (role) => {
+      const larp = await createLarp();
+
+      const result = await setLarpAlias({ role }, larp.id, "ok");
+
+      expect(result).toEqual({ ok: false, error: "forbidden" });
+      expect(await aliasOf(larp.id)).toBeNull();
+    },
+  );
+
+  it("rejects an anonymous user", async () => {
+    const larp = await createLarp();
+
+    expect(await setLarpAlias(null, larp.id, "ok")).toEqual({
+      ok: false,
+      error: "forbidden",
+    });
+  });
+
+  it.each(["stats", "api", "en", "fi", "larp"])(
+    "rejects the reserved alias %s",
+    async (alias) => {
+      const larp = await createLarp();
+
+      expect(await setLarpAlias(moderator, larp.id, alias)).toEqual({
+        ok: false,
+        error: "reserved",
+      });
+    },
+  );
+
+  it.each([
+    "with space",
+    "-leading",
+    "trailing-",
+    "double--hyphen",
+    "ääkkönen",
+  ])("rejects the badly formatted alias %j", async (alias) => {
+    const larp = await createLarp();
+
+    expect(await setLarpAlias(moderator, larp.id, alias)).toEqual({
+      ok: false,
+      error: "invalidFormat",
+    });
+  });
+
+  it("rejects an alias longer than 100 characters", async () => {
+    const larp = await createLarp();
+
+    expect(await setLarpAlias(moderator, larp.id, "a".repeat(101))).toEqual({
+      ok: false,
+      error: "tooLong",
+    });
+  });
+
+  it("rejects an alias another larp has", async () => {
+    await createLarp("varattu");
+    const larp = await createLarp();
+
+    expect(await setLarpAlias(moderator, larp.id, "varattu")).toEqual({
+      ok: false,
+      error: "takenByLarp",
+    });
+    expect(await aliasOf(larp.id)).toBeNull();
+  });
+
+  it("rejects an alias that is the slug of a content page in any language", async () => {
+    await db.orm.public.Page.create({
+      slug: "tietoa",
+      language: "en",
+      title: "About",
+      content: "About this site",
+    });
+    const larp = await createLarp();
+
+    expect(await setLarpAlias(moderator, larp.id, "tietoa")).toEqual({
+      ok: false,
+      error: "takenByPage",
+    });
+  });
+
+  it("reports a larp that does not exist", async () => {
+    expect(
+      await setLarpAlias(
+        moderator,
+        "019a0000-0000-7000-8000-000000000000",
+        "ok",
+      ),
+    ).toEqual({ ok: false, error: "notFound" });
+  });
+});

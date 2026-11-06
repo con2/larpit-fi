@@ -15,6 +15,7 @@ import {
   signupStartsAt,
 } from "@/models/Larp.client";
 import {
+  canModerate,
   getDeleteLarpInitialStatusForUser,
   getEditLarpInitialStatusForUserAndLarp,
   getLocalSignupStatusForUser,
@@ -63,6 +64,7 @@ import {
   ExternalIcon,
   HeartIcon,
   ImageIcon,
+  LinkIcon,
   ListIcon,
   ShieldIcon,
   TrashIcon,
@@ -939,6 +941,15 @@ export default async function LarpPage({
                       href: headerImageHref,
                       label: t.actions.headerImage,
                       icon: <ImageIcon size={18} />,
+                    },
+                  ]
+                : []),
+              ...(canModerate(user)
+                ? [
+                    {
+                      href: `/larp/${larp.id}/alias`,
+                      label: t.actions.alias,
+                      icon: <LinkIcon size={18} />,
                     },
                   ]
                 : []),

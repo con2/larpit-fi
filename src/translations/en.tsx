@@ -45,6 +45,7 @@ const translations = {
   },
   LarpPage: {
     actions: {
+      alias: "Page address",
       headerImage: "Header image",
       edit: "Edit this page",
       delete: "Request deletion",
@@ -529,6 +530,22 @@ const translations = {
         all: "All",
         signups: "Signups",
       },
+    },
+  },
+  LarpAliasPage: {
+    title: "Page address",
+    lede: "A short address for the larp page. Leave empty to remove it; the page always stays reachable at its permanent address too.",
+    label: "Short address",
+    helpText: (url: string) => `The larp page will be at ${url}`,
+    save: "Save",
+    errors: {
+      invalidFormat:
+        "Use only lowercase letters a–z, digits and single hyphens between them.",
+      tooLong: (maxLength: number) =>
+        `The address can be at most ${maxLength} characters long.`,
+      reserved: "This address is reserved for the site itself.",
+      takenByLarp: "Another larp already uses this address.",
+      takenByPage: "A content page already uses this address.",
     },
   },
   DeleteLarpPage: {

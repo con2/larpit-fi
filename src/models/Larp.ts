@@ -11,12 +11,14 @@ import {
 import { toJson } from "@/prisma/json";
 import type { Larp, Municipality, RelatedUser, User } from "@/prisma/models";
 import { query, sql } from "@/prisma/sql";
+import { supportedLanguages } from "@/i18n/locales";
 import { getLarpHref } from "./Larp.client";
 import {
   approveRequest,
   larpToContent,
   ModerationRequestContent,
 } from "./ModerationRequest";
+import { canModerate } from "./User";
 
 // Re-export client-safe helpers for convenience
 export {
@@ -227,4 +229,100 @@ export async function executeImportAction(
     const larp = await approveRequest(request, user, message, status);
     return larp.id;
   }
+}
+
+export const larpAliasMaxLength = 100;
+
+const larpAliasPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * Top-level paths that win over the `[alias]` route. Must stay in sync with the route
+ * directories under `src/app/` and `src/app/[locale]/` and the matcher in `src/proxy.ts`, or a
+ * larp could take an alias it can never be reached at.
+ */
+const reservedLarpAliases: ReadonlySet<string> = new Set([
+  "api",
+  "api-docs",
+  "calendar",
+  "contact",
+  "favicon.ico",
+  "healthz",
+  "icon.svg",
+  "larp",
+  "moderate",
+  "page",
+  "profile",
+  "search",
+  "stats",
+  "user",
+  "verify",
+  ...supportedLanguages,
+]);
+
+export type LarpAliasError =
+  "invalidFormat" | "tooLong" | "reserved" | "takenByLarp" | "takenByPage";
+
+/** Trims and lowercases an alias; an empty alias becomes null, which removes the alias. */
+export function normalizeLarpAlias(alias: string | null): string | null {
+  return alias?.trim().toLowerCase() || null;
+}
+
+export function validateLarpAlias(alias: string): LarpAliasError | null {
+  if (alias.length > larpAliasMaxLength) return "tooLong";
+  if (!larpAliasPattern.test(alias)) return "invalidFormat";
+  if (reservedLarpAliases.has(alias)) return "reserved";
+  return null;
+}
+
+function isLarpAliasUniqueViolation(error: unknown): boolean {
+  const { sqlState, constraint } = (error ?? {}) as {
+    sqlState?: unknown;
+    constraint?: unknown;
+  };
+  return sqlState === "23505" && constraint === "larp_alias_key";
+}
+
+export type SetLarpAliasResult =
+  | { ok: true; alias: string | null }
+  | { ok: false; error: LarpAliasError | "forbidden" | "notFound" };
+
+/**
+ * Sets or removes the alias of a larp. Only moderators may do this, and the change goes
+ * straight to the larp without a moderation request.
+ */
+export async function setLarpAlias(
+  user: Pick<User, "role"> | null,
+  larpId: string,
+  rawAlias: string | null,
+): Promise<SetLarpAliasResult> {
+  if (!canModerate(user)) return { ok: false, error: "forbidden" };
+
+  const alias = normalizeLarpAlias(rawAlias);
+  if (alias) {
+    const error = validateLarpAlias(alias);
+    if (error) return { ok: false, error };
+
+    const [otherLarp, page] = await Promise.all([
+      db.orm.public.Larp.select("id").first({ alias }),
+      db.orm.public.Page.select("slug").first({ slug: alias }),
+    ]);
+    if (otherLarp && otherLarp.id !== larpId) {
+      return { ok: false, error: "takenByLarp" };
+    }
+    if (page) return { ok: false, error: "takenByPage" };
+  }
+
+  let updated;
+  try {
+    updated = await db.orm.public.Larp.where({ id: larpId })
+      .select("id")
+      .update({ alias });
+  } catch (error) {
+    if (isLarpAliasUniqueViolation(error)) {
+      return { ok: false, error: "takenByLarp" };
+    }
+    throw error;
+  }
+  if (!updated) return { ok: false, error: "notFound" };
+  return { ok: true, alias };
 }
