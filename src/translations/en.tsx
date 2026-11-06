@@ -45,6 +45,7 @@ const translations = {
   },
   LarpPage: {
     actions: {
+      headerImage: "Header image",
       edit: "Edit this page",
       delete: "Request deletion",
       adminDelete: "Delete this page",
@@ -1482,6 +1483,9 @@ const translations = {
       },
     },
     actions: {
+      headerImage: {
+        title: "Header image",
+      },
       view: {
         title: "View page",
         label: "View",
@@ -1949,6 +1953,7 @@ const translations = {
       over: "Signup over",
     },
     commands: {
+      headerImage: "Change the header image",
       addLarp: "Add a larp",
       calendar: "Go to calendar",
       allLarps: "Browse all larps",
@@ -1966,6 +1971,65 @@ const translations = {
       jumpToToday: "Jump to today",
       copied: "Link copied",
     },
+  },
+  HeaderImage: {
+    title: "Header image",
+    ledeLarp:
+      "A picture shown behind the title of the larp page. Game masters and moderators can change it.",
+    ledePage: "A picture shown behind the title of this page.",
+    fields: {
+      file: {
+        label: "Picture",
+        help: "JPEG, PNG, WebP or AVIF, at most 25 MB, at least 1200 px wide",
+      },
+      crop: {
+        label: "Crop",
+        zoom: "Zoom",
+        dragHint:
+          "Drag the picture to choose what shows in the banner. The arrow keys move it too. On narrow screens the sides are cut off.",
+        tooSmall: "Crop is {width} px wide; 1200 px is recommended",
+      },
+      photographerCredit: {
+        label: "Photographer",
+        help: "Shown in the corner of the picture. Required.",
+      },
+      textTreatment: {
+        label: "Text over the picture",
+        choices: {
+          NONE: "As is",
+          DROP_SHADOW: "Drop shadow",
+          OPAQUE_BACKGROUND: "Background",
+        },
+      },
+    },
+    actions: {
+      choose: "Choose a picture",
+      upload: "Upload",
+      save: "Save",
+      remove: "Remove header image",
+      removeConfirm: "Remove the header image? The picture will be deleted.",
+      replace: "Replace picture",
+      cancel: "Cancel",
+      openLightbox: "Show the whole picture",
+      closeLightbox: "Close",
+    },
+    status: {
+      uploading: "Uploading… {percent} %",
+      processing: "Processing…",
+      saved: "Header image saved.",
+      removed: "Header image removed.",
+    },
+    errors: {
+      tooLarge: "The file is larger than 25 MB.",
+      tooManyPixels: "The picture has more than 40 megapixels.",
+      tooSmall: "The picture must be at least 1200 px wide.",
+      unsupported: "Only JPEG, PNG, WebP and AVIF pictures are supported.",
+      network: "The upload failed. Check your connection and try again.",
+      forbidden: "You are not allowed to change this header image.",
+      disabled: "Header images are not enabled on this server.",
+      unknown: "Something went wrong. Please try again.",
+    },
+    credit: "Photo: {credit}",
   },
   LanguageSwitcher: {
     supportedLanguages: {

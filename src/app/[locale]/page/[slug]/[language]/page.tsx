@@ -7,7 +7,10 @@ interface Props {
 
 export default async function PageWithLanguagePage({ params }: Props) {
   const { locale, language, slug } = await params;
-  const page = await db.orm.public.Page.first({ slug, language });
+  const page = await db.orm.public.Page.include("headerImage").first({
+    slug,
+    language,
+  });
 
   return <PagePage page={page} locale={locale} />;
 }

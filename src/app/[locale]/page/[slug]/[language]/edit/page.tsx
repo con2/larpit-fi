@@ -1,8 +1,10 @@
 import { auth } from "@/auth";
+import { headerImagesEnabled } from "@/config";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { MarkdownEditor, MessageCard, SubmitButton } from "@con2/components";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardBody, Form, FormControl, FormLabel } from "react-bootstrap";
 import { putPage } from "./actions";
@@ -38,6 +40,16 @@ export default async function PageWithLanguagePage({ params }: Props) {
     <div className="lf-container">
       <header className="lf-page-header mb-4">
         <h1 className="lf-display-l">{t.editTitle}</h1>
+        {headerImagesEnabled && (
+          <p className="m-0">
+            <Link
+              className="lf-link-quiet"
+              href={`/page/${slug}/${language}/header-image`}
+            >
+              {t.actions.headerImage.title} →
+            </Link>
+          </p>
+        )}
       </header>
       <Card className="mb-5">
         <CardBody>

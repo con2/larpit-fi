@@ -111,6 +111,18 @@ namespace public {
     DELETE = "DELETE"
   }
 
+  native_enum HeaderImageSource {
+    UPLOAD = "UPLOAD"
+    // Reserved for pictures picked from larppikuvat.fi; nothing writes it yet.
+    LARPPIKUVAT = "LARPPIKUVAT"
+  }
+
+  native_enum HeaderTextTreatment {
+    NONE = "NONE"
+    DROP_SHADOW = "DROP_SHADOW"
+    OPAQUE_BACKGROUND = "OPAQUE_BACKGROUND"
+  }
+
   model User {
     id                      Uuid                        @id @default(uuid(4))
     name                    String?
@@ -133,6 +145,7 @@ namespace public {
     larps                   RelatedUser[]
     requestsResolvedByUser  ModerationRequest[]         @relation("RequestsResolvedByUser")
     requestsSubmittedByUser ModerationRequest[]         @relation("RequestsSubmittedByUser")
+    headerImages            HeaderImage[]               @relation("HeaderImagesUploadedByUser")
 
     @@map("user")
   }
@@ -231,6 +244,7 @@ namespace public {
 
     cancelledAt            TimestamptzString?             @map("cancelled_at")
     updateCount            Int                            @default(0) @map("update_count")
+    headerImageId          Uuid?                          @map("header_image_id")
 
     links                  LarpLink[]
     relatedLarpsLeft       RelatedLarp[]                  @relation("RelatedLarpsLeft")
@@ -239,6 +253,7 @@ namespace public {
     unauthenticatedSignups UnauthenticatedSignup[]
     requests               ModerationRequest[]
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
+    headerImage            HeaderImage?                   @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
     @@map("larp")
   }
@@ -325,6 +340,9 @@ namespace public {
     content   String
     createdAt TimestamptzString          @default(now()) @map("created_at")
     updatedAt temporal.updatedAtString() @map("updated_at")
+    headerImageId Uuid?                  @map("header_image_id")
+
+    headerImage HeaderImage?             @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
     @@id([slug, language])
     @@map("page")
@@ -350,6 +368,33 @@ namespace public {
     @@check(expression: "(signup_status = ANY (ARRAY['LOCAL_SIGNUP_YES'::\"RelatedUserRole\", 'LOCAL_SIGNUP_MAYBE'::\"RelatedUserRole\", 'LOCAL_SIGNUP_NO'::\"RelatedUserRole\"]))", map: "unauthenticated_signup_signup_status_check")
     @@check(expression: "(visibility = ANY (ARRAY['PARTICIPANTS'::\"RelatedUserVisibility\", 'GM'::\"RelatedUserVisibility\"]))", map: "unauthenticated_signup_visibility_check")
     @@map("unauthenticated_signup")
+  }
+
+  model HeaderImage {
+    id                   Uuid                         @id @default(dbgenerated("uuidv7()"))
+    source               pg.enum(HeaderImageSource)   @default("UPLOAD")
+    larppikuvatPictureId String?                      @map("larppikuvat_picture_id")
+    contentType          String                       @map("content_type")
+    // Pixel size of the original after EXIF rotation.
+    width                Int
+    height               Int
+    // Fractions (0..1) of the EXIF-rotated original's width and height.
+    cropX                Float                        @map("crop_x")
+    cropY                Float                        @map("crop_y")
+    cropWidth            Float                        @map("crop_width")
+    cropHeight           Float                        @map("crop_height")
+    revision             Int                          @default(1)
+    photographerCredit   String                       @map("photographer_credit")
+    textTreatment        pg.enum(HeaderTextTreatment) @default("NONE") @map("text_treatment")
+    uploadedById         Uuid?                        @map("uploaded_by_id")
+    createdAt            TimestamptzString            @default(now()) @map("created_at")
+    updatedAt            temporal.updatedAtString()   @map("updated_at")
+
+    uploadedBy           User?                        @relation("HeaderImagesUploadedByUser", fields:[uploadedById], references:[id], onDelete: SetNull, index: false)
+    larps                Larp[]
+    pages                Page[]
+
+    @@map("header_image")
   }
 
   // Used by the calendar view.

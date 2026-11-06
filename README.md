@@ -75,6 +75,22 @@ npm run db:load
 
 Now open <http://localhost:3158> in your browser. Log in with your [dev.kompassi.eu](https://dev.kompassi.eu) account.
 
+### Header images (optional)
+
+Header images of larp pages and content pages are stored in S3. Without `S3_BUCKET` the feature
+is hidden. To try it locally, start a single-node Garage with Docker and create its bucket and key:
+
+```
+docker compose up -d && scripts/garage-init.sh
+```
+
+Paste the printed `S3_*` lines into `.env`, then let the browser upload to the bucket from the
+origin in `AUTH_URL` (further origins go as arguments):
+
+```
+npm run s3:setup
+```
+
 ### Running tests
 
 **Integration tests** try to test key business logic against an actual database. Run these with

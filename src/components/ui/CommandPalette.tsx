@@ -21,6 +21,7 @@ import type { Translations } from "@/translations/en";
 import {
   CalendarIcon,
   EditIcon,
+  ImageIcon,
   LinkIcon,
   ListIcon,
   PlusIcon,
@@ -49,7 +50,8 @@ export type PaletteIcon =
   | "plus"
   | "list"
   | "stats"
-  | "theme";
+  | "theme"
+  | "image";
 
 export type PaletteAction = "copyLink" | "share" | "switchTheme";
 
@@ -86,6 +88,7 @@ const iconComponents: Record<PaletteIcon, typeof SearchIcon> = {
   list: ListIcon,
   stats: StatsIcon,
   theme: ThemeIcon,
+  image: ImageIcon,
 };
 
 // ---------- platform ----------

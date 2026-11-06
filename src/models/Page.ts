@@ -66,3 +66,8 @@ export async function ensureDefaultPages(): Promise<void> {
     }
   }
 }
+
+/** Where a content page is shown; the front page of every language is the site root. */
+export function contentPagePath(slug: string, language: string): string {
+  return slug === frontPageSlug ? "/" : `/page/${slug}/${language}`;
+}

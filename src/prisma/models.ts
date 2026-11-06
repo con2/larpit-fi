@@ -23,3 +23,4 @@ export type Page = WithDates<Row<"Page">>;
 export type UnauthenticatedSignup = WithDates<Row<"UnauthenticatedSignup">>;
 export type VerificationToken = WithDates<Row<"VerificationToken">>;
 export type Holiday = Row<"Holiday">;
+export type HeaderImage = WithDates<Row<"HeaderImage">>;

@@ -1,7 +1,11 @@
 import { auth } from "@/auth";
 import { setOwnLarpRole } from "@/app/[locale]/larp/[larpId]/ownRoleActions";
-import { featureFlags } from "@/config";
+import { featureFlags, headerImagesEnabled } from "@/config";
 import { formatShortDateRange } from "@/helpers/dates";
+import {
+  type HeaderImageView,
+  headerImageViewOrNull,
+} from "@/models/HeaderImage";
 import { ensureLocation } from "@/models/Larp";
 import {
   ensureEndsAt,
@@ -37,6 +41,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import { splitRunSuffix } from "@/helpers/larpName";
+import HeaderImageBackdrop, {
+  heroImageProps,
+  heroTextClassName,
+  heroWithImageClassName,
+} from "./header-image/HeaderImageBackdrop";
 import LarpJsonLd from "./LarpJsonLd";
 import styles from "./LarpPage.module.scss";
 import TooltipTrigger from "./TooltipTrigger";
@@ -51,6 +60,7 @@ import {
   EditIcon,
   ExternalIcon,
   HeartIcon,
+  ImageIcon,
   ListIcon,
   ShieldIcon,
   TrashIcon,
@@ -87,6 +97,7 @@ export async function getLarpPageData(
     .include("municipality", (m) =>
       m.select("nameFi", "nameOther", "nameOtherLanguageCode"),
     )
+    .include("headerImage")
     .first(where);
   if (!larp) return null;
   larp.relatedLarpsLeft.sort((a, b) => byStartsAt(a.right, b.right));
@@ -177,11 +188,13 @@ function Hero({
   locale,
   translations,
   aside,
+  headerImage,
 }: {
   larp: LarpPageLarp;
   locale: string;
   translations: Translations;
   aside?: ReactNode;
+  headerImage: HeaderImageView | null;
 }) {
   const t = translations.LarpPage;
   const larpT = translations.Larp;
@@ -215,9 +228,18 @@ function Hero({
     larp.openness && larpT.attributes.openness.choices[larp.openness];
 
   return (
-    <section className={styles.hero}>
+    <section
+      className={`${styles.hero}${headerImage ? ` ${heroWithImageClassName}` : ""}`}
+      {...heroImageProps(headerImage)}
+    >
+      {headerImage && (
+        <HeaderImageBackdrop
+          view={headerImage}
+          messages={translations.HeaderImage}
+        />
+      )}
       <div className={`lf-container ${styles.heroInner}`}>
-        <div className={styles.heroText}>
+        <div className={`${styles.heroText} ${heroTextClassName}`}>
           <div className="lf-tags">
             {larp.cancelledAt && (
               <StatusPill kind="cancelled">
@@ -709,6 +731,9 @@ export default async function LarpPage({
   const claimHref = `/larp/${larp.id}/edit?role=GAME_MASTER`;
   const relatedHref = `/larp/${larp.id}/related`;
   const calendarHref = larp.startsAt ? `/larp/${larp.id}/calendar.ics` : null;
+  const headerImageHref = `/larp/${larp.id}/header-image`;
+  const canManageHeaderImage =
+    headerImagesEnabled && isGmOrModerator(user, larp);
   const hasRelatedLarps =
     larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
 
@@ -730,6 +755,16 @@ export default async function LarpPage({
             href: claimHref,
           },
         ]),
+    ...(canManageHeaderImage
+      ? [
+          {
+            id: "headerImage",
+            label: paletteT.headerImage,
+            icon: "image" as const,
+            href: headerImageHref,
+          },
+        ]
+      : []),
     ...(calendarHref
       ? [
           {
@@ -761,10 +796,11 @@ export default async function LarpPage({
     larp.localSignupStatus !== LocalSignupStatus.DISABLED;
   const showSignupSettings =
     featureFlags.localSignup && !!editPolicy && isGmOrModerator(user, larp);
+  const headerImage = headerImageViewOrNull(larp.headerImage);
 
   return (
     <>
-      <Aurora variant="larp" />
+      {!headerImage && <Aurora variant="larp" />}
       <LarpJsonLd larp={larp} />
       <PaletteContext
         title={larp.name}
@@ -775,6 +811,7 @@ export default async function LarpPage({
         larp={larp}
         locale={locale}
         translations={translations}
+        headerImage={headerImage}
         aside={
           <SignupCard larp={larp} locale={locale} translations={translations} />
         }
@@ -881,6 +918,15 @@ export default async function LarpPage({
                       href: `/larp/${larp.id}/signup/settings`,
                       label: t.actions.manageSignupSettings,
                       icon: <ListIcon size={18} />,
+                    },
+                  ]
+                : []),
+              ...(canManageHeaderImage
+                ? [
+                    {
+                      href: headerImageHref,
+                      label: t.actions.headerImage,
+                      icon: <ImageIcon size={18} />,
                     },
                   ]
                 : []),

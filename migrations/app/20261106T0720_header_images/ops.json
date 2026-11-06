@@ -1,0 +1,295 @@
+[
+  {
+    "id": "createNativeEnumType.HeaderImageSource",
+    "label": "Create enum type \"HeaderImageSource\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "HeaderImageSource"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"HeaderImageSource\"",
+        "sql": "CREATE TYPE \"public\".\"HeaderImageSource\" AS ENUM ('UPLOAD', 'LARPPIKUVAT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.HeaderTextTreatment",
+    "label": "Create enum type \"HeaderTextTreatment\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "HeaderTextTreatment"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"HeaderTextTreatment\"",
+        "sql": "CREATE TYPE \"public\".\"HeaderTextTreatment\" AS ENUM ('NONE', 'DROP_SHADOW', 'OPAQUE_BACKGROUND')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.header_image",
+    "label": "Create table \"header_image\"",
+    "summary": "Creates table \"header_image\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "header_image"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"header_image\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"header_image\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"header_image\"",
+        "sql": "CREATE TABLE \"public\".\"header_image\" (\n  \"content_type\" text NOT NULL,\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"crop_height\" float8 NOT NULL,\n  \"crop_width\" float8 NOT NULL,\n  \"crop_x\" float8 NOT NULL,\n  \"crop_y\" float8 NOT NULL,\n  \"height\" int4 NOT NULL,\n  \"id\" uuid DEFAULT (uuidv7()) NOT NULL,\n  \"larppikuvat_picture_id\" text,\n  \"photographer_credit\" text NOT NULL,\n  \"revision\" int4 DEFAULT 1 NOT NULL,\n  \"source\" \"HeaderImageSource\" DEFAULT 'UPLOAD'::\"HeaderImageSource\" NOT NULL,\n  \"text_treatment\" \"HeaderTextTreatment\" DEFAULT 'NONE'::\"HeaderTextTreatment\" NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"uploaded_by_id\" uuid,\n  \"width\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"header_image\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"header_image\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.larp.header_image_id",
+    "label": "Add column \"header_image_id\" to \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "header_image_id",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"header_image_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "header_image_id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"header_image_id\"",
+        "sql": "ALTER TABLE \"public\".\"larp\" ADD COLUMN \"header_image_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"header_image_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "larp",
+          "header_image_id"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.page.header_image_id",
+    "label": "Add column \"header_image_id\" to \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "header_image_id",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"header_image_id\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "header_image_id"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"header_image_id\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ADD COLUMN \"header_image_id\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"header_image_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "header_image_id"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.header_image.header_image_uploaded_by_id_fkey",
+    "label": "Add foreign key \"header_image_uploaded_by_id_fkey\" on \"header_image\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "header_image_uploaded_by_id_fkey",
+        "table": "header_image"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"header_image_uploaded_by_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "header_image_uploaded_by_id_fkey",
+          "public",
+          "\"public\".\"header_image\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"header_image_uploaded_by_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"header_image\"\nADD CONSTRAINT \"header_image_uploaded_by_id_fkey\"\nFOREIGN KEY (\"uploaded_by_id\")\nREFERENCES \"public\".\"user\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"header_image_uploaded_by_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "header_image_uploaded_by_id_fkey",
+          "public",
+          "\"public\".\"header_image\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.larp.larp_header_image_id_fkey",
+    "label": "Add foreign key \"larp_header_image_id_fkey\" on \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "larp_header_image_id_fkey",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"larp_header_image_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_header_image_id_fkey",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"larp_header_image_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"larp\"\nADD CONSTRAINT \"larp_header_image_id_fkey\"\nFOREIGN KEY (\"header_image_id\")\nREFERENCES \"public\".\"header_image\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"larp_header_image_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_header_image_id_fkey",
+          "public",
+          "\"public\".\"larp\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.page.page_header_image_id_fkey",
+    "label": "Add foreign key \"page_header_image_id_fkey\" on \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "page_header_image_id_fkey",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"page_header_image_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "page_header_image_id_fkey",
+          "public",
+          "\"public\".\"page\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"page_header_image_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"page\"\nADD CONSTRAINT \"page_header_image_id_fkey\"\nFOREIGN KEY (\"header_image_id\")\nREFERENCES \"public\".\"header_image\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"page_header_image_id_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "page_header_image_id_fkey",
+          "public",
+          "\"public\".\"page\""
+        ]
+      }
+    ]
+  }
+]

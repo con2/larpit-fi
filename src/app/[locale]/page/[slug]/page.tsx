@@ -13,7 +13,10 @@ export default async function PageWithoutLanguagePage({ params }: Props) {
     redirect("/");
   }
 
-  const page = await db.orm.public.Page.first({ slug, language: locale });
+  const page = await db.orm.public.Page.include("headerImage").first({
+    slug,
+    language: locale,
+  });
 
   return <PagePage page={page} locale={locale} />;
 }

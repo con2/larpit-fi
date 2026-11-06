@@ -152,6 +152,24 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+export function ImageIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect x="2" y="3" width="12" height="10" rx="1.5" />
+      <circle cx="5.8" cy="6.5" r="1.2" />
+      <path d="M2.5 12 L6.5 8.5 L9 10.5 L11 9 L13.5 11" />
+    </Icon>
+  );
+}
+
+export function ZoomIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M9.5 2.5 H13.5 V6.5 M13.5 2.5 L9 7 M6.5 13.5 H2.5 V9.5 M2.5 13.5 L7 9" />
+    </Icon>
+  );
+}
+
 export function RelatedIcon(props: IconProps) {
   return (
     <Icon {...props}>

@@ -90,3 +90,30 @@ then owns the field and later deploys need nothing special.
 The `app` HTTPRoute caps request bodies at 1 MB with a Traefik Middleware. An HTTPRoute can only
 reference Middlewares in its own namespace, so the chart has its own copy instead of the
 cluster-wide `default/body-1m`.
+
+## Header images in S3 (Garage)
+
+Header images of larp pages and content pages live in the `larpit` bucket on the cluster's
+Garage (`infrastructure/kubernetes/garage/README.md`). Browsers PUT originals straight to the
+bucket with presigned URLs, because the 1 MB request body limit above rules out uploading
+through the app, and fetch every image through presigned URLs, so nothing in the bucket is
+public. With `s3.bucket` empty the feature is hidden.
+
+One-time setup, from a machine with cluster access:
+
+```sh
+kubectl -n garage exec garage-0 -- /garage bucket create larpit
+kubectl -n garage exec garage-0 -- /garage key create larpit            # prints key ID and secret
+kubectl -n garage exec garage-0 -- /garage bucket allow --read --write --owner larpit --key larpit
+kubectl -n garage exec garage-0 -- /garage bucket allow --read larpit --key garage-backup-reader
+kubectl -n larpit-production patch secret larpit -p '{"stringData":{"S3_ACCESS_KEY_ID":"…","S3_SECRET_ACCESS_KEY":"…"}}'
+# once per bucket, CORS for presigned PUTs from the site origin:
+AUTH_URL=https://larpit.fi S3_ENDPOINT=https://garage.con2.fi S3_BUCKET=larpit S3_ACCESS_KEY_ID=… S3_SECRET_ACCESS_KEY=… npm run s3:setup
+```
+
+`--owner` is what lets the key set the bucket's CORS rules in `s3:setup`. `--write` implies
+delete, which replacing and removing header images need. The `garage-backup-reader` grant and
+the `larpit` lines in the Garage backup CronJobs put the bucket in the off-site mirror.
+
+Patch the Secret before deploying a release that sets `s3.bucket`; the server refuses header
+image requests while the keys are missing.

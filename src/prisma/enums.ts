@@ -161,3 +161,24 @@ true satisfies Exhaustive<
   typeof EditAction,
   Row<"ModerationRequest">["action"]
 >;
+
+export const HeaderImageSource = {
+  UPLOAD: "UPLOAD",
+  LARPPIKUVAT: "LARPPIKUVAT",
+} as const satisfies Record<string, Row<"HeaderImage">["source"]>;
+export type HeaderImageSource = ValuesOf<typeof HeaderImageSource>;
+true satisfies Exhaustive<
+  typeof HeaderImageSource,
+  Row<"HeaderImage">["source"]
+>;
+
+export const HeaderTextTreatment = {
+  NONE: "NONE",
+  DROP_SHADOW: "DROP_SHADOW",
+  OPAQUE_BACKGROUND: "OPAQUE_BACKGROUND",
+} as const satisfies Record<string, Row<"HeaderImage">["textTreatment"]>;
+export type HeaderTextTreatment = ValuesOf<typeof HeaderTextTreatment>;
+true satisfies Exhaustive<
+  typeof HeaderTextTreatment,
+  Row<"HeaderImage">["textTreatment"]
+>;

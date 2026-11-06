@@ -4,5 +4,14 @@ kompassi:
 larppikuvatSync:
   enabled: true
 databasePooled: true
+s3:
+  endpoint: http://garage.garage.svc.cluster.local:3900
+  publicEndpoint: https://garage.con2.fi
+  bucket: larpit
+resources:
+  node:
+    # Decoding one 40-megapixel header image upload takes about 160 MB.
+    requests: { cpu: 100m, memory: 384Mi }
+    limits: { cpu: "1", memory: 1Gi }
 # Secret `larpit` in namespace larpit-production is managed out of band.
 existingSecretName: larpit

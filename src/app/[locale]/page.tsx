@@ -3,6 +3,11 @@ import { and, or } from "@prisma/orm-postgres/orm-client";
 import Link from "next/link";
 import { partition } from "underscore";
 
+import HeaderImageBackdrop, {
+  heroImageProps,
+  heroTextClassName,
+  heroWithImageClassName,
+} from "@/components/header-image/HeaderImageBackdrop";
 import Aurora from "@/components/ui/Aurora";
 import CompactRow from "@/components/ui/CompactRow";
 import LarpRow from "@/components/ui/LarpRow";
@@ -14,6 +19,7 @@ import {
   getLarpHref,
   isSignupOpenOrOpeningSoon,
 } from "@/models/Larp";
+import { headerImageViewOrNull } from "@/models/HeaderImage";
 import { frontPageSlug, seeAlsoSlug } from "@/models/Page";
 import { iso, parseDates } from "@/prisma/dates";
 import { dbRead } from "@/prisma/db";
@@ -71,7 +77,10 @@ export default async function HomePage({ params }: Props) {
 
   const [larps, page, seeAlso, recentChanges] = await Promise.all([
     getHomePageLarps(monday),
-    dbRead.orm.public.Page.first({ slug: frontPageSlug, language: locale }),
+    dbRead.orm.public.Page.include("headerImage").first({
+      slug: frontPageSlug,
+      language: locale,
+    }),
     dbRead.orm.public.Page.first({ slug: seeAlsoSlug, language: locale }),
     getRecentChanges(),
   ]);
@@ -100,6 +109,7 @@ export default async function HomePage({ params }: Props) {
       isSignupOpenOrOpeningSoon(larp, signupOpeningSoonDays),
   );
 
+  const headerImage = headerImageViewOrNull(page?.headerImage);
   const otherEventsHref = `/larp?type=${LarpType.OTHER_EVENT}`;
   const upcomingOtherEventCount = upcomingOtherEvents.filter(
     (larp) => larp.type === LarpType.OTHER_EVENT,
@@ -107,11 +117,20 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      <Aurora variant="home" />
+      {!headerImage && <Aurora variant="home" />}
 
-      <section className={styles.hero}>
+      <section
+        className={`${styles.hero}${headerImage ? ` ${heroWithImageClassName}` : ""}`}
+        {...heroImageProps(headerImage)}
+      >
+        {headerImage && (
+          <HeaderImageBackdrop
+            view={headerImage}
+            messages={translations.HeaderImage}
+          />
+        )}
         <div className={`lf-container ${styles.heroInner}`}>
-          <div className={styles.heroText}>
+          <div className={`${styles.heroText} ${heroTextClassName}`}>
             <p className="lf-eyebrow">{t.tagline}</p>
             <h1 className="lf-display-xl">{page?.title || t.title}</h1>
             {page?.content.trim() && (
@@ -138,7 +157,7 @@ export default async function HomePage({ params }: Props) {
 
           {thisWeek.length > 0 && (
             <section
-              className={styles.thisWeek}
+              className={`${styles.thisWeek} ${heroTextClassName}`}
               aria-labelledby="HomePage-thisWeek"
             >
               <h2

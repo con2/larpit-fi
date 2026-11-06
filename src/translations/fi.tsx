@@ -46,6 +46,7 @@ const translations: Translations = {
   },
   LarpPage: {
     actions: {
+      headerImage: "Otsikkokuva",
       edit: "Muokkaa tätä sivua",
       delete: "Pyydä poistamista",
       adminDelete: "Poista tämä sivu",
@@ -1513,6 +1514,9 @@ const translations: Translations = {
       },
     },
     actions: {
+      headerImage: {
+        title: "Otsikkokuva",
+      },
       view: {
         title: "Näytä sivu",
         label: "Näytä",
@@ -1985,6 +1989,7 @@ const translations: Translations = {
       over: "Ilmo ohi",
     },
     commands: {
+      headerImage: "Vaihda otsikkokuva",
       addLarp: "Lisää larppi",
       calendar: "Siirry kalenteriin",
       allLarps: "Selaa kaikkia larppeja",
@@ -2002,6 +2007,65 @@ const translations: Translations = {
       jumpToToday: "Siirry tähän päivään",
       copied: "Linkki kopioitu",
     },
+  },
+  HeaderImage: {
+    title: "Otsikkokuva",
+    ledeLarp:
+      "Larpin sivun otsikon taustalla näkyvä kuva. Pelinjohtajat ja moderaattorit voivat vaihtaa sen.",
+    ledePage: "Tämän sivun otsikon taustalla näkyvä kuva.",
+    fields: {
+      file: {
+        label: "Kuva",
+        help: "JPEG, PNG, WebP tai AVIF, enintään 25 Mt, vähintään 1200 px leveä",
+      },
+      crop: {
+        label: "Rajaus",
+        zoom: "Zoomaus",
+        dragHint:
+          "Valitse raahaamalla, mikä osa kuvasta näkyy. Myös nuolinäppäimet siirtävät kuvaa. Kapeilla näytöillä reunat rajautuvat pois.",
+        tooSmall: "Rajaus on {width} px leveä; suositus on vähintään 1200 px",
+      },
+      photographerCredit: {
+        label: "Kuvaaja",
+        help: "Näytetään kuvan kulmassa. Pakollinen.",
+      },
+      textTreatment: {
+        label: "Teksti kuvan päällä",
+        choices: {
+          NONE: "Sellaisenaan",
+          DROP_SHADOW: "Varjostus",
+          OPAQUE_BACKGROUND: "Tausta",
+        },
+      },
+    },
+    actions: {
+      choose: "Valitse kuva",
+      upload: "Lähetä",
+      save: "Tallenna",
+      remove: "Poista otsikkokuva",
+      removeConfirm: "Poistetaanko otsikkokuva? Kuva poistetaan pysyvästi.",
+      replace: "Vaihda kuva",
+      cancel: "Peruuta",
+      openLightbox: "Näytä koko kuva",
+      closeLightbox: "Sulje",
+    },
+    status: {
+      uploading: "Lähetetään… {percent} %",
+      processing: "Käsitellään…",
+      saved: "Otsikkokuva tallennettu.",
+      removed: "Otsikkokuva poistettu.",
+    },
+    errors: {
+      tooLarge: "Tiedosto on yli 25 Mt.",
+      tooManyPixels: "Kuvassa on yli 40 megapikseliä.",
+      tooSmall: "Kuvan on oltava vähintään 1200 px leveä.",
+      unsupported: "Vain JPEG-, PNG-, WebP- ja AVIF-kuvat ovat tuettuja.",
+      network: "Lähetys epäonnistui. Tarkista yhteys ja yritä uudelleen.",
+      forbidden: "Sinulla ei ole oikeutta muuttaa tätä otsikkokuvaa.",
+      disabled: "Otsikkokuvat eivät ole käytössä tällä palvelimella.",
+      unknown: "Jokin meni pieleen. Yritä uudelleen.",
+    },
+    credit: "Kuva: {credit}",
   },
   LanguageSwitcher: {
     supportedLanguages: {

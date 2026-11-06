@@ -12,6 +12,10 @@
       "model": "Country",
       "namespace": "public"
     },
+    "header_image": {
+      "model": "HeaderImage",
+      "namespace": "public"
+    },
     "holiday": {
       "model": "Holiday",
       "namespace": "public"
@@ -295,6 +299,229 @@
               "table": "country"
             }
           },
+          "HeaderImage": {
+            "fields": {
+              "contentType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "cropHeight": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "cropWidth": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "cropX": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "cropY": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/float8@1",
+                  "kind": "scalar"
+                }
+              },
+              "height": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "larppikuvatPictureId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "photographerCredit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "revision": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "source": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "HeaderImageSource"
+                  }
+                }
+              },
+              "textTreatment": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "HeaderTextTreatment"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "uploadedById": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "width": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "larps": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "headerImageId"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              },
+              "pages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "headerImageId"
+                  ]
+                },
+                "to": {
+                  "model": "Page",
+                  "namespace": "public"
+                }
+              },
+              "uploadedBy": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "uploadedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contentType": {
+                  "column": "content_type"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "cropHeight": {
+                  "column": "crop_height"
+                },
+                "cropWidth": {
+                  "column": "crop_width"
+                },
+                "cropX": {
+                  "column": "crop_x"
+                },
+                "cropY": {
+                  "column": "crop_y"
+                },
+                "height": {
+                  "column": "height"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "larppikuvatPictureId": {
+                  "column": "larppikuvat_picture_id"
+                },
+                "photographerCredit": {
+                  "column": "photographer_credit"
+                },
+                "revision": {
+                  "column": "revision"
+                },
+                "source": {
+                  "column": "source"
+                },
+                "textTreatment": {
+                  "column": "text_treatment"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                },
+                "uploadedById": {
+                  "column": "uploaded_by_id"
+                },
+                "width": {
+                  "column": "width"
+                }
+              },
+              "namespaceId": "public",
+              "table": "header_image"
+            }
+          },
           "Holiday": {
             "fields": {
               "date": {
@@ -370,6 +597,13 @@
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "headerImageId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
                   "kind": "scalar"
                 }
               },
@@ -516,6 +750,21 @@
               }
             },
             "relations": {
+              "headerImage": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "headerImageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "HeaderImage",
+                  "namespace": "public"
+                }
+              },
               "links": {
                 "cardinality": "1:N",
                 "on": {
@@ -638,6 +887,9 @@
                 },
                 "fluffText": {
                   "column": "fluff_text"
+                },
+                "headerImageId": {
+                  "column": "header_image_id"
                 },
                 "id": {
                   "column": "id"
@@ -1172,6 +1424,13 @@
                   "kind": "scalar"
                 }
               },
+              "headerImageId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
               "language": {
                 "nullable": false,
                 "type": {
@@ -1201,7 +1460,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "headerImage": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "headerImageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "HeaderImage",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "content": {
@@ -1209,6 +1484,9 @@
                 },
                 "createdAt": {
                   "column": "created_at"
+                },
+                "headerImageId": {
+                  "column": "header_image_id"
                 },
                 "language": {
                   "column": "language"
@@ -1635,6 +1913,21 @@
                   "namespace": "public"
                 }
               },
+              "headerImages": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "uploadedById"
+                  ]
+                },
+                "to": {
+                  "model": "HeaderImage",
+                  "namespace": "public"
+                }
+              },
               "larps": {
                 "cardinality": "1:N",
                 "on": {
@@ -1813,6 +2106,23 @@
                 "WITHDRAWN"
               ],
               "typeName": "EditStatus"
+            },
+            "HeaderImageSource": {
+              "kind": "postgres-enum",
+              "members": [
+                "UPLOAD",
+                "LARPPIKUVAT"
+              ],
+              "typeName": "HeaderImageSource"
+            },
+            "HeaderTextTreatment": {
+              "kind": "postgres-enum",
+              "members": [
+                "NONE",
+                "DROP_SHADOW",
+                "OPAQUE_BACKGROUND"
+              ],
+              "typeName": "HeaderTextTreatment"
             },
             "Language": {
               "kind": "postgres-enum",
@@ -2078,6 +2388,154 @@
                 }
               ]
             },
+            "header_image": {
+              "columns": {
+                "content_type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "crop_height": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "crop_width": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "crop_x": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "crop_y": {
+                  "codecId": "pg/float8@1",
+                  "nativeType": "float8",
+                  "nullable": false
+                },
+                "height": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
+                  "nativeType": "uuid",
+                  "nullable": false
+                },
+                "larppikuvat_picture_id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "photographer_credit": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "revision": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "source": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "UPLOAD"
+                  },
+                  "nativeType": "HeaderImageSource",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "HeaderImageSource"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "HeaderImageSource",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "text_treatment": {
+                  "codecId": "pg/enum@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "NONE"
+                  },
+                  "nativeType": "HeaderTextTreatment",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "HeaderTextTreatment"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "HeaderTextTreatment",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "uploaded_by_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
+                "width": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "uploaded_by_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "header_image"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "user"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "holiday": {
               "columns": {
                 "date": {
@@ -2130,6 +2588,11 @@
                 "fluff_text": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
+                  "nullable": true
+                },
+                "header_image_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
                   "nullable": true
                 },
                 "id": {
@@ -2304,6 +2767,23 @@
                     ],
                     "namespaceId": "public",
                     "tableName": "municipality"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "header_image_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "header_image"
                   }
                 }
               ],
@@ -2707,6 +3187,11 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "header_image_id": {
+                  "codecId": "pg/uuid@1",
+                  "nativeType": "uuid",
+                  "nullable": true
+                },
                 "language": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -2732,7 +3217,25 @@
                   "nullable": false
                 }
               },
-              "foreignKeys": [],
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "source": {
+                    "columns": [
+                      "header_image_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "page"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "header_image"
+                  }
+                }
+              ],
               "indexes": [],
               "primaryKey": {
                 "columns": [
@@ -3233,6 +3736,21 @@
                 "WITHDRAWN"
               ]
             },
+            "HeaderImageSource": {
+              "kind": "valueSet",
+              "values": [
+                "UPLOAD",
+                "LARPPIKUVAT"
+              ]
+            },
+            "HeaderTextTreatment": {
+              "kind": "valueSet",
+              "values": [
+                "NONE",
+                "DROP_SHADOW",
+                "OPAQUE_BACKGROUND"
+              ]
+            },
             "Language": {
               "kind": "valueSet",
               "values": [
@@ -3347,10 +3865,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2649fd5db40ceb62378597393d934f718060b8821703bfc7f482e6b7e6d12a16"
+    "storageHash": "76853b0563218b0c64e83c60615f92e39bda654a02a47d64d77e520304a46942"
   },
   "execution": {
-    "executionHash": "a50bd8fc3a7c1305595b7b555bae869d46e2e4f1961766754574ab217e5f46b5",
+    "executionHash": "a2c1fe581a3c3a5d7c70f806b812e2430607676902234ab6c014d506f22ef8a3",
     "mutations": {
       "defaults": [
         {
@@ -3366,6 +3884,21 @@
             "column": "updated_at",
             "namespace": "public",
             "table": "account"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "updated_at",
+            "namespace": "public",
+            "table": "header_image"
           }
         },
         {

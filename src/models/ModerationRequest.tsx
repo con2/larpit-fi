@@ -7,6 +7,7 @@ import { pretty, render } from "react-email";
 import z from "zod";
 
 import { sendEmail } from "@/email";
+import { deleteHeaderImage } from "@/models/HeaderImage";
 import VerifyRequest, {
   verifyRequestSubject,
   verifyRequestText,
@@ -498,8 +499,14 @@ export async function approveDeleteLarpRequest(
 
   const larpId = request.larpId;
 
+  const larp = await db.orm.public.Larp.select("headerImageId").first({
+    id: larpId,
+  });
+
   // The request row cascades away with the larp, taking the resolution with it.
   await db.orm.public.Larp.where({ id: larpId }).delete();
+
+  if (larp?.headerImageId) await deleteHeaderImage(larp.headerImageId);
 
   return { id: larpId };
 }

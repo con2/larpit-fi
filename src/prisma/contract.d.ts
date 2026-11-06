@@ -33,9 +33,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2649fd5db40ceb62378597393d934f718060b8821703bfc7f482e6b7e6d12a16'>;
+  StorageHashBase<'76853b0563218b0c64e83c60615f92e39bda654a02a47d64d77e520304a46942'>;
 export type ExecutionHash =
-  ExecutionHashBase<'a50bd8fc3a7c1305595b7b555bae869d46e2e4f1961766754574ab217e5f46b5'>;
+  ExecutionHashBase<'a2c1fe581a3c3a5d7c70f806b812e2430607676902234ab6c014d506f22ef8a3'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -263,6 +263,24 @@ export type FieldOutputTypes = {
       readonly nameSv: CodecTypes['pg/text@1']['output'] | null;
       readonly nameEn: CodecTypes['pg/text@1']['output'] | null;
     };
+    readonly HeaderImage: {
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly source: 'UPLOAD' | 'LARPPIKUVAT';
+      readonly larppikuvatPictureId: CodecTypes['pg/text@1']['output'] | null;
+      readonly contentType: CodecTypes['pg/text@1']['output'];
+      readonly width: CodecTypes['pg/int4@1']['output'];
+      readonly height: CodecTypes['pg/int4@1']['output'];
+      readonly cropX: CodecTypes['pg/float8@1']['output'];
+      readonly cropY: CodecTypes['pg/float8@1']['output'];
+      readonly cropWidth: CodecTypes['pg/float8@1']['output'];
+      readonly cropHeight: CodecTypes['pg/float8@1']['output'];
+      readonly revision: CodecTypes['pg/int4@1']['output'];
+      readonly photographerCredit: CodecTypes['pg/text@1']['output'];
+      readonly textTreatment: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
+      readonly uploadedById: CodecTypes['pg/uuid@1']['output'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
     readonly Holiday: {
       readonly date: CodecTypes['pg/date-string@1']['output'];
       readonly titleFi: CodecTypes['pg/text@1']['output'];
@@ -298,6 +316,7 @@ export type FieldOutputTypes = {
       readonly relatedUserVisibility: 'PARTICIPANTS' | 'GM' | 'ONLY_ME';
       readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['output'] | null;
       readonly updateCount: CodecTypes['pg/int4@1']['output'];
+      readonly headerImageId: CodecTypes['pg/uuid@1']['output'] | null;
     };
     readonly LarpLink: {
       readonly id: CodecTypes['pg/uuid@1']['output'];
@@ -350,6 +369,7 @@ export type FieldOutputTypes = {
       readonly content: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly headerImageId: CodecTypes['pg/uuid@1']['output'] | null;
     };
     readonly RelatedLarp: {
       readonly leftId: CodecTypes['pg/uuid@1']['output'];
@@ -441,6 +461,24 @@ export type FieldInputTypes = {
       readonly nameSv: CodecTypes['pg/text@1']['input'] | null;
       readonly nameEn: CodecTypes['pg/text@1']['input'] | null;
     };
+    readonly HeaderImage: {
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly source: 'UPLOAD' | 'LARPPIKUVAT';
+      readonly larppikuvatPictureId: CodecTypes['pg/text@1']['input'] | null;
+      readonly contentType: CodecTypes['pg/text@1']['input'];
+      readonly width: CodecTypes['pg/int4@1']['input'];
+      readonly height: CodecTypes['pg/int4@1']['input'];
+      readonly cropX: CodecTypes['pg/float8@1']['input'];
+      readonly cropY: CodecTypes['pg/float8@1']['input'];
+      readonly cropWidth: CodecTypes['pg/float8@1']['input'];
+      readonly cropHeight: CodecTypes['pg/float8@1']['input'];
+      readonly revision: CodecTypes['pg/int4@1']['input'];
+      readonly photographerCredit: CodecTypes['pg/text@1']['input'];
+      readonly textTreatment: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
+      readonly uploadedById: CodecTypes['pg/uuid@1']['input'] | null;
+      readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
     readonly Holiday: {
       readonly date: CodecTypes['pg/date-string@1']['input'];
       readonly titleFi: CodecTypes['pg/text@1']['input'];
@@ -476,6 +514,7 @@ export type FieldInputTypes = {
       readonly relatedUserVisibility: 'PARTICIPANTS' | 'GM' | 'ONLY_ME';
       readonly cancelledAt: CodecTypes['pg/timestamptz-string@1']['input'] | null;
       readonly updateCount: CodecTypes['pg/int4@1']['input'];
+      readonly headerImageId: CodecTypes['pg/uuid@1']['input'] | null;
     };
     readonly LarpLink: {
       readonly id: CodecTypes['pg/uuid@1']['input'];
@@ -528,6 +567,7 @@ export type FieldInputTypes = {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly headerImageId: CodecTypes['pg/uuid@1']['input'] | null;
     };
     readonly RelatedLarp: {
       readonly leftId: CodecTypes['pg/uuid@1']['input'];
@@ -619,6 +659,24 @@ export type StorageColumnTypes = {
       readonly name_fi: CodecTypes['pg/text@1']['output'] | null;
       readonly name_sv: CodecTypes['pg/text@1']['output'] | null;
     };
+    readonly header_image: {
+      readonly content_type: CodecTypes['pg/text@1']['output'];
+      readonly created_at: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly crop_height: CodecTypes['pg/float8@1']['output'];
+      readonly crop_width: CodecTypes['pg/float8@1']['output'];
+      readonly crop_x: CodecTypes['pg/float8@1']['output'];
+      readonly crop_y: CodecTypes['pg/float8@1']['output'];
+      readonly height: CodecTypes['pg/int4@1']['output'];
+      readonly id: CodecTypes['pg/uuid@1']['output'];
+      readonly larppikuvat_picture_id: CodecTypes['pg/text@1']['output'] | null;
+      readonly photographer_credit: CodecTypes['pg/text@1']['output'];
+      readonly revision: CodecTypes['pg/int4@1']['output'];
+      readonly source: 'UPLOAD' | 'LARPPIKUVAT';
+      readonly text_treatment: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
+      readonly updated_at: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly uploaded_by_id: CodecTypes['pg/uuid@1']['output'] | null;
+      readonly width: CodecTypes['pg/int4@1']['output'];
+    };
     readonly holiday: {
       readonly date: CodecTypes['pg/date-string@1']['output'];
       readonly title_en: CodecTypes['pg/text@1']['output'];
@@ -630,6 +688,7 @@ export type StorageColumnTypes = {
       readonly description: CodecTypes['pg/text@1']['output'] | null;
       readonly ends_at: CodecTypes['pg/date-string@1']['output'] | null;
       readonly fluff_text: CodecTypes['pg/text@1']['output'] | null;
+      readonly header_image_id: CodecTypes['pg/uuid@1']['output'] | null;
       readonly id: CodecTypes['pg/uuid@1']['output'];
       readonly language: 'fi' | 'en' | 'sv' | 'OTHER';
       readonly local_signup_code: CodecTypes['pg/text@1']['output'] | null;
@@ -702,6 +761,7 @@ export type StorageColumnTypes = {
     readonly page: {
       readonly content: CodecTypes['pg/text@1']['output'];
       readonly created_at: CodecTypes['pg/timestamptz-string@1']['output'];
+      readonly header_image_id: CodecTypes['pg/uuid@1']['output'] | null;
       readonly language: CodecTypes['pg/text@1']['output'];
       readonly slug: CodecTypes['pg/text@1']['output'];
       readonly title: CodecTypes['pg/text@1']['output'];
@@ -797,6 +857,24 @@ export type StorageColumnInputTypes = {
       readonly name_fi: CodecTypes['pg/text@1']['input'] | null;
       readonly name_sv: CodecTypes['pg/text@1']['input'] | null;
     };
+    readonly header_image: {
+      readonly content_type: CodecTypes['pg/text@1']['input'];
+      readonly created_at: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly crop_height: CodecTypes['pg/float8@1']['input'];
+      readonly crop_width: CodecTypes['pg/float8@1']['input'];
+      readonly crop_x: CodecTypes['pg/float8@1']['input'];
+      readonly crop_y: CodecTypes['pg/float8@1']['input'];
+      readonly height: CodecTypes['pg/int4@1']['input'];
+      readonly id: CodecTypes['pg/uuid@1']['input'];
+      readonly larppikuvat_picture_id: CodecTypes['pg/text@1']['input'] | null;
+      readonly photographer_credit: CodecTypes['pg/text@1']['input'];
+      readonly revision: CodecTypes['pg/int4@1']['input'];
+      readonly source: 'UPLOAD' | 'LARPPIKUVAT';
+      readonly text_treatment: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
+      readonly updated_at: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly uploaded_by_id: CodecTypes['pg/uuid@1']['input'] | null;
+      readonly width: CodecTypes['pg/int4@1']['input'];
+    };
     readonly holiday: {
       readonly date: CodecTypes['pg/date-string@1']['input'];
       readonly title_en: CodecTypes['pg/text@1']['input'];
@@ -808,6 +886,7 @@ export type StorageColumnInputTypes = {
       readonly description: CodecTypes['pg/text@1']['input'] | null;
       readonly ends_at: CodecTypes['pg/date-string@1']['input'] | null;
       readonly fluff_text: CodecTypes['pg/text@1']['input'] | null;
+      readonly header_image_id: CodecTypes['pg/uuid@1']['input'] | null;
       readonly id: CodecTypes['pg/uuid@1']['input'];
       readonly language: 'fi' | 'en' | 'sv' | 'OTHER';
       readonly local_signup_code: CodecTypes['pg/text@1']['input'] | null;
@@ -880,6 +959,7 @@ export type StorageColumnInputTypes = {
     readonly page: {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly created_at: CodecTypes['pg/timestamptz-string@1']['input'];
+      readonly header_image_id: CodecTypes['pg/uuid@1']['input'] | null;
       readonly language: CodecTypes['pg/text@1']['input'];
       readonly slug: CodecTypes['pg/text@1']['input'];
       readonly title: CodecTypes['pg/text@1']['input'];
@@ -1089,6 +1169,123 @@ type ContractBase = Omit<
               indexes: readonly [];
               foreignKeys: readonly [];
             };
+            readonly header_image: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'uuidv7()' };
+                };
+                readonly source: {
+                  readonly nativeType: 'HeaderImageSource';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'UPLOAD'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'HeaderImageSource' };
+                };
+                readonly larppikuvat_picture_id: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly content_type: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly width: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly height: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly crop_x: {
+                  readonly nativeType: 'float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                };
+                readonly crop_y: {
+                  readonly nativeType: 'float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                };
+                readonly crop_width: {
+                  readonly nativeType: 'float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                };
+                readonly crop_height: {
+                  readonly nativeType: 'float8';
+                  readonly codecId: 'pg/float8@1';
+                  readonly nullable: false;
+                };
+                readonly revision: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                };
+                readonly photographer_credit: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly text_treatment: {
+                  readonly nativeType: 'HeaderTextTreatment';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'NONE'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'HeaderTextTreatment' };
+                };
+                readonly uploaded_by_id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: true;
+                };
+                readonly created_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly updated_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'header_image';
+                    readonly columns: readonly ['uploaded_by_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly holiday: {
               columns: {
                 readonly date: {
@@ -1251,6 +1448,11 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
                   };
                 };
+                readonly header_image_id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['alias'] }];
@@ -1265,6 +1467,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'municipality';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp';
+                    readonly columns: readonly ['header_image_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'header_image';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1596,11 +1810,29 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                 };
+                readonly header_image_id: {
+                  readonly nativeType: 'uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['slug', 'language'] };
               uniques: readonly [];
               indexes: readonly [];
-              foreignKeys: readonly [];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'page';
+                    readonly columns: readonly ['header_image_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'header_image';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly related_larp: {
               columns: {
@@ -1932,6 +2164,14 @@ type ContractBase = Omit<
                 'WITHDRAWN',
               ];
             };
+            readonly HeaderImageSource: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['UPLOAD', 'LARPPIKUVAT'];
+            };
+            readonly HeaderTextTreatment: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['NONE', 'DROP_SHADOW', 'OPAQUE_BACKGROUND'];
+            };
             readonly Language: {
               readonly kind: 'valueSet';
               readonly values: readonly ['fi', 'en', 'sv', 'OTHER'];
@@ -2055,6 +2295,10 @@ type ContractBase = Omit<
     readonly unauthenticated_signup: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'UnauthenticatedSignup';
+    };
+    readonly header_image: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'HeaderImage';
     };
     readonly holiday: { readonly namespace: 'public' & NamespaceId; readonly model: 'Holiday' };
   };
@@ -2198,6 +2442,136 @@ type ContractBase = Omit<
                 readonly nameFi: { readonly column: 'name_fi' };
                 readonly nameSv: { readonly column: 'name_sv' };
                 readonly nameEn: { readonly column: 'name_en' };
+              };
+            };
+          };
+          readonly HeaderImage: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly source: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'HeaderImageSource' };
+                };
+              };
+              readonly larppikuvatPictureId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly contentType: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly width: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly height: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly cropX: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly cropY: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly cropWidth: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly cropHeight: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/float8@1' };
+              };
+              readonly revision: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly photographerCredit: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly textTreatment: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'HeaderTextTreatment' };
+                };
+              };
+              readonly uploadedById: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+            };
+            readonly relations: {
+              readonly larps: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Larp' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['headerImageId'];
+                };
+              };
+              readonly pages: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Page' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['headerImageId'];
+                };
+              };
+              readonly uploadedBy: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['uploadedById'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'header_image';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly source: { readonly column: 'source' };
+                readonly larppikuvatPictureId: { readonly column: 'larppikuvat_picture_id' };
+                readonly contentType: { readonly column: 'content_type' };
+                readonly width: { readonly column: 'width' };
+                readonly height: { readonly column: 'height' };
+                readonly cropX: { readonly column: 'crop_x' };
+                readonly cropY: { readonly column: 'crop_y' };
+                readonly cropWidth: { readonly column: 'crop_width' };
+                readonly cropHeight: { readonly column: 'crop_height' };
+                readonly revision: { readonly column: 'revision' };
+                readonly photographerCredit: { readonly column: 'photographer_credit' };
+                readonly textTreatment: { readonly column: 'text_treatment' };
+                readonly uploadedById: { readonly column: 'uploaded_by_id' };
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly updatedAt: { readonly column: 'updated_at' };
               };
             };
           };
@@ -2347,8 +2721,23 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
+              readonly headerImageId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
             };
             readonly relations: {
+              readonly headerImage: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'HeaderImage';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['headerImageId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly links: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2454,6 +2843,7 @@ type ContractBase = Omit<
                 readonly relatedUserVisibility: { readonly column: 'related_user_visibility' };
                 readonly cancelledAt: { readonly column: 'cancelled_at' };
                 readonly updateCount: { readonly column: 'update_count' };
+                readonly headerImageId: { readonly column: 'header_image_id' };
               };
             };
           };
@@ -2758,8 +3148,24 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
               };
+              readonly headerImageId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
             };
-            readonly relations: Record<string, never>;
+            readonly relations: {
+              readonly headerImage: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'HeaderImage';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['headerImageId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
             readonly storage: {
               readonly table: 'page';
               readonly namespaceId: 'public';
@@ -2770,6 +3176,7 @@ type ContractBase = Omit<
                 readonly content: { readonly column: 'content' };
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly updatedAt: { readonly column: 'updated_at' };
+                readonly headerImageId: { readonly column: 'header_image_id' };
               };
             };
           };
@@ -3047,6 +3454,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
+              readonly headerImages: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'HeaderImage';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['uploadedById'];
+                };
+              };
               readonly larps: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3168,6 +3586,15 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'account';
+            readonly column: 'updated_at';
+          };
+          readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
+          readonly onUpdate: { readonly kind: 'generator'; readonly id: 'timestampNow' };
+        },
+        {
+          readonly ref: {
+            readonly namespace: 'public';
+            readonly table: 'header_image';
             readonly column: 'updated_at';
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'timestampNow' };

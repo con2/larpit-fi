@@ -56,6 +56,23 @@ export const mailOptions: Partial<SendMailOptions> = {
 export const larppikuvatApiUrl =
   process.env.LARPPIKUVAT_API_URL || "https://larppikuvat.fi/api/v3/";
 
+/**
+ * S3-compatible storage for header images (Garage in production). The server calls `endpoint`,
+ * which may be an in-cluster address; browsers follow presigned URLs to `publicEndpoint`. An empty
+ * bucket turns header images off.
+ */
+const s3Endpoint = process.env.S3_ENDPOINT || "";
+export const s3 = {
+  bucket: process.env.S3_BUCKET || "",
+  endpoint: s3Endpoint,
+  publicEndpoint: process.env.S3_PUBLIC_ENDPOINT || s3Endpoint,
+  region: process.env.S3_REGION || "garage",
+  forcePathStyle: process.env.S3_FORCE_PATH_STYLE !== "false",
+  accessKeyId: process.env.S3_ACCESS_KEY_ID || "",
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || "",
+};
+export const headerImagesEnabled = !!s3.bucket;
+
 export const featureFlags = {
   localSignup: false,
   /** Off: everyone gets the Day theme and the theme controls are hidden. */
