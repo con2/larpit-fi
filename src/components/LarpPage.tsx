@@ -204,28 +204,11 @@ function Hero({
   const t = translations.LarpPage;
   const larpT = translations.Larp;
   const location = ensureLocation(larp);
-  const { numPlayerCharacters: players, numTotalParticipants: total } = larp;
 
-  let participants: ReactNode = null;
-  if (players && total) {
-    participants = (
-      <>
-        {players} <span className="lf-dim">{t.details.ofTotal(total)}</span>
-      </>
-    );
-  } else if (players) {
-    participants = (
-      <>
-        {players} <span className="lf-dim">{t.details.players(players)}</span>
-      </>
-    );
-  } else if (total) {
-    participants = (
-      <>
-        {total} <span className="lf-dim">{t.details.total(total)}</span>
-      </>
-    );
-  }
+  const participants = larpT.attributes.numParticipants.format(
+    larp.numPlayerCharacters,
+    larp.numTotalParticipants,
+  );
 
   const titleParts = splitRunSuffix(larp.name);
   const typeChoice = larpT.attributes.type.choices[larp.type];

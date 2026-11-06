@@ -59,11 +59,6 @@ const translations: Translations = {
       when: "Milloin",
       where: "Missä",
       participants: "Osallistujat",
-      players: () => "pelaajahahmoa",
-      ofTotal: (numTotalParticipants: number) =>
-        `/ ${numTotalParticipants} osallistujaa`,
-      total: (numTotalParticipants: number) =>
-        numTotalParticipants === 1 ? "osallistuja" : "osallistujaa",
     },
     updated: (date: ReactNode) => <>Päivitetty {date}</>,
     signup: {

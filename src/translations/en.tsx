@@ -58,12 +58,6 @@ const translations = {
       when: "When",
       where: "Where",
       participants: "Participants",
-      players: (numPlayerCharacters: number): string =>
-        numPlayerCharacters === 1 ? "player character" : "player characters",
-      ofTotal: (numTotalParticipants: number) =>
-        `of ${numTotalParticipants} participant${numTotalParticipants === 1 ? "" : "s"}`,
-      total: (numTotalParticipants: number): string =>
-        numTotalParticipants === 1 ? "participant" : "participants",
     },
     updated: (date: ReactNode) => <>Updated {date}</>,
     signup: {
