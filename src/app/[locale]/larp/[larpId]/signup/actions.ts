@@ -25,6 +25,7 @@ import { render } from "@react-email/render";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
+import { typesetDashes } from "@/helpers/larpName";
 
 const SignupStatusSchema = z.enum([
   RelatedUserRole.LOCAL_SIGNUP_YES,
@@ -109,14 +110,14 @@ export async function submitSignup(
     const subject = signupVerificationSubject(locale);
     const text = signupVerificationText(
       locale,
-      larp.name,
+      typesetDashes(larp.name),
       larpId,
       verificationCode,
     );
     const html = await render(
       SignupVerification({
         locale,
-        larpName: larp.name,
+        larpName: typesetDashes(larp.name),
         larpId,
         verificationCode,
       }),

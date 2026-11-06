@@ -5,6 +5,7 @@ import {
   headerImageSocialPreviewOrNull,
 } from "@/models/HeaderImage";
 import { getTranslations } from "@/translations";
+import { typesetDashes } from "@/helpers/larpName";
 
 export function larpMetadata(
   larp: {
@@ -16,10 +17,11 @@ export function larpMetadata(
   alternates?: Metadata["alternates"],
 ): Metadata {
   const translations = getTranslations(locale);
-  const title = `${larp.name} – ${translations.title}`;
+  const name = typesetDashes(larp.name);
+  const title = `${name} – ${translations.title}`;
   const description = larp.tagline ?? undefined;
   const image = headerImageSocialPreviewOrNull(larp.headerImage);
-  const images = image ? [{ ...image, alt: larp.name }] : undefined;
+  const images = image ? [{ ...image, alt: name }] : undefined;
 
   return {
     title,
@@ -28,13 +30,13 @@ export function larpMetadata(
     openGraph: {
       type: "website",
       siteName: translations.title,
-      title: larp.name,
+      title: name,
       description,
       images,
     },
     twitter: {
       card: image ? "summary_large_image" : "summary",
-      title: larp.name,
+      title: name,
       description,
       images,
     },

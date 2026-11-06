@@ -4,6 +4,7 @@ import { formatDateRange } from "@/helpers/dates";
 import { ReactNode, useState } from "react";
 import { FormLabel } from "react-bootstrap";
 import Select, { SingleValue } from "react-select";
+import { typesetDashes } from "@/helpers/larpName";
 
 export type SelectableLarpSerialized = {
   id: string;
@@ -26,9 +27,10 @@ function makeLarpLabel(
 ): string {
   const typeName = larpTypeChoices[larp.type] ?? larp.type;
   const dateRange = formatDateRange(larp.startsAt, larp.endsAt, locale);
+  const name = typesetDashes(larp.name);
   return dateRange
-    ? `${larp.name} (${typeName}, ${dateRange})`
-    : `${larp.name} (${typeName})`;
+    ? `${name} (${typeName}, ${dateRange})`
+    : `${name} (${typeName})`;
 }
 
 export default function SelectLarpCombobox({

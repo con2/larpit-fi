@@ -43,7 +43,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import { Alert } from "react-bootstrap";
-import { splitRunSuffix } from "@/helpers/larpName";
+import {
+  splitRunSuffix,
+  typesetDashes,
+  typesetMarkdownDashes,
+} from "@/helpers/larpName";
 import HeaderImageBackdrop, {
   heroImageProps,
   heroTextClassName,
@@ -363,7 +367,9 @@ function RelatedLarpList({
           <span className="lf-dim">
             {t.attributes.leftRelatedLarps.types[related.type] || related.type}
           </span>
-          <Link href={getLarpHref(related.right)}>{related.right.name}</Link>
+          <Link href={getLarpHref(related.right)}>
+            {typesetDashes(related.right.name)}
+          </Link>
           {related.right.startsAt && (
             <span className="lf-data lf-dim">
               {related.right.startsAt.slice(0, 4)}
@@ -373,7 +379,9 @@ function RelatedLarpList({
       ))}
       {larp.relatedLarpsRight.map((related) => (
         <li key={`right-${related.leftId}`} className={styles.relatedRow}>
-          <Link href={getLarpHref(related.left)}>{related.left.name}</Link>
+          <Link href={getLarpHref(related.left)}>
+            {typesetDashes(related.left.name)}
+          </Link>
           <span className="lf-dim">
             {t.attributes.rightRelatedLarps.types[related.type] || related.type}
           </span>
@@ -814,9 +822,13 @@ export default async function LarpPage({
       {!headerImage && <Aurora variant="larp" />}
       <LarpJsonLd larp={larp} />
       <PaletteContext
-        title={larp.name}
+        title={typesetDashes(larp.name)}
         commands={paletteCommands}
-        recent={{ href: getLarpHref(larp), name: larp.name, dateLabel }}
+        recent={{
+          href: getLarpHref(larp),
+          name: typesetDashes(larp.name),
+          dateLabel,
+        }}
       />
       <Hero
         larp={larp}
@@ -833,12 +845,12 @@ export default async function LarpPage({
             <div className={styles.body} lang={larp.language}>
               {larp.fluffText && (
                 <div className={`lf-prose ${styles.fluff}`}>
-                  <Paragraphs text={larp.fluffText} />
+                  <Paragraphs text={typesetDashes(larp.fluffText)} />
                 </div>
               )}
               {larp.description && (
                 <div className="lf-prose">
-                  <Markdown input={larp.description} />
+                  <Markdown input={typesetMarkdownDashes(larp.description)} />
                 </div>
               )}
             </div>

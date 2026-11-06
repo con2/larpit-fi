@@ -40,6 +40,7 @@ import {
 } from "react-bootstrap";
 import z from "zod";
 import { markChecked, resolveRequest } from "./actions";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
@@ -316,7 +317,7 @@ export default async function ModerationRequestPage({ params }: Props) {
                     href={getLarpHref(request.larp)}
                     className="link-subtle"
                   >
-                    {request.larp.name}
+                    {typesetDashes(request.larp.name)}
                   </Link>
                 }
               />
@@ -419,7 +420,7 @@ export default async function ModerationRequestPage({ params }: Props) {
                             href={getLarpHref(otherLarp)}
                             className="link-subtle"
                           >
-                            {otherLarp.name}
+                            {typesetDashes(otherLarp.name)}
                           </Link>
                         ) : rel.leftId === request.larpId ? (
                           rel.rightId
@@ -458,7 +459,7 @@ export default async function ModerationRequestPage({ params }: Props) {
                             href={getLarpHref(otherLarp)}
                             className="link-subtle"
                           >
-                            {otherLarp.name}
+                            {typesetDashes(otherLarp.name)}
                           </Link>
                         ) : rel.leftId === request.larpId ? (
                           rel.rightId

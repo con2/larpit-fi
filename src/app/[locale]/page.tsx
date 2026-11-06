@@ -11,7 +11,7 @@ import HeaderImageBackdrop, {
 import Aurora from "@/components/ui/Aurora";
 import CompactRow from "@/components/ui/CompactRow";
 import LarpRow from "@/components/ui/LarpRow";
-import { splitRunSuffix } from "@/helpers/larpName";
+import { splitRunSuffix, typesetDashes } from "@/helpers/larpName";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { formatShortDateRange, isoWeekOf } from "@/helpers/dates";
 import {
@@ -257,7 +257,7 @@ export default async function HomePage({ params }: Props) {
                     key={change.id}
                     href={getLarpHref(change)}
                     date={formatShortDateRange(change.resolvedAt, null, locale)}
-                    name={change.name}
+                    name={typesetDashes(change.name)}
                     cancelled={change.isCancelled}
                     lang={langOf(change.language)}
                   />
@@ -288,7 +288,7 @@ export default async function HomePage({ params }: Props) {
                         larp.endsAt,
                         locale,
                       )}
-                      name={larp.name}
+                      name={typesetDashes(larp.name)}
                       sub={sub || undefined}
                       cancelled={!!larp.cancelledAt}
                       lang={langOf(larp.language)}

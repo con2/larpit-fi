@@ -2,6 +2,7 @@ import { Translations } from "@/translations/en";
 import type { LarpPageLarp } from "../LarpPage";
 import Link from "next/link";
 import { getLarpHref } from "@/models/Larp";
+import { typesetDashes } from "@/helpers/larpName";
 
 type RelatedLarpLeft = LarpPageLarp["relatedLarpsLeft"][number];
 type RelatedLarpRight = LarpPageLarp["relatedLarpsRight"][number];
@@ -20,7 +21,7 @@ export function LeftRelatedLarpComponent({
       {t.attributes.leftRelatedLarps.types[relatedLarp.type] ||
         relatedLarp.type}{" "}
       <Link href={getLarpHref(relatedLarp.right)} className="link-subtle">
-        {relatedLarp.right?.name}
+        {relatedLarp.right && typesetDashes(relatedLarp.right.name)}
       </Link>
       {children}
     </div>
@@ -39,7 +40,7 @@ export function RightRelatedLarpComponent({
   return (
     <div>
       <Link href={getLarpHref(relatedLarp.left)} className="link-subtle">
-        {relatedLarp.left?.name}
+        {relatedLarp.left && typesetDashes(relatedLarp.left.name)}
       </Link>{" "}
       {t.attributes.rightRelatedLarps.types[relatedLarp.type] ||
         relatedLarp.type}

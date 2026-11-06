@@ -8,6 +8,7 @@ import { queryRead, sql } from "@/prisma/sql";
 import { formatShortDateRange } from "@/helpers/dates";
 import { formatDateRange } from "@/helpers/dates";
 import { getSignupPillState, type SignupPillState } from "./signupPillState";
+import { typesetDashes } from "@/helpers/larpName";
 
 export interface LarpSearchResult {
   id: string;
@@ -96,7 +97,7 @@ export async function searchLarps(
       {
         id: larp.id,
         href: getLarpHref(larp),
-        name: larp.name,
+        name: typesetDashes(larp.name),
         language: larp.language,
         dateLabel,
         municipality: larp.municipality?.nameFi ?? null,

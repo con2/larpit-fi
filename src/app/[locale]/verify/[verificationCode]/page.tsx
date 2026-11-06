@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { Card, CardBody, CardTitle, Form } from "react-bootstrap";
 import { validate as validateUuid } from "uuid";
 import { verifyRequest } from "./actions";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   params: Promise<{
@@ -97,7 +98,7 @@ export default async function VerificationCodePage({ params }: Props) {
             {t.message}
             <dl className="mt-3">
               <dt>{translations.ModerationRequest.attributes.name.title}</dt>
-              <dd>{newContent.name}</dd>
+              <dd>{typesetDashes(newContent.name)}</dd>
               <dt>
                 {translations.ModerationRequest.attributes.createdAt.title}
               </dt>

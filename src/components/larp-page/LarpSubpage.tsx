@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import styles from "./LarpSubpage.module.scss";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   title: ReactNode;
@@ -16,7 +17,7 @@ export default function LarpSubpage({ title, larp, lede, children }: Props) {
       <header className="lf-page-header">
         {larp && (
           <Link href={`/larp/${larp.id}`} className="lf-link-quiet">
-            ← {larp.name}
+            ← {typesetDashes(larp.name)}
           </Link>
         )}
         <h1 className="lf-display-l">{title}</h1>

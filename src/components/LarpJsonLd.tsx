@@ -1,5 +1,6 @@
 import type { Country, Larp, Municipality } from "@/prisma/models";
 import { getLarpUrl } from "@/models/Larp";
+import { typesetDashes } from "@/helpers/larpName";
 
 type LarpJsonLdInput = Pick<
   Larp,
@@ -29,7 +30,7 @@ function larpToJsonLd(larp: LarpJsonLdInput) {
       ? "https://schema.org/EventCancelled"
       : "https://schema.org/EventScheduled",
     url: getLarpUrl(larp),
-    name: larp.name,
+    name: typesetDashes(larp.name),
     ...(larp.tagline && { description: larp.tagline }),
     ...(larp.startsAt && { startDate: larp.startsAt }),
     ...(larp.endsAt && { endDate: larp.endsAt }),

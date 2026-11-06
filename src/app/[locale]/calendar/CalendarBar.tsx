@@ -10,6 +10,7 @@ import Link from "next/link";
 
 import { typeGroupByType } from "./calendarFilters";
 import styles from "./calendar.module.scss";
+import { typesetDashes } from "@/helpers/larpName";
 
 export type CalendarLarp = Pick<
   Larp,
@@ -101,7 +102,9 @@ export default function CalendarBar({
       href={getLarpHref(larp)}
       className={`${styles.bar} ${kindClass[kind]} ${className ?? ""}`}
       style={style}
-      title={[larp.name, place, dates].filter(Boolean).join(" · ")}
+      title={[typesetDashes(larp.name), place, dates]
+        .filter(Boolean)
+        .join(" · ")}
     >
       {kind !== "event" && (
         <span
@@ -111,7 +114,7 @@ export default function CalendarBar({
       )}
       <span className={styles.barText}>
         <span className={styles.barName} lang={lang}>
-          {larp.name}
+          {typesetDashes(larp.name)}
         </span>
         {place && <span className={styles.place}> · {place}</span>}
         <span className="visually-hidden">

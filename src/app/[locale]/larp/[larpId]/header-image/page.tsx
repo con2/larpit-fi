@@ -12,6 +12,7 @@ import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 
 import { removeHeaderImage, saveHeaderImageSettings } from "./actions";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   params: Promise<{ locale: string; larpId: string }>;
@@ -51,7 +52,7 @@ export default async function LarpHeaderImagePage({ params }: Props) {
         returnHref={`/larp/${larp.id}`}
         saveAction={saveHeaderImageSettings.bind(null, larp.id)}
         removeAction={removeHeaderImage.bind(null, larp.id)}
-        previewTitle={larp.name}
+        previewTitle={typesetDashes(larp.name)}
         messages={t}
       />
     </LarpSubpage>

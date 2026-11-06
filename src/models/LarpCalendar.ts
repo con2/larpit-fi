@@ -3,6 +3,7 @@ import { toPlainDate } from "@con2/components/helpers";
 import { publicUrl } from "@/config";
 import { getLarpHref } from "@/models/Larp.client";
 import type { Larp, Municipality } from "@/prisma/models";
+import { typesetDashes } from "@/helpers/larpName";
 
 export type CalendarLarp = Pick<
   Larp,
@@ -79,7 +80,7 @@ export function renderLarpCalendar(
     "PRODID:-//larpit.fi//Larpit.fi//FI",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    foldLine(`X-WR-CALNAME:${escapeText(calendarName)}`),
+    foldLine(`X-WR-CALNAME:${escapeText(typesetDashes(calendarName))}`),
   ];
 
   for (const larp of larps) {
@@ -95,7 +96,8 @@ export function renderLarpCalendar(
       Boolean,
     );
 
-    const summary = larp.cancelledAt ? `[${prefix}] ${larp.name}` : larp.name;
+    const name = typesetDashes(larp.name);
+    const summary = larp.cancelledAt ? `[${prefix}] ${name}` : name;
 
     lines.push("BEGIN:VEVENT");
     lines.push(foldLine(`UID:${larp.id}@larpit.fi`));
@@ -112,7 +114,9 @@ export function renderLarpCalendar(
     lines.push(foldLine(`SUMMARY:${escapeText(summary)}`));
 
     if (larp.tagline) {
-      lines.push(foldLine(`DESCRIPTION:${escapeText(larp.tagline)}`));
+      lines.push(
+        foldLine(`DESCRIPTION:${escapeText(typesetDashes(larp.tagline))}`),
+      );
     }
 
     if (locationParts.length > 0) {

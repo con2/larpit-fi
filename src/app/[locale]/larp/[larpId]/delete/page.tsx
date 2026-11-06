@@ -14,6 +14,7 @@ import { validate as validateUuid } from "uuid";
 import { deleteLarp } from "./actions";
 import { EditStatus } from "@/prisma/enums";
 import Link from "next/link";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   params: Promise<{
@@ -62,7 +63,7 @@ export default async function DeleteLarpPage({ params }: Props) {
           <p>
             <strong>{larpT.title}</strong>:{" "}
             <Link href={`/larp/${larp.id}`} className="link-subtle">
-              {larp.name}
+              {typesetDashes(larp.name)}
             </Link>
           </p>
           <p>{t.confirmation}</p>

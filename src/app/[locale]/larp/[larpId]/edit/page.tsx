@@ -28,6 +28,7 @@ import Link from "next/link";
 import Form from "react-bootstrap/Form";
 import { validate as validateUuid } from "uuid";
 import { editLarp, setEditFormPreference } from "./actions";
+import { typesetDashes } from "@/helpers/larpName";
 
 const formId = "EditLarpPage-form";
 
@@ -183,7 +184,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
       <header className="lf-container lf-page-header">
         <p className="lf-eyebrow">
           <Link href={getLarpHref(larp)} className="lf-row-link">
-            {larp.name}
+            {typesetDashes(larp.name)}
           </Link>
         </p>
         <h1 className="lf-display-l">{t.title}</h1>

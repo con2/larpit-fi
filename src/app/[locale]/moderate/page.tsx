@@ -10,6 +10,7 @@ import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
+import { typesetDashes } from "@/helpers/larpName";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -105,10 +106,11 @@ export default async function ModerationPage({ params, searchParams }: Props) {
       slug: "name",
       title: t.attributes.name.title,
       getCellContents: (row) =>
-        row.larp?.name ||
-        (row.newContent as ModerationRequestContent).name || (
-          <em>{t.attributes.name.unknown}</em>
-        ),
+        typesetDashes(
+          row.larp?.name ||
+            (row.newContent as ModerationRequestContent).name ||
+            "",
+        ) || <em>{t.attributes.name.unknown}</em>,
     },
     {
       slug: "submitterName",
