@@ -1,7 +1,7 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
+import { larpMetadata } from "@/components/larp-page/larpMetadata";
 import { publicUrl } from "@/config";
 import { dbRead } from "@/prisma/db";
-import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate as uuidValidate } from "uuid";
@@ -25,28 +25,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     notFound();
   }
 
-  const larp = await dbRead.orm.public.Larp.select(
-    "id",
-    "name",
-    "tagline",
-  ).first({
-    id: larpId,
-  });
+  const larp = await dbRead.orm.public.Larp.select("id", "name", "tagline")
+    .include("headerImage")
+    .first({ id: larpId });
   if (!larp) {
     notFound();
   }
 
-  const translations = getTranslations(locale);
-
-  return {
-    title: `${larp.name} – ${translations.title}`,
-    description: larp.tagline,
-    alternates: {
-      types: {
-        "application/json": `${publicUrl}/api/larp/${larp.id}`,
-      },
+  return larpMetadata(larp, locale, {
+    types: {
+      "application/json": `${publicUrl}/api/larp/${larp.id}`,
     },
-  };
+  });
 }
 
 export default async function LarpByIdPage({ params, searchParams }: Props) {

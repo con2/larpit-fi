@@ -1,6 +1,6 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
+import { larpMetadata } from "@/components/larp-page/larpMetadata";
 import { dbRead } from "@/prisma/db";
-import { getTranslations } from "@/translations";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -15,7 +15,9 @@ interface Props {
 async function getContent({ params }: Props) {
   const { alias, locale } = await params;
   const [larp, page] = await Promise.all([
-    dbRead.orm.public.Larp.select("name", "tagline").first({ alias }),
+    dbRead.orm.public.Larp.select("name", "tagline")
+      .include("headerImage")
+      .first({ alias }),
     dbRead.orm.public.Page.select("title", "content").first({
       slug: alias,
       language: locale,
@@ -29,7 +31,6 @@ async function getContent({ params }: Props) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const translations = getTranslations(locale);
   const { larp, page } = await getContent({ params });
 
   if (page) {
@@ -38,10 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: page.content,
     };
   } else if (larp) {
-    return {
-      title: `${larp.name} – ${translations.title}`,
-      description: larp.tagline,
-    };
+    return larpMetadata(larp, locale);
   } else {
     notFound();
   }

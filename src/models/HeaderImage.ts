@@ -20,6 +20,7 @@ import type { HeaderImage, User } from "@/prisma/models";
 import { supportedLanguages } from "@/translations";
 
 import {
+  bannerAspect,
   type Crop,
   CropSchema,
   photographerCreditMaxLength,
@@ -343,4 +344,17 @@ export function headerImageViewOrNull(
   row: HeaderImageRow | null | undefined,
 ): HeaderImageView | null {
   return row && headerImagesEnabled ? headerImageView(row) : null;
+}
+
+/** The 1200 px banner, for link previews (Open Graph, Twitter cards). */
+export function headerImageSocialPreviewOrNull(
+  row: HeaderImageRow | null | undefined,
+): { url: string; width: number; height: number } | null {
+  if (!row || !headerImagesEnabled) return null;
+  const width = 1200;
+  return {
+    url: getStorage().url(variantKey(row.id, row.revision, "banner-1200")),
+    width,
+    height: width / bannerAspect,
+  };
 }
