@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { setLarpAlias } from "@/models/Larp";
+import { getLarpHref } from "@/models/Larp.client";
 import { getUserFromSession } from "@/models/User";
 
 export async function saveLarpAlias(larpId: string, formData: FormData) {
@@ -29,5 +30,5 @@ export async function saveLarpAlias(larpId: string, formData: FormData) {
 
   revalidatePath("/[locale]/larp/[larpId]", "page");
   revalidatePath("/[locale]/[alias]", "page");
-  redirect(`/larp/${larpId}`);
+  redirect(getLarpHref({ id: larpId, alias: result.alias }));
 }
