@@ -1873,6 +1873,12 @@ const translations: Translations = {
     title: "Ei käyttöoikeutta",
     message: "Tämä näkymä edellyttää ylläpitäjän oikeuksia.",
   },
+  NotFoundPage: {
+    eyebrow: "404",
+    title: "Sivua ei löytynyt",
+    lede: "Osoitteessa voi olla kirjoitusvirhe, tai sivu on ehkä poistettu.",
+    frontPage: "Etusivulle",
+  },
   Navigation: {
     actions: {
       addLarp: "Lisää larppi",

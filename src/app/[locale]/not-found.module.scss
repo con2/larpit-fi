@@ -1,0 +1,45 @@
+.hero {
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.heroInner {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-block: 120px 96px;
+
+  @media (max-width: 767.98px) {
+    padding-block: 64px 56px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+
+  :global(.btn) {
+    font-size: 15px;
+    padding-inline: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.secondary {
+  :global([data-bs-theme="dark"]) & {
+    border-color: rgba(var(--larpit-text-rgb), 0.3);
+    background: rgba(var(--larpit-ground-rgb), 0.3);
+    color: var(--larpit-text);
+  }
+}
+
+.quietAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 8px;
+  font-size: 15px;
+}

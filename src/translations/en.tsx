@@ -1837,6 +1837,12 @@ const translations = {
     title: "Insufficient privileges",
     message: "You need admin rights to see this page.",
   },
+  NotFoundPage: {
+    eyebrow: "404",
+    title: "Page not found",
+    lede: "The address may have a typo in it, or the page may have been removed.",
+    frontPage: "Front page",
+  },
   Navigation: {
     actions: {
       addLarp: "Add a larp",
