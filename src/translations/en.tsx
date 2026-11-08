@@ -1764,17 +1764,10 @@ const translations = {
     weekNumberTitle: "Week number",
     today: "Today",
     jumpToToday: "Jump to today",
-    keyboardNavigation: (
-      <>
-        <span>Keyboard shortcuts:</span>
-        <span>
-          <kbd>←</kbd> <kbd>→</kbd> change month
-        </span>
-        <span>
-          <kbd>T</kbd> today
-        </span>
-      </>
-    ),
+    keyboardShortcuts: {
+      title: "Keyboard shortcuts:",
+      changeMonth: "Change month",
+    },
     monthNames: [
       "January",
       "February",

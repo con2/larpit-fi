@@ -368,7 +368,15 @@ export default async function CalendarPage({ params, searchParams }: Props) {
             {t.legend.cancelled}
           </li>
         </ul>
-        <p className={styles.keyboardHint}>{t.keyboardNavigation}</p>
+        <p className={styles.keyboardHint}>
+          <span>{t.keyboardShortcuts.title}</span>
+          <span>
+            <kbd>←</kbd> <kbd>→</kbd> {t.keyboardShortcuts.changeMonth}
+          </span>
+          <span>
+            <kbd>T</kbd> {t.jumpToToday}
+          </span>
+        </p>
       </div>
 
       <section

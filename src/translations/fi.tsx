@@ -1800,17 +1800,10 @@ const translations: Translations = {
     weekNumberTitle: "Viikkonumero",
     today: "Tänään",
     jumpToToday: "Hyppää tähän päivään",
-    keyboardNavigation: (
-      <>
-        <span>Pikanäppäimet:</span>
-        <span>
-          <kbd>←</kbd> <kbd>→</kbd> vaihda kuukautta
-        </span>
-        <span>
-          <kbd>T</kbd> tänään
-        </span>
-      </>
-    ),
+    keyboardShortcuts: {
+      title: "Pikanäppäimet:",
+      changeMonth: "Vaihda kuukautta",
+    },
     monthNames: [
       "Tammikuu",
       "Helmikuu",
