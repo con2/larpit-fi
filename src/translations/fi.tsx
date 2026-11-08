@@ -552,7 +552,9 @@ const translations: Translations = {
   LarpAliasPage: {
     title: "Sivun osoite",
     lede: "Lyhyt osoite larpin sivulle. Jätä tyhjäksi poistaaksesi sen; sivu löytyy aina myös pysyvästä osoitteestaan.",
-    label: "Lyhyt osoite",
+    currentAliasLabel: "Nykyinen lyhyt osoite",
+    noAlias: "Lyhyttä osoitetta ei ole asetettu.",
+    label: "Uusi lyhyt osoite",
     helpText: (url: string) => `Larpin sivu löytyy osoitteesta ${url}`,
     save: "Tallenna",
     errors: {

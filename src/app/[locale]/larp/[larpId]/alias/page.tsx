@@ -6,6 +6,7 @@ import { validate as validateUuid } from "uuid";
 import { auth } from "@/auth";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { publicUrl } from "@/config";
+import { suggestLarpAlias } from "@/helpers/larpAlias";
 import {
   type LarpAliasError,
   larpAliasMaxLength,
@@ -30,7 +31,12 @@ export default async function LarpAliasPage({ params, searchParams }: Props) {
   const user = await getUserFromSession(await auth());
   if (!canModerate(user)) notFound();
 
-  const larp = await db.orm.public.Larp.select("id", "name", "alias").first({
+  const larp = await db.orm.public.Larp.select(
+    "id",
+    "name",
+    "language",
+    "alias",
+  ).first({
     id: larpId,
   });
   if (!larp) notFound();
@@ -44,7 +50,11 @@ export default async function LarpAliasPage({ params, searchParams }: Props) {
     error && Object.hasOwn(errorMessages, error)
       ? errorMessages[error as LarpAliasError]
       : null;
-  const alias = submittedAlias ?? larp.alias ?? "";
+  const alias =
+    submittedAlias ??
+    larp.alias ??
+    suggestLarpAlias(larp.name, larp.language, larpAliasMaxLength) ??
+    "";
   const exampleAlias = normalizeLarpAlias(alias) ?? larp.id;
 
   return (
@@ -54,6 +64,19 @@ export default async function LarpAliasPage({ params, searchParams }: Props) {
         style={{ maxWidth: "36rem" }}
       >
         {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+        <div className="form-group mb-3">
+          <FormLabel htmlFor="LarpAlias-currentAlias">
+            {t.currentAliasLabel}
+          </FormLabel>
+          <FormControl
+            type="text"
+            id="LarpAlias-currentAlias"
+            value={larp.alias ?? ""}
+            placeholder={t.noAlias}
+            readOnly
+            disabled
+          />
+        </div>
         <div className="form-group mb-3">
           <FormLabel htmlFor="LarpAlias-alias">{t.label}</FormLabel>
           <FormControl

@@ -535,7 +535,9 @@ const translations = {
   LarpAliasPage: {
     title: "Page address",
     lede: "A short address for the larp page. Leave empty to remove it; the page always stays reachable at its permanent address too.",
-    label: "Short address",
+    currentAliasLabel: "Current short address",
+    noAlias: "No short address has been set.",
+    label: "New short address",
     helpText: (url: string) => `The larp page will be at ${url}`,
     save: "Save",
     errors: {
