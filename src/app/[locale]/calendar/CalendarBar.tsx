@@ -3,7 +3,6 @@ import { CSSProperties, ReactNode } from "react";
 import { getSignupPillState } from "@/components/ui/signupPillState";
 import { formatShortDateRange } from "@/helpers/dates";
 import { getLarpHref } from "@/models/Larp.client";
-import { Openness } from "@/prisma/enums";
 import type { Larp } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
 import Link from "next/link";
@@ -30,16 +29,14 @@ export type CalendarLarp = Pick<
   municipality: { nameFi: string | null } | null;
 };
 
-export type BarKind =
-  "cancelled" | "event" | "open" | "soon" | "campaign" | "over";
+export type BarKind = "cancelled" | "event" | "open" | "soon" | "overOrUnknown";
 
 const kindClass: Record<BarKind, string> = {
   cancelled: styles.kindCancelled,
   event: styles.kindEvent,
   open: styles.kindOpen,
   soon: styles.kindSoon,
-  campaign: styles.kindCampaign,
-  over: styles.kindOver,
+  overOrUnknown: styles.kindOverOrUnknown,
 };
 
 export function barKind(larp: CalendarLarp): BarKind {
@@ -49,8 +46,7 @@ export function barKind(larp: CalendarLarp): BarKind {
   if (group === "events") return "event";
   if (state?.kind === "open") return "open";
   if (state?.kind === "soon") return "soon";
-  if (group === "campaigns") return "campaign";
-  return "over";
+  return "overOrUnknown";
 }
 
 function statusText(
@@ -106,12 +102,7 @@ export default function CalendarBar({
         .filter(Boolean)
         .join(" · ")}
     >
-      {kind !== "event" && (
-        <span
-          className={`${styles.dot}${larp.openness === Openness.INVITE_ONLY ? ` ${styles.dotHollow}` : ""}`}
-          aria-hidden="true"
-        />
-      )}
+      {kind !== "event" && <span className={styles.dot} aria-hidden="true" />}
       <span className={styles.barText}>
         <span className={styles.barName} lang={lang}>
           {typesetDashes(larp.name)}

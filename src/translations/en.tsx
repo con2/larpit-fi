@@ -1764,7 +1764,17 @@ const translations = {
     weekNumberTitle: "Week number",
     today: "Today",
     jumpToToday: "Jump to today",
-    keyboardNavigation: "← → change month · T today",
+    keyboardNavigation: (
+      <>
+        <span>Keyboard shortcuts:</span>
+        <span>
+          <kbd>←</kbd> <kbd>→</kbd> change month
+        </span>
+        <span>
+          <kbd>T</kbd> today
+        </span>
+      </>
+    ),
     monthNames: [
       "January",
       "February",
@@ -1799,9 +1809,8 @@ const translations = {
     legend: {
       title: "Legend",
       signupOpen: "Signup open",
-      openingSoon: "Opening soon / campaign",
-      signupOver: "Signup over",
-      inviteOnly: "Invite only",
+      openingSoon: "Opening soon",
+      signupOverOrUnknown: "Signup over or unknown",
       event: "Convention, festival, meetup",
       cancelled: "Cancelled",
     },

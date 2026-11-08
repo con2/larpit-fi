@@ -354,14 +354,10 @@ export default async function CalendarPage({ params, searchParams }: Props) {
             {t.legend.openingSoon}
           </li>
           <li>
-            <span className={`${styles.swatch} ${styles.swatchOver}`} />
-            {t.legend.signupOver}
-          </li>
-          <li>
             <span
-              className={`${styles.dot} ${styles.dotHollow} ${styles.swatchInviteOnly}`}
+              className={`${styles.swatch} ${styles.swatchOverOrUnknown}`}
             />
-            {t.legend.inviteOnly}
+            {t.legend.signupOverOrUnknown}
           </li>
           <li>
             <span className={`${styles.swatch} ${styles.swatchEvent}`} />

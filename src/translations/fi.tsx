@@ -1800,7 +1800,17 @@ const translations: Translations = {
     weekNumberTitle: "Viikkonumero",
     today: "Tänään",
     jumpToToday: "Hyppää tähän päivään",
-    keyboardNavigation: "← → vaihda kuukautta · T tänään",
+    keyboardNavigation: (
+      <>
+        <span>Pikanäppäimet:</span>
+        <span>
+          <kbd>←</kbd> <kbd>→</kbd> vaihda kuukautta
+        </span>
+        <span>
+          <kbd>T</kbd> tänään
+        </span>
+      </>
+    ),
     monthNames: [
       "Tammikuu",
       "Helmikuu",
@@ -1835,9 +1845,8 @@ const translations: Translations = {
     legend: {
       title: "Selitteet",
       signupOpen: "Ilmoittautuminen auki",
-      openingSoon: "Ilmoittautuminen aukeaa pian / kampanja",
-      signupOver: "Ilmoittautuminen päättynyt",
-      inviteOnly: "Vain kutsutuille",
+      openingSoon: "Ilmoittautuminen aukeaa pian",
+      signupOverOrUnknown: "Ilmoittautuminen päättynyt tai ei tiedossa",
       event: "Conit, festivaalit, tapaamiset",
       cancelled: "Peruttu",
     },

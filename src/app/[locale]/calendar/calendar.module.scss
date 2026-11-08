@@ -279,23 +279,17 @@ $grid-breakpoint: 820px;
   background: currentColor;
 }
 
-.dotHollow {
-  background: transparent;
-  border: 1.5px solid currentColor;
-}
-
 .kindOpen {
   background: var(--larpit-open-tint);
   color: var(--larpit-open-on-tint);
 }
 
-.kindSoon,
-.kindCampaign {
+.kindSoon {
   background: var(--larpit-ice-tint);
   color: var(--larpit-ice-on-tint);
 }
 
-.kindOver {
+.kindOverOrUnknown {
   background: var(--larpit-dim-tint);
   color: var(--larpit-muted);
 
@@ -529,7 +523,7 @@ $grid-breakpoint: 820px;
   border-color: rgba(var(--larpit-ice-rgb), 0.4);
 }
 
-.swatchOver {
+.swatchOverOrUnknown {
   background: var(--larpit-dim-tint);
   border-color: rgba(var(--larpit-dim-rgb), 0.4);
 }
@@ -543,16 +537,13 @@ $grid-breakpoint: 820px;
   border-color: rgba(var(--larpit-rowan-rgb), 0.4);
 }
 
-.swatchInviteOnly {
-  color: var(--larpit-dim);
-  margin-inline: 6px;
-}
-
 .keyboardHint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
   margin: 0;
-  font-family: $mono;
-  font-size: 12px;
-  color: var(--larpit-dim);
+  font-size: 13px;
+  color: var(--larpit-muted);
 
   @media (max-width: ($grid-breakpoint - 0.02px)) {
     display: none;
