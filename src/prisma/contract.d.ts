@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'64e0a3f175597a2f5b896f7472d946266586f01702d0509ac69280780bb27ade'>;
+  StorageHashBase<'3fab43756e4cc561eca89bfac9f6928f67aec75f2da844c7de829c9e2cc8f08d'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -283,10 +283,6 @@ type FieldTypeOverrides = {
           readonly output: 'UPLOAD' | 'LARPPIKUVAT';
           readonly input: 'UPLOAD' | 'LARPPIKUVAT';
         };
-        readonly textTreatment: {
-          readonly output: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
-          readonly input: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
-        };
       };
       readonly Larp: {
         readonly language: {
@@ -477,10 +473,6 @@ type ColumnTypeOverrides = {
       readonly source: {
         readonly output: 'UPLOAD' | 'LARPPIKUVAT';
         readonly input: 'UPLOAD' | 'LARPPIKUVAT';
-      };
-      readonly text_treatment: {
-        readonly output: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
-        readonly input: 'NONE' | 'DROP_SHADOW' | 'OPAQUE_BACKGROUND';
       };
     };
     readonly larp: {
@@ -692,7 +684,6 @@ export namespace Models {
     photographerCredit: FieldOutputTypes['public']['HeaderImage']['photographerCredit'];
     revision: FieldOutputTypes['public']['HeaderImage']['revision'];
     source: FieldOutputTypes['public']['HeaderImage']['source'];
-    textTreatment: FieldOutputTypes['public']['HeaderImage']['textTreatment'];
     updatedAt: FieldOutputTypes['public']['HeaderImage']['updatedAt'];
     uploadedById: FieldOutputTypes['public']['HeaderImage']['uploadedById'];
     width: FieldOutputTypes['public']['HeaderImage']['width'];
@@ -1137,17 +1128,6 @@ type ContractBase = Omit<
                     readonly value: DefaultLiteralValue<'pg/enum@1', 'UPLOAD'>;
                   };
                   readonly typeParams: { readonly typeName: 'HeaderImageSource' };
-                  readonly many: false;
-                };
-                readonly text_treatment: {
-                  readonly dataType: 'pg/enum';
-                  readonly codecId: 'pg/enum@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/enum@1', 'NONE'>;
-                  };
-                  readonly typeParams: { readonly typeName: 'HeaderTextTreatment' };
                   readonly many: false;
                 };
                 readonly updated_at: {
@@ -2215,10 +2195,6 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['UPLOAD', 'LARPPIKUVAT'];
             };
-            readonly HeaderTextTreatment: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['NONE', 'DROP_SHADOW', 'OPAQUE_BACKGROUND'];
-            };
             readonly Language: {
               readonly kind: 'valueSet';
               readonly values: readonly ['fi', 'en', 'sv', 'OTHER'];
@@ -2554,14 +2530,6 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly typeName: 'HeaderImageSource' };
                 };
               };
-              readonly textTreatment: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/enum@1';
-                  readonly typeParams: { readonly typeName: 'HeaderTextTreatment' };
-                };
-              };
               readonly updatedAt: {
                 readonly nullable: false;
                 readonly type: {
@@ -2621,7 +2589,6 @@ type ContractBase = Omit<
                 readonly photographerCredit: { readonly column: 'photographer_credit' };
                 readonly revision: { readonly column: 'revision' };
                 readonly source: { readonly column: 'source' };
-                readonly textTreatment: { readonly column: 'text_treatment' };
                 readonly updatedAt: { readonly column: 'updated_at' };
                 readonly uploadedById: { readonly column: 'uploaded_by_id' };
                 readonly width: { readonly column: 'width' };

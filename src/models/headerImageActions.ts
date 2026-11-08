@@ -27,7 +27,7 @@ async function authorizeAction(
   return authorized;
 }
 
-/** Form fields: `photographerCredit`, `textTreatment` and the crop as `cropX`, `cropY`, `cropW`, `cropH`. */
+/** Form fields: `photographerCredit` and the crop as `cropX`, `cropY`, `cropW`, `cropH`. */
 export async function saveHeaderImageSettingsFor(
   target: HeaderImageTarget,
   formData: FormData,
@@ -36,7 +36,6 @@ export async function saveHeaderImageSettingsFor(
   if (!authorized.headerImageId) throw new Error("No header image");
   const meta = HeaderImageMetaSchema.parse({
     photographerCredit: formData.get("photographerCredit"),
-    textTreatment: formData.get("textTreatment"),
     crop: {
       x: Number(formData.get("cropX")),
       y: Number(formData.get("cropY")),

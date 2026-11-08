@@ -117,12 +117,6 @@ namespace public {
     LARPPIKUVAT = "LARPPIKUVAT"
   }
 
-  native_enum HeaderTextTreatment {
-    NONE = "NONE"
-    DROP_SHADOW = "DROP_SHADOW"
-    OPAQUE_BACKGROUND = "OPAQUE_BACKGROUND"
-  }
-
   model User {
     id                      Uuid                        @id @onCreate(uuid(4))
     name                    String?
@@ -398,7 +392,6 @@ namespace public {
     cropHeight           Float                        @map("crop_height")
     revision             Int                          @default(1)
     photographerCredit   String                       @map("photographer_credit")
-    textTreatment        pg.enum(HeaderTextTreatment) @default("NONE") @map("text_treatment")
     uploadedById         Uuid?                        @map("uploaded_by_id")
     createdAt            TimestamptzString            @default(now()) @map("created_at")
     updatedAt            TimestamptzString    @onCreate(now()) @onUpdate(now()) @map("updated_at")

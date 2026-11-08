@@ -15,7 +15,7 @@ import {
 import { headerImagesEnabled } from "@/config";
 import { getStorage } from "@/media/storage";
 import { db } from "@/prisma/db";
-import { HeaderImageSource, HeaderTextTreatment } from "@/prisma/enums";
+import { HeaderImageSource } from "@/prisma/enums";
 import type { HeaderImage, User } from "@/prisma/models";
 import { supportedLanguages } from "@/translations";
 
@@ -32,7 +32,6 @@ export const maxUploadBytes = 25 * 1024 * 1024;
 
 export const HeaderImageMetaSchema = z.object({
   photographerCredit: z.string().trim().min(1).max(photographerCreditMaxLength),
-  textTreatment: z.enum(HeaderTextTreatment),
   crop: CropSchema,
 });
 export type HeaderImageMeta = z.infer<typeof HeaderImageMetaSchema>;
@@ -97,7 +96,6 @@ export interface HeaderImageView {
   banner: { src: string; srcSet: string };
   full: string;
   credit: string;
-  treatment: HeaderTextTreatment;
   width: number;
   height: number;
   crop: Crop;
@@ -108,7 +106,6 @@ export type HeaderImageRow = Pick<
   | "id"
   | "revision"
   | "photographerCredit"
-  | "textTreatment"
   | "width"
   | "height"
   | "cropX"
@@ -145,7 +142,6 @@ export function headerImageView(row: HeaderImageRow): HeaderImageView {
     },
     full: storage.url(variantKey(row.id, row.revision, "full-2400")),
     credit: row.photographerCredit,
-    treatment: row.textTreatment,
     width: row.width,
     height: row.height,
     crop: cropOf(row),
@@ -199,7 +195,6 @@ export async function createHeaderImage(
     ...cropColumns(meta.crop),
     revision: 1,
     photographerCredit: meta.photographerCredit,
-    textTreatment: meta.textTreatment,
     uploadedById: options.userId,
   });
 
@@ -285,14 +280,11 @@ export async function detachHeaderImage(target: HeaderImageTarget) {
   await deleteHeaderImage(oldId);
 }
 
-/** Updates credit and treatment, re-rendering the variants under a new revision if the crop changed. */
+/** Updates the credit, re-rendering the variants under a new revision if the crop changed. */
 export async function updateHeaderImage(id: string, meta: HeaderImageMeta) {
   const row = await db.orm.public.HeaderImage.first({ id });
   if (!row) throw new HeaderImageFailure("notFound");
-  const settings = {
-    photographerCredit: meta.photographerCredit,
-    textTreatment: meta.textTreatment,
-  };
+  const settings = { photographerCredit: meta.photographerCredit };
 
   const old = cropOf(row);
   const cropChanged = (["x", "y", "w", "h"] as const).some(

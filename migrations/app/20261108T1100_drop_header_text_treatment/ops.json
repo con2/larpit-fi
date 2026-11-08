@@ -1,0 +1,74 @@
+[
+  {
+    "id": "dropColumn.header_image.text_treatment",
+    "label": "Drop column \"text_treatment\" from \"header_image\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "text_treatment",
+        "table": "header_image"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"text_treatment\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "header_image",
+          "text_treatment"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"text_treatment\" on \"header_image\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "drop column \"text_treatment\"",
+        "sql": "ALTER TABLE \"public\".\"header_image\" DROP COLUMN \"text_treatment\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"text_treatment\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "header_image",
+          "text_treatment"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"text_treatment\" on \"header_image\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "dropNativeEnumType.HeaderTextTreatment",
+    "label": "Drop enum type \"HeaderTextTreatment\"",
+    "operationClass": "widening",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "HeaderTextTreatment"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "drop enum type \"HeaderTextTreatment\"",
+        "sql": "DROP TYPE \"public\".\"HeaderTextTreatment\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  }
+]

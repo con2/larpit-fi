@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import HeaderImageBackdrop, {
-  heroImageProps,
   heroTextClassName,
   heroWithImageClassName,
 } from "@/components/header-image/HeaderImageBackdrop";
@@ -65,10 +64,7 @@ export default async function PagePage({ page, locale }: Props) {
   return (
     <>
       {headerImage ? (
-        <section
-          className={heroWithImageClassName}
-          {...heroImageProps(headerImage)}
-        >
+        <section className={heroWithImageClassName}>
           <HeaderImageBackdrop
             view={headerImage}
             messages={translations.HeaderImage}

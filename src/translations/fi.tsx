@@ -2073,14 +2073,6 @@ const translations: Translations = {
         label: "Kuvaaja",
         help: "Näytetään kuvan kulmassa. Pakollinen.",
       },
-      textTreatment: {
-        label: "Teksti kuvan päällä",
-        choices: {
-          NONE: "Sellaisenaan",
-          DROP_SHADOW: "Varjostus",
-          OPAQUE_BACKGROUND: "Tausta",
-        },
-      },
     },
     actions: {
       choose: "Valitse kuva",

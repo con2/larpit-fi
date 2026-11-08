@@ -393,16 +393,6 @@
                   }
                 }
               },
-              "textTreatment": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/enum@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "typeName": "HeaderTextTreatment"
-                  }
-                }
-              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -510,9 +500,6 @@
                 },
                 "source": {
                   "column": "source"
-                },
-                "textTreatment": {
-                  "column": "text_treatment"
                 },
                 "updatedAt": {
                   "column": "updated_at"
@@ -2207,15 +2194,6 @@
               ],
               "typeName": "HeaderImageSource"
             },
-            "HeaderTextTreatment": {
-              "kind": "postgres-enum",
-              "members": [
-                "NONE",
-                "DROP_SHADOW",
-                "OPAQUE_BACKGROUND"
-              ],
-              "typeName": "HeaderTextTreatment"
-            },
             "Language": {
               "kind": "postgres-enum",
               "members": [
@@ -2563,24 +2541,6 @@
                   "valueSet": {
                     "entityKind": "valueSet",
                     "entityName": "HeaderImageSource",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
-                "text_treatment": {
-                  "codecId": "pg/enum@1",
-                  "dataType": "pg/enum",
-                  "default": {
-                    "kind": "literal",
-                    "value": "NONE"
-                  },
-                  "nullable": false,
-                  "typeParams": {
-                    "typeName": "HeaderTextTreatment"
-                  },
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "HeaderTextTreatment",
                     "namespaceId": "public",
                     "plane": "storage"
                   }
@@ -3896,14 +3856,6 @@
                 "LARPPIKUVAT"
               ]
             },
-            "HeaderTextTreatment": {
-              "kind": "valueSet",
-              "values": [
-                "NONE",
-                "DROP_SHADOW",
-                "OPAQUE_BACKGROUND"
-              ]
-            },
             "Language": {
               "kind": "valueSet",
               "values": [
@@ -4018,7 +3970,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "64e0a3f175597a2f5b896f7472d946266586f01702d0509ac69280780bb27ade"
+    "storageHash": "3fab43756e4cc561eca89bfac9f6928f67aec75f2da844c7de829c9e2cc8f08d"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

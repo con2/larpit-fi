@@ -6,20 +6,15 @@ import HeaderImageCredit from "./HeaderImageCredit";
 import HeaderImageLightbox from "./HeaderImageLightbox";
 
 export const heroWithImageClassName = styles.heroWithImage;
-/** Marks the block of hero text that the uploader's text treatment applies to. */
+/** Marks a block of hero text that gets an opaque background over a header image. */
 export const heroTextClassName = styles.text;
-
-/** Attributes for the hero `section` that a header image is rendered in. */
-export function heroImageProps(view: HeaderImageView | null) {
-  return view ? { "data-treatment": view.treatment } : {};
-}
 
 interface Props {
   view: HeaderImageView;
   messages: Translations["HeaderImage"];
 }
 
-/** The picture, scrim, lightbox button and credit; the first child of a hero `section`. */
+/** The picture, lightbox button and credit; the first child of a hero `section`. */
 export default function HeaderImageBackdrop({ view, messages }: Props) {
   return (
     <>
@@ -32,7 +27,6 @@ export default function HeaderImageBackdrop({ view, messages }: Props) {
         fetchPriority="high"
         alt=""
       />
-      <div className={styles.scrim} />
       <HeaderImageLightbox
         src={view.full}
         credit={view.credit}

@@ -1,7 +1,7 @@
 $mono: var(--larpit-mono-font), ui-monospace, monospace;
 
-// A hero with a header image: the picture and its scrim sit behind the hero content inside an
-// isolated stacking context, so their negative z-index never drops behind the page itself.
+// A hero with a header image: the picture sits behind the hero content inside an isolated
+// stacking context, so its negative z-index never drops behind the page itself.
 .heroWithImage {
   position: relative;
   isolation: isolate;
@@ -12,38 +12,19 @@ $mono: var(--larpit-mono-font), ui-monospace, monospace;
   overflow: hidden;
 }
 
-.backdrop,
-.scrim {
+.backdrop {
   position: absolute;
   inset: 0;
   z-index: -1;
-}
-
-.backdrop {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
 }
 
-// Built from the ground colour, so the fade follows the Day/Night theme.
-.scrim {
-  background: linear-gradient(
-    to top,
-    rgba(var(--larpit-ground-rgb), 0.55),
-    transparent 60%
-  );
-}
-
-// Treatments apply to whatever block of hero text carries the `.text` class.
-[data-treatment="DROP_SHADOW"] .text {
-  // The ground colour makes this a light glow in Day and a dark shadow in Night.
-  text-shadow:
-    0 1px 2px rgba(var(--larpit-ground-rgb), 0.9),
-    0 2px 24px rgba(var(--larpit-ground-rgb), 0.6);
-}
-
-[data-treatment="OPAQUE_BACKGROUND"] .text {
+// Keeps hero text readable over the picture, and previews that in the editor.
+.heroWithImage .text,
+.cropFrame .text {
   background: rgba(var(--larpit-surface-rgb), 0.92);
   padding: 24px 28px;
   border-radius: 10px;

@@ -49,7 +49,6 @@ import {
   typesetMarkdownDashes,
 } from "@/helpers/larpName";
 import HeaderImageBackdrop, {
-  heroImageProps,
   heroTextClassName,
   heroWithImageClassName,
 } from "./header-image/HeaderImageBackdrop";
@@ -240,7 +239,6 @@ function Hero({
       {...(headerImage
         ? {
             className: `${styles.hero} ${heroWithImageClassName}`,
-            ...heroImageProps(headerImage),
           }
         : nightSkyProps(styles.hero))}
     >

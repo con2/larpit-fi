@@ -7,7 +7,6 @@ import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import FormControl from "react-bootstrap/FormControl";
 import FormLabel from "react-bootstrap/FormLabel";
-import FormSelect from "react-bootstrap/FormSelect";
 import FormText from "react-bootstrap/FormText";
 import ProgressBar from "react-bootstrap/ProgressBar";
 
@@ -20,7 +19,6 @@ import {
   type Size,
 } from "@/models/HeaderImage.client";
 import type { HeaderImageTarget } from "@/models/HeaderImage";
-import { HeaderTextTreatment } from "@/prisma/enums";
 import type { Translations } from "@/translations/en";
 
 import CropFrame from "./CropFrame";
@@ -43,7 +41,6 @@ export interface ExistingHeaderImage {
   height: number;
   crop: Crop;
   credit: string;
-  treatment: HeaderTextTreatment;
 }
 
 interface Props {
@@ -124,9 +121,6 @@ export default function HeaderImageEditor({
   const [naturalSize, setNaturalSize] = useState<Size | null>(null);
   const [crop, setCrop] = useState<Crop | null>(existing?.crop ?? null);
   const [credit, setCredit] = useState(existing?.credit ?? "");
-  const [treatment, setTreatment] = useState<HeaderTextTreatment>(
-    existing?.treatment ?? HeaderTextTreatment.DROP_SHADOW,
-  );
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [pending, startTransition] = useTransition();
 
@@ -195,7 +189,6 @@ export default function HeaderImageEditor({
       uploadKey: presigned.uploadKey,
       crop: chosenCrop,
       photographerCredit: credit,
-      textTreatment: treatment,
     });
     if (!complete.ok) return setStatus({ kind: "error", code: complete.code });
 
@@ -212,7 +205,6 @@ export default function HeaderImageEditor({
     }
     const formData = new FormData();
     formData.set("photographerCredit", credit);
-    formData.set("textTreatment", treatment);
     formData.set("cropX", String(crop.x));
     formData.set("cropY", String(crop.y));
     formData.set("cropW", String(crop.w));
@@ -254,7 +246,6 @@ export default function HeaderImageEditor({
             onCropChange={setCrop}
             onImageLoad={onImageLoad}
             originalSize={originalSize}
-            treatment={treatment}
             overlay={
               <div className={styles.text}>
                 <h2 className="lf-display-l">{previewTitle}</h2>
@@ -278,26 +269,6 @@ export default function HeaderImageEditor({
           disabled={busy}
         />
         <FormText>{t.fields.photographerCredit.help}</FormText>
-      </div>
-
-      <div>
-        <FormLabel htmlFor="HeaderImageEditor-treatment">
-          {t.fields.textTreatment.label}
-        </FormLabel>
-        <FormSelect
-          id="HeaderImageEditor-treatment"
-          value={treatment}
-          onChange={(event) =>
-            setTreatment(event.target.value as HeaderTextTreatment)
-          }
-          disabled={busy}
-        >
-          {Object.values(HeaderTextTreatment).map((value) => (
-            <option key={value} value={value}>
-              {t.fields.textTreatment.choices[value]}
-            </option>
-          ))}
-        </FormSelect>
       </div>
 
       {status.kind === "uploading" && (

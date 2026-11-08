@@ -4,7 +4,6 @@ import Link from "next/link";
 import { partition } from "underscore";
 
 import HeaderImageBackdrop, {
-  heroImageProps,
   heroTextClassName,
   heroWithImageClassName,
 } from "@/components/header-image/HeaderImageBackdrop";
@@ -123,7 +122,6 @@ export default async function HomePage({ params }: Props) {
         {...(headerImage
           ? {
               className: `${styles.hero} ${heroWithImageClassName}`,
-              ...heroImageProps(headerImage),
             }
           : nightSkyProps(styles.hero))}
       >

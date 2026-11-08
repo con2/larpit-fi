@@ -2036,14 +2036,6 @@ const translations = {
         label: "Photographer",
         help: "Shown in the corner of the picture. Required.",
       },
-      textTreatment: {
-        label: "Text over the picture",
-        choices: {
-          NONE: "As is",
-          DROP_SHADOW: "Drop shadow",
-          OPAQUE_BACKGROUND: "Background",
-        },
-      },
     },
     actions: {
       choose: "Choose a picture",

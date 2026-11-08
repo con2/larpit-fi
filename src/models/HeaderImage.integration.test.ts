@@ -3,12 +3,7 @@ import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ObjectStorage } from "@/media/storage";
 import { db } from "@/prisma/db";
-import {
-  HeaderTextTreatment,
-  Language,
-  RelatedUserRole,
-  UserRole,
-} from "@/prisma/enums";
+import { Language, RelatedUserRole, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 
@@ -55,7 +50,6 @@ const {
 
 const meta = {
   photographerCredit: "Kuvaaja Kuvaajainen",
-  textTreatment: HeaderTextTreatment.DROP_SHADOW,
   crop: { x: 0, y: 0.25, w: 1, h: 0.5 },
 };
 
@@ -218,7 +212,7 @@ describe("header images", () => {
     expect(objects.has(`header/${id}/original.jpg`)).toBe(true);
   });
 
-  it("keeps the revision when only the credit and treatment change", async () => {
+  it("keeps the revision when only the credit changes", async () => {
     const { id } = await createHeaderImage(await jpeg(2400, 1600), meta, {
       source: "UPLOAD",
       userId: null,
@@ -227,14 +221,12 @@ describe("header images", () => {
     await updateHeaderImage(id, {
       ...meta,
       photographerCredit: "Toinen Kuvaaja",
-      textTreatment: HeaderTextTreatment.OPAQUE_BACKGROUND,
     });
 
     const row = await db.orm.public.HeaderImage.first({ id });
     expect(row).toMatchObject({
       revision: 1,
       photographerCredit: "Toinen Kuvaaja",
-      textTreatment: HeaderTextTreatment.OPAQUE_BACKGROUND,
     });
     expect(keysUnder(`header/${id}/1/`)).toHaveLength(3);
   });

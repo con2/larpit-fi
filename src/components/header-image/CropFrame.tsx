@@ -38,9 +38,8 @@ interface Props {
   onImageLoad(size: Size): void;
   /** Size of the original the crop is applied to, for the resolution warning. */
   originalSize: Size | null;
-  /** Shown over the picture to preview the text treatment. */
+  /** Shown over the picture to preview the hero text. */
   overlay?: ReactNode;
-  treatment: string;
   messages: { label: string; zoom: string; dragHint: string; tooSmall: string };
 }
 
@@ -51,7 +50,6 @@ export default function CropFrame({
   onImageLoad,
   originalSize,
   overlay,
-  treatment,
   messages,
 }: Props) {
   const frameRef = useRef<HTMLDivElement>(null);
@@ -138,7 +136,6 @@ export default function CropFrame({
       <div
         ref={frameRef}
         className={styles.cropFrame}
-        data-treatment={treatment}
         role="group"
         aria-label={messages.label}
         tabIndex={0}
