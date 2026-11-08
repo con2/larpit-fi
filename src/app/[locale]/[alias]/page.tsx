@@ -1,7 +1,10 @@
 import LarpPage, { getLarpPageData } from "@/components/LarpPage";
 import { larpMetadata } from "@/components/larp-page/larpMetadata";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
+import { cache } from "react";
+
+import { findLarpByAliasRedirect, getLarpHref } from "@/models/Larp";
 import { getReader } from "@/prisma/reader";
 
 interface Props {
@@ -12,8 +15,7 @@ interface Props {
   searchParams?: Promise<{ code?: string }>;
 }
 
-async function getContent({ params }: Props) {
-  const { alias, locale } = await params;
+const getContent = cache(async (alias: string, locale: string) => {
   const { db: reader } = await getReader();
   const [larp, page] = await Promise.all([
     reader.orm.public.Larp.select("name", "tagline")
@@ -25,14 +27,16 @@ async function getContent({ params }: Props) {
     }),
   ]);
   if (!larp && !page) {
+    const redirectTarget = await findLarpByAliasRedirect(alias, reader);
+    if (redirectTarget) permanentRedirect(getLarpHref(redirectTarget));
     notFound();
   }
   return { larp, page };
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { locale } = await params;
-  const { larp, page } = await getContent({ params });
+  const { alias, locale } = await params;
+  const { larp, page } = await getContent(alias, locale);
 
   if (page) {
     return {
@@ -49,6 +53,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LarpByAliasPage({ params, searchParams }: Props) {
   const { alias, locale } = await params;
   const code = (await searchParams)?.code;
+  // generateMetadata is streamed to browsers, so its redirect would only happen client-side.
+  await getContent(alias, locale);
   return (
     <LarpPage
       larpPromise={getLarpPageData({ alias })}

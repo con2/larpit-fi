@@ -24,6 +24,10 @@
       "model": "Larp",
       "namespace": "public"
     },
+    "larp_alias_redirect": {
+      "model": "LarpAliasRedirect",
+      "namespace": "public"
+    },
     "larp_link": {
       "model": "LarpLink",
       "namespace": "public"
@@ -752,6 +756,21 @@
               }
             },
             "relations": {
+              "aliasRedirects": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "LarpAliasRedirect",
+                  "namespace": "public"
+                }
+              },
               "headerImage": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -952,6 +971,64 @@
               },
               "namespaceId": "public",
               "table": "larp"
+            }
+          },
+          "LarpAliasRedirect": {
+            "fields": {
+              "alias": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "kind": "scalar"
+                }
+              },
+              "larpId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "alias": {
+                  "column": "alias"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "larpId": {
+                  "column": "larp_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "larp_alias_redirect"
             }
           },
           "LarpLink": {
@@ -2816,6 +2893,67 @@
                 }
               ]
             },
+            "larp_alias_redirect": {
+              "columns": {
+                "alias": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "larp_alias_redirect_larp_id_idx_6818caa7"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp_alias_redirect"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "larp_id"
+                  ],
+                  "name": "larp_alias_redirect_larp_id_idx_6818caa7",
+                  "prefix": "larp_alias_redirect_larp_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "alias"
+                ]
+              },
+              "uniques": []
+            },
             "larp_link": {
               "columns": {
                 "href": {
@@ -3880,7 +4018,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fdb9c0b26d71943b28f4d591c51f4bec7d7a32f1a35c59cbb8ede2e0138bce2e"
+    "storageHash": "64e0a3f175597a2f5b896f7472d946266586f01702d0509ac69280780bb27ade"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'fdb9c0b26d71943b28f4d591c51f4bec7d7a32f1a35c59cbb8ede2e0138bce2e'>;
+  StorageHashBase<'64e0a3f175597a2f5b896f7472d946266586f01702d0509ac69280780bb27ade'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -732,6 +732,7 @@ export namespace Models {
     type: FieldOutputTypes['public']['Larp']['type'];
     updateCount: FieldOutputTypes['public']['Larp']['updateCount'];
     updatedAt: FieldOutputTypes['public']['Larp']['updatedAt'];
+    aliasRedirects: public_LarpAliasRedirect[];
     headerImage: public_HeaderImage | null;
     links: public_LarpLink[];
     municipality: public_Municipality | null;
@@ -741,6 +742,7 @@ export namespace Models {
     requests: public_ModerationRequest[];
     unauthenticatedSignups: public_UnauthenticatedSignup[];
     readonly [RelationKeys]?:
+      | 'aliasRedirects'
       | 'headerImage'
       | 'links'
       | 'municipality'
@@ -749,6 +751,13 @@ export namespace Models {
       | 'relatedUsers'
       | 'requests'
       | 'unauthenticatedSignups';
+  };
+  export type public_LarpAliasRedirect = {
+    alias: FieldOutputTypes['public']['LarpAliasRedirect']['alias'];
+    createdAt: FieldOutputTypes['public']['LarpAliasRedirect']['createdAt'];
+    larpId: FieldOutputTypes['public']['LarpAliasRedirect']['larpId'];
+    larp: public_Larp;
+    readonly [RelationKeys]?: 'larp';
   };
   export type public_LarpLink = {
     href: FieldOutputTypes['public']['LarpLink']['href'];
@@ -876,6 +885,7 @@ export declare const models: {
     HeaderImage: Models.public_HeaderImage;
     Holiday: Models.public_Holiday;
     Larp: Models.public_Larp;
+    LarpAliasRedirect: Models.public_LarpAliasRedirect;
     LarpLink: Models.public_LarpLink;
     ModerationRequest: Models.public_ModerationRequest;
     Municipality: Models.public_Municipality;
@@ -1397,6 +1407,53 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'header_image';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly larp_alias_redirect: {
+              columns: {
+                readonly alias: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly created_at: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly many: false;
+                };
+                readonly larp_id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['alias'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'larp_alias_redirect_larp_id_idx_6818caa7';
+                  readonly prefix: 'larp_alias_redirect_larp_id_idx';
+                  readonly columns: readonly ['larp_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp_alias_redirect';
+                    readonly columns: readonly ['larp_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -2264,6 +2321,10 @@ type ContractBase = Omit<
     };
     readonly holiday: { readonly namespace: 'public' & NamespaceId; readonly model: 'Holiday' };
     readonly larp: { readonly namespace: 'public' & NamespaceId; readonly model: 'Larp' };
+    readonly larp_alias_redirect: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'LarpAliasRedirect';
+    };
     readonly larp_link: { readonly namespace: 'public' & NamespaceId; readonly model: 'LarpLink' };
     readonly moderation_request: {
       readonly namespace: 'public' & NamespaceId;
@@ -2719,6 +2780,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly aliasRedirects: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'LarpAliasRedirect';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['larpId'];
+                };
+              };
               readonly headerImage: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2838,6 +2910,45 @@ type ContractBase = Omit<
                 readonly type: { readonly column: 'type' };
                 readonly updateCount: { readonly column: 'update_count' };
                 readonly updatedAt: { readonly column: 'updated_at' };
+              };
+            };
+          };
+          readonly LarpAliasRedirect: {
+            readonly fields: {
+              readonly alias: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                };
+              };
+              readonly larpId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly larp: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Larp' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['larpId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'larp_alias_redirect';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly alias: { readonly column: 'alias' };
+                readonly createdAt: { readonly column: 'created_at' };
+                readonly larpId: { readonly column: 'larp_id' };
               };
             };
           };

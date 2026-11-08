@@ -156,6 +156,29 @@ describe("syncFromLarppikuvat", () => {
     ]);
   });
 
+  it("follows a former alias of the larp", async () => {
+    const larp = await createLarp();
+    await db.orm.public.Larp.where({ id: larp.id }).update({
+      alias: "new-alias",
+    });
+    await db.orm.public.LarpAliasRedirect.create({
+      alias: "old-alias",
+      larpId: larp.id,
+    });
+
+    const result = await syncFromLarppikuvat({
+      apiUrl,
+      fetchImpl: fakeFetch([
+        { path: "/test-larp", eventMetadataUrl: "https://larpit.fi/old-alias" },
+      ]),
+    });
+
+    expect(result.added).toBe(1);
+    expect(await photosLinks(larp.id)).toEqual([
+      "https://larppikuvat.fi/test-larp",
+    ]);
+  });
+
   it("does nothing when the larp already links to the album", async () => {
     // Trailing slash and www. must not make the existing link look different.
     const larp = await createLarp([

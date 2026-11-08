@@ -217,7 +217,7 @@ const spec = {
             in: "path",
             required: true,
             description:
-              "UUID of the larp, or its alias (the short address https://larpit.fi/<alias>)",
+              "UUID of the larp, or its alias (the short address https://larpit.fi/<alias>). A former alias of the larp also works.",
             schema: { type: "string" },
           },
         ],

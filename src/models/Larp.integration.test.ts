@@ -5,6 +5,7 @@ import { Language, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 import {
+  findLarpByAliasRedirect,
   getLarpsWithoutAlias,
   larpIdOrAliasFilter,
   setLarpAlias,
@@ -18,6 +19,13 @@ async function createLarp(alias: string | null = null) {
     language: Language.fi,
     alias,
   });
+}
+
+async function redirectsOf(larpId: string) {
+  const redirects = await db.orm.public.LarpAliasRedirect.where({ larpId })
+    .select("alias")
+    .all();
+  return redirects.map((redirect) => redirect.alias).sort();
 }
 
 async function aliasOf(larpId: string) {
@@ -187,6 +195,49 @@ describe("setLarpAlias", () => {
       ok: false,
       error: "takenByPage",
     });
+  });
+
+  it("keeps a changed alias as a redirect to the larp", async () => {
+    const larp = await createLarp("first");
+
+    await setLarpAlias(moderator, larp.id, "second");
+    await setLarpAlias(moderator, larp.id, "third");
+
+    expect(await redirectsOf(larp.id)).toEqual(["first", "second"]);
+    expect(await findLarpByAliasRedirect("first")).toEqual({
+      id: larp.id,
+      alias: "third",
+    });
+  });
+
+  it("does not keep a removed alias as a redirect", async () => {
+    const larp = await createLarp("first");
+
+    await setLarpAlias(moderator, larp.id, "");
+
+    expect(await redirectsOf(larp.id)).toEqual([]);
+  });
+
+  it("drops the redirect when the larp takes its old alias back", async () => {
+    const larp = await createLarp("first");
+
+    await setLarpAlias(moderator, larp.id, "second");
+    await setLarpAlias(moderator, larp.id, "first");
+
+    expect(await redirectsOf(larp.id)).toEqual(["second"]);
+  });
+
+  it("lets another larp take a former alias over its redirect", async () => {
+    const renamed = await createLarp("taken-over");
+    await setLarpAlias(moderator, renamed.id, "renamed");
+    const other = await createLarp();
+
+    expect(await setLarpAlias(moderator, other.id, "taken-over")).toEqual({
+      ok: true,
+      alias: "taken-over",
+    });
+    expect(await redirectsOf(renamed.id)).toEqual([]);
+    expect(await findLarpByAliasRedirect("taken-over")).toBeNull();
   });
 
   it("reports a larp that does not exist", async () => {

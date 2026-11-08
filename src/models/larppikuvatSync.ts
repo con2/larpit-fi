@@ -9,7 +9,11 @@ import {
   SubmitterRole,
 } from "@/prisma/enums";
 import { toJson } from "@/prisma/json";
-import { larpIdOrAliasFilter, type LarpIdOrAliasFilter } from "./Larp";
+import {
+  findLarpByAliasRedirect,
+  larpIdOrAliasFilter,
+  type LarpIdOrAliasFilter,
+} from "./Larp";
 import { approveRequest } from "./ModerationRequest";
 
 const Subalbum = z.object({
@@ -58,6 +62,24 @@ export function larpFilterFromUrl(href: string): LarpIdOrAliasFilter | null {
   const alias = url.path.match(aliasPathRegex)?.[1];
   const filter = alias ? larpIdOrAliasFilter(alias) : null;
   return filter && "alias" in filter ? filter : null;
+}
+
+function loadLarpWithPhotosLinks(filter: LarpIdOrAliasFilter) {
+  return db.orm.public.Larp.select("id")
+    .include("links", (links) =>
+      links.where({ type: LarpLinkType.PHOTOS }).select("href"),
+    )
+    .first(filter);
+}
+
+/** Follows a former alias of a larp too. */
+async function findLarpWithPhotosLinks(filter: LarpIdOrAliasFilter) {
+  const larp = await loadLarpWithPhotosLinks(filter);
+  if (larp || !("alias" in filter)) return larp;
+  const redirectTarget = await findLarpByAliasRedirect(filter.alias);
+  return redirectTarget
+    ? loadLarpWithPhotosLinks({ id: redirectTarget.id })
+    : null;
 }
 
 export interface SyncResult {
@@ -117,11 +139,7 @@ export async function syncFromLarppikuvat({
     const albumHref = new URL(subalbum.path, origin).toString();
     const album = normalizeUrl(albumHref)!;
 
-    const larp = await db.orm.public.Larp.select("id")
-      .include("links", (links) =>
-        links.where({ type: LarpLinkType.PHOTOS }).select("href"),
-      )
-      .first(larpFilter);
+    const larp = await findLarpWithPhotosLinks(larpFilter);
     if (!larp) {
       console.warn(
         `larppikuvat sync: album ${albumHref} points to unknown larp ${subalbum.eventMetadataUrl}`,

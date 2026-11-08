@@ -328,7 +328,8 @@ export async function getLarpsWithoutAlias(
 
 /**
  * Sets or removes the alias of a larp. Only moderators may do this, and the change goes
- * straight to the larp without a moderation request.
+ * straight to the larp without a moderation request. Changing an alias to another keeps the old
+ * one as a redirect to the larp; taking an alias replaces any redirect of the same name.
  */
 export async function setLarpAlias(
   user: Pick<User, "role"> | null,
@@ -352,17 +353,44 @@ export async function setLarpAlias(
     if (page) return { ok: false, error: "takenByPage" };
   }
 
-  let updated;
+  let found;
   try {
-    updated = await db.orm.public.Larp.where({ id: larpId })
-      .select("id")
-      .update({ alias });
+    found = await db.transaction(async (tx) => {
+      const larp = await tx.orm.public.Larp.select("alias").first({
+        id: larpId,
+      });
+      if (!larp) return false;
+
+      await tx.orm.public.Larp.where({ id: larpId }).update({ alias });
+      if (!alias) return true;
+
+      await tx.orm.public.LarpAliasRedirect.where({ alias }).delete();
+      if (larp.alias && larp.alias !== alias) {
+        await tx.orm.public.LarpAliasRedirect.upsert({
+          create: { alias: larp.alias, larpId },
+          update: { larpId },
+          conflictOn: { alias: larp.alias },
+        });
+      }
+      return true;
+    });
   } catch (error) {
     if (isLarpAliasUniqueViolation(error)) {
       return { ok: false, error: "takenByLarp" };
     }
     throw error;
   }
-  if (!updated) return { ok: false, error: "notFound" };
+  if (!found) return { ok: false, error: "notFound" };
   return { ok: true, alias };
+}
+
+/** The larp that a former alias of it redirects to. */
+export async function findLarpByAliasRedirect(
+  alias: string,
+  reader: typeof db = db,
+): Promise<{ id: string; alias: string | null } | null> {
+  const redirect = await reader.orm.public.LarpAliasRedirect.select("larpId")
+    .include("larp", (larp) => larp.select("id", "alias"))
+    .first({ alias });
+  return redirect?.larp ?? null;
 }

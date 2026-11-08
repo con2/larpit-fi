@@ -252,6 +252,7 @@ namespace public {
     relatedUsers           RelatedUser[]
     unauthenticatedSignups UnauthenticatedSignup[]
     requests               ModerationRequest[]
+    aliasRedirects         LarpAliasRedirect[]
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
     headerImage            HeaderImage?                   @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
@@ -331,6 +332,18 @@ namespace public {
     submitter          User?                  @relation("RequestsSubmittedByUser", fields:[submitterId], references:[id], onDelete: SetNull, index: false)
 
     @@map("moderation_request")
+  }
+
+  // An alias that a larp no longer has, kept so that links to it still lead to the larp. A larp
+  // that takes the same alias wins over the redirect.
+  model LarpAliasRedirect {
+    alias     String            @id
+    larpId    Uuid              @map("larp_id")
+    createdAt TimestamptzString @default(now()) @map("created_at")
+
+    larp      Larp              @relation(fields:[larpId], references:[id], onDelete: Cascade)
+
+    @@map("larp_alias_redirect")
   }
 
   model Page {
