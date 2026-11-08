@@ -209,15 +209,16 @@ const spec = {
     },
     "/api/larp/{larpId}": {
       get: {
-        summary: "Get larp by ID",
+        summary: "Get larp by ID or alias",
         operationId: "getLarp",
         parameters: [
           {
             name: "larpId",
             in: "path",
             required: true,
-            description: "UUID of the larp",
-            schema: { type: "string", format: "uuid" },
+            description:
+              "UUID of the larp, or its alias (the short address https://larpit.fi/<alias>)",
+            schema: { type: "string" },
           },
         ],
         responses: {

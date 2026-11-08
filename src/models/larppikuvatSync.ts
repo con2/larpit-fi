@@ -9,6 +9,7 @@ import {
   SubmitterRole,
 } from "@/prisma/enums";
 import { toJson } from "@/prisma/json";
+import { larpIdOrAliasFilter, type LarpIdOrAliasFilter } from "./Larp";
 import { approveRequest } from "./ModerationRequest";
 
 const Subalbum = z.object({
@@ -22,6 +23,7 @@ const RootAlbum = z.object({
 
 const larpPathRegex =
   /^\/larp\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
+const aliasPathRegex = /^\/([^/]+)$/;
 
 const userAgent = `larpit.fi (+${publicUrl})`;
 const fetchTimeoutMs = 30_000;
@@ -42,13 +44,20 @@ function normalizeUrl(href: string): { host: string; path: string } | null {
   };
 }
 
-/** Larp id from `https://larpit.fi/larp/<uuid>` (or the same path on this instance). */
-export function larpIdFromUrl(href: string): string | null {
+/**
+ * The larp that `https://larpit.fi/larp/<uuid>` or `https://larpit.fi/<alias>` (or the same path
+ * on this instance) addresses.
+ */
+export function larpFilterFromUrl(href: string): LarpIdOrAliasFilter | null {
   const url = normalizeUrl(href);
   if (!url) return null;
   const ownHosts = new Set(["larpit.fi", normalizeUrl(publicUrl)?.host]);
   if (!ownHosts.has(url.host)) return null;
-  return url.path.match(larpPathRegex)?.[1].toLowerCase() ?? null;
+  const larpId = url.path.match(larpPathRegex)?.[1];
+  if (larpId) return { id: larpId.toLowerCase() };
+  const alias = url.path.match(aliasPathRegex)?.[1];
+  const filter = alias ? larpIdOrAliasFilter(alias) : null;
+  return filter && "alias" in filter ? filter : null;
 }
 
 export interface SyncResult {
@@ -60,7 +69,7 @@ export interface SyncResult {
 
 /**
  * Adds a PHOTOS link to every larp that a public top-level album of the given
- * Edegal instance points to with its `eventMetadataUrl`, unless the larp
+ * Edegal instance points to with its `eventMetadataUrl` (by id or by alias), unless the larp
  * already links to some album on that instance.
  */
 export async function syncFromLarppikuvat({
@@ -102,8 +111,8 @@ export async function syncFromLarppikuvat({
   };
 
   for (const subalbum of root.subalbums) {
-    const larpId = larpIdFromUrl(subalbum.eventMetadataUrl);
-    if (!larpId) continue;
+    const larpFilter = larpFilterFromUrl(subalbum.eventMetadataUrl);
+    if (!larpFilter) continue;
 
     const albumHref = new URL(subalbum.path, origin).toString();
     const album = normalizeUrl(albumHref)!;
@@ -112,7 +121,7 @@ export async function syncFromLarppikuvat({
       .include("links", (links) =>
         links.where({ type: LarpLinkType.PHOTOS }).select("href"),
       )
-      .first({ id: larpId });
+      .first(larpFilter);
     if (!larp) {
       console.warn(
         `larppikuvat sync: album ${albumHref} points to unknown larp ${subalbum.eventMetadataUrl}`,

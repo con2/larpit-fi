@@ -2,7 +2,9 @@ import { parseDates } from "@/prisma/dates";
 import { dbRead } from "@/prisma/db";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
-import { validate as uuidValidate } from "uuid";
+
+import { larpIdOrAliasFilter } from "@/models/Larp";
+
 import { larpToApi } from "../helpers";
 
 interface Params {
@@ -16,8 +18,8 @@ export async function GET(
 ) {
   const { larpId } = await params;
 
-  // avoid 500 on invalid UUID
-  if (!uuidValidate(larpId)) {
+  const filter = larpIdOrAliasFilter(larpId);
+  if (!filter) {
     notFound();
   }
 
@@ -43,7 +45,7 @@ export async function GET(
   )
     .include("municipality", (m) => m.select("nameFi"))
     .include("links", (l) => l.select("href", "type", "title"))
-    .first({ id: larpId });
+    .first(filter);
 
   if (!larpRow) {
     notFound();

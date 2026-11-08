@@ -4,7 +4,7 @@ import { db } from "@/prisma/db";
 import { Language, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
-import { setLarpAlias } from "./Larp";
+import { larpIdOrAliasFilter, setLarpAlias } from "./Larp";
 
 const moderator = { role: UserRole.MODERATOR };
 
@@ -20,6 +20,26 @@ async function aliasOf(larpId: string) {
   const larp = await db.orm.public.Larp.select("alias").first({ id: larpId });
   return larp?.alias;
 }
+
+describe("larpIdOrAliasFilter", () => {
+  const id = "0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b";
+
+  it.each([
+    [id, { id }],
+    [id.toUpperCase(), { id }],
+    ["welcome-to-grayhaven-p2", { alias: "welcome-to-grayhaven-p2" }],
+    ["Welcome-To-Grayhaven", { alias: "welcome-to-grayhaven" }],
+  ])("%j", (key, filter) => {
+    expect(larpIdOrAliasFilter(key)).toEqual(filter);
+  });
+
+  it.each(["", "calendar", "not an alias", "-dash", "ä"])(
+    "rejects %j",
+    (key) => {
+      expect(larpIdOrAliasFilter(key)).toBeNull();
+    },
+  );
+});
 
 describe("setLarpAlias", () => {
   beforeEach(truncateAll);

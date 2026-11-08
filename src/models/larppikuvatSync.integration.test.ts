@@ -5,7 +5,7 @@ import { EditAction, EditStatus, Language, LarpLinkType } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 import {
-  larpIdFromUrl,
+  larpFilterFromUrl,
   syncFromLarppikuvat,
   syncMessage,
 } from "./larppikuvatSync";
@@ -46,21 +46,37 @@ async function photosLinks(larpId: string) {
   return links.map((link) => link.href);
 }
 
-describe("larpIdFromUrl", () => {
+describe("larpFilterFromUrl", () => {
   const id = "0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b";
 
   it("accepts the canonical form and its common variants", () => {
-    expect(larpIdFromUrl(`https://larpit.fi/larp/${id}`)).toBe(id);
-    expect(larpIdFromUrl(`https://www.larpit.fi/larp/${id}/`)).toBe(id);
-    expect(larpIdFromUrl(`https://LARPIT.fi/larp/${id.toUpperCase()}`)).toBe(
+    expect(larpFilterFromUrl(`https://larpit.fi/larp/${id}`)).toEqual({ id });
+    expect(larpFilterFromUrl(`https://www.larpit.fi/larp/${id}/`)).toEqual({
       id,
-    );
+    });
+    expect(
+      larpFilterFromUrl(`https://LARPIT.fi/larp/${id.toUpperCase()}`),
+    ).toEqual({ id });
+  });
+
+  it("accepts the short address of a larp", () => {
+    expect(larpFilterFromUrl("https://larpit.fi/some-alias")).toEqual({
+      alias: "some-alias",
+    });
+    expect(larpFilterFromUrl("https://www.larpit.fi/Some-Alias/")).toEqual({
+      alias: "some-alias",
+    });
   });
 
   it("rejects other sites and paths", () => {
-    expect(larpIdFromUrl(`https://example.com/larp/${id}`)).toBeNull();
-    expect(larpIdFromUrl(`https://larpit.fi/some-alias`)).toBeNull();
-    expect(larpIdFromUrl("")).toBeNull();
+    expect(larpFilterFromUrl(`https://example.com/larp/${id}`)).toBeNull();
+    expect(larpFilterFromUrl(`https://example.com/some-alias`)).toBeNull();
+    expect(larpFilterFromUrl("https://larpit.fi/calendar")).toBeNull();
+    expect(larpFilterFromUrl(`https://larpit.fi/${id}`)).toBeNull();
+    expect(larpFilterFromUrl("https://larpit.fi/larp/some-alias")).toBeNull();
+    expect(larpFilterFromUrl("https://larpit.fi/a/b")).toBeNull();
+    expect(larpFilterFromUrl("https://larpit.fi/")).toBeNull();
+    expect(larpFilterFromUrl("")).toBeNull();
   });
 });
 
@@ -110,6 +126,34 @@ describe("syncFromLarppikuvat", () => {
     });
     const updated = await db.orm.public.Larp.first({ id: larp.id });
     expect(updated?.updateCount).toBe(1);
+  });
+
+  it("finds the larp by the short address too", async () => {
+    const larp = await createLarp();
+    await db.orm.public.Larp.where({ id: larp.id }).update({
+      alias: "test-larp",
+    });
+
+    const result = await syncFromLarppikuvat({
+      apiUrl,
+      fetchImpl: fakeFetch([
+        { path: "/test-larp", eventMetadataUrl: "https://larpit.fi/test-larp" },
+        {
+          path: "/unknown-alias",
+          eventMetadataUrl: "https://larpit.fi/no-such-larp",
+        },
+      ]),
+    });
+
+    expect(result).toEqual({
+      added: 1,
+      unchanged: 0,
+      mismatched: 0,
+      missing: 1,
+    });
+    expect(await photosLinks(larp.id)).toEqual([
+      "https://larppikuvat.fi/test-larp",
+    ]);
   });
 
   it("does nothing when the larp already links to the album", async () => {

@@ -1,4 +1,5 @@
 import { toISODateNull } from "@con2/components/helpers";
+import { validate as validateUuid } from "uuid";
 import { publicUrl } from "@/config";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
@@ -271,6 +272,16 @@ export function validateLarpAlias(alias: string): LarpAliasError | null {
   if (alias.length > larpAliasMaxLength) return "tooLong";
   if (!larpAliasPattern.test(alias)) return "invalidFormat";
   if (reservedLarpAliases.has(alias)) return "reserved";
+  return null;
+}
+
+export type LarpIdOrAliasFilter = { id: string } | { alias: string };
+
+/** Looks a larp up by its id or, failing that, its alias; null if `key` can be neither. */
+export function larpIdOrAliasFilter(key: string): LarpIdOrAliasFilter | null {
+  const lowercaseKey = key.toLowerCase();
+  if (validateUuid(lowercaseKey)) return { id: lowercaseKey };
+  if (validateLarpAlias(lowercaseKey) === null) return { alias: lowercaseKey };
   return null;
 }
 
