@@ -102,7 +102,6 @@ export default function CalendarBar({
         .filter(Boolean)
         .join(" · ")}
     >
-      {kind !== "event" && <span className={styles.dot} aria-hidden="true" />}
       <span className={styles.barText}>
         <span className={styles.barName} lang={lang}>
           {typesetDashes(larp.name)}

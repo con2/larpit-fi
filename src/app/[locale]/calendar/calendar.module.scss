@@ -271,14 +271,6 @@ $grid-breakpoint: 820px;
   opacity: 0.8;
 }
 
-.dot {
-  flex: 0 0 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
 .kindOpen {
   background: var(--larpit-open-tint);
   color: var(--larpit-open-on-tint);
@@ -292,10 +284,6 @@ $grid-breakpoint: 820px;
 .kindOverOrUnknown {
   background: var(--larpit-dim-tint);
   color: var(--larpit-muted);
-
-  .dot {
-    color: var(--larpit-dim);
-  }
 }
 
 .kindEvent {
