@@ -31,7 +31,7 @@ import {
   typeGroups,
 } from "./calendarFilters";
 import { weekMondays } from "./calendarLayout";
-import MonthGrid, { weekId } from "./MonthGrid";
+import MonthGrid from "./MonthGrid";
 import MonthSelect from "./MonthSelect";
 import { getReader } from "@/prisma/reader";
 
@@ -93,7 +93,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
     year: now.year,
     month: now.month,
   });
-  const expandedWeek = typeof search.expand === "string" ? search.expand : null;
 
   const monthFirstDay = currentMonth.toPlainDate({ day: 1 });
   const monthLastDay = currentMonth.toPlainDate({
@@ -317,15 +316,6 @@ export default async function CalendarPage({ params, searchParams }: Props) {
           month={currentMonth}
           today={now}
           holidayTitles={holidayTitles}
-          expandedWeek={expandedWeek}
-          weekHref={(monday, expanded) =>
-            calendarHref(
-              monthParam,
-              filters,
-              expanded ? { expand: weekId(monday) } : {},
-              weekId(monday),
-            )
-          }
           locale={locale}
           messages={t}
           pillMessages={pillMessages}

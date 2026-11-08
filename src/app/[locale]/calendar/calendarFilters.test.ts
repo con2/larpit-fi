@@ -57,15 +57,12 @@ describe("calendarHref", () => {
 
   it("keeps the month and filters", () => {
     expect(
-      calendarHref(
-        "2027-02",
-        { type: "events", signupOpen: true, languages: ["fi", "en"] },
-        { expand: "2027-02-01" },
-        "week-2027-02-01",
-      ),
-    ).toBe(
-      "/calendar?month=2027-02&type=events&open=1&lang=fi%2Cen&expand=2027-02-01#week-2027-02-01",
-    );
+      calendarHref("2027-02", {
+        type: "events",
+        signupOpen: true,
+        languages: ["fi", "en"],
+      }),
+    ).toBe("/calendar?month=2027-02&type=events&open=1&lang=fi%2Cen");
   });
 });
 

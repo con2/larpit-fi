@@ -1,6 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 
-export const visibleLanesPerWeek = 4;
+/** Week rows are at least this many lanes high; a busier week grows to fit all of its bars. */
+export const minLanesPerWeek = 3;
 
 /** Calendar days as YYYY-MM-DD; a missing end means a one-day item. */
 export interface CalendarSpan {
@@ -10,7 +11,7 @@ export interface CalendarSpan {
 
 export interface WeekBar<T> {
   item: T;
-  /** 0-based; lanes from `visibleLanesPerWeek` on are collapsed until the week is expanded. */
+  /** 0-based. */
   lane: number;
   /** CSS grid columns of the week, Monday = 1; `endColumn` is exclusive. */
   startColumn: number;
@@ -23,8 +24,6 @@ export interface WeekLayout<T> {
   monday: Temporal.PlainDate;
   bars: WeekBar<T>[];
   laneCount: number;
-  /** Per day Monday to Sunday: how many bars covering that day sit in collapsed lanes. */
-  hiddenCountByDay: number[];
 }
 
 function spanDates(item: CalendarSpan) {
@@ -80,7 +79,6 @@ export function weekMondays(
 export function layoutWeek<T extends CalendarSpan>(
   items: T[],
   monday: Temporal.PlainDate,
-  visibleLanes: number = visibleLanesPerWeek,
 ): WeekLayout<T> {
   const sunday = monday.add({ days: 6 });
 
@@ -108,7 +106,6 @@ export function layoutWeek<T extends CalendarSpan>(
 
   const lanes: boolean[][] = [];
   const bars: WeekBar<T>[] = [];
-  const hiddenCountByDay = Array<number>(7).fill(0);
 
   for (const piece of pieces) {
     const days = Array.from(
@@ -120,10 +117,7 @@ export function layoutWeek<T extends CalendarSpan>(
       lane = lanes.length;
       lanes.push(Array<boolean>(7).fill(false));
     }
-    for (const day of days) {
-      lanes[lane][day] = true;
-      if (lane >= visibleLanes) hiddenCountByDay[day]++;
-    }
+    for (const day of days) lanes[lane][day] = true;
     bars.push({
       item: piece.item,
       lane,
@@ -136,7 +130,7 @@ export function layoutWeek<T extends CalendarSpan>(
 
   bars.sort((a, b) => a.lane - b.lane || a.startColumn - b.startColumn);
 
-  return { monday, bars, laneCount: lanes.length, hiddenCountByDay };
+  return { monday, bars, laneCount: lanes.length };
 }
 
 export interface AgendaEntry<T> {

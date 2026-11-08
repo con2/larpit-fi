@@ -113,7 +113,7 @@ describe("layoutWeek", () => {
     ]);
   });
 
-  it("counts the items beyond the visible lanes per day", () => {
+  it("adds lanes for as many items as overlap", () => {
     const sixOnSaturday = Array.from({ length: 6 }, (_, i) =>
       item(`sat${i}`, "2027-02-06"),
     );
@@ -122,8 +122,6 @@ describe("layoutWeek", () => {
       monday,
     );
     expect(layout.laneCount).toBe(7);
-    // "long" takes lane 0, so the Saturday items take lanes 1–6 and three are collapsed.
-    expect(layout.hiddenCountByDay).toEqual([0, 0, 0, 0, 0, 3, 0]);
   });
 
   it("treats an end before the start as a one-day item", () => {

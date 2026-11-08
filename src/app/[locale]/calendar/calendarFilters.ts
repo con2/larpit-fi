@@ -31,7 +31,6 @@ export interface CalendarSearchParams {
   type?: string | string[];
   open?: string | string[];
   lang?: string | string[];
-  expand?: string | string[];
 }
 
 function first(value: string | string[] | undefined): string | undefined {
@@ -80,8 +79,6 @@ export function isFiltered(filters: CalendarFilters): boolean {
 export function calendarHref(
   month: string | null,
   filters: CalendarFilters,
-  extra: Record<string, string> = {},
-  hash?: string,
 ): string {
   const params = new URLSearchParams();
   if (month) params.set("month", month);
@@ -90,9 +87,8 @@ export function calendarHref(
   if (filters.languages.length > 0) {
     params.set("lang", filters.languages.join(","));
   }
-  for (const [key, value] of Object.entries(extra)) params.set(key, value);
   const query = params.toString();
-  return `/calendar${query ? `?${query}` : ""}${hash ? `#${hash}` : ""}`;
+  return `/calendar${query ? `?${query}` : ""}`;
 }
 
 export function toggleLanguage(

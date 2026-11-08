@@ -1845,9 +1845,6 @@ const translations: Translations = {
     },
     week: (weekNumber: number) => `Viikko ${weekNumber}`,
     noLarps: "Ei larppeja.",
-    more: "+{count} lisää",
-    moreLabel: "Näytä {count} lisää päivältä {date}",
-    showFewer: "Näytä vähemmän",
     agendaFooter: "Kuukausinäkymä leveämmillä näytöillä",
     subscribe: {
       title: "Tilaa omaan kalenterisovellukseesi",

@@ -1809,9 +1809,6 @@ const translations = {
     },
     week: (weekNumber: number) => `Week ${weekNumber}`,
     noLarps: "No larps.",
-    more: "+{count} more",
-    moreLabel: "Show {count} more on {date}",
-    showFewer: "Show fewer",
     agendaFooter: "Month grid on wider screens",
     subscribe: {
       title: "Subscribe in your own calendar app",
