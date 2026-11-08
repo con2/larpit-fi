@@ -61,13 +61,22 @@ describe("formatDateRange", () => {
 describe("formatShortDateRange", () => {
   it("drops the year", () => {
     expect(formatShortDateRange("2026-11-06", "2026-11-07", "en")).toBe(
-      "6–7 Nov",
+      "6–7\u00a0Nov",
     );
     expect(formatShortDateRange("2026-11-06", "2026-11-07", "fi")).toBe(
       "6.–7.11.",
     );
     expect(formatShortDateRange("2026-11-30", "2026-12-02", "en")).toBe(
-      "30 Nov – 2 Dec",
+      "30\u00a0Nov\u00a0– 2\u00a0Dec",
+    );
+  });
+
+  it("leaves a line break opportunity only after the dash", () => {
+    expect(formatShortDateRange("2026-11-30", "2026-12-02", "fi")).toBe(
+      "30.11.–2.12.",
+    );
+    expect(formatShortDateRange("2026-11-10", "2026-11-12", "en")).toBe(
+      "10–12\u00a0Nov",
     );
   });
 });

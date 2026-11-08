@@ -1010,8 +1010,10 @@ $lf-phone: 767.98px;
   }
 }
 
+// Wide enough for the longest same-month range (10.–12.12., 10–12 Nov) on one line; ranges
+// across months wrap after the dash.
 .lf-compact-row__date {
-  flex: 0 0 13.5ch;
+  flex: 0 0 10.5ch;
   font-family: $lf-mono;
   font-size: 13px;
   color: var(--larpit-dim);
@@ -1643,9 +1645,5 @@ html[lang="en"] {
   .lf-row__date,
   .lf-palette__date {
     flex-basis: 20.5ch;
-  }
-
-  .lf-compact-row__date {
-    flex-basis: 15.5ch;
   }
 }

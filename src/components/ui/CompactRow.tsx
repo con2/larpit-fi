@@ -10,7 +10,7 @@ interface Props {
   lang?: string;
 }
 
-/** 72 px mono date, name and an optional one-line sub. Recent changes, This week, Other events. */
+/** Mono date, name and an optional one-line sub. Recent changes, This week, Other events. */
 export default function CompactRow({
   href,
   date,

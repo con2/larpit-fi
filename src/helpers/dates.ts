@@ -114,7 +114,8 @@ export function formatDateTime(
 
 /**
  * A date or range without the year, for rows grouped under a year or within the coming weeks:
- * 6.–7.11. in Finnish and Swedish, 6–7 Nov in English.
+ * 6.–7.11. in Finnish and Swedish, 6–7 Nov in English. A narrow column can only wrap the range
+ * after its dash.
  */
 export function formatShortDateRange(
   start: DateLike | null | undefined,
@@ -138,9 +139,11 @@ export function formatShortDateRange(
       : `${dayMonth(startDate, locale)}–${dayMonth(endDate, locale)}`;
   }
 
+  const unbreakable = (date: Temporal.PlainDate) =>
+    dayMonth(date, locale).replace(" ", "\u00a0");
   return sameMonth
-    ? `${startDate.day}–${dayMonth(endDate, locale)}`
-    : `${dayMonth(startDate, locale)}\u00a0– ${dayMonth(endDate, locale)}`;
+    ? `${startDate.day}–${unbreakable(endDate)}`
+    : `${unbreakable(startDate)}\u00a0– ${unbreakable(endDate)}`;
 }
 
 /** ISO week number and its Monday–Sunday bounds for the given day in Europe/Helsinki. */
