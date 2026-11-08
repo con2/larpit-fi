@@ -4,7 +4,11 @@ import { db } from "@/prisma/db";
 import { Language, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
-import { larpIdOrAliasFilter, setLarpAlias } from "./Larp";
+import {
+  getLarpsWithoutAlias,
+  larpIdOrAliasFilter,
+  setLarpAlias,
+} from "./Larp";
 
 const moderator = { role: UserRole.MODERATOR };
 
@@ -39,6 +43,34 @@ describe("larpIdOrAliasFilter", () => {
       expect(larpIdOrAliasFilter(key)).toBeNull();
     },
   );
+});
+
+describe("getLarpsWithoutAlias", () => {
+  beforeEach(truncateAll);
+
+  it("lists larps without an alias, the latest first and undated ones last", async () => {
+    const create = (name: string, startsAt: string | null, alias?: string) =>
+      db.orm.public.Larp.create({
+        name,
+        language: Language.fi,
+        startsAt,
+        alias: alias ?? null,
+      });
+    await create("Undated", null);
+    await create("Older", "2024-05-01");
+    await create("Newer", "2026-05-01");
+    await create("Aliased", "2027-01-01", "aliased");
+
+    const { larps, count } = await getLarpsWithoutAlias(0, 2);
+    expect(count).toBe(3);
+    expect(larps.map((larp) => [larp.name, larp.startsAt])).toEqual([
+      ["Newer", "2026-05-01"],
+      ["Older", "2024-05-01"],
+    ]);
+
+    const nextPage = await getLarpsWithoutAlias(2, 2);
+    expect(nextPage.larps.map((larp) => larp.name)).toEqual(["Undated"]);
+  });
 });
 
 describe("setLarpAlias", () => {

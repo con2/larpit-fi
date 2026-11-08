@@ -550,6 +550,23 @@ const translations = {
       takenByPage: "A content page already uses this address.",
     },
   },
+  LarpAliasesPage: {
+    title: "Short addresses",
+    lede: (count: number) =>
+      `${count} larps have no short address yet. The fields are prefilled with a suggestion; empty a field to skip that larp. Saved larps disappear from the list.`,
+    columns: {
+      name: "Larp",
+      dates: "Date",
+      alias: "Short address",
+    },
+    save: "Save",
+    saved: "Short addresses saved: {count}",
+    pagination: {
+      title: "Pages",
+      previous: "Previous",
+      next: "Next",
+    },
+  },
   DeleteLarpPage: {
     title: "Delete larp page",
     confirmation: (
@@ -1825,6 +1842,7 @@ const translations = {
       pages: "Content pages",
       moderate: "Moderate",
       manageUsers: "Users",
+      aliases: "Short addresses",
     },
   },
   UserMenu: {

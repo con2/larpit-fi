@@ -13,6 +13,7 @@ import {
   ExternalIcon,
   FolderIcon,
   HeartIcon,
+  LinkIcon,
   PagesIcon,
   ShieldCheckIcon,
   SignOutIcon,
@@ -36,7 +37,7 @@ export interface UserMenuCounts {
 export interface AdminLink {
   href: string;
   title: string;
-  icon: "moderate" | "pages" | "users";
+  icon: "moderate" | "aliases" | "pages" | "users";
   badge?: number;
 }
 
@@ -64,6 +65,7 @@ export function getInitials(user: UserMenuUser): string {
 
 const adminIcons = {
   moderate: ShieldCheckIcon,
+  aliases: LinkIcon,
   pages: PagesIcon,
   users: UserIcon,
 };

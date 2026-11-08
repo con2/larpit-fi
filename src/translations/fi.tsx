@@ -567,6 +567,23 @@ const translations: Translations = {
       takenByPage: "Sisältösivu käyttää jo tätä osoitetta.",
     },
   },
+  LarpAliasesPage: {
+    title: "Lyhyet osoitteet",
+    lede: (count: number) =>
+      `Lyhyt osoite puuttuu vielä ${count} larpilta. Kentissä on valmiina ehdotus; tyhjennä kenttä ohittaaksesi larpin. Tallennetut larpit poistuvat listalta.`,
+    columns: {
+      name: "Larppi",
+      dates: "Ajankohta",
+      alias: "Lyhyt osoite",
+    },
+    save: "Tallenna",
+    saved: "Tallennettuja osoitteita: {count}",
+    pagination: {
+      title: "Sivut",
+      previous: "Edelliset",
+      next: "Seuraavat",
+    },
+  },
   DeleteLarpPage: {
     title: "Larppisivun poistaminen",
     confirmation: (
@@ -1861,6 +1878,7 @@ const translations: Translations = {
       pages: "Sisältösivut",
       moderate: "Moderoi",
       manageUsers: "Käyttäjät",
+      aliases: "Lyhyet osoitteet",
     },
   },
   UserMenu: {

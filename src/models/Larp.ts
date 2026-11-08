@@ -297,6 +297,35 @@ export type SetLarpAliasResult =
   | { ok: true; alias: string | null }
   | { ok: false; error: LarpAliasError | "forbidden" | "notFound" };
 
+export interface LarpWithoutAlias {
+  id: string;
+  name: string;
+  language: Larp["language"];
+  startsAt: string | null;
+  endsAt: string | null;
+}
+
+/** Larps that have no alias yet, the latest first and undated ones last. */
+export async function getLarpsWithoutAlias(
+  offset: number,
+  limit: number,
+): Promise<{ larps: LarpWithoutAlias[]; count: number }> {
+  const [larps, [{ count }]] = await Promise.all([
+    query<LarpWithoutAlias>(sql`
+      select id, name, language, starts_at::text as "startsAt", ends_at::text as "endsAt"
+      from larp
+      where alias is null
+      order by starts_at desc nulls last, id desc
+      offset ${offset}
+      limit ${limit}
+    `),
+    query<{ count: string }>(sql`
+      select count(*) as count from larp where alias is null
+    `),
+  ]);
+  return { larps, count: Number(count) };
+}
+
 /**
  * Sets or removes the alias of a larp. Only moderators may do this, and the change goes
  * straight to the larp without a moderation request.

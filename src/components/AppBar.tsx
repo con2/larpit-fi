@@ -110,6 +110,13 @@ export default async function AppBar({ locale }: Props) {
         moderationCounts.nonDelete + (isAdmin ? moderationCounts.deletes : 0),
     });
   }
+  if (canModerate(user)) {
+    adminLinks.push({
+      href: "/moderate/aliases",
+      title: navigationMessages.actions.aliases,
+      icon: "aliases",
+    });
+  }
   if (canEditPages(user)) {
     adminLinks.push({
       href: "/page",
