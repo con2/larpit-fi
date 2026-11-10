@@ -80,4 +80,6 @@ export const featureFlags = {
    * the theme controls, and in Day mode a night-sky app bar and aurora hero over the day page.
    */
   nordicNight: false,
+  /** On: content pages with a menu position are listed in the "What is larp?" menu of the app bar. */
+  infoMenu: false,
 } as const;

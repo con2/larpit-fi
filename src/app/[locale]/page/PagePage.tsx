@@ -8,6 +8,7 @@ import {
   type HeaderImageRow,
   headerImageViewOrNull,
 } from "@/models/HeaderImage";
+import { pageAdminPath } from "@/models/Page.client";
 import type { Page } from "@/prisma/models";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
@@ -17,7 +18,7 @@ import { notFound } from "next/navigation";
 
 interface Props {
   page:
-    | (Pick<Page, "title" | "content" | "slug" | "language"> & {
+    | (Pick<Page, "title" | "ingress" | "content" | "slug" | "language"> & {
         headerImage: HeaderImageRow | null;
       })
     | null;
@@ -39,19 +40,24 @@ export default async function PagePage({ page, locale }: Props) {
     <header className={`lf-page-header${headerImage ? " border-0" : ""}`}>
       <div className={headerImage ? heroTextClassName : undefined}>
         <h1 className="lf-display-l m-0">{page.title}</h1>
+        {page.ingress.trim() && (
+          <div className="lf-lede mt-3">
+            <Markdown input={page.ingress} />
+          </div>
+        )}
       </div>
       {canEditPages(user) && (
         <p className="m-0 d-flex gap-3">
           <Link
             className="lf-link-quiet"
-            href={`/page/${page.slug}/${page.language}/edit`}
+            href={pageAdminPath("edit", page.slug, page.language)}
           >
             {t.actions.edit.title} →
           </Link>
           {headerImagesEnabled && (
             <Link
               className="lf-link-quiet"
-              href={`/page/${page.slug}/${page.language}/header-image`}
+              href={pageAdminPath("header-image", page.slug, page.language)}
             >
               {t.actions.headerImage.title} →
             </Link>
@@ -74,11 +80,13 @@ export default async function PagePage({ page, locale }: Props) {
       ) : (
         <div className="lf-container">{header}</div>
       )}
-      <div className="lf-container">
-        <div className="lf-prose py-5">
-          <Markdown input={page.content} />
+      {page.content.trim() && (
+        <div className="lf-container">
+          <div className="lf-prose py-5">
+            <Markdown input={page.content} />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

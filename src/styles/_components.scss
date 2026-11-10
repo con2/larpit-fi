@@ -126,6 +126,10 @@ $lf-phone: 767.98px;
   font-variation-settings: "opsz" 24;
   max-width: 44ch;
   margin: 0;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 .lf-label {
@@ -503,7 +507,9 @@ $lf-phone: 767.98px;
   font-size: 15px;
   font-weight: 500;
 
-  a {
+  // The dropdown's own links are menu items, not nav links.
+  > a,
+  > .lf-nav__dropdown > button {
     color: var(--larpit-text);
     text-decoration: none;
     padding: 8px 0;
@@ -1289,6 +1295,26 @@ $lf-phone: 767.98px;
 
   [data-bs-theme="dark"] & {
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  }
+}
+
+.lf-menu--start {
+  right: auto;
+  left: 0;
+}
+
+.lf-nav__dropdown {
+  position: relative;
+
+  > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border-top: 0;
+    border-inline: 0;
+    font: inherit;
+    cursor: pointer;
   }
 }
 

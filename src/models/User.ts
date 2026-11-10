@@ -33,6 +33,11 @@ export function canManageUsers(user: Pick<User, "role"> | null): boolean {
 }
 
 export function canEditPages(user: Pick<User, "role"> | null): boolean {
+  return canModerate(user);
+}
+
+/** Creating, renaming and deleting content pages; editing their contents is open to moderators. */
+export function canManagePages(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.ADMIN;
 }
 

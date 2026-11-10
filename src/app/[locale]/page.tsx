@@ -19,7 +19,7 @@ import {
   isSignupOpenOrOpeningSoon,
 } from "@/models/Larp";
 import { headerImageViewOrNull } from "@/models/HeaderImage";
-import { frontPageSlug, seeAlsoSlug } from "@/models/Page";
+import { frontPageSlug, seeAlsoSlug } from "@/models/Page.client";
 import { iso, parseDates } from "@/prisma/dates";
 import { Language, LarpType, Openness } from "@/prisma/enums";
 import { getTranslations } from "@/translations";
@@ -137,9 +137,9 @@ export default async function HomePage({ params }: Props) {
           <div className={`${styles.heroText} ${heroTextClassName}`}>
             <p className="lf-eyebrow">{t.tagline}</p>
             <h1 className="lf-display-xl">{page?.title || t.title}</h1>
-            {page?.content.trim() && (
+            {page?.ingress.trim() && (
               <div className={styles.intro}>
-                <Markdown input={page.content} />
+                <Markdown input={page.ingress} />
               </div>
             )}
             <div className={styles.actions}>

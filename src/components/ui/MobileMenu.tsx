@@ -13,6 +13,7 @@ import NavLinks, { LanguageSegmented, type NavItem } from "./NavLinks";
 import ThemeSegmented from "./ThemeSegmented";
 
 interface Props {
+  infoItems: NavItem[];
   navItems: NavItem[];
   adminLinks: AdminLink[];
   user: UserMenuUser | null;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export default function MobileMenu({
+  infoItems,
   navItems,
   adminLinks,
   user,
@@ -58,6 +60,15 @@ export default function MobileMenu({
       >
         <Offcanvas.Header closeButton closeLabel={t.closeMenu} />
         <Offcanvas.Body>
+          {infoItems.length > 0 && (
+            <NavLinks
+              items={infoItems}
+              label={t.infoMenu}
+              className="lf-menu__group"
+            >
+              <span className="lf-label lf-dim px-2 pt-2">{t.infoMenu}</span>
+            </NavLinks>
+          )}
           <NavLinks
             items={navItems}
             label={t.mainNavigation}

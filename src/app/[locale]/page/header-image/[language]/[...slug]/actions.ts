@@ -6,7 +6,7 @@ import {
   removeHeaderImageFrom,
   saveHeaderImageSettingsFor,
 } from "@/models/headerImageActions";
-import { contentPagePath } from "@/models/Page";
+import { contentPagePath } from "@/models/Page.client";
 
 export async function saveHeaderImageSettings(
   slug: string,

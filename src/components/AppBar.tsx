@@ -3,6 +3,8 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { featureFlags, isStaging, kompassiProfileUrl } from "@/config";
 import type { SupportedLanguage } from "@/i18n/locales";
+import { getInfoMenuPages } from "@/models/Page";
+import { pagePathInUiLanguage } from "@/models/Page.client";
 import {
   canEditPages,
   canManageUsers,
@@ -11,11 +13,13 @@ import {
   getUserFromSession,
 } from "@/models/User";
 import { db } from "@/prisma/db";
+import { getReader } from "@/prisma/reader";
 import { EditAction, EditStatus, RelatedUserRole } from "@/prisma/enums";
 import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import { nightSkyProps } from "./ui/Aurora";
 import { SearchButton } from "./ui/CommandPalette";
+import InfoMenu from "./ui/InfoMenu";
 import { PlusIcon } from "./ui/icons";
 import MobileMenu from "./ui/MobileMenu";
 import NavLinks, { LanguageToggle, type NavItem } from "./ui/NavLinks";
@@ -77,6 +81,16 @@ async function getUserCounts(userId: string) {
   return { counts: result, latestPendingId: pending[0]?.id ?? null };
 }
 
+async function getInfoMenuItems(language: string): Promise<NavItem[]> {
+  if (!featureFlags.infoMenu) return [];
+  const { db: reader } = await getReader();
+  const pages = await getInfoMenuPages(language, reader);
+  return pages.map(({ slug, title }) => ({
+    href: pagePathInUiLanguage(slug),
+    title,
+  }));
+}
+
 const emptyCounts: UserMenuCounts = {
   all: 0,
   played: 0,
@@ -92,9 +106,10 @@ export default async function AppBar({ locale }: Props) {
   // Reading the session forces dynamic rendering for every page.
   const session = await auth();
   const user = await getUserFromSession(session);
-  const [userCounts, moderationCounts] = await Promise.all([
+  const [userCounts, moderationCounts, infoItems] = await Promise.all([
     user ? getUserCounts(user.id) : null,
     canModerate(user) ? getModerationCounts() : null,
+    getInfoMenuItems(locale),
   ]);
 
   const isAdmin =
@@ -154,7 +169,11 @@ export default async function AppBar({ locale }: Props) {
             {isStaging && <span className="lf-staging">staging</span>}
           </Link>
           <div className="lf-desktop-only">
-            <NavLinks items={navItems} label={t.mainNavigation} />
+            <NavLinks items={navItems} label={t.mainNavigation}>
+              {infoItems.length > 0 && (
+                <InfoMenu title={t.infoMenu} items={infoItems} />
+              )}
+            </NavLinks>
           </div>
         </div>
         <div className="lf-appbar__actions">
@@ -198,6 +217,7 @@ export default async function AppBar({ locale }: Props) {
             />
           </span>
           <MobileMenu
+            infoItems={infoItems}
             navItems={navItems}
             adminLinks={adminLinks}
             user={menuUser}

@@ -25,7 +25,7 @@ import {
   CropSchema,
   photographerCreditMaxLength,
 } from "./HeaderImage.client";
-import { frontPageSlug } from "./Page";
+import { contentPagePath, isRootPageSlug, frontPageSlug } from "./Page.client";
 import { canEditPages, isGmOrModerator } from "./User";
 
 export const maxUploadBytes = 25 * 1024 * 1024;
@@ -58,7 +58,7 @@ export interface AuthorizedHeaderImageTarget {
 
 /**
  * Larp header images are managed by the larp's GMs and moderators; content page header images
- * by admins, who are the only ones who edit content pages.
+ * by those who edit content pages.
  */
 export async function authorizeHeaderImageTarget(
   user: Pick<User, "id" | "role"> | null,
@@ -324,6 +324,8 @@ export function revalidateHeaderImageTargets(
       if (options.alias) revalidatePath(`/${locale}/${options.alias}`);
     } else if (target.slug === frontPageSlug) {
       revalidatePath(`/${locale}`);
+    } else if (isRootPageSlug(target.slug)) {
+      revalidatePath(contentPagePath(target.slug, target.language));
     } else {
       revalidatePath(`/${locale}/page/${target.slug}`);
       revalidatePath(`/${locale}/page/${target.slug}/${target.language}`);

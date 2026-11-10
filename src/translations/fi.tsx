@@ -1534,19 +1534,44 @@ const translations: Translations = {
     listTitle: "Sisältösivut",
     singleTitle: "Sisältösivu",
     editTitle: "Muokkaa sisältösivua",
+    newTitle: "Uusi sisältösivu",
+    deleteTitle: "Poista sisältösivu",
+    deleteConfirmation:
+      "Sivu ja sen otsikkokuva poistetaan pysyvästi. Muunkieliset sivut säilyvät.",
     attributes: {
       slug: {
         title: "Tekninen nimi",
+        helpText:
+          "Pieniä kirjaimia, numeroita ja yhdysmerkkejä. Kauttaviivan sisältävä nimi, kuten larppaus/aloittaminen, näytetään sivuston juuressa (/larppaus/aloittaminen), muut sivut polun /page/ alla. Nimen muuttaminen rikkoo linkit vanhaan osoitteeseen.",
       },
       title: {
         title: "Otsikko",
       },
+      ingress: {
+        title: "Ingressi",
+        helpText: "Näytetään sivun yläosassa otsikon alla.",
+        frontPageHelpText: "Näytetään etusivulla otsikon alla.",
+      },
       content: {
         title: "Sisältö",
+        helpText: "Näytetään sivun yläosan alapuolella.",
       },
       language: {
         title: "Kieli",
       },
+      menuPosition: {
+        title: "Järjestys tietovalikossa",
+        helpText:
+          "Sivut, joilla on järjestysnumero, näkyvät kielensä ”Tietoa larppauksesta” -valikossa pienimmästä alkaen. Jätä tyhjäksi, jos sivua ei näytetä valikossa.",
+      },
+    },
+    errors: {
+      invalid:
+        "Teknisessä nimessä saa olla vain pieniä kirjaimia, numeroita, yhdysmerkkejä ja sanojen välisiä kauttaviivoja.",
+      reserved:
+        "Tekninen nimi ei saa alkaa sanalla, jota sivusto käyttää jo muuhun.",
+      taken: "Tällä teknisellä nimellä on jo sivu tällä kielellä.",
+      protected: "Tätä sivua ei voi nimetä uudelleen eikä poistaa.",
     },
     actions: {
       headerImage: {
@@ -1559,6 +1584,19 @@ const translations: Translations = {
       newPage: {
         title: "Luo uusi sisältösivu",
         label: "Uusi sivu",
+      },
+      create: {
+        title: "Luo sivu",
+      },
+      rename: {
+        title: "Vaihda tekninen nimi",
+      },
+      delete: {
+        title: "Poista sivu",
+        label: "Poista",
+      },
+      cancel: {
+        title: "Peruuta",
       },
       edit: {
         title: "Muokkaa tätä sivua",
@@ -1998,6 +2036,7 @@ const translations: Translations = {
     themeChoices: { auto: "Auto", night: "Yö", day: "Päivä" },
     language: "Kieli",
     administration: "Ylläpito",
+    infoMenu: "Tietoa larppauksesta",
   },
   Footer: {
     privacyPolicy: "Tietosuojaseloste",

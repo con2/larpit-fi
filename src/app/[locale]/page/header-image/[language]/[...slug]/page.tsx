@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import HeaderImageEditor from "@/components/header-image/HeaderImageEditor";
 import { headerImagesEnabled } from "@/config";
 import { headerImageViewOrNull } from "@/models/HeaderImage";
-import { contentPagePath } from "@/models/Page";
+import { contentPagePath } from "@/models/Page.client";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
@@ -14,13 +14,14 @@ import { getTranslations, toSupportedLanguage } from "@/translations";
 import { removeHeaderImage, saveHeaderImageSettings } from "./actions";
 
 interface Props {
-  params: Promise<{ locale: string; slug: string; language: string }>;
+  params: Promise<{ locale: string; language: string; slug: string[] }>;
 }
 
 export default async function PageHeaderImagePage({ params }: Props) {
   const resolvedParams = await params;
   const locale = toSupportedLanguage(resolvedParams.locale);
-  const { slug, language } = resolvedParams;
+  const { language } = resolvedParams;
+  const slug = resolvedParams.slug.join("/");
   if (!headerImagesEnabled) notFound();
 
   const translations = getTranslations(locale);
@@ -35,8 +36,8 @@ export default async function PageHeaderImagePage({ params }: Props) {
   if (!canEditPages(user)) {
     return (
       <MessageCard
-        title={translations.AdminRequired.title}
-        message={translations.AdminRequired.message}
+        title={translations.ModeratorRequired.title}
+        message={translations.ModeratorRequired.message}
         container
       />
     );

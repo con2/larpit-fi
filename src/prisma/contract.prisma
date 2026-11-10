@@ -344,7 +344,9 @@ namespace public {
     slug      String                     @default("front-page")
     language  String
     title     String
+    ingress   String                     @default("")
     content   String
+    menuPosition Int?                    @map("menu_position")
     createdAt TimestamptzString          @default(now()) @map("created_at")
     updatedAt TimestamptzString  @onCreate(now()) @onUpdate(now()) @map("updated_at")
     headerImageId Uuid?                  @map("header_image_id")

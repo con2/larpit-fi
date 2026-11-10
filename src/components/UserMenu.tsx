@@ -2,8 +2,6 @@
 
 import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
 
 import type { Translations } from "@/translations/en";
 import {
@@ -21,6 +19,7 @@ import {
 } from "./ui/icons";
 import { LanguageSegmented } from "./ui/NavLinks";
 import ThemeSegmented from "./ui/ThemeSegmented";
+import useDropdown from "./ui/useDropdown";
 
 export interface UserMenuUser {
   name: string | null;
@@ -82,35 +81,7 @@ export default function UserMenu({
   kompassiProfileUrl,
   themeSwitching,
 }: Props) {
-  const pathname = usePathname();
-  // Remembering where the menu was opened closes it when a link inside navigates away.
-  const [openedAt, setOpenedAt] = useState<string | null>(null);
-  const isOpen = openedAt === pathname;
-  const setOpen = (open: boolean) => setOpenedAt(open ? pathname : null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const menuId = useId();
-
-  useEffect(() => {
-    if (!isOpen) return;
-    function onPointerDown(event: PointerEvent) {
-      if (!containerRef.current?.contains(event.target as Node)) {
-        setOpenedAt(null);
-      }
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setOpenedAt(null);
-        buttonRef.current?.focus();
-      }
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isOpen]);
+  const { isOpen, setOpen, containerRef, buttonRef, menuId } = useDropdown();
 
   if (!user) {
     return (

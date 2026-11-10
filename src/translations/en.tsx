@@ -1502,19 +1502,44 @@ const translations = {
     listTitle: "Content pages",
     singleTitle: "Content page",
     editTitle: "Edit content page",
+    newTitle: "New content page",
+    deleteTitle: "Delete content page",
+    deleteConfirmation:
+      "The page and its header image will be deleted permanently. Pages in other languages are not affected.",
     attributes: {
       slug: {
         title: "Slug",
+        helpText:
+          "Lowercase letters, numbers and hyphens. A slug with a slash, such as larppaus/aloittaminen, is served at the root of the site (/larppaus/aloittaminen); other pages are served under /page/. Changing the slug breaks links to the old address.",
       },
       title: {
         title: "Title",
       },
+      ingress: {
+        title: "Ingress",
+        helpText: "Shown in the page header, under the title.",
+        frontPageHelpText: "Shown on the front page under the title.",
+      },
       content: {
         title: "Content",
+        helpText: "Shown below the page header.",
       },
       language: {
         title: "Language",
       },
+      menuPosition: {
+        title: "Position in the info menu",
+        helpText:
+          "Pages with a position appear in the “What is larp?” menu of their language, smallest first. Leave empty to keep the page out of the menu.",
+      },
+    },
+    errors: {
+      invalid:
+        "The slug may only contain lowercase letters, numbers, hyphens and slashes between words.",
+      reserved:
+        "The slug may not start with a word that the site already uses for something else.",
+      taken: "A page with this slug already exists in this language.",
+      protected: "This page cannot be renamed or deleted.",
     },
     actions: {
       headerImage: {
@@ -1527,6 +1552,19 @@ const translations = {
       newPage: {
         title: "Create a new content page",
         label: "New page",
+      },
+      create: {
+        title: "Create page",
+      },
+      rename: {
+        title: "Change slug",
+      },
+      delete: {
+        title: "Delete page",
+        label: "Delete",
+      },
+      cancel: {
+        title: "Cancel",
       },
       edit: {
         title: "Edit this page",
@@ -1961,6 +1999,7 @@ const translations = {
     themeChoices: { auto: "Auto", night: "Night", day: "Day" },
     language: "Language",
     administration: "Administration",
+    infoMenu: "What is larp?",
   },
   Footer: {
     privacyPolicy: "Privacy policy",

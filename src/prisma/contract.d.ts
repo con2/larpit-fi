@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'3fab43756e4cc561eca89bfac9f6928f67aec75f2da844c7de829c9e2cc8f08d'>;
+  StorageHashBase<'b30cef0f3f3972f3eeb1fed44acb1dc980a7c3c102561c3376d81263d55359a1'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -801,7 +801,9 @@ export namespace Models {
     content: FieldOutputTypes['public']['Page']['content'];
     createdAt: FieldOutputTypes['public']['Page']['createdAt'];
     headerImageId: FieldOutputTypes['public']['Page']['headerImageId'];
+    ingress: FieldOutputTypes['public']['Page']['ingress'];
     language: FieldOutputTypes['public']['Page']['language'];
+    menuPosition: FieldOutputTypes['public']['Page']['menuPosition'];
     slug: FieldOutputTypes['public']['Page']['slug'];
     title: FieldOutputTypes['public']['Page']['title'];
     updatedAt: FieldOutputTypes['public']['Page']['updatedAt'];
@@ -1781,10 +1783,26 @@ type ContractBase = Omit<
                   readonly nullable: true;
                   readonly many: false;
                 };
+                readonly ingress: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', ''>;
+                  };
+                  readonly many: false;
+                };
                 readonly language: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly menu_position: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly slug: {
@@ -3210,9 +3228,17 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
               };
+              readonly ingress: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly language: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly menuPosition: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly slug: {
                 readonly nullable: false;
@@ -3251,7 +3277,9 @@ type ContractBase = Omit<
                 readonly content: { readonly column: 'content' };
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly headerImageId: { readonly column: 'header_image_id' };
+                readonly ingress: { readonly column: 'ingress' };
                 readonly language: { readonly column: 'language' };
+                readonly menuPosition: { readonly column: 'menu_position' };
                 readonly slug: { readonly column: 'slug' };
                 readonly title: { readonly column: 'title' };
                 readonly updatedAt: { readonly column: 'updated_at' };

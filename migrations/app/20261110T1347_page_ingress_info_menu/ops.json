@@ -1,0 +1,158 @@
+[
+  {
+    "id": "column.public.page.ingress",
+    "label": "Add column \"ingress\" to \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "ingress",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"ingress\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "ingress"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"ingress\" on \"page\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"ingress\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ADD COLUMN \"ingress\" text DEFAULT '' NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"ingress\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "ingress"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"ingress\" on \"page\""
+        }
+      },
+      {
+        "description": "verify column \"ingress\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "ingress",
+          "text"
+        ]
+      },
+      {
+        "description": "verify column \"ingress\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "ingress",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.page.menu_position",
+    "label": "Add column \"menu_position\" to \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "menu_position",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"menu_position\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "menu_position"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"menu_position\" on \"page\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"menu_position\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ADD COLUMN \"menu_position\" int4"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"menu_position\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "menu_position"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"menu_position\" on \"page\""
+        }
+      },
+      {
+        "description": "verify column \"menu_position\" has type \"integer\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "menu_position",
+          "integer"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data.page.front_page_ingress",
+    "label": "Move the front page text from content to ingress",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "page"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "move front page content to ingress",
+        "sql": "update public.page set ingress = content, content = '' where slug = 'front-page' and content <> ''"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify no front page keeps text in content",
+        "sql": "select not exists (select 1 from public.page where slug = 'front-page' and content <> '') as result"
+      }
+    ]
+  }
+]

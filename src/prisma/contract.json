@@ -1504,10 +1504,24 @@
                   "kind": "scalar"
                 }
               },
+              "ingress": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "language": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "menuPosition": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
                   "kind": "scalar"
                 }
               },
@@ -1562,8 +1576,14 @@
                 "headerImageId": {
                   "column": "header_image_id"
                 },
+                "ingress": {
+                  "column": "ingress"
+                },
                 "language": {
                   "column": "language"
+                },
+                "menuPosition": {
+                  "column": "menu_position"
                 },
                 "slug": {
                   "column": "slug"
@@ -3305,10 +3325,24 @@
                   "dataType": "pg/uuid",
                   "nullable": true
                 },
+                "ingress": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": ""
+                  },
+                  "nullable": false
+                },
                 "language": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
                   "nullable": false
+                },
+                "menu_position": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
                 },
                 "slug": {
                   "codecId": "pg/text@1",
@@ -3970,7 +4004,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3fab43756e4cc561eca89bfac9f6928f67aec75f2da844c7de829c9e2cc8f08d"
+    "storageHash": "b30cef0f3f3972f3eeb1fed44acb1dc980a7c3c102561c3376d81263d55359a1"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

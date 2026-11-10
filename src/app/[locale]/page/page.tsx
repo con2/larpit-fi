@@ -1,7 +1,16 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import { Column, DataTable, MessageCard } from "@con2/components";
-import { canEditPages, getUserFromSession } from "@/models/User";
+import {
+  contentPagePath,
+  pageAdminPath,
+  protectedPageSlugs,
+} from "@/models/Page.client";
+import {
+  canEditPages,
+  canManagePages,
+  getUserFromSession,
+} from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import Link from "next/link";
@@ -35,8 +44,8 @@ export default async function PagesPage({ params }: Props) {
   if (!canEditPages(user)) {
     return (
       <MessageCard
-        title={translations.AdminRequired.title}
-        message={translations.AdminRequired.message}
+        title={translations.ModeratorRequired.title}
+        message={translations.ModeratorRequired.message}
         container
       />
     );
@@ -60,23 +69,37 @@ export default async function PagesPage({ params }: Props) {
       title: t.attributes.title.title,
     },
     {
+      slug: "menuPosition",
+      title: t.attributes.menuPosition.title,
+      className: "text-end",
+      getCellContents: (row) => row.menuPosition ?? "",
+    },
+    {
       slug: "actions",
       title: "",
       className: "text-end",
       getCellContents: (row) => (
         <>
           <Link
-            href={`/${locale}/page/${row.slug}/${row.language}`}
+            href={contentPagePath(row.slug, row.language)}
             className="link-subtle"
           >
             {t.actions.view.label}
           </Link>{" "}
           <Link
-            href={`/${locale}/page/${row.slug}/${row.language}/edit`}
-            className="ms-2  link-subtle"
+            href={pageAdminPath("edit", row.slug, row.language)}
+            className="ms-2 link-subtle"
           >
             {t.actions.edit.label}
           </Link>
+          {canManagePages(user) && !protectedPageSlugs.includes(row.slug) && (
+            <Link
+              href={pageAdminPath("delete", row.slug, row.language)}
+              className="ms-2 link-subtle"
+            >
+              {t.actions.delete.label}
+            </Link>
+          )}
         </>
       ),
     },
@@ -86,11 +109,13 @@ export default async function PagesPage({ params }: Props) {
     <div className="lf-container">
       <header className="lf-page-header mb-4">
         <h1 className="lf-display-l">{t.listTitle}</h1>
-        <p className="m-0">
-          <Link className="lf-link-quiet" href={`/page/new`}>
-            {t.actions.newPage.title} →
-          </Link>
-        </p>
+        {canManagePages(user) && (
+          <p className="m-0">
+            <Link className="lf-link-quiet" href="/page/new">
+              {t.actions.newPage.title} →
+            </Link>
+          </p>
+        )}
       </header>
       <div className="table-responsive mb-5">
         <DataTable className="table" columns={columns} rows={pages} />

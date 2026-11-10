@@ -276,7 +276,7 @@ describe("header images", () => {
       expect(await authorizeHeaderImageTarget(null, target)).toBe("forbidden");
     });
 
-    it("allows only admins to change content pages", async () => {
+    it("allows moderators and admins to change content pages", async () => {
       await db.orm.public.Page.create({
         slug: "front-page",
         language: "fi",
@@ -285,6 +285,7 @@ describe("header images", () => {
       });
       const admin = await createUser(UserRole.ADMIN, "admin@example.com");
       const moderator = await createUser(UserRole.MODERATOR, "mod@example.com");
+      const verified = await createUser(UserRole.VERIFIED, "user@example.com");
       const target = {
         kind: "page",
         slug: "front-page",
@@ -294,7 +295,10 @@ describe("header images", () => {
       expect(await authorizeHeaderImageTarget(admin, target)).toMatchObject({
         target,
       });
-      expect(await authorizeHeaderImageTarget(moderator, target)).toBe(
+      expect(await authorizeHeaderImageTarget(moderator, target)).toMatchObject(
+        { target },
+      );
+      expect(await authorizeHeaderImageTarget(verified, target)).toBe(
         "forbidden",
       );
       expect(

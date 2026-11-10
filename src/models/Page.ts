@@ -1,32 +1,44 @@
 import z from "zod";
 
 import { db } from "@/prisma/db";
-
-export const frontPageSlug = "front-page";
-export const seeAlsoSlug = "see-also";
+import { deleteHeaderImage } from "./HeaderImage";
+import {
+  frontPageSlug,
+  type PageSlugError,
+  protectedPageSlugs,
+  seeAlsoSlug,
+  validatePageSlug,
+} from "./Page.client";
 
 export const PageForm = z.object({
-  slug: z.string().min(1).max(200),
-  language: z.string().min(2).max(2),
   title: z.string().min(1),
+  ingress: z.string().optional().default(""),
   content: z.string().optional().default(""),
+  menuPosition: z.number().int().nullable(),
+});
+
+export const NewPageForm = z.object({
+  slug: z.string(),
+  language: z.enum(["fi", "en"]),
+  title: z.string().min(1),
+  menuPosition: z.number().int().nullable(),
 });
 
 const defaultPages: Record<
   string,
-  Record<string, { title: string; content: string }>
+  Record<string, { title: string; ingress?: string; content?: string }>
 > = {
   [frontPageSlug]: {
     en: {
       title: "Larpit.fi development instance",
-      content: `### Larpit.fi development instance
+      ingress: `### Larpit.fi development instance
 
 The actual site can be found at [larpit.fi](https://larpit.fi)
 `,
     },
     fi: {
       title: "Larpit.fi-kehitysinstanssi",
-      content: `### Larpit.fi-kehitysinstanssi
+      ingress: `### Larpit.fi-kehitysinstanssi
 
 Varsinainen sivusto löytyy osoitteesta [larpit.fi](https://larpit.fi)
 `,
@@ -52,22 +64,95 @@ Varsinainen sivusto löytyy osoitteesta [larpit.fi](https://larpit.fi)
 };
 
 /**
- * The front page renders the front page and the see also page of each language, and content
- * pages cannot be created from the UI. Missing pages are created with default content; existing
- * pages are kept.
+ * The front page renders the front page and the see also page of each language. Missing pages are
+ * created with default content; existing pages are kept.
  */
 export async function ensureDefaultPages(): Promise<void> {
   for (const [slug, pages] of Object.entries(defaultPages)) {
     for (const [language, page] of Object.entries(pages)) {
       await db.orm.public.Page.upsert({
-        create: { slug, language, ...page },
+        create: { slug, language, content: "", ...page },
         update: {},
       });
     }
   }
 }
 
-/** Where a content page is shown; the front page of every language is the site root. */
-export function contentPagePath(slug: string, language: string): string {
-  return slug === frontPageSlug ? "/" : `/page/${slug}/${language}`;
+export interface InfoMenuPage {
+  slug: string;
+  title: string;
+}
+
+/** The pages in the info menu of the app bar, in menu order. */
+export async function getInfoMenuPages(
+  language: string,
+  reader: typeof db = db,
+): Promise<InfoMenuPage[]> {
+  return reader.orm.public.Page.select("slug", "title")
+    .where({ language })
+    .where((p) => p.menuPosition.isNotNull())
+    .orderBy([(p) => p.menuPosition.asc(), (p) => p.title.asc()])
+    .all();
+}
+
+export type PageChangeResult =
+  { ok: true } | { ok: false; error: PageSlugError };
+
+function isPagePrimaryKeyViolation(error: unknown): boolean {
+  const { sqlState, constraint } = (error ?? {}) as {
+    sqlState?: unknown;
+    constraint?: unknown;
+  };
+  return sqlState === "23505" && constraint === "page_pkey";
+}
+
+export async function createPage(
+  page: z.infer<typeof NewPageForm>,
+): Promise<PageChangeResult> {
+  const error = validatePageSlug(page.slug);
+  if (error) return { ok: false, error };
+  try {
+    await db.orm.public.Page.create({ ...page, ingress: "", content: "" });
+  } catch (error) {
+    if (isPagePrimaryKeyViolation(error)) return { ok: false, error: "taken" };
+    throw error;
+  }
+  return { ok: true };
+}
+
+export async function renamePage(
+  slug: string,
+  language: string,
+  newSlug: string,
+): Promise<PageChangeResult> {
+  if (protectedPageSlugs.includes(slug)) {
+    return { ok: false, error: "protected" };
+  }
+  const error = validatePageSlug(newSlug);
+  if (error) return { ok: false, error };
+  try {
+    await db.orm.public.Page.where({ slug, language }).update({
+      slug: newSlug,
+    });
+  } catch (error) {
+    if (isPagePrimaryKeyViolation(error)) return { ok: false, error: "taken" };
+    throw error;
+  }
+  return { ok: true };
+}
+
+/** Deletes the page and its header image; returns false for the pages that cannot be deleted. */
+export async function deletePage(
+  slug: string,
+  language: string,
+): Promise<boolean> {
+  if (protectedPageSlugs.includes(slug)) return false;
+  const page = await db.orm.public.Page.select("headerImageId").first({
+    slug,
+    language,
+  });
+  if (!page) return true;
+  await db.orm.public.Page.where({ slug, language }).delete();
+  if (page.headerImageId) await deleteHeaderImage(page.headerImageId);
+  return true;
 }
