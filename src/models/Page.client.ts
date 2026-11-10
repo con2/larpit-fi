@@ -82,6 +82,24 @@ export function pageAdminPath(
   return `/page/${action}/${language}/${slug}`;
 }
 
+/**
+ * The page in the UI language, or else the page in the first other language that has one, so a
+ * page written in one language only is still found. Callers render it without changing the UI
+ * language.
+ */
+export function pickPageLanguage<T extends { language: string }>(
+  pages: readonly T[],
+  uiLanguage: string,
+): T | null {
+  const byLanguage = (language: string) =>
+    pages.find((page) => page.language === language);
+  return (
+    byLanguage(uiLanguage) ??
+    supportedLanguages.map(byLanguage).find((page) => page !== undefined) ??
+    null
+  );
+}
+
 /** Parses the menu position field: blank means the page is not in the info menu. */
 export function parseMenuPosition(
   value: FormDataEntryValue | null,

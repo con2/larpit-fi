@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { isRootPageSlug } from "@/models/Page.client";
+import { isRootPageSlug, pickPageLanguage } from "@/models/Page.client";
 import { getReader } from "@/prisma/reader";
 import PagePage from "../page/PagePage";
 
@@ -13,10 +13,10 @@ interface Props {
 const getRootPage = cache(async (slug: string, language: string) => {
   if (!isRootPageSlug(slug)) return null;
   const { db: reader } = await getReader();
-  return reader.orm.public.Page.include("headerImage").first({
-    slug,
-    language,
-  });
+  const pages = await reader.orm.public.Page.include("headerImage")
+    .where({ slug })
+    .all();
+  return pickPageLanguage(pages, language);
 });
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Serves content pages whose slug has a slash, such as `larppaus/aloittaminen`, in the UI
+ * Serves content pages whose slug has a slash, such as `larppaus/aloittaminen`, preferring the UI
  * language. Every other unmatched path goes to `[locale]/not-found.tsx`, inside the site layout.
  */
 export default async function RootPagePage({ params }: Props) {

@@ -36,10 +36,15 @@ export default async function PagePage({ page, locale }: Props) {
   const session = await auth();
   const user = await getUserFromSession(session);
   const headerImage = headerImageViewOrNull(page.headerImage);
+  // A page shown in another language than the UI, because the UI language has none.
+  const contentLang = page.language === locale ? undefined : page.language;
 
   const header = (
     <header className="lf-page-header border-0">
-      <div className={headerImage ? heroTextClassName : undefined}>
+      <div
+        className={headerImage ? heroTextClassName : undefined}
+        lang={contentLang}
+      >
         <h1 className="lf-display-l m-0">{page.title}</h1>
         {page.ingress.trim() && (
           <div className="lf-lede mt-3">
@@ -83,7 +88,7 @@ export default async function PagePage({ page, locale }: Props) {
       )}
       {page.content.trim() && (
         <div className="lf-container">
-          <div className="lf-prose py-5">
+          <div className="lf-prose py-5" lang={contentLang}>
             <Markdown input={page.content} />
           </div>
         </div>

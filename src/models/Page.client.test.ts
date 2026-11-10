@@ -4,6 +4,7 @@ import {
   contentPagePath,
   pagePathInUiLanguage,
   parseMenuPosition,
+  pickPageLanguage,
   validatePageSlug,
 } from "./Page.client";
 
@@ -60,5 +61,16 @@ describe("parseMenuPosition", () => {
     expect(parseMenuPosition(null)).toBeNull();
     expect(parseMenuPosition("3")).toBe(3);
     expect(parseMenuPosition("-1")).toBe(-1);
+  });
+});
+
+describe("pickPageLanguage", () => {
+  const fi = { language: "fi", title: "Sanasto" };
+  const en = { language: "en", title: "Glossary" };
+
+  it("prefers the UI language and falls back to the language that has the page", () => {
+    expect(pickPageLanguage([en, fi], "fi")).toBe(fi);
+    expect(pickPageLanguage([fi], "en")).toBe(fi);
+    expect(pickPageLanguage([], "fi")).toBeNull();
   });
 });
