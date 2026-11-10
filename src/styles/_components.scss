@@ -238,6 +238,10 @@ $lf-phone: 767.98px;
 
 // ---------- aurora ----------
 
+.lf-aurora-hero {
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
 .lf-aurora,
 .lf-appbar__aurora {
   position: absolute;

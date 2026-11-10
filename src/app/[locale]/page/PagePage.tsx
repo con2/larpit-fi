@@ -3,6 +3,7 @@ import HeaderImageBackdrop, {
   heroTextClassName,
   heroWithImageClassName,
 } from "@/components/header-image/HeaderImageBackdrop";
+import AuroraHero from "@/components/ui/AuroraHero";
 import { headerImagesEnabled } from "@/config";
 import {
   type HeaderImageRow,
@@ -37,7 +38,7 @@ export default async function PagePage({ page, locale }: Props) {
   const headerImage = headerImageViewOrNull(page.headerImage);
 
   const header = (
-    <header className={`lf-page-header${headerImage ? " border-0" : ""}`}>
+    <header className="lf-page-header border-0">
       <div className={headerImage ? heroTextClassName : undefined}>
         <h1 className="lf-display-l m-0">{page.title}</h1>
         {page.ingress.trim() && (
@@ -78,7 +79,7 @@ export default async function PagePage({ page, locale }: Props) {
           <div className="lf-container">{header}</div>
         </section>
       ) : (
-        <div className="lf-container">{header}</div>
+        <AuroraHero>{header}</AuroraHero>
       )}
       {page.content.trim() && (
         <div className="lf-container">

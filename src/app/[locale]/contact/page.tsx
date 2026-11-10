@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { PrivacyPolicyLink, ProfileLink } from "@/components/ExternalLinks";
 import { LogoutLink } from "@/components/LoginLink";
+import AuroraHero from "@/components/ui/AuroraHero";
 import { getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
@@ -54,186 +55,192 @@ export default async function ContactPage({ params }: Props) {
     .all();
 
   return (
-    <div className="lf-container">
-      <header className="lf-page-header">
-        <h1 className="lf-display-l">{t.title}</h1>
-        <p className={`lf-lede ${styles.lede}`}>
-          {t.contactAdministratorNoContactForm}
-        </p>
-      </header>
-      <section className={styles.team} aria-labelledby="ContactPage-team">
-        <p id="ContactPage-team">{t.teamConsistsOf}</p>
-        <ul className={styles.teamList}>
-          {roles.map((role) => (
-            <li key={role.id} className={styles.member}>
-              <span className="lf-title">{role.name}</span>
-              <span className={styles.memberTitle}>
-                {getUserTitleInLanguage(role, locale) ||
-                  userT.attributes.role.choices[role.role].title}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-      {contactFormEnabled && (
-        <>
-          <div className="mb-4">{t.contactForm}</div>
-          <Card className="mb-5">
-            <CardBody>
-              <CardTitle>{t.title}</CardTitle>
+    <>
+      <AuroraHero>
+        <header className="lf-page-header border-0">
+          <h1 className="lf-display-l">{t.title}</h1>
+          <p className={`lf-lede ${styles.lede}`}>
+            {t.contactAdministratorNoContactForm}
+          </p>
+        </header>
+      </AuroraHero>
+      <div className="lf-container">
+        <section className={styles.team} aria-labelledby="ContactPage-team">
+          <p id="ContactPage-team">{t.teamConsistsOf}</p>
+          <ul className={styles.teamList}>
+            {roles.map((role) => (
+              <li key={role.id} className={styles.member}>
+                <span className="lf-title">{role.name}</span>
+                <span className={styles.memberTitle}>
+                  {getUserTitleInLanguage(role, locale) ||
+                    userT.attributes.role.choices[role.role].title}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+        {contactFormEnabled && (
+          <>
+            <div className="mb-4">{t.contactForm}</div>
+            <Card className="mb-5">
+              <CardBody>
+                <CardTitle>{t.title}</CardTitle>
 
-              {user ? (
-                <div className="mb-4">
-                  {newT.sections.contact.loggedIn(LogoutLink, ProfileLink)}
-                </div>
-              ) : null}
-
-              <Form>
-                <Row>
-                  <div className="form-group col-md-6 mb-3">
-                    {user ? (
-                      <>
-                        <div className="form-label">
-                          {requesT.attributes.submitterName.label}
-                        </div>
-                        <div>{user.name}</div>
-                      </>
-                    ) : (
-                      <>
-                        <FormLabel htmlFor="SubmitterFormComponent-submitterName">
-                          {requesT.attributes.submitterName.label}*
-                        </FormLabel>
-                        <FormControl
-                          type="text"
-                          name="submitterName"
-                          id="SubmitterFormComponent-submitterName"
-                          required
-                        />
-                      </>
-                    )}
+                {user ? (
+                  <div className="mb-4">
+                    {newT.sections.contact.loggedIn(LogoutLink, ProfileLink)}
                   </div>
+                ) : null}
 
-                  <div className="form-group col-md-6 mb-3">
-                    {user ? (
+                <Form>
+                  <Row>
+                    <div className="form-group col-md-6 mb-3">
+                      {user ? (
+                        <>
+                          <div className="form-label">
+                            {requesT.attributes.submitterName.label}
+                          </div>
+                          <div>{user.name}</div>
+                        </>
+                      ) : (
+                        <>
+                          <FormLabel htmlFor="SubmitterFormComponent-submitterName">
+                            {requesT.attributes.submitterName.label}*
+                          </FormLabel>
+                          <FormControl
+                            type="text"
+                            name="submitterName"
+                            id="SubmitterFormComponent-submitterName"
+                            required
+                          />
+                        </>
+                      )}
+                    </div>
+
+                    <div className="form-group col-md-6 mb-3">
+                      {user ? (
+                        <>
+                          <div className="form-label">
+                            {requesT.attributes.submitterEmail.label}
+                          </div>
+                          <div>
+                            <em>{user.email}</em>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <FormLabel htmlFor="SubmitterFormComponent-submitterEmail">
+                            {requesT.attributes.submitterEmail.label}*
+                          </FormLabel>
+                          <FormControl
+                            type="email"
+                            name="submitterEmail"
+                            id="SubmitterFormComponent-submitterEmail"
+                            required
+                          />
+                        </>
+                      )}
+                    </div>
+                  </Row>
+
+                  <FormCheck
+                    type="checkbox"
+                    className="mb-4"
+                    id="ContactForm-consent"
+                    label={
                       <>
-                        <div className="form-label">
-                          {requesT.attributes.submitterEmail.label}
-                        </div>
-                        <div>
-                          <em>{user.email}</em>
-                        </div>
+                        Annan suostumukseni henkilötietojeni käyttöön{" "}
+                        <PrivacyPolicyLink>
+                          tietosuojaselosteessa
+                        </PrivacyPolicyLink>{" "}
+                        kuvatulla tavalla.*
                       </>
-                    ) : (
-                      <>
-                        <FormLabel htmlFor="SubmitterFormComponent-submitterEmail">
-                          {requesT.attributes.submitterEmail.label}*
-                        </FormLabel>
-                        <FormControl
-                          type="email"
-                          name="submitterEmail"
-                          id="SubmitterFormComponent-submitterEmail"
-                          required
-                        />
-                      </>
-                    )}
-                  </div>
-                </Row>
-
-                <FormCheck
-                  type="checkbox"
-                  className="mb-4"
-                  id="ContactForm-consent"
-                  label={
-                    <>
-                      Annan suostumukseni henkilötietojeni käyttöön{" "}
-                      <PrivacyPolicyLink>
-                        tietosuojaselosteessa
-                      </PrivacyPolicyLink>{" "}
-                      kuvatulla tavalla.*
-                    </>
-                  }
-                  required
-                />
-
-                <div className="form-group mb-3">
-                  <FormLabel htmlFor="ContactForm-reason">
-                    Syy yhteydenottoon*
-                  </FormLabel>
-                  <FormSelect id="ContactForm-reason" name="reason" required>
-                    <option value=""></option>
-                    <option value="SUPPORT">
-                      Tarvitsen apua sivuston käytössä
-                    </option>
-                    <option value="FEEDBACK">
-                      Haluan antaa palautetta sivustosta
-                    </option>
-                    <option value="CONTENT_ISSUE">
-                      Haluan ilmoittaa virheestä tai puutteesta sisällössä
-                    </option>
-                    <option value="REMOVAL">
-                      Haluan, että sivustolla oleva larppisivu poistetaan
-                    </option>
-                    <option value="EXPERT">
-                      Olen toimittaja, tutkija tmv. ja haluan keskustella
-                      larppaamisesta asiantuntijan kanssa
-                    </option>
-                    <option value="OTHER">Muu syy</option>
-                  </FormSelect>
-                </div>
-
-                <div className="form-group mb-4">
-                  <FormLabel htmlFor="ContactForm-context">
-                    Larppi tai sivu, jota asia koskee
-                  </FormLabel>
-                  <FormControl
-                    type="text"
-                    name="context"
-                    id="ContactForm-context"
+                    }
                     required
                   />
-                  <FormText>
-                    Oikean sivun tunnistamista helpottamaan pyydämme syöttämään
-                    tähän larppisivun URL-osoitteen, jos mahdollista (selaimen
-                    osoiteriviltä tai mobiiliselaimessa{" "}
-                    <em>Jaa &rarr; Kopioi osoite</em>). Voit myös kirjoittaa
-                    tähän larpin nimen tai muita tietoja, jotka auttavat meitä
-                    tunnistamaan oikean sivun. Koko sivustoa koskevissa asioissa
-                    voit jättää kentän tyhjäksi.
-                  </FormText>
-                </div>
 
-                <div className="form-group mb-4">
-                  <FormLabel htmlFor="ContactForm-message">Viestisi*</FormLabel>
-                  <FormControl
-                    id="ContactForm-message"
-                    name="content"
-                    as={"textarea"}
-                    rows={5}
-                    required
-                  />
-                </div>
-
-                {user ? null : (
-                  <div className="form-group mb-4">
-                    <FormLabel htmlFor="ContactForm-cat">
-                      {newT.sections.submit.attributes.cat.label}*
+                  <div className="form-group mb-3">
+                    <FormLabel htmlFor="ContactForm-reason">
+                      Syy yhteydenottoon*
                     </FormLabel>
-                    <FormControl id="ContactForm-cat" name="cat" required />
-                    <FormText>{newT.sections.submit.notLoggedIn}</FormText>
+                    <FormSelect id="ContactForm-reason" name="reason" required>
+                      <option value=""></option>
+                      <option value="SUPPORT">
+                        Tarvitsen apua sivuston käytössä
+                      </option>
+                      <option value="FEEDBACK">
+                        Haluan antaa palautetta sivustosta
+                      </option>
+                      <option value="CONTENT_ISSUE">
+                        Haluan ilmoittaa virheestä tai puutteesta sisällössä
+                      </option>
+                      <option value="REMOVAL">
+                        Haluan, että sivustolla oleva larppisivu poistetaan
+                      </option>
+                      <option value="EXPERT">
+                        Olen toimittaja, tutkija tmv. ja haluan keskustella
+                        larppaamisesta asiantuntijan kanssa
+                      </option>
+                      <option value="OTHER">Muu syy</option>
+                    </FormSelect>
                   </div>
-                )}
 
-                <div className="d-flex mb-2">
-                  <SubmitButton className="btn btn-primary btn-lg flex-grow-1">
-                    {newT.actions.submit}
-                  </SubmitButton>
-                </div>
-              </Form>
-            </CardBody>
-          </Card>
-        </>
-      )}
-      <div className="lf-muted mb-5">{t.administrative}</div>
-    </div>
+                  <div className="form-group mb-4">
+                    <FormLabel htmlFor="ContactForm-context">
+                      Larppi tai sivu, jota asia koskee
+                    </FormLabel>
+                    <FormControl
+                      type="text"
+                      name="context"
+                      id="ContactForm-context"
+                      required
+                    />
+                    <FormText>
+                      Oikean sivun tunnistamista helpottamaan pyydämme
+                      syöttämään tähän larppisivun URL-osoitteen, jos
+                      mahdollista (selaimen osoiteriviltä tai mobiiliselaimessa{" "}
+                      <em>Jaa &rarr; Kopioi osoite</em>). Voit myös kirjoittaa
+                      tähän larpin nimen tai muita tietoja, jotka auttavat meitä
+                      tunnistamaan oikean sivun. Koko sivustoa koskevissa
+                      asioissa voit jättää kentän tyhjäksi.
+                    </FormText>
+                  </div>
+
+                  <div className="form-group mb-4">
+                    <FormLabel htmlFor="ContactForm-message">
+                      Viestisi*
+                    </FormLabel>
+                    <FormControl
+                      id="ContactForm-message"
+                      name="content"
+                      as={"textarea"}
+                      rows={5}
+                      required
+                    />
+                  </div>
+
+                  {user ? null : (
+                    <div className="form-group mb-4">
+                      <FormLabel htmlFor="ContactForm-cat">
+                        {newT.sections.submit.attributes.cat.label}*
+                      </FormLabel>
+                      <FormControl id="ContactForm-cat" name="cat" required />
+                      <FormText>{newT.sections.submit.notLoggedIn}</FormText>
+                    </div>
+                  )}
+
+                  <div className="d-flex mb-2">
+                    <SubmitButton className="btn btn-primary btn-lg flex-grow-1">
+                      {newT.actions.submit}
+                    </SubmitButton>
+                  </div>
+                </Form>
+              </CardBody>
+            </Card>
+          </>
+        )}
+        <div className="lf-muted mb-5">{t.administrative}</div>
+      </div>
+    </>
   );
 }

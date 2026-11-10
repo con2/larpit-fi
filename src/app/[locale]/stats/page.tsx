@@ -14,6 +14,7 @@ import {
   type ProportionItem,
   type Tone,
 } from "./charts";
+import AuroraHero from "@/components/ui/AuroraHero";
 import FilterBar, {
   FilterGroup,
   type FilterOption,
@@ -620,35 +621,37 @@ export default async function StatsPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <header className={`lf-container lf-page-header ${styles.header}`}>
-        <div className={styles.headerText}>
-          <p className="lf-eyebrow">{t.eyebrow}</p>
-          <h1 className="lf-display-l">{t.title}</h1>
-          <div className={styles.lede}>{t.message}</div>
-        </div>
-        <dl className={styles.totals} aria-label={t.totals.label}>
-          <div>
-            <dt>{t.totals.pages}</dt>
-            <dd>{formatCount(typeTotal)}</dd>
+      <AuroraHero>
+        <header className={`lf-page-header border-0 ${styles.header}`}>
+          <div className={styles.headerText}>
+            <p className="lf-eyebrow">{t.eyebrow}</p>
+            <h1 className="lf-display-l">{t.title}</h1>
+            <div className={styles.lede}>{t.message}</div>
           </div>
-          {firstYear !== null && lastYear !== null && (
+          <dl className={styles.totals} aria-label={t.totals.label}>
             <div>
-              <dt>{t.totals.years(firstYear, lastYear)}</dt>
-              <dd>{formatCount(lastYear - firstYear + 1)}</dd>
+              <dt>{t.totals.pages}</dt>
+              <dd>{formatCount(typeTotal)}</dd>
             </div>
-          )}
-          <div>
-            <dt>{t.totals.thisYear}</dt>
-            <dd>{formatCount(Number(totals?.thisYear ?? 0))}</dd>
-          </div>
-          <div>
-            <dt>{t.totals.upcoming}</dt>
-            <dd className={styles.totalAccent}>
-              {formatCount(Number(totals?.upcoming ?? 0))}
-            </dd>
-          </div>
-        </dl>
-      </header>
+            {firstYear !== null && lastYear !== null && (
+              <div>
+                <dt>{t.totals.years(firstYear, lastYear)}</dt>
+                <dd>{formatCount(lastYear - firstYear + 1)}</dd>
+              </div>
+            )}
+            <div>
+              <dt>{t.totals.thisYear}</dt>
+              <dd>{formatCount(Number(totals?.thisYear ?? 0))}</dd>
+            </div>
+            <div>
+              <dt>{t.totals.upcoming}</dt>
+              <dd className={styles.totalAccent}>
+                {formatCount(Number(totals?.upcoming ?? 0))}
+              </dd>
+            </div>
+          </dl>
+        </header>
+      </AuroraHero>
 
       <div className={`lf-container ${styles.body}`}>
         <FilterBar>
