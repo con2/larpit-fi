@@ -9,7 +9,7 @@ export default function Footer({ locale }: { locale: string }) {
     <footer className="lf-footer">
       <div className="lf-container">
         <Link href="/" className="lf-logo lf-logo--footer">
-          larpit<span>.fi</span>
+          larp<span>.fi</span>
         </Link>
         <a href={privacyPolicyUrl}>{t.privacyPolicy}</a>
         <a href="https://github.com/con2/larpit-fi">{t.source}</a>

@@ -165,7 +165,7 @@ export default async function AppBar({ locale }: Props) {
       <div className="lf-container lf-appbar__inner">
         <div className="lf-appbar__start">
           <Link href="/" className="lf-logo">
-            larpit<span>.fi</span>
+            larp<span>.fi</span>
             {isStaging && <span className="lf-staging">staging</span>}
           </Link>
           <div className="lf-desktop-only">

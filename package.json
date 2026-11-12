@@ -28,7 +28,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1163.0",
     "@aws-sdk/s3-request-presigner": "^3.1163.0",
-    "@con2/components": "github:con2/components#v5.2.1",
+    "@con2/components": "github:con2/components#v5.2.2",
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/orm-postgres": "8.0.0-rc.22",
     "@types/diff": "^7.0.2",
