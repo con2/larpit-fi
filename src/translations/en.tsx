@@ -2,8 +2,8 @@ import { UserRole } from "@/prisma/enums";
 import { JSX, ReactNode } from "react";
 
 const translations = {
-  title: "Larpit.fi",
-  stagingTitle: "Larpit.fi (STAGING)",
+  title: "Larp.fi",
+  stagingTitle: "Larp.fi (STAGING)",
 
   Common: {
     actions: {
@@ -395,9 +395,9 @@ const translations = {
     },
   },
   LocalSignupSettings: {
-    title: "Sign-up at Larpit.fi",
+    title: "Sign-up at Larp.fi",
     message:
-      "Configure whether participants can sign up for this event directly on Larpit.fi.",
+      "Configure whether participants can sign up for this event directly on Larp.fi.",
     attributes: {
       localSignupStatus: {
         label: "Sign-up mode",
@@ -433,7 +433,7 @@ const translations = {
         DISABLED: "Sign-up for this event is not available.",
         CODE_REQUIRED:
           "This event is only accepting sign-ups via a private link.",
-        CAN_SIGN_UP: "Sign-up for this event at Larpit.fi is in progress!",
+        CAN_SIGN_UP: "Sign-up for this event at Larp.fi is in progress!",
         LOCAL_SIGNUP_YES: "You have signed up for this event!",
         LOCAL_SIGNUP_MAYBE: 'You have signed up "maybe" for this event!',
         LOCAL_SIGNUP_NO:
@@ -1435,7 +1435,7 @@ const translations = {
     },
     pendingEdits: "My pending edits",
     downloadCalendar: "Download my larps (.ics)",
-    calendarName: "Larpit.fi – My larps",
+    calendarName: "Larp.fi – My larps",
     empty: {
       all: "No larps here yet.",
       organizing: "You are not marked as an organizer of any larp.",
@@ -1578,7 +1578,7 @@ const translations = {
   ContactPage: {
     title: "Contact us",
     teamConsistsOf: (
-      <>The team behind Larpit.fi consists of the following people:</>
+      <>The team behind Larp.fi consists of the following people:</>
     ),
     contactAdministratorNoContactForm: (
       <>
@@ -1594,7 +1594,7 @@ const translations = {
     ),
     administrative: (
       <p>
-        Larpit.fi is managed by Tracon ry (2886274-5). To contact Tracon ry, see
+        Larp.fi is managed by Tracon ry (2886274-5). To contact Tracon ry, see
         the{" "}
         <a
           href="https://ry.tracon.fi"
@@ -1703,9 +1703,9 @@ const translations = {
           Finland.
         </p>{" "}
         <p>
-          Please note that not all games ever played have been added to
-          Larpit.fi yet, so the actual number of games and participants is
-          certainly higher.
+          Please note that not all games ever played have been added to Larp.fi
+          yet, so the actual number of games and participants is certainly
+          higher.
         </p>{" "}
         <p>
           Unless otherwise stated, the figures include one-shot and campaign
@@ -1724,7 +1724,7 @@ const translations = {
         choices: {
           ALL_TIME: "All time",
           POST_COVID: "Post-COVID era (2022–)",
-          LAUNCH: "Since Larpit.fi launch (2026–)",
+          LAUNCH: "Since Larp.fi launch (2026–)",
         },
         lastTenYears: (first: number) =>
           `Last 10 full years and the current year (${first}–)`,
@@ -1924,11 +1924,11 @@ const translations = {
         label: "Email address",
         helpText: (
           <>
-            Your email address connects your Kompassi account to your Larpit.fi
+            Your email address connects your Kompassi account to your Larp.fi
             account. You cannot change it here. If you change your email address
-            in your Kompassi profile, please ask the Larpit.fi administrator to
-            re-link your Larpit.fi account to your Kompassi account if you want
-            to keep it.
+            in your Kompassi profile, please ask the Larp.fi administrator to
+            re-link your Larp.fi account to your Kompassi account if you want to
+            keep it.
           </>
         ),
       },
@@ -1940,11 +1940,11 @@ const translations = {
       title: "Remove account",
       description: (
         <>
-          Permanently remove your Larpit.fi account. Larps you have created are
-          not removed. Only your Larpit.fi account is removed, not your Kompassi
+          Permanently remove your Larp.fi account. Larps you have created are
+          not removed. Only your Larp.fi account is removed, not your Kompassi
           account. If you also want to remove your Kompassi account, please
           contact Kompassi support by email at <em>suunnistajat@kompassi.eu</em>
-          . If you log in again with your Kompassi account, a new Larpit.fi
+          . If you log in again with your Kompassi account, a new Larp.fi
           account will be created for you, but you will not regain the game
           master and other roles you had before removal. For security, removal
           requires confirmation by email.
@@ -1961,14 +1961,14 @@ const translations = {
       title: "Confirm account removal",
       message: (
         <>
-          This permanently removes your Larpit.fi account. Only your Larpit.fi
+          This permanently removes your Larp.fi account. Only your Larp.fi
           account is removed, not your Kompassi account. Larps you have created
           are not removed. This cannot be undone.
         </>
       ),
       submit: "Remove my account",
       confirmationMessage:
-        "Permanently remove your Larpit.fi account? This cannot be undone.",
+        "Permanently remove your Larp.fi account? This cannot be undone.",
     },
     invalidToken: {
       title: "Link expired or invalid",

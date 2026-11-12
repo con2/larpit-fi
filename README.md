@@ -1,6 +1,6 @@
-# Larpit.fi
+# Larp.fi
 
-[Larpit.fi](https://larpit.fi) is a crowd-sourced archive of past and future larps organized in Finland, by Finns, or having a significant Finnvasion.
+[Larp.fi](https://larp.fi) is a crowd-sourced archive of past and future larps organized in Finland, by Finns, or having a significant Finnvasion.
 
 ## Technologies used
 
@@ -67,7 +67,7 @@ npm run db:migrate:dev
 npm run dev
 ```
 
-An empty database is dull. Mirror the public larps of larpit.fi into it with
+An empty database is dull. Mirror the public larps of larp.fi into it with
 
 ```
 npm run db:load
@@ -103,4 +103,4 @@ See above for creating the `larpit_test` database.
 
 ## Backlog
 
-See the [Larpit.fi project](https://github.com/orgs/con2/projects/15) and [issues](https://github.com/con2/larpit-fi/issues).
+See the [Larp.fi project](https://github.com/orgs/con2/projects/15) and [issues](https://github.com/con2/larpit-fi/issues).

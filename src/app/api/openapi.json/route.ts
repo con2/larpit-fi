@@ -11,7 +11,7 @@ import { NextResponse } from "next/server";
 const spec = {
   openapi: "3.1.0",
   info: {
-    title: "larpit.fi API",
+    title: "larp.fi API",
     version: "1.0.0",
   },
   servers: [{ url: publicUrl }],
@@ -217,7 +217,7 @@ const spec = {
             in: "path",
             required: true,
             description:
-              "UUID of the larp, or its alias (the short address https://larpit.fi/<alias>). A former alias of the larp also works.",
+              "UUID of the larp, or its alias (the short address https://larp.fi/<alias>). A former alias of the larp also works.",
             schema: { type: "string" },
           },
         ],

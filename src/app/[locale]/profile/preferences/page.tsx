@@ -98,7 +98,7 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
                 <FormText>{t.attributes.editFormPreference.helpText}</FormText>
               </div>
 
-              {/* TODO(#9): Update email from Kompassi on login. Help text for email field is inaccurate: in fact, Larpit.fi account is still tied to the same Kompassi account via numeric Kompassi user ID, but the email shown here is not updated. */}
+              {/* TODO(#9): Update email from Kompassi on login. Help text for email field is inaccurate: in fact, Larp.fi account is still tied to the same Kompassi account via numeric Kompassi user ID, but the email shown here is not updated. */}
               {false && (
                 <div className="form-group mb-3">
                   <FormLabel htmlFor="Preferences-email">

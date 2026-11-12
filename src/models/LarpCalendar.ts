@@ -77,7 +77,7 @@ export function renderLarpCalendar(
   const lines: string[] = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//larpit.fi//Larpit.fi//FI",
+    "PRODID:-//larp.fi//Larp.fi//FI",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     foldLine(`X-WR-CALNAME:${escapeText(typesetDashes(calendarName))}`),
@@ -100,6 +100,8 @@ export function renderLarpCalendar(
     const summary = larp.cancelledAt ? `[${prefix}] ${name}` : name;
 
     lines.push("BEGIN:VEVENT");
+    // Calendar clients identify events by UID; changing the domain part would duplicate every
+    // event for existing subscribers.
     lines.push(foldLine(`UID:${larp.id}@larpit.fi`));
     lines.push(foldLine(`SEQUENCE:${larp.updateCount}`));
     lines.push(foldLine(`DTSTAMP:${formatUtc(now)}`));

@@ -31,7 +31,7 @@ interface KompassiProfile {
 }
 
 /**
- * Finds the larpit.fi user for a Kompassi identity, creating the user and the account link on
+ * Finds the larp.fi user for a Kompassi identity, creating the user and the account link on
  * first sign-in. An account row (provider + subject) is the authoritative link; a user without
  * one for this subject is matched by email, which the signIn callback has required Kompassi to
  * have verified.
@@ -66,7 +66,7 @@ async function resolveUser(profile: KompassiProfile): Promise<string> {
 
 /**
  * Keeps the user's email in step with Kompassi, which is where the user changes it. If another
- * larpit.fi user already holds the new address, the old one is kept rather than failing sign-in.
+ * larp.fi user already holds the new address, the old one is kept rather than failing sign-in.
  */
 async function syncEmail(userId: string, email: string) {
   if (!email) return;

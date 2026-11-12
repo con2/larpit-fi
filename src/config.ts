@@ -28,7 +28,7 @@ export const kompassiOidc = {
 
 // User-visible public base URL of the service
 export const publicUrl = process.env.AUTH_URL || "http://localhost:3158";
-export const isStaging = publicUrl.includes("dev.larpit.fi");
+export const isStaging = publicUrl.includes("dev.larp.fi");
 
 // Auth.js
 export const authSecret =
@@ -45,7 +45,7 @@ export const nodemailerConfig: SMTPTransport.Options = {
 
 export const mailSender = process.env.MAIL_SENDER || "larpit-fi@tracon.fi";
 export const formattedMailFrom =
-  process.env.FORMATTED_MAIL_FROM || `Larpit.fi <larpit-fi@tracon.fi>`;
+  process.env.FORMATTED_MAIL_FROM || `Larp.fi <larpit-fi@tracon.fi>`;
 
 export const mailOptions: Partial<SendMailOptions> = {
   sender: mailSender,
@@ -79,7 +79,7 @@ export const featureFlags = {
    * Off: everyone gets the plain Day theme and the theme controls are hidden. On: Night mode and
    * the theme controls, and in Day mode a night-sky app bar and aurora hero over the day page.
    */
-  nordicNight: false,
+  nordicNight: true,
   /** On: content pages with a menu position are listed in the "What is larp?" menu of the app bar. */
-  infoMenu: false,
+  infoMenu: true,
 } as const;

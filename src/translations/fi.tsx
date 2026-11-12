@@ -3,8 +3,8 @@ import { JSX, ReactNode } from "react";
 import type { Translations } from "./en";
 
 const translations: Translations = {
-  title: "Larpit.fi",
-  stagingTitle: "Larpit.fi (STAGING)",
+  title: "Larp.fi",
+  stagingTitle: "Larp.fi (STAGING)",
 
   Common: {
     actions: {
@@ -409,9 +409,9 @@ const translations: Translations = {
     },
   },
   LocalSignupSettings: {
-    title: "Ilmoittautuminen Larpit.fi:ssä",
+    title: "Ilmoittautuminen Larp.fi:ssä",
     message:
-      "Määritä, voivatko osallistujat ilmoittautua tähän tapahtumaan suoraan Larpit.fi:ssä.",
+      "Määritä, voivatko osallistujat ilmoittautua tähän tapahtumaan suoraan Larp.fi:ssä.",
     attributes: {
       localSignupStatus: {
         label: "Ilmoittautumistila",
@@ -447,7 +447,7 @@ const translations: Translations = {
         DISABLED: "Ilmoittautuminen tähän tapahtumaan ei ole käytössä.",
         CODE_REQUIRED:
           "Tähän tapahtumaan voi ilmoittautua vain yksityisellä linkillä.",
-        CAN_SIGN_UP: "Tapahtuman ilmoittautuminen Larpit.fi:ssä on käynnissä!",
+        CAN_SIGN_UP: "Tapahtuman ilmoittautuminen Larp.fi:ssä on käynnissä!",
         LOCAL_SIGNUP_YES: "Olet ilmoittautunut tähän tapahtumaan!",
         LOCAL_SIGNUP_MAYBE:
           "Olet ilmoittautunut tähän tapahtumaan ehkä-vastauksella!",
@@ -1467,7 +1467,7 @@ const translations: Translations = {
     },
     pendingEdits: "Odottavat muokkaukseni",
     downloadCalendar: "Lataa larppini (.ics)",
-    calendarName: "Larpit.fi – Omat larpit",
+    calendarName: "Larp.fi – Omat larpit",
     empty: {
       all: "Täällä ei ole vielä larppeja.",
       organizing: "Sinua ei ole merkitty minkään larpin järjestäjäksi.",
@@ -1609,22 +1609,22 @@ const translations: Translations = {
   },
   ContactPage: {
     title: "Ota yhteyttä",
-    teamConsistsOf: <>Larpit.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
+    teamConsistsOf: <>Larp.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
     contactAdministratorNoContactForm: (
       <>
-        Larpit.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta{" "}
+        Larp.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta{" "}
         <em className="text-nowrap">larpit-fi ät tracon.fi</em>.
       </>
     ),
     contactForm: (
       <p>
-        Larpit.fi:n ylläpitäjän tavoitat alla olevalla yhteydenottolomakkeella
-        tai sähköpostitse osoitteesta <em>larpit-fi ät tracon.fi</em>.
+        Larp.fi:n ylläpitäjän tavoitat alla olevalla yhteydenottolomakkeella tai
+        sähköpostitse osoitteesta <em>larpit-fi ät tracon.fi</em>.
       </p>
     ),
     administrative: (
       <p>
-        Hallinnollisesti Larpit.fi:stä vastaa Tracon ry (2886274-5). Tracon ry:n
+        Hallinnollisesti Larp.fi:stä vastaa Tracon ry (2886274-5). Tracon ry:n
         yhteystiedot löydät{" "}
         <a
           href="https://ry.tracon.fi"
@@ -1735,7 +1735,7 @@ const translations: Translations = {
         </p>{" "}
         <p>
           Huomaathan, että kaikkia koskaan pelattuja pelejä ei ole vieläkään
-          lisätty Larpit.fi:hin, ja todelliset peli- ja osallistujamäärät ovat
+          lisätty Larp.fi:hin, ja todelliset peli- ja osallistujamäärät ovat
           siksi varmasti suurempia.
         </p>{" "}
         <p>
@@ -1755,7 +1755,7 @@ const translations: Translations = {
         choices: {
           ALL_TIME: "Aikojen alusta asti",
           POST_COVID: "Koronapandemian jälkeinen aika (2022–)",
-          LAUNCH: "Larpit.fi:n lanseerauksesta alkaen (2026–)",
+          LAUNCH: "Larp.fi:n lanseerauksesta alkaen (2026–)",
         },
         lastTenYears: (first: number) =>
           `Viimeiset 10 kokonaista vuotta ja kuluva vuosi (${first}–)`,
@@ -1957,11 +1957,10 @@ const translations: Translations = {
         label: "Sähköpostiosoite",
         helpText: (
           <>
-            Sähköpostiosoitteesi yhdistää Kompassi-tilisi Larpit.fi-tiliisi. Et
+            Sähköpostiosoitteesi yhdistää Kompassi-tilisi Larp.fi-tiliisi. Et
             voi vaihtaa sitä täällä. Jos vaihdat sähköpostiosoitteesi
-            Kompassi-profiilissasi, pyydä Larpit.fi:n ylläpitäjää yhdistämään
-            Larpit.fi-tilisi uudelleen Kompassi-tiliisi, jos haluat säilyttää
-            sen.
+            Kompassi-profiilissasi, pyydä Larp.fi:n ylläpitäjää yhdistämään
+            Larp.fi-tilisi uudelleen Kompassi-tiliisi, jos haluat säilyttää sen.
           </>
         ),
       },
@@ -1973,13 +1972,13 @@ const translations: Translations = {
       title: "Poista käyttäjätili",
       description: (
         <>
-          Poista Larpit.fi-tilisi pysyvästi. Luomiasi larppeja ei poisteta. Vain
-          Larpit.fi-tilisi poistetaan, ei Kompassi-tiliäsi. Jos haluat poistaa
+          Poista Larp.fi-tilisi pysyvästi. Luomiasi larppeja ei poisteta. Vain
+          Larp.fi-tilisi poistetaan, ei Kompassi-tiliäsi. Jos haluat poistaa
           myös Kompassi-tilisi, ota yhteyttä Kompassin tukeen sähköpostitse
           osoitteella <em>suunnistajat@kompassi.eu</em>. Jos kirjaudut uudelleen
-          sisään Kompassi-tililläsi, sinulle luodaan uusi Larpit.fi-tili, mutta
-          et saa takaisin pelinjohtaja- tai muita rooleja, jotka sinulla oli
-          ennen poistoa. Turvallisuussyistä poisto edellyttää vahvistusta
+          sisään Kompassi-tililläsi, sinulle luodaan uusi Larp.fi-tili, mutta et
+          saa takaisin pelinjohtaja- tai muita rooleja, jotka sinulla oli ennen
+          poistoa. Turvallisuussyistä poisto edellyttää vahvistusta
           sähköpostitse.
         </>
       ),
@@ -1995,14 +1994,13 @@ const translations: Translations = {
       title: "Vahvista käyttäjätilin poisto",
       message: (
         <>
-          Tämä poistaa Larpit.fi-tilisi pysyvästi. Vain Larpit.fi-tilisi
-          poistetaan, ei Kompassi-tiliäsi. Luomiasi larppeja ei poisteta. Tätä
-          ei voi perua.
+          Tämä poistaa Larp.fi-tilisi pysyvästi. Vain Larp.fi-tilisi poistetaan,
+          ei Kompassi-tiliäsi. Luomiasi larppeja ei poisteta. Tätä ei voi perua.
         </>
       ),
       submit: "Poista käyttäjätilini",
       confirmationMessage:
-        "Poistetaanko Larpit.fi-tilisi pysyvästi? Tätä ei voi perua.",
+        "Poistetaanko Larp.fi-tilisi pysyvästi? Tätä ei voi perua.",
     },
     invalidToken: {
       title: "Linkki on vanhentunut tai virheellinen",

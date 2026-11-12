@@ -10,9 +10,9 @@ export function confirmAccountRemovalSubject(locale: string) {
 
   switch (locale) {
     case "fi":
-      return "Larpit.fi: Vahvista käyttäjätilin poisto";
+      return "Larp.fi: Vahvista käyttäjätilin poisto";
     default:
-      return "Larpit.fi: Confirm account removal";
+      return "Larp.fi: Confirm account removal";
   }
 }
 
@@ -30,13 +30,13 @@ export function confirmAccountRemovalText(
     case "fi":
       return `Moi!
 
-Joku, toivottavasti sinä, on pyytänyt Larpit.fi-käyttäjätilisi poistamista.
+Joku, toivottavasti sinä, on pyytänyt Larp.fi-käyttäjätilisi poistamista.
 
 Vahvistaaksesi poiston avaa tämä sivu ja klikkaa "Poista käyttäjätilini"-nappia:
 
 ${getRemovalUrl(token)}
 
-Huomaa, että vain Larpit.fi-tilisi poistetaan, ei Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota yhteyttä Kompassin tukeen sähköpostitse.
+Huomaa, että vain Larp.fi-tilisi poistetaan, ei Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota yhteyttä Kompassin tukeen sähköpostitse.
 
 Jos et tehnyt tätä pyyntöä, voit turvallisesti jättää tämän sähköpostin huomiotta. Käyttäjätiliäsi ei poisteta ilman tätä vahvistusta.
 
@@ -44,20 +44,20 @@ Ystävällisin terveisin
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
-Tutustu Larpit.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
+Tutustu Larp.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
 `;
 
     default:
       return `Hi!
 
-Someone, hopefully you, requested the removal of your Larpit.fi account.
+Someone, hopefully you, requested the removal of your Larp.fi account.
 
 To confirm the removal, please open the following page and click the "Remove my account" button:
 
 ${getRemovalUrl(token)}
 
-Note that only your Larpit.fi account is removed, not your Kompassi account. If you also want to remove your Kompassi account, please contact Kompassi support by email.
+Note that only your Larp.fi account is removed, not your Kompassi account. If you also want to remove your Kompassi account, please contact Kompassi support by email.
 
 If you did not make this request, you can safely ignore this email. Your account will not be removed without this confirmation.
 
@@ -65,8 +65,8 @@ Yours sincerely
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi is a service of Tracon ry (https://tracon.fi/ry).
-See the privacy policy of Larpit.fi: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi is a service of Tracon ry (https://tracon.fi/ry).
+See the privacy policy of Larp.fi: https://tracon.fi/tietosuoja/larpit-fi
 `;
   }
 }
@@ -103,7 +103,7 @@ export function ConfirmAccountRemoval({
           <Container>
             <Text>Moi!</Text>
             <Text>
-              Joku, toivottavasti sinä, on pyytänyt Larpit.fi-käyttäjätilisi
+              Joku, toivottavasti sinä, on pyytänyt Larp.fi-käyttäjätilisi
               poistamista. Poisto edellyttää sähköpostivahvistusta.
             </Text>
             <Text>
@@ -117,9 +117,9 @@ export function ConfirmAccountRemoval({
               </Button>
             </Text>
             <Text>
-              Huomaa, että vain Larpit.fi-tilisi poistetaan, ei
-              Kompassi-tiliäsi. Jos haluat poistaa myös Kompassi-tilisi, ota
-              yhteyttä Kompassin tukeen sähköpostitse.
+              Huomaa, että vain Larp.fi-tilisi poistetaan, ei Kompassi-tiliäsi.
+              Jos haluat poistaa myös Kompassi-tilisi, ota yhteyttä Kompassin
+              tukeen sähköpostitse.
             </Text>
             <Text>
               Jos et tehnyt tätä pyyntöä, voit turvallisesti jättää tämän
@@ -133,9 +133,8 @@ export function ConfirmAccountRemoval({
             </Text>
             <Text>
               <small>
-                Larpit.fi on{" "}
-                <Link href="https://tracon.fi/ry">Tracon ry:n</Link> tarjoama
-                palvelu. Tutustu{" "}
+                Larp.fi on <Link href="https://tracon.fi/ry">Tracon ry:n</Link>{" "}
+                tarjoama palvelu. Tutustu{" "}
                 <Link href={privacyPolicyUrl}>tietosuojaselosteeseen</Link>.
               </small>
             </Text>
@@ -148,7 +147,7 @@ export function ConfirmAccountRemoval({
           <Container>
             <Text>Hi!</Text>
             <Text>
-              Someone, hopefully you, requested the removal of your Larpit.fi
+              Someone, hopefully you, requested the removal of your Larp.fi
               account. The removal requires email verification.
             </Text>
             <Text>
@@ -161,9 +160,9 @@ export function ConfirmAccountRemoval({
               </Button>
             </Text>
             <Text>
-              Note that only your Larpit.fi account is removed, not your
-              Kompassi account. If you also want to remove your Kompassi
-              account, please contact Kompassi support by email.
+              Note that only your Larp.fi account is removed, not your Kompassi
+              account. If you also want to remove your Kompassi account, please
+              contact Kompassi support by email.
             </Text>
             <Text>
               If you did not make this request, you can safely ignore this
@@ -176,7 +175,7 @@ export function ConfirmAccountRemoval({
             </Text>
             <Text>
               <small>
-                Larpit.fi is a service of{" "}
+                Larp.fi is a service of{" "}
                 <Link href="https://tracon.fi/ry">Tracon ry</Link>. See the{" "}
                 <Link href={privacyPolicyUrl}>Privacy policy</Link>.
               </small>

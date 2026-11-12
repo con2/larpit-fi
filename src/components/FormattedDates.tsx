@@ -5,7 +5,7 @@ import { Fragment } from "react";
 import { dateRangeParts, formatDate, formatDateTime } from "@/helpers/dates";
 
 // Use these instead of the date components of @con2/components, which render English dates as
-// ISO 8601; larpit.fi writes them as 27 Feb 2027.
+// ISO 8601; larp.fi writes them as 27 Feb 2027.
 
 type DateLike = Date | Temporal.PlainDate | string;
 

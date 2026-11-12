@@ -12,19 +12,19 @@ import {
 import { pool } from "@/prisma/pool";
 
 /**
- * Mirrors the public larp data of a larpit.fi instance into this database, for development
+ * Mirrors the public larp data of a larp.fi instance into this database, for development
  * against realistic content. Larps keep their ids, so local URLs match the source instance.
  * Users, roles and moderation history are not public and are not loaded. Municipalities are
  * matched by their Finnish name against the local municipality table, so import them first if
  * you want locations resolved.
  *
- *   npm run db:load                              # from https://larpit.fi
+ *   npm run db:load                              # from https://larp.fi
  *   npm run db:load -- --api http://localhost:3158
  */
 
 const apiBase = (() => {
   const index = process.argv.indexOf("--api");
-  return (index === -1 ? "https://larpit.fi" : process.argv[index + 1]).replace(
+  return (index === -1 ? "https://larp.fi" : process.argv[index + 1]).replace(
     /\/$/,
     "",
   );

@@ -30,17 +30,17 @@ const defaultPages: Record<
 > = {
   [frontPageSlug]: {
     en: {
-      title: "Larpit.fi development instance",
-      ingress: `### Larpit.fi development instance
+      title: "Larp.fi development instance",
+      ingress: `### Larp.fi development instance
 
-The actual site can be found at [larpit.fi](https://larpit.fi)
+The actual site can be found at [larp.fi](https://larp.fi)
 `,
     },
     fi: {
-      title: "Larpit.fi-kehitysinstanssi",
-      ingress: `### Larpit.fi-kehitysinstanssi
+      title: "Larp.fi-kehitysinstanssi",
+      ingress: `### Larp.fi-kehitysinstanssi
 
-Varsinainen sivusto löytyy osoitteesta [larpit.fi](https://larpit.fi)
+Varsinainen sivusto löytyy osoitteesta [larp.fi](https://larp.fi)
 `,
     },
   },

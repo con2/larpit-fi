@@ -29,7 +29,7 @@ const larpPathRegex =
   /^\/larp\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
 const aliasPathRegex = /^\/([^/]+)$/;
 
-const userAgent = `larpit.fi (+${publicUrl})`;
+const userAgent = `larp.fi (+${publicUrl})`;
 const fetchTimeoutMs = 30_000;
 
 export const syncMessage = "Lisätty automaattisesti Larppikuvat.fi:stä";
@@ -49,13 +49,17 @@ function normalizeUrl(href: string): { host: string; path: string } | null {
 }
 
 /**
- * The larp that `https://larpit.fi/larp/<uuid>` or `https://larpit.fi/<alias>` (or the same path
- * on this instance) addresses.
+ * The larp that `https://larp.fi/larp/<uuid>` or `https://larp.fi/<alias>` (or the same path on
+ * the former larpit.fi domain or this instance) addresses.
  */
 export function larpFilterFromUrl(href: string): LarpIdOrAliasFilter | null {
   const url = normalizeUrl(href);
   if (!url) return null;
-  const ownHosts = new Set(["larpit.fi", normalizeUrl(publicUrl)?.host]);
+  const ownHosts = new Set([
+    "larp.fi",
+    "larpit.fi",
+    normalizeUrl(publicUrl)?.host,
+  ]);
   if (!ownHosts.has(url.host)) return null;
   const larpId = url.path.match(larpPathRegex)?.[1];
   if (larpId) return { id: larpId.toLowerCase() };

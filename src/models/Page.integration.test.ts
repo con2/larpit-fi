@@ -62,7 +62,7 @@ describe("ensureDefaultPages", () => {
     const pages = await db.orm.public.Page.where({ slug: frontPageSlug }).all();
     expect(pages.map((p) => p.language).sort()).toEqual(["en", "fi"]);
     // The front page shows only its ingress.
-    expect(pages.every((p) => p.ingress.includes("larpit.fi"))).toBe(true);
+    expect(pages.every((p) => p.ingress.includes("larp.fi"))).toBe(true);
     expect(pages.every((p) => p.content === "")).toBe(true);
   });
 
@@ -87,7 +87,7 @@ describe("ensureDefaultPages", () => {
       slug: frontPageSlug,
       language: "en",
     });
-    expect(en?.title).toBe("Larpit.fi development instance");
+    expect(en?.title).toBe("Larp.fi development instance");
   });
 
   it("creates a see also page for each language", async () => {

@@ -10,9 +10,9 @@ export function signupVerificationSubject(locale: string) {
 
   switch (locale) {
     case "fi":
-      return "Larpit.fi: Vahvista ilmoittautumisesi";
+      return "Larp.fi: Vahvista ilmoittautumisesi";
     default:
-      return "Larpit.fi: Confirm your sign-up";
+      return "Larp.fi: Confirm your sign-up";
   }
 }
 
@@ -32,7 +32,7 @@ export function signupVerificationText(
     case "fi":
       return `Moi!
 
-Joku, toivottavasti sinä, on ilmoittautunut tapahtumaan "${larpName}" Larpit.fi:ssä tällä sähköpostiosoitteella.
+Joku, toivottavasti sinä, on ilmoittautunut tapahtumaan "${larpName}" Larp.fi:ssä tällä sähköpostiosoitteella.
 
 Vahvistaaksesi ilmoittautumisesi avaa tämä sivu ja klikkaa vahvistusnappia:
 
@@ -44,14 +44,14 @@ Ystävällisin terveisin
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
-Tutustu Larpit.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
+Tutustu Larp.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
 `;
 
     default:
       return `Hi!
 
-Someone, hopefully you, signed up for "${larpName}" at Larpit.fi using your email address.
+Someone, hopefully you, signed up for "${larpName}" at Larp.fi using your email address.
 
 To confirm your sign-up, please open the following page and click the confirmation button:
 
@@ -63,8 +63,8 @@ Yours sincerely
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi is a service of Tracon ry (https://tracon.fi/ry).
-See the privacy policy of Larpit.fi: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi is a service of Tracon ry (https://tracon.fi/ry).
+See the privacy policy of Larp.fi: https://tracon.fi/tietosuoja/larpit-fi
 `;
   }
 }
@@ -106,7 +106,7 @@ export function SignupVerification({
             <Text>Moi!</Text>
             <Text>
               Joku, toivottavasti sinä, on ilmoittautunut tapahtumaan &quot;
-              {larpName}&quot; Larpit.fi:ssä tällä sähköpostiosoitteella.
+              {larpName}&quot; Larp.fi:ssä tällä sähköpostiosoitteella.
             </Text>
             <Text>
               Vahvista ilmoittautumisesi klikkaamalla alla olevaa nappia:
@@ -130,9 +130,8 @@ export function SignupVerification({
             </Text>
             <Text>
               <small>
-                Larpit.fi on{" "}
-                <Link href="https://tracon.fi/ry">Tracon ry:n</Link> tarjoama
-                palvelu. Tutustu{" "}
+                Larp.fi on <Link href="https://tracon.fi/ry">Tracon ry:n</Link>{" "}
+                tarjoama palvelu. Tutustu{" "}
                 <Link href={privacyPolicyUrl}>tietosuojaselosteeseen</Link>.
               </small>
             </Text>
@@ -146,7 +145,7 @@ export function SignupVerification({
             <Text>Hi!</Text>
             <Text>
               Someone, hopefully you, signed up for &quot;{larpName}&quot; at
-              Larpit.fi using your email address.
+              Larp.fi using your email address.
             </Text>
             <Text>
               Please confirm your sign-up by clicking the button below:
@@ -169,7 +168,7 @@ export function SignupVerification({
             </Text>
             <Text>
               <small>
-                Larpit.fi is a service of{" "}
+                Larp.fi is a service of{" "}
                 <Link href="https://tracon.fi/ry">Tracon ry</Link>. See the{" "}
                 <Link href={privacyPolicyUrl}>Privacy policy</Link>.
               </small>

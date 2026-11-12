@@ -1,6 +1,6 @@
 # larpit Helm chart
 
-Deploys larpit.fi: a Next.js Deployment (with a Prisma migration init container), the hourly
+Deploys larp.fi: a Next.js Deployment (with a Prisma migration init container), the hourly
 Larppikuvat.fi sync CronJob, and a per-namespace Gateway with HTTPRoutes whose TLS certificate
 cert-manager issues from the Gateway's `cert-manager.io/cluster-issuer` annotation.
 `.github/workflows/cicd.yaml` runs `helm upgrade --install larpit chart` into
@@ -134,7 +134,7 @@ kubectl -n garage exec garage-0 -- /garage bucket allow --read --write --owner l
 kubectl -n garage exec garage-0 -- /garage bucket allow --read larpit --key garage-backup-reader
 kubectl -n larpit-production patch secret larpit -p '{"stringData":{"S3_ACCESS_KEY_ID":"…","S3_SECRET_ACCESS_KEY":"…"}}'
 # once per bucket, CORS for presigned PUTs from the site origin:
-AUTH_URL=https://larpit.fi S3_ENDPOINT=https://garage.con2.fi S3_BUCKET=larpit S3_ACCESS_KEY_ID=… S3_SECRET_ACCESS_KEY=… npm run s3:setup
+AUTH_URL=https://larp.fi S3_ENDPOINT=https://garage.con2.fi S3_BUCKET=larpit S3_ACCESS_KEY_ID=… S3_SECRET_ACCESS_KEY=… npm run s3:setup
 ```
 
 `--owner` is what lets the key set the bucket's CORS rules in `s3:setup`. `--write` implies

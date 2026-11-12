@@ -10,9 +10,9 @@ export function verifyRequestSubject(locale: string) {
 
   switch (locale) {
     case "fi":
-      return "Larpit.fi: Vahvista pyyntö";
+      return "Larp.fi: Vahvista pyyntö";
     default:
-      return "Larpit.fi: Verify your request";
+      return "Larp.fi: Verify your request";
   }
 }
 
@@ -30,7 +30,7 @@ export function verifyRequestText(
     case "fi":
       return `Moi!
 
-Joku, toivottavasti sinä, on tehnyt larpin lisäys- tai muokkauspyynnön Larpit.fi:ssä tällä sähköpostiosoitteella.
+Joku, toivottavasti sinä, on tehnyt larpin lisäys- tai muokkauspyynnön Larp.fi:ssä tällä sähköpostiosoitteella.
 
 Vahvistaaksesi pyynnön avaa tämä sivu ja klikkaa "Vahvista pyyntöni"-nappia:
 
@@ -42,14 +42,14 @@ Ystävällisin terveisin
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
-Tutustu Larpit.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi on Tracon ry:n (https://tracon.fi/ry) tarjoama palvelu.
+Tutustu Larp.fi:n tietosuojaselosteeseen: https://tracon.fi/tietosuoja/larpit-fi
 `;
 
     default:
       return `Hi!
 
-Someone, hopefully you, requested to add or edit a larp at Larpit.fi using your email address.
+Someone, hopefully you, requested to add or edit a larp at Larp.fi using your email address.
 
 To verify the request, please open the following page and click the "Verify my request" button:
 
@@ -61,8 +61,8 @@ Yours sincerely
 ${signatureSeparator}
 ${formattedMailFrom}
 
-Larpit.fi is a service of Tracon ry (https://tracon.fi/ry).
-See the privacy policy of Larpit.fi: https://tracon.fi/tietosuoja/larpit-fi
+Larp.fi is a service of Tracon ry (https://tracon.fi/ry).
+See the privacy policy of Larp.fi: https://tracon.fi/tietosuoja/larpit-fi
 `;
   }
 }
@@ -100,7 +100,7 @@ export function VerifyRequest({
             <Text>Moi!</Text>
             <Text>
               Joku, toivottavasti sinä, on tehnyt larpin lisäys- tai
-              muokkauspyynnön Larpit.fi:ssä tällä sähköpostiosoitteella. Koska
+              muokkauspyynnön Larp.fi:ssä tällä sähköpostiosoitteella. Koska
               pyyntö on tehty kirjautumatta sisään, edellyttää se
               sähköpostivahvistusta.
             </Text>
@@ -128,9 +128,8 @@ export function VerifyRequest({
             </Text>
             <Text>
               <small>
-                Larpit.fi on{" "}
-                <Link href="https://tracon.fi/ry">Tracon ry:n</Link> tarjoama
-                palvelu. Tutustu{" "}
+                Larp.fi on <Link href="https://tracon.fi/ry">Tracon ry:n</Link>{" "}
+                tarjoama palvelu. Tutustu{" "}
                 <Link href={privacyPolicyUrl}>tietosuojaselosteeseen</Link>.
               </small>
             </Text>
@@ -143,9 +142,9 @@ export function VerifyRequest({
           <Container>
             <Text>Hi!</Text>
             <Text>
-              Someone, hopefully you, requested to add or edit a larp at
-              Larpit.fi using your email address. Since the request was made
-              without logging in, it requires email verification.
+              Someone, hopefully you, requested to add or edit a larp at Larp.fi
+              using your email address. Since the request was made without
+              logging in, it requires email verification.
             </Text>
             <Text>
               To verify the request, please open the following page and click
@@ -170,7 +169,7 @@ export function VerifyRequest({
             </Text>
             <Text>
               <small>
-                Larpit.fi is a service of{" "}
+                Larp.fi is a service of{" "}
                 <Link href="https://tracon.fi/ry">Tracon ry</Link>. See the{" "}
                 <Link href={privacyPolicyUrl}>Privacy policy</Link>.
               </small>

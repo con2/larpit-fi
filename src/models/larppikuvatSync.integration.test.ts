@@ -50,20 +50,27 @@ describe("larpFilterFromUrl", () => {
   const id = "0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b";
 
   it("accepts the canonical form and its common variants", () => {
-    expect(larpFilterFromUrl(`https://larpit.fi/larp/${id}`)).toEqual({ id });
-    expect(larpFilterFromUrl(`https://www.larpit.fi/larp/${id}/`)).toEqual({
+    expect(larpFilterFromUrl(`https://larp.fi/larp/${id}`)).toEqual({ id });
+    expect(larpFilterFromUrl(`https://www.larp.fi/larp/${id}/`)).toEqual({
       id,
     });
     expect(
-      larpFilterFromUrl(`https://LARPIT.fi/larp/${id.toUpperCase()}`),
+      larpFilterFromUrl(`https://LARP.fi/larp/${id.toUpperCase()}`),
     ).toEqual({ id });
   });
 
-  it("accepts the short address of a larp", () => {
-    expect(larpFilterFromUrl("https://larpit.fi/some-alias")).toEqual({
+  it("accepts the former larpit.fi domain", () => {
+    expect(larpFilterFromUrl(`https://larpit.fi/larp/${id}`)).toEqual({ id });
+    expect(larpFilterFromUrl("https://www.larpit.fi/some-alias")).toEqual({
       alias: "some-alias",
     });
-    expect(larpFilterFromUrl("https://www.larpit.fi/Some-Alias/")).toEqual({
+  });
+
+  it("accepts the short address of a larp", () => {
+    expect(larpFilterFromUrl("https://larp.fi/some-alias")).toEqual({
+      alias: "some-alias",
+    });
+    expect(larpFilterFromUrl("https://www.larp.fi/Some-Alias/")).toEqual({
       alias: "some-alias",
     });
   });
@@ -71,11 +78,11 @@ describe("larpFilterFromUrl", () => {
   it("rejects other sites and paths", () => {
     expect(larpFilterFromUrl(`https://example.com/larp/${id}`)).toBeNull();
     expect(larpFilterFromUrl(`https://example.com/some-alias`)).toBeNull();
-    expect(larpFilterFromUrl("https://larpit.fi/calendar")).toBeNull();
-    expect(larpFilterFromUrl(`https://larpit.fi/${id}`)).toBeNull();
-    expect(larpFilterFromUrl("https://larpit.fi/larp/some-alias")).toBeNull();
-    expect(larpFilterFromUrl("https://larpit.fi/a/b")).toBeNull();
-    expect(larpFilterFromUrl("https://larpit.fi/")).toBeNull();
+    expect(larpFilterFromUrl("https://larp.fi/calendar")).toBeNull();
+    expect(larpFilterFromUrl(`https://larp.fi/${id}`)).toBeNull();
+    expect(larpFilterFromUrl("https://larp.fi/larp/some-alias")).toBeNull();
+    expect(larpFilterFromUrl("https://larp.fi/a/b")).toBeNull();
+    expect(larpFilterFromUrl("https://larp.fi/")).toBeNull();
     expect(larpFilterFromUrl("")).toBeNull();
   });
 });
@@ -97,7 +104,7 @@ describe("syncFromLarppikuvat", () => {
       fetchImpl: fakeFetch([
         {
           path: "/test-larp",
-          eventMetadataUrl: `https://larpit.fi/larp/${larp.id}`,
+          eventMetadataUrl: `https://larp.fi/larp/${larp.id}`,
         },
         { path: "/unrelated", eventMetadataUrl: "" },
       ]),
@@ -137,10 +144,10 @@ describe("syncFromLarppikuvat", () => {
     const result = await syncFromLarppikuvat({
       apiUrl,
       fetchImpl: fakeFetch([
-        { path: "/test-larp", eventMetadataUrl: "https://larpit.fi/test-larp" },
+        { path: "/test-larp", eventMetadataUrl: "https://larp.fi/test-larp" },
         {
           path: "/unknown-alias",
-          eventMetadataUrl: "https://larpit.fi/no-such-larp",
+          eventMetadataUrl: "https://larp.fi/no-such-larp",
         },
       ]),
     });
@@ -169,7 +176,7 @@ describe("syncFromLarppikuvat", () => {
     const result = await syncFromLarppikuvat({
       apiUrl,
       fetchImpl: fakeFetch([
-        { path: "/test-larp", eventMetadataUrl: "https://larpit.fi/old-alias" },
+        { path: "/test-larp", eventMetadataUrl: "https://larp.fi/old-alias" },
       ]),
     });
 
@@ -193,7 +200,7 @@ describe("syncFromLarppikuvat", () => {
       fetchImpl: fakeFetch([
         {
           path: "/test-larp",
-          eventMetadataUrl: `https://larpit.fi/larp/${larp.id}`,
+          eventMetadataUrl: `https://larp.fi/larp/${larp.id}`,
         },
       ]),
     });
@@ -223,7 +230,7 @@ describe("syncFromLarppikuvat", () => {
       fetchImpl: fakeFetch([
         {
           path: "/test-larp",
-          eventMetadataUrl: `https://larpit.fi/larp/${larp.id}`,
+          eventMetadataUrl: `https://larp.fi/larp/${larp.id}`,
         },
       ]),
     });
@@ -250,7 +257,7 @@ describe("syncFromLarppikuvat", () => {
         {
           path: "/test-larp",
           eventMetadataUrl:
-            "https://larpit.fi/larp/0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b",
+            "https://larp.fi/larp/0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b",
         },
       ]),
     });

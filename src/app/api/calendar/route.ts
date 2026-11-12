@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   );
 
   return new Response(
-    renderLarpCalendar(larps, { locale, calendarName: "Larpit.fi" }),
+    renderLarpCalendar(larps, { locale, calendarName: "Larp.fi" }),
     {
       headers: {
         "Content-Type": "text/calendar; charset=utf-8",
