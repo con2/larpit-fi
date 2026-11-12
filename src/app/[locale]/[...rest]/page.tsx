@@ -33,5 +33,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function RootPagePage({ params }: Props) {
   const { locale, rest } = await params;
   const page = await getRootPage(rest.join("/"), locale);
-  return <PagePage page={page} locale={locale} />;
+  return <PagePage page={page} locale={locale} showInfoIndex />;
 }

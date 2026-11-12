@@ -18,5 +18,5 @@ export default async function PageWithoutLanguagePage({ params }: Props) {
     language: locale,
   });
 
-  return <PagePage page={page} locale={locale} />;
+  return <PagePage page={page} locale={locale} showInfoIndex />;
 }

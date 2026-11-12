@@ -1016,7 +1016,8 @@ $lf-phone: 767.98px;
     border-bottom: 1px solid var(--larpit-hairline);
   }
 
-  &:hover {
+  &:hover,
+  &[aria-current="page"] {
     color: var(--larpit-aurora);
   }
 }
