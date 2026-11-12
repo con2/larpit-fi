@@ -1562,7 +1562,7 @@ const translations: Translations = {
       menuPosition: {
         title: "Järjestys tietovalikossa",
         helpText:
-          "Sivut, joilla on järjestysnumero, näkyvät kielensä ”Tietoa larppaamisesta” -valikossa pienimmästä alkaen. Jätä tyhjäksi, jos sivua ei näytetä valikossa.",
+          "Sivut, joilla on järjestysnumero, näkyvät kielensä ”Larppaaminen?” -valikossa pienimmästä alkaen. Jätä tyhjäksi, jos sivua ei näytetä valikossa.",
       },
     },
     errors: {
@@ -2006,7 +2006,7 @@ const translations: Translations = {
     language: "Kieli",
     languageAndTheme: "Kieli ja teema",
     administration: "Ylläpito",
-    infoMenu: "Tietoa larppaamisesta",
+    infoMenu: "Larppaaminen?",
   },
   Footer: {
     privacyPolicy: "Tietosuojaseloste",
