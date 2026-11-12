@@ -1,10 +1,14 @@
 import { auth } from "@/auth";
 import { PrivacyPolicyLink, ProfileLink } from "@/components/ExternalLinks";
 import { LogoutLink } from "@/components/LoginLink";
-import AuroraHero from "@/components/ui/AuroraHero";
+import { contactPageSlug, pickPageLanguage } from "@/models/Page.client";
 import { getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
+import { getReader } from "@/prisma/reader";
 import { getTranslations } from "@/translations";
+import type { Metadata } from "next";
+import { cache } from "react";
+import PagePage from "../page/PagePage";
 import styles from "./page.module.scss";
 import { SubmitButton } from "@con2/components";
 import {
@@ -33,6 +37,23 @@ function getUserTitleInLanguage(user: any, locale: string) {
   }
 }
 
+const getContactPage = cache(async (language: string) => {
+  const { db: reader } = await getReader();
+  const pages = await reader.orm.public.Page.include("headerImage")
+    .where({ slug: contactPageSlug })
+    .all();
+  return pickPageLanguage(pages, language);
+});
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const page = await getContactPage(locale);
+  return {
+    title: page?.title || getTranslations(locale).ContactPage.title,
+    description: page?.ingress || undefined,
+  };
+}
+
 // TODO implement form handling
 const contactFormEnabled = false;
 
@@ -47,6 +68,7 @@ export default async function ContactPage({ params }: Props) {
   const session = await auth();
   const user = await getUserFromSession(session);
 
+  const page = await getContactPage(locale);
   const roles = await db.orm.public.User.where((u) =>
     u.role.in(["ADMIN", "MODERATOR"]),
   )
@@ -55,18 +77,9 @@ export default async function ContactPage({ params }: Props) {
     .all();
 
   return (
-    <>
-      <AuroraHero>
-        <header className="lf-page-header border-0">
-          <h1 className="lf-display-l">{t.title}</h1>
-          <p className={`lf-lede ${styles.lede}`}>
-            {t.contactAdministratorNoContactForm}
-          </p>
-        </header>
-      </AuroraHero>
+    <PagePage page={page} locale={locale}>
       <div className="lf-container">
-        <section className={styles.team} aria-labelledby="ContactPage-team">
-          <p id="ContactPage-team">{t.teamConsistsOf}</p>
+        <section className={styles.team}>
           <ul className={styles.teamList}>
             {roles.map((role) => (
               <li key={role.id} className={styles.member}>
@@ -239,8 +252,7 @@ export default async function ContactPage({ params }: Props) {
             </Card>
           </>
         )}
-        <div className="lf-muted mb-5">{t.administrative}</div>
       </div>
-    </>
+    </PagePage>
   );
 }

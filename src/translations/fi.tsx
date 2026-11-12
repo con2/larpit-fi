@@ -1609,33 +1609,10 @@ const translations: Translations = {
   },
   ContactPage: {
     title: "Ota yhteyttä",
-    teamConsistsOf: <>Larp.fi:n tiimiin kuuluvat seuraavat henkilöt:</>,
-    contactAdministratorNoContactForm: (
-      <>
-        Larp.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta{" "}
-        <em className="text-nowrap">larpit-fi ät tracon.fi</em>.
-      </>
-    ),
     contactForm: (
       <p>
         Larp.fi:n ylläpitäjän tavoitat alla olevalla yhteydenottolomakkeella tai
         sähköpostitse osoitteesta <em>larpit-fi ät tracon.fi</em>.
-      </p>
-    ),
-    administrative: (
-      <p>
-        Hallinnollisesti Larp.fi:stä vastaa Tracon ry (2886274-5). Tracon ry:n
-        yhteystiedot löydät{" "}
-        <a
-          href="https://ry.tracon.fi"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Tracon ry:n kotisivut"
-          className="link-subtle"
-        >
-          yhdistyksen kotisivuilta
-        </a>
-        .
       </p>
     ),
   },

@@ -16,6 +16,7 @@ import { getTranslations } from "@/translations";
 import { Markdown } from "@con2/components";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 
 interface Props {
   page:
@@ -24,9 +25,11 @@ interface Props {
       })
     | null;
   locale: string;
+  /** Rendered below the content. */
+  children?: ReactNode;
 }
 
-export default async function PagePage({ page, locale }: Props) {
+export default async function PagePage({ page, locale, children }: Props) {
   const translations = getTranslations(locale);
   const t = translations.Page;
   if (!page) {
@@ -93,6 +96,7 @@ export default async function PagePage({ page, locale }: Props) {
           </div>
         </div>
       )}
+      {children}
     </>
   );
 }

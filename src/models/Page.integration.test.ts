@@ -5,7 +5,7 @@ import type { ObjectStorage } from "@/media/storage";
 import { db } from "@/prisma/db";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
-import { frontPageSlug, seeAlsoSlug } from "./Page.client";
+import { contactPageSlug, frontPageSlug, seeAlsoSlug } from "./Page.client";
 
 const objects = new Map<string, Buffer>();
 
@@ -95,6 +95,16 @@ describe("ensureDefaultPages", () => {
 
     const pages = await db.orm.public.Page.where({ slug: seeAlsoSlug }).all();
     expect(pages.map((p) => p.language).sort()).toEqual(["en", "fi"]);
+  });
+
+  it("creates a contact page with an ingress and content for each language", async () => {
+    await ensureDefaultPages();
+
+    const pages = await db.orm.public.Page.where({
+      slug: contactPageSlug,
+    }).all();
+    expect(pages.map((p) => p.language).sort()).toEqual(["en", "fi"]);
+    expect(pages.every((p) => p.ingress && p.content)).toBe(true);
   });
 });
 
@@ -248,13 +258,14 @@ describe("deletePage", () => {
     );
   });
 
-  it("refuses to delete the front page and the see also page", async () => {
+  it("refuses to delete the front page, the see also page and the contact page", async () => {
     await ensureDefaultPages();
 
     expect(await deletePage(frontPageSlug, "fi")).toBe(false);
     expect(await deletePage(seeAlsoSlug, "en")).toBe(false);
+    expect(await deletePage(contactPageSlug, "fi")).toBe(false);
     expect(
       await db.orm.public.Page.where({ language: "fi" }).all(),
-    ).toHaveLength(2);
+    ).toHaveLength(3);
   });
 });

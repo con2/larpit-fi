@@ -52,6 +52,11 @@ describe("page paths", () => {
     expect(pagePathInUiLanguage("larppaus/sanasto")).toBe("/larppaus/sanasto");
     expect(pagePathInUiLanguage("see-also")).toBe("/page/see-also");
   });
+
+  it("serves the contact page at /contact", () => {
+    expect(contentPagePath("contact", "en")).toBe("/en/contact");
+    expect(pagePathInUiLanguage("contact")).toBe("/contact");
+  });
 });
 
 describe("parseMenuPosition", () => {

@@ -1,18 +1,6 @@
 .team {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  > p {
-    margin: 0;
-  }
-
   margin-block: 48px;
   max-width: 720px;
-}
-
-.lede {
-  max-width: none;
 }
 
 .teamList {

@@ -3,6 +3,7 @@ import z from "zod";
 import { db } from "@/prisma/db";
 import { deleteHeaderImage } from "./HeaderImage";
 import {
+  contactPageSlug,
   frontPageSlug,
   type PageSlugError,
   protectedPageSlugs,
@@ -61,11 +62,31 @@ Varsinainen sivusto löytyy osoitteesta [larp.fi](https://larp.fi)
 `,
     },
   },
+  [contactPageSlug]: {
+    en: {
+      title: "Contact us",
+      ingress:
+        "You can contact the administrator via email at *larpit-fi ät tracon.fi*.\n",
+      content: `The team behind Larp.fi is listed below.
+
+Larp.fi is managed by Tracon ry (2886274-5). To contact Tracon ry, see the [home page of Tracon ry](https://ry.tracon.fi).
+`,
+    },
+    fi: {
+      title: "Ota yhteyttä",
+      ingress:
+        "Larp.fi:n ylläpitäjän tavoitat sähköpostiosoitteesta *larpit-fi ät tracon.fi*.\n",
+      content: `Larp.fi:n tiimiin kuuluvat alla luetellut henkilöt.
+
+Hallinnollisesti Larp.fi:stä vastaa Tracon ry (2886274-5). Tracon ry:n yhteystiedot löydät [yhdistyksen kotisivuilta](https://ry.tracon.fi).
+`,
+    },
+  },
 };
 
 /**
- * The front page renders the front page and the see also page of each language. Missing pages are
- * created with default content; existing pages are kept.
+ * The front page, the see also page and the contact page of each language are looked up by slug.
+ * Missing pages are created with default content; existing pages are kept.
  */
 export async function ensureDefaultPages(): Promise<void> {
   for (const [slug, pages] of Object.entries(defaultPages)) {

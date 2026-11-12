@@ -6,11 +6,13 @@ import { supportedLanguages } from "@/i18n/locales";
 
 export const frontPageSlug = "front-page";
 export const seeAlsoSlug = "see-also";
+export const contactPageSlug = "contact";
 
-/** The front page and the see also page are looked up by slug, so they cannot be renamed or deleted. */
+/** These pages are looked up by slug, so they cannot be renamed or deleted. */
 export const protectedPageSlugs: readonly string[] = [
   frontPageSlug,
   seeAlsoSlug,
+  contactPageSlug,
 ];
 
 export type PageAdminAction = "edit" | "header-image" | "delete";
@@ -59,6 +61,7 @@ export function isRootPageSlug(slug: string): boolean {
 /** Where a page is shown when its language is the UI language. */
 export function pagePathInUiLanguage(slug: string): string {
   if (slug === frontPageSlug) return "/";
+  if (slug === contactPageSlug) return "/contact";
   if (isRootPageSlug(slug)) return `/${slug}`;
   return `/page/${slug}`;
 }
@@ -70,6 +73,7 @@ export function pagePathInUiLanguage(slug: string): string {
  */
 export function contentPagePath(slug: string, language: string): string {
   if (slug === frontPageSlug) return "/";
+  if (slug === contactPageSlug) return `/${language}/contact`;
   if (isRootPageSlug(slug)) return `/${language}/${slug}`;
   return `/page/${slug}/${language}`;
 }

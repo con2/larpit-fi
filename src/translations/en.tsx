@@ -1577,34 +1577,10 @@ const translations = {
   },
   ContactPage: {
     title: "Contact us",
-    teamConsistsOf: (
-      <>The team behind Larp.fi consists of the following people:</>
-    ),
-    contactAdministratorNoContactForm: (
-      <>
-        You can contact the administrator via email at{" "}
-        <em className="text-nowrap">larpit-fi ät tracon.fi</em>.
-      </>
-    ),
     contactForm: (
       <p>
         To contact the site administrator, please use the form below or send
         email to <em>larpit-fi ät tracon.fi</em>.
-      </p>
-    ),
-    administrative: (
-      <p>
-        Larp.fi is managed by Tracon ry (2886274-5). To contact Tracon ry, see
-        the{" "}
-        <a
-          href="https://ry.tracon.fi"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="link-subtle"
-        >
-          home page of Tracon ry
-        </a>
-        .
       </p>
     ),
   },
