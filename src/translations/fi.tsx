@@ -1678,16 +1678,16 @@ const translations: Translations = {
   },
   StatsPage: {
     title: "Tilastoja",
-    eyebrow: "Arkisto lukuina",
+    eyebrow: "Larpit lukuina",
     totals: {
       label: "Yhteensä",
-      pages: "Larpit ja tapahtumat",
+      pages: "Larppia ja tapahtumaa",
       years: (first: number, last: number) => `Vuotta, ${first}–${last}`,
       thisYear: "Larppia tänä vuonna",
       upcoming: "Tulevaa larppia",
     },
-    peak: (year: string, count: string) => `huippu ${year} · ${count}`,
-    allYears: "kaikki vuodet",
+    peakYear: (year: string, count: string) =>
+      `Eniten larppeja järjestettiin vuonna ${year} (${count} kpl).`,
     larpCount: (count: string) =>
       `${count} ${count === "1" ? "larppi" : "larppia"}`,
     monthSummary: (
@@ -1697,7 +1697,13 @@ const translations: Translations = {
       quietestCount: string,
     ) =>
       `Vilkkain kuukausi on ${busiest} (${busiestCount} larppia), hiljaisin ${quietest} (${quietestCount}).`,
-    topMunicipalities: "10 eniten",
+    weekSummary: (
+      busiest: string,
+      busiestCount: string,
+      quietest: string,
+      quietestCount: string,
+    ) =>
+      `Vilkkain viikko on ${busiest} (${busiestCount}). Hiljaisin viikko on ${quietest} (${quietestCount}).`,
     allMunicipalities: (count: string) => `Kaikki ${count} kuntaa`,
     otherParticipants: "Muut osallistujat",
     openness: {
@@ -1719,7 +1725,7 @@ const translations: Translations = {
       medianLeadTime: (count: string) =>
         `päivää ilmoittautumisen alusta larppiin, mediaani (${count} larppia)`,
       description:
-        "Vain larpit, perutut pois lukien. Jokainen luku lasketaan niistä larpeista, joilta tieto löytyy.",
+        "Jokainen luku lasketaan niistä larpeista, joilta tieto löytyy.",
     },
     message: (
       <>
@@ -1731,6 +1737,10 @@ const translations: Translations = {
           Huomaathan, että kaikkia koskaan pelattuja pelejä ei ole vieläkään
           lisätty Larpit.fi:hin, ja todelliset peli- ja osallistujamäärät ovat
           siksi varmasti suurempia.
+        </p>{" "}
+        <p>
+          Ellei toisin mainita, luvuissa ovat mukana vain one-shotit ja
+          kampanjapelit. Muut tapahtumat ja perutut larpit eivät ole mukana.
         </p>
       </>
     ),
@@ -1739,16 +1749,16 @@ const translations: Translations = {
         title: "Ajanjakso",
         short: {
           ALL_TIME: "Kaikki",
-          LAST_10_YEARS: "10 v",
           POST_COVID: "2022–",
           LAUNCH: "2026–",
         },
         choices: {
           ALL_TIME: "Aikojen alusta asti",
-          LAST_10_YEARS: "Viimeiset 10 kokonaista vuotta",
           POST_COVID: "Koronapandemian jälkeinen aika (2022–)",
           LAUNCH: "Larpit.fi:n lanseerauksesta alkaen (2026–)",
         },
+        lastTenYears: (first: number) =>
+          `Viimeiset 10 kokonaista vuotta ja kuluva vuosi (${first}–)`,
       },
     },
     attributes: {
@@ -1771,43 +1781,28 @@ const translations: Translations = {
     reports: {
       type: {
         title: "Sivujen määrä tyypeittäin",
+        description: <>Kaikki sivut, myös kampanjat ja muut tapahtumat.</>,
       },
       language: {
         title: "Larppien määrä kielittäin",
-        description: (
-          <>
-            Ei sisällä muita tapahtumia kuin larppeja (esim. kampanjasivuja tai
-            muita tapahtumia).
-          </>
-        ),
       },
       year: {
         title: "Larppien määrä vuosittain",
-        description: <>Ei sisällä muita tapahtumia kuin larppeja.</>,
       },
       month: {
         title: "Larppien määrä kuukausittain",
-        description: <>Ei sisällä muita tapahtumia kuin larppeja.</>,
       },
       week: {
         title: "Larppien määrä viikkonumeroittain",
         description: (
           <>
-            Ei sisällä muita tapahtumia kuin larppeja. Kuukautta, jolle kyseinen
-            viikko osuu, approksimoidaan vuoden 2015 kyseisen viikon
-            lauantailla.
+            Viikko on merkitty siihen kuukauteen, johon sen lauantai useimmiten
+            osuu.
           </>
         ),
       },
       municipality: {
         title: "Larppien määrä kunnittain",
-        description: (
-          <>
-            Sisältää larpit, joille on määritetty kunta. Ei sisällä muita
-            tapahtumia kuin larppeja. Tilastossa on vinouma, koska pohjoisen
-            larppaajat ovat ahkeria dokumentoimaan larppejaan :)
-          </>
-        ),
         attributes: {
           municipalityName: {
             title: "Paikkakunta",
@@ -1818,9 +1813,8 @@ const translations: Translations = {
         title: "Osallistujien määrä vuosittain",
         description: (
           <>
-            Ei sisällä muita tapahtumia kuin larppeja. Huomaathan, että
-            osallistujamäärätiedot puuttuvat useilta larpeilta, joten todelliset
-            osallistujamäärät ovat varmasti suurempia.
+            Huomaathan, että osallistujamäärätiedot puuttuvat useilta larpeilta,
+            joten todelliset osallistujamäärät ovat varmasti suurempia.
           </>
         ),
       },

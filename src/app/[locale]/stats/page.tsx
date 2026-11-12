@@ -59,22 +59,43 @@ const opennessTones: Record<Openness, Tone> = {
   INVITE_ONLY: "dim",
 };
 
-/** First day included, as an ISO date. */
-function getCutoffDate(since: SinceFilter): string {
-  const now = new Date();
+/**
+ * The statistics count these types as larps unless they say otherwise. They are also the default
+ * types of the larp list, whose counts the page should agree with.
+ */
+const larpTypes: LarpType[] = [LarpType.ONE_SHOT, LarpType.CAMPAIGN_LARP];
+
+/** First year included, or null for all time. */
+function getSinceYear(since: SinceFilter, currentYear: number): number | null {
   switch (since) {
-    case "LAST_10_YEARS": {
-      const year = now.getFullYear() - 10;
-      return `${year}-01-01`;
-    }
+    case "LAST_10_YEARS":
+      return currentYear - 10;
     case "POST_COVID":
-      return "2022-01-01";
+      return 2022;
     case "LAUNCH":
-      return "2026-01-01";
+      return 2026;
     case "ALL_TIME":
-    default:
-      return "1960-01-01";
+      return null;
   }
+}
+
+/**
+ * A fixed period is left out in the year it starts on the same year as the last 10 years, and
+ * returns after that.
+ */
+function getAvailableSinceFilters(currentYear: number): SinceFilter[] {
+  const lastTenYearsStart = currentYear - 10;
+  return sinceFilters
+    .filter(
+      (since) =>
+        since === "LAST_10_YEARS" ||
+        getSinceYear(since, currentYear) !== lastTenYearsStart,
+    )
+    .sort(
+      (a, b) =>
+        (getSinceYear(a, currentYear) ?? 0) -
+        (getSinceYear(b, currentYear) ?? 0),
+    );
 }
 
 // Postgres bigint aggregates arrive from pg as decimal strings.
@@ -150,31 +171,44 @@ function maxOf<T>(rows: T[], get: (row: T) => string): number {
   return rows.reduce((max, row) => Math.max(max, Number(get(row))), 0);
 }
 
-// 2015 has 53 ISO weeks. Using the Saturday of each week as the reference day
-// since larps most commonly fall on Saturdays.
-function getMonthForISOWeek(week: number, locale: string): string {
-  const jan4 = new Date(2015, 0, 4);
-  const jan4DayOfWeek = jan4.getDay() || 7; // Mon=1…Sun=7
-  const mondayOfWeek1 = new Date(
-    jan4.getTime() - (jan4DayOfWeek - 1) * 86400000,
+const dayMs = 86_400_000;
+
+/**
+ * The month (1–12) in which the Saturday of each ISO week (index 1–53) most often falls. Larps
+ * most commonly fall on Saturdays. The weekdays of the Gregorian calendar repeat every 28 years
+ * between 1901 and 2099, so 2001–2028 covers every way the weeks can fall.
+ */
+const isoWeekMonths: number[] = (() => {
+  const counts = Array.from({ length: 54 }, () =>
+    new Array<number>(13).fill(0),
   );
-  const saturdayOfWeekN = new Date(
-    mondayOfWeek1.getTime() + ((week - 1) * 7 + 5) * 86400000,
+  for (let year = 2001; year <= 2028; year++) {
+    const jan4 = Date.UTC(year, 0, 4);
+    const mondayOfWeek1 =
+      jan4 - ((new Date(jan4).getUTCDay() || 7) - 1) * dayMs;
+    for (let week = 1; week <= 53; week++) {
+      const monday = mondayOfWeek1 + (week - 1) * 7 * dayMs;
+      const thursday = new Date(monday + 3 * dayMs);
+      if (thursday.getUTCFullYear() !== year) continue;
+      const saturday = new Date(monday + 5 * dayMs);
+      counts[week][saturday.getUTCMonth() + 1]++;
+    }
+  }
+  return counts.map((months) =>
+    months.reduce(
+      (best, count, month) => (count > months[best] ? month : best),
+      0,
+    ),
   );
-  return new Intl.DateTimeFormat(locale, { month: "long" }).format(
-    saturdayOfWeekN,
-  );
-}
+})();
 
 function Section({
   title,
-  aside,
   children,
   description,
   wide,
 }: {
   title: ReactNode;
-  aside?: ReactNode;
   children: ReactNode;
   description?: ReactNode;
   wide?: boolean;
@@ -183,7 +217,6 @@ function Section({
     <section className={wide ? styles.sectionWide : styles.section}>
       <div className={styles.sectionHeading}>
         <h2 className={styles.sectionTitle}>{title}</h2>
-        {aside && <span className={styles.sectionAside}>{aside}</span>}
       </div>
       {children}
       {description && (
@@ -204,14 +237,17 @@ export default async function StatsPage({ params, searchParams }: Props) {
   const larpT = translations.Larp;
   const { query: readQuery } = await getReader();
 
-  const { since: sinceParam } = await searchParams;
-  const since: SinceFilter =
-    sinceParam && sinceFilters.includes(sinceParam as SinceFilter)
-      ? (sinceParam as SinceFilter)
-      : "ALL_TIME";
-  const cutoff = getCutoffDate(since);
   const today = toPlainDate(new Date()).toString();
   const currentYear = Number(today.slice(0, 4));
+  const availableSinceFilters = getAvailableSinceFilters(currentYear);
+  const { since: sinceParam } = await searchParams;
+  const since: SinceFilter = !sinceFilters.includes(sinceParam as SinceFilter)
+    ? "ALL_TIME"
+    : availableSinceFilters.includes(sinceParam as SinceFilter)
+      ? (sinceParam as SinceFilter)
+      : "LAST_10_YEARS";
+  const sinceYear = getSinceYear(since, currentYear);
+  const cutoff = `${sinceYear ?? 1960}-01-01`;
 
   const numberFormat = new Intl.NumberFormat(locale);
   const formatCount = (value: number) => numberFormat.format(value);
@@ -244,7 +280,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         join larp l on l.municipality_id = m.id
       where
         l.starts_at >= ${cutoff}::date
-        and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        and l.type::text = any(${larpTypes}::text[])
         and l.cancelled_at is null
       group by m.id, m.name_fi
       having count(l.id) > 0
@@ -253,8 +289,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
     readQuery<YearRow>(sql`
       with year_range as (
         select generate_series(
-          (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
-          least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date))
+          (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type::text = any(${larpTypes}::text[]) and cancelled_at is null),
+          least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date and type::text = any(${larpTypes}::text[]) and cancelled_at is null))
         ) as year
       )
       select
@@ -264,7 +300,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         year_range yr
         left join larp l on
           extract(year from l.starts_at) = yr.year
-          and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+          and l.type::text = any(${larpTypes}::text[])
           and l.cancelled_at is null
       group by yr.year
       order by yr.year asc
@@ -281,7 +317,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         left join larp l on
           extract(month from l.starts_at) = mr.month
           and l.starts_at >= ${cutoff}::date
-          and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+          and l.type::text = any(${larpTypes}::text[])
           and l.cancelled_at is null
       group by mr.month
       order by mr.month asc
@@ -298,7 +334,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         left join larp l on
           extract(week from l.starts_at) = wr.week
           and l.starts_at >= ${cutoff}::date
-          and l.type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+          and l.type::text = any(${larpTypes}::text[])
           and l.cancelled_at is null
       group by wr.week
       order by wr.week asc
@@ -311,6 +347,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         larp l
       where
         (l.starts_at >= ${cutoff}::date or ${since === "ALL_TIME"}::boolean and l.starts_at is null)
+        and l.cancelled_at is null
       group by l.type
       having count(l.id) > 0
       order by count desc, l.type asc
@@ -322,8 +359,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
       from
         larp l
       where
-        l.language is not null
-        and l.type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+        l.type::text = any(${larpTypes}::text[])
+        and l.cancelled_at is null
         and l.starts_at >= ${cutoff}::date
       group by l.language
       having count(l.id) > 0
@@ -336,7 +373,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
       from
         larp l
       where
-        l.type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+        l.type::text = any(${larpTypes}::text[])
+        and l.cancelled_at is null
         and l.starts_at >= ${cutoff}::date
       group by l.openness
       order by l.openness asc nulls last
@@ -347,8 +385,8 @@ export default async function StatsPage({ params, searchParams }: Props) {
     readQuery<PlayersRow>(sql`
       with year_range as (
         select generate_series(
-          (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES') and cancelled_at is null),
-          least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date))
+          (select extract(year from min(starts_at))::int from larp where starts_at >= ${cutoff}::date and type::text = any(${larpTypes}::text[]) and cancelled_at is null),
+          least(extract(year from current_date)::int + 10, (select extract(year from max(starts_at))::int from larp where starts_at >= ${cutoff}::date and type::text = any(${larpTypes}::text[]) and cancelled_at is null))
         ) as year
       ),
       normalized_data_points as (
@@ -363,7 +401,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         from larp
         where
           starts_at >= ${cutoff}::date
-          and type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+          and type::text = any(${larpTypes}::text[])
           and cancelled_at is null
       )
       select
@@ -386,7 +424,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
         ) as upcoming
       from larp
       where
-        type not in ('OTHER_EVENT', 'OTHER_EVENT_SERIES')
+        type::text = any(${larpTypes}::text[])
         and cancelled_at is null
     `),
     readQuery<ShapeRow>(sql`
@@ -412,18 +450,25 @@ export default async function StatsPage({ params, searchParams }: Props) {
         count(*) filter (where starts_at >= signup_starts_at) as "leadTimeKnown"
       from larp
       where
-        type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+        type::text = any(${larpTypes}::text[])
         and cancelled_at is null
         and starts_at >= ${cutoff}::date
     `),
   ]);
 
-  const sinceOptions: FilterOption[] = sinceFilters.map((value) => ({
-    title: t.filters.since.short[value],
-    fullTitle: t.filters.since.choices[value],
-    href: value === "ALL_TIME" ? "/stats" : `/stats?since=${value}`,
-    current: value === since,
-  }));
+  const sinceOptions: FilterOption[] = availableSinceFilters.map((value) => {
+    const year = getSinceYear(value, currentYear);
+    return {
+      title:
+        value === "LAST_10_YEARS" ? `${year}–` : t.filters.since.short[value],
+      fullTitle:
+        value === "LAST_10_YEARS"
+          ? t.filters.since.lastTenYears(currentYear - 10)
+          : t.filters.since.choices[value],
+      href: value === "ALL_TIME" ? "/stats" : `/stats?since=${value}`,
+      current: value === since,
+    };
+  });
 
   const typeTotal = sumOf(typeRows, (row) => row.count);
   const yearTotal = sumOf(yearRows, (row) => row.count);
@@ -490,14 +535,27 @@ export default async function StatsPage({ params, searchParams }: Props) {
   });
 
   const weekMax = maxOf(weekRows, (row) => row.count);
+  const busiestWeek = weekRows.find((row) => Number(row.count) === weekMax);
+  // Week 53 exists only in some years, so it would nearly always be the quietest.
+  const quietestWeek = weekRows
+    .filter((row) => Number(row.week) <= 52)
+    .reduce<WeekRow | undefined>(
+      (min, row) =>
+        min === undefined || Number(row.count) < Number(min.count) ? row : min,
+      undefined,
+    );
   const weekBars: ColumnBar[] = weekRows.map((row) => {
     const week = Number(row.week);
     const count = Number(row.count);
+    const month = isoWeekMonths[week];
+    // The Saturday of week 53 falls in January, but the week still ends the year.
+    const startsMonth = month > isoWeekMonths[week - 1];
     return {
       key: row.week,
-      segments: [{ value: count, tone: "border" }],
+      segments: [{ value: count, tone: "ice" }],
       title: `${t.attributes.week.title} ${week}: ${t.larpCount(formatCount(count))}`,
       axisLabel: week === 1 || week % 10 === 0 ? row.week : undefined,
+      groupLabel: startsMonth ? monthName(month, "short") : undefined,
     };
   });
 
@@ -661,11 +719,10 @@ export default async function StatsPage({ params, searchParams }: Props) {
         <Section
           wide
           title={t.reports.year.title}
-          aside={
+          description={
             peakYear &&
-            t.peak(peakYear.year, formatCount(Number(peakYear.count)))
+            t.peakYear(peakYear.year, formatCount(Number(peakYear.count)))
           }
-          description={t.reports.year.description}
         >
           <ColumnChart
             bars={yearBars}
@@ -688,120 +745,128 @@ export default async function StatsPage({ params, searchParams }: Props) {
         </Section>
 
         <div className={styles.grid}>
-          <Section
-            title={t.reports.month.title}
-            aside={t.allYears}
-            description={
-              <>
-                {busiestMonth && quietestMonth && (
-                  <p>
-                    {t.monthSummary(
-                      monthName(Number(busiestMonth.month), "long"),
-                      formatCount(Number(busiestMonth.count)),
-                      monthName(Number(quietestMonth.month), "long"),
-                      formatCount(Number(quietestMonth.count)),
-                    )}
-                  </p>
-                )}
-                <p>{t.reports.month.description}</p>
-              </>
-            }
-          >
-            <ColumnChart bars={monthBars} max={monthMax || 1} height={120} />
-            <ChartTable
-              caption={t.reports.month.title}
-              headers={[t.attributes.month.title, t.attributes.count.title]}
-              rows={monthRows.map((row) => [
-                monthName(Number(row.month), "long"),
-                formatCount(Number(row.count)),
-              ])}
-            />
-          </Section>
+          <div className={styles.gridColumn}>
+            <Section
+              title={t.reports.month.title}
+              description={
+                busiestMonth &&
+                quietestMonth &&
+                t.monthSummary(
+                  monthName(Number(busiestMonth.month), "long"),
+                  formatCount(Number(busiestMonth.count)),
+                  monthName(Number(quietestMonth.month), "long"),
+                  formatCount(Number(quietestMonth.count)),
+                )
+              }
+            >
+              <ColumnChart bars={monthBars} max={monthMax || 1} height={120} />
+              <ChartTable
+                caption={t.reports.month.title}
+                headers={[t.attributes.month.title, t.attributes.count.title]}
+                rows={monthRows.map((row) => [
+                  monthName(Number(row.month), "long"),
+                  formatCount(Number(row.count)),
+                ])}
+              />
+            </Section>
 
-          <Section
-            title={t.reports.municipality.title}
-            aside={t.topMunicipalities}
-            description={t.reports.municipality.description}
-          >
-            {muniRows.length > 0 && (
-              <ol className={styles.muniList}>
-                {muniRows
-                  .slice(0, topMunicipalityCount)
-                  .map(renderMunicipality)}
-              </ol>
-            )}
-            {muniRows.length > topMunicipalityCount && (
-              <details className={styles.more}>
-                <summary>
-                  {t.allMunicipalities(formatCount(muniRows.length))} ↓
-                </summary>
-                <ol
-                  className={styles.muniList}
-                  start={topMunicipalityCount + 1}
-                >
+            <Section title={t.reports.municipality.title}>
+              {muniRows.length > 0 && (
+                <ol className={styles.muniList}>
                   {muniRows
-                    .slice(topMunicipalityCount)
-                    .map((row, index) =>
-                      renderMunicipality(row, index + topMunicipalityCount),
-                    )}
+                    .slice(0, topMunicipalityCount)
+                    .map(renderMunicipality)}
                 </ol>
-              </details>
-            )}
-          </Section>
+              )}
+              {muniRows.length > topMunicipalityCount && (
+                <details className={styles.more}>
+                  <summary>
+                    {t.allMunicipalities(formatCount(muniRows.length))} ↓
+                  </summary>
+                  <ol
+                    className={styles.muniList}
+                    start={topMunicipalityCount + 1}
+                  >
+                    {muniRows
+                      .slice(topMunicipalityCount)
+                      .map((row, index) =>
+                        renderMunicipality(row, index + topMunicipalityCount),
+                      )}
+                  </ol>
+                </details>
+              )}
+            </Section>
+          </div>
 
-          <Section title={t.reports.type.title}>
-            <ProportionBar
-              items={typeItems}
-              formatCount={formatCount}
-              formatShare={formatShare}
-            />
-            <div className={styles.subsection}>
-              <h3 className={styles.subTitle}>{t.reports.language.title}</h3>
+          <div className={styles.gridColumn}>
+            <Section title={t.reports.type.title}>
               <ProportionBar
-                items={languageItems}
+                items={typeItems}
                 formatCount={formatCount}
                 formatShare={formatShare}
               />
               <div className={styles.description}>
-                {t.reports.language.description}
+                {t.reports.type.description}
               </div>
-            </div>
-          </Section>
+              <div className={styles.subsection}>
+                <h3 className={styles.subTitle}>{t.reports.language.title}</h3>
+                <ProportionBar
+                  items={languageItems}
+                  formatCount={formatCount}
+                  formatShare={formatShare}
+                />
+              </div>
+            </Section>
 
-          <Section title={t.shape.title}>
-            {shapeFigures.length > 0 && (
-              <dl className={styles.figures}>
-                {shapeFigures.map((figure) => (
-                  <div key={figure.label}>
-                    <dt>{figure.label}</dt>
-                    <dd>{figure.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
-            <div className={styles.description}>{t.shape.description}</div>
-            <div className={styles.subsection}>
-              <h3 className={styles.subTitle}>{t.openness.title}</h3>
-              <ProportionBar
-                items={opennessItems}
-                formatCount={formatCount}
-                formatShare={formatShare}
-              />
-              {opennessUnrecorded > 0 && (
-                <div className={styles.description}>
-                  {t.openness.unrecordedShare(
-                    formatShare(opennessUnrecorded / opennessTotal),
-                  )}
-                </div>
+            <Section title={t.shape.title}>
+              {shapeFigures.length > 0 && (
+                <dl className={styles.figures}>
+                  {shapeFigures.map((figure) => (
+                    <div key={figure.label}>
+                      <dt>{figure.label}</dt>
+                      <dd>{figure.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               )}
-            </div>
-          </Section>
+              <div className={styles.description}>{t.shape.description}</div>
+              <div className={styles.subsection}>
+                <h3 className={styles.subTitle}>{t.openness.title}</h3>
+                <ProportionBar
+                  items={opennessItems}
+                  formatCount={formatCount}
+                  formatShare={formatShare}
+                />
+                {opennessUnrecorded > 0 && (
+                  <div className={styles.description}>
+                    {t.openness.unrecordedShare(
+                      formatShare(opennessUnrecorded / opennessTotal),
+                    )}
+                  </div>
+                )}
+              </div>
+            </Section>
+          </div>
         </div>
 
         <Section
           wide
           title={t.reports.week.title}
-          description={t.reports.week.description}
+          description={
+            <>
+              {busiestWeek && quietestWeek && (
+                <p>
+                  {t.weekSummary(
+                    busiestWeek.week,
+                    t.larpCount(formatCount(Number(busiestWeek.count))),
+                    quietestWeek.week,
+                    t.larpCount(formatCount(Number(quietestWeek.count))),
+                  )}
+                </p>
+              )}
+              <p>{t.reports.week.description}</p>
+            </>
+          }
         >
           <ColumnChart
             bars={weekBars}
@@ -818,7 +883,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
             ]}
             rows={weekRows.map((row) => [
               row.week,
-              getMonthForISOWeek(Number(row.week), locale),
+              monthName(isoWeekMonths[Number(row.week)], "long"),
               formatCount(Number(row.count)),
             ])}
           />

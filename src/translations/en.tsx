@@ -1647,7 +1647,7 @@ const translations = {
   },
   StatsPage: {
     title: "Statistics",
-    eyebrow: "The archive in numbers",
+    eyebrow: "Larps in numbers",
     totals: {
       label: "Totals",
       pages: "Larps & events",
@@ -1655,8 +1655,8 @@ const translations = {
       thisYear: "Larps this year",
       upcoming: "Upcoming larps",
     },
-    peak: (year: string, count: string) => `peak ${year} · ${count}`,
-    allYears: "all years",
+    peakYear: (year: string, count: string) =>
+      `The most larps were held in ${year} (${count}).`,
     larpCount: (count: string) =>
       `${count} ${count === "1" ? "larp" : "larps"}`,
     monthSummary: (
@@ -1666,7 +1666,13 @@ const translations = {
       quietestCount: string,
     ) =>
       `The busiest month is ${busiest} with ${busiestCount} larps; the quietest is ${quietest} with ${quietestCount}.`,
-    topMunicipalities: "top 10",
+    weekSummary: (
+      busiest: string,
+      busiestCount: string,
+      quietest: string,
+      quietestCount: string,
+    ) =>
+      `The busiest week is week ${busiest} (${busiestCount}). The quietest is week ${quietest} (${quietestCount}).`,
     allMunicipalities: (count: string) => `All ${count} municipalities`,
     otherParticipants: "Other participants",
     openness: {
@@ -1688,7 +1694,7 @@ const translations = {
       medianLeadTime: (count: string) =>
         `days from signup opening to the larp, median (${count} larps)`,
       description:
-        "Larps only, cancelled ones excluded. Each figure counts the larps where the information is known.",
+        "Each figure counts the larps where the information is known.",
     },
     message: (
       <>
@@ -1700,6 +1706,10 @@ const translations = {
           Please note that not all games ever played have been added to
           Larpit.fi yet, so the actual number of games and participants is
           certainly higher.
+        </p>{" "}
+        <p>
+          Unless otherwise stated, the figures include one-shot and campaign
+          larps only. Other events and cancelled larps are excluded.
         </p>
       </>
     ),
@@ -1708,16 +1718,16 @@ const translations = {
         title: "Time period",
         short: {
           ALL_TIME: "All",
-          LAST_10_YEARS: "10 yrs",
           POST_COVID: "2022–",
           LAUNCH: "2026–",
         },
         choices: {
           ALL_TIME: "All time",
-          LAST_10_YEARS: "Last 10 full years",
           POST_COVID: "Post-COVID era (2022–)",
           LAUNCH: "Since Larpit.fi launch (2026–)",
         },
+        lastTenYears: (first: number) =>
+          `Last 10 full years and the current year (${first}–)`,
       },
     },
     attributes: {
@@ -1740,36 +1750,25 @@ const translations = {
     reports: {
       type: {
         title: "Pages by type",
+        description: <>All pages, including campaigns and other events.</>,
       },
       language: {
         title: "Larps by language",
-        description: <>Events other than larps are excluded.</>,
       },
       year: {
         title: "Larps by year",
-        description: <>Events other than larps are excluded.</>,
       },
       month: {
         title: "Larps by month",
-        description: <>Events other than larps are excluded.</>,
       },
       week: {
         title: "Larps by week number",
         description: (
-          <>
-            Events other than larps are excluded. Month is approximated based on
-            the Saturday of the corresponding week in 2015.
-          </>
+          <>A week is placed in the month its Saturday most often falls in.</>
         ),
       },
       municipality: {
         title: "Larps by municipality",
-        description: (
-          <>
-            Includes larps with known municipality. Events other than larps are
-            excluded.
-          </>
-        ),
         attributes: {
           municipalityName: {
             title: "Municipality",
@@ -1781,10 +1780,9 @@ const translations = {
         description: (
           <>
             Sum of the number of player characters and total participants in
-            larps with known number of total participants. Events other than
-            larps are excluded. Please note that not all larps have this
-            information available, so the actual number of participants is
-            certainly higher.
+            larps with known number of total participants. Please note that not
+            all larps have this information available, so the actual number of
+            participants is certainly higher.
           </>
         ),
       },

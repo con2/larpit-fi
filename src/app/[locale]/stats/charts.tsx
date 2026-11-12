@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import styles from "./page.module.scss";
+import TooltipColumn from "./TooltipColumn";
 
 export type Tone =
   "text" | "ice" | "iceHalf" | "aurora" | "ember" | "dim" | "border" | "raised";
@@ -31,6 +32,26 @@ export interface ColumnBar {
   href?: string;
   axisLabel?: string;
   highlightLabel?: boolean;
+  /** Starts a group of bars, such as the weeks of a month, which gets a divider and this label. */
+  groupLabel?: string;
+}
+
+/** Must stay in sync with the gap between `.columns` children in page.module.scss. */
+const columnGapPx = 4;
+
+/** Left edge of the bar at `index`, as a CSS length within a row of `count` bars. */
+function columnOffset(index: number, count: number) {
+  return `calc(${index} * (100% + ${columnGapPx}px) / ${count})`;
+}
+
+function getGroups(bars: ColumnBar[]) {
+  const starts = bars.flatMap((bar, index) =>
+    bar.groupLabel ? [{ index, label: bar.groupLabel }] : [],
+  );
+  return starts.map((start, i) => ({
+    ...start,
+    end: starts[i + 1]?.index ?? bars.length,
+  }));
 }
 
 export function ColumnChart({
@@ -48,6 +69,7 @@ export function ColumnChart({
   minWidth?: number;
   formatCount?: (value: number) => string;
 }) {
+  const groups = getGroups(bars);
   return (
     <div className={styles.columnScroll}>
       <div className={styles.columnChart} style={{ minWidth }}>
@@ -62,6 +84,18 @@ export function ColumnChart({
               <span>{formatCount ? formatCount(value) : value}</span>
             </span>
           ))}
+          {groups
+            .filter((group) => group.index > 0)
+            .map((group) => (
+              <span
+                key={group.index}
+                className={styles.groupDivider}
+                style={{
+                  left: `calc(${columnOffset(group.index, bars.length)} - ${columnGapPx / 2}px)`,
+                }}
+                aria-hidden="true"
+              />
+            ))}
           {bars.map((bar) => {
             const total = bar.segments.reduce((sum, s) => sum + s.value, 0);
             const content = bar.segments
@@ -77,30 +111,16 @@ export function ColumnChart({
               height: total > 0 ? `${(total / max) * 100}%` : undefined,
             };
             const className = `${styles.column} ${total === 0 ? styles.columnEmpty : ""}`;
-            if (bar.href && total > 0) {
-              return (
-                <a
-                  key={bar.key}
-                  href={bar.href}
-                  className={className}
-                  style={style}
-                  aria-label={bar.title}
-                  title={bar.title}
-                >
-                  {content}
-                </a>
-              );
-            }
             return (
-              <span
+              <TooltipColumn
                 key={bar.key}
+                tooltip={bar.title}
+                href={total > 0 ? bar.href : undefined}
                 className={className}
                 style={style}
-                title={bar.title}
-                aria-hidden="true"
               >
                 {content}
-              </span>
+              </TooltipColumn>
             );
           })}
         </div>
@@ -114,6 +134,21 @@ export function ColumnChart({
             </span>
           ))}
         </div>
+        {groups.length > 0 && (
+          <div className={styles.groupAxis} aria-hidden="true">
+            {groups.map((group) => (
+              <span
+                key={group.index}
+                style={{
+                  left: columnOffset(group.index, bars.length),
+                  width: `calc(${columnOffset(group.end - group.index, bars.length)} - ${columnGapPx}px)`,
+                }}
+              >
+                {group.label}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
