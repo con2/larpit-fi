@@ -22,7 +22,8 @@ import { SearchButton } from "./ui/CommandPalette";
 import InfoMenu from "./ui/InfoMenu";
 import { PlusIcon } from "./ui/icons";
 import MobileMenu from "./ui/MobileMenu";
-import NavLinks, { LanguageToggle, type NavItem } from "./ui/NavLinks";
+import NavLinks, { type NavItem } from "./ui/NavLinks";
+import SettingsMenu from "./ui/SettingsMenu";
 import UserMenu, { type AdminLink, type UserMenuCounts } from "./UserMenu";
 
 interface Props {
@@ -191,10 +192,11 @@ export default async function AppBar({ locale }: Props) {
           </Link>
           {!menuUser && (
             <span className="lf-desktop-only">
-              <LanguageToggle
+              <SettingsMenu
+                messages={t}
                 locale={locale}
                 locales={languageOrder}
-                label={t.language}
+                themeSwitching={featureFlags.nordicNight}
               />
             </span>
           )}

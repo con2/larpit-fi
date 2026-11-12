@@ -2027,6 +2027,7 @@ const translations: Translations = {
     theme: "Teema",
     themeChoices: { auto: "Auto", night: "Yö", day: "Päivä" },
     language: "Kieli",
+    languageAndTheme: "Kieli ja teema",
     administration: "Ylläpito",
     infoMenu: "Tietoa larppaamisesta",
   },

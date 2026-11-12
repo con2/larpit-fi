@@ -639,32 +639,33 @@ $lf-phone: 767.98px;
   }
 }
 
-.lf-lang {
+.lf-settings-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--larpit-muted);
   font-family: $lf-mono;
   font-size: 14px;
   letter-spacing: 0.08em;
-  color: var(--larpit-muted);
-  text-decoration: none;
-  display: inline-block;
-  line-height: 44px;
-  padding: 0;
-  white-space: nowrap;
+  cursor: pointer;
 
   [data-bs-theme="dark"] & {
     color: #c9d1e6;
   }
 
-  [aria-current="true"] {
+  &:hover {
     color: var(--larpit-text);
   }
 
-  a {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      color: var(--larpit-aurora);
-    }
+  &[aria-expanded="true"] {
+    background: var(--larpit-raised);
+    border-color: var(--larpit-aurora);
+    color: var(--larpit-text);
   }
 }
 

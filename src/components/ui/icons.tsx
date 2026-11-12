@@ -214,6 +214,15 @@ export function ThemeIcon(props: IconProps) {
   );
 }
 
+export function GlobeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="8" cy="8" r="6.2" />
+      <path d="M1.8 8 H14.2 M8 1.8 C5.8 4 5.8 12 8 14.2 M8 1.8 C10.2 4 10.2 12 8 14.2" />
+    </Icon>
+  );
+}
+
 export function TodayIcon(props: IconProps) {
   return (
     <Icon viewBox="0 0 18 18" {...props}>

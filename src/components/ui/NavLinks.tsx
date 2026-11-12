@@ -47,35 +47,6 @@ export default function NavLinks({
 }
 
 /** FI / EN in the app bar; the current language is emphasised. */
-export function LanguageToggle({
-  locale,
-  locales,
-  label,
-}: {
-  locale: string;
-  locales: readonly string[];
-  label: string;
-}) {
-  const pathname = usePathname();
-  return (
-    <span className="lf-lang" role="group" aria-label={label}>
-      {locales.map((code, index) => (
-        <span key={code}>
-          {index > 0 && " / "}
-          {code === locale ? (
-            <span aria-current="true">{code.toUpperCase()}</span>
-          ) : (
-            // A plain anchor: next/link would prefetch and switch the locale cookie early.
-            <a href={`/${code}${pathname}`} hrefLang={code} lang={code}>
-              {code.toUpperCase()}
-            </a>
-          )}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export function LanguageSegmented({
   locale,
   locales,

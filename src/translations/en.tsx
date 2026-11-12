@@ -1996,6 +1996,7 @@ const translations = {
     theme: "Theme",
     themeChoices: { auto: "Auto", night: "Night", day: "Day" },
     language: "Language",
+    languageAndTheme: "Language and theme",
     administration: "Administration",
     infoMenu: "What is larp?",
   },
