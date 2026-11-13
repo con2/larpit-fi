@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
-import { Column, DataTable, MessageCard } from "@con2/components";
+import { Column, DataTable } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import {
   contentPagePath,
   pageAdminPath,
@@ -36,9 +37,7 @@ export default async function PagesPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
   if (!canEditPages(user)) {

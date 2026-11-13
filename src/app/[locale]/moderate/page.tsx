@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import { EditAction, EditStatus } from "@/prisma/enums";
-import { Column, DataTable, MessageCard, TableFooter } from "@con2/components";
+import { Column, DataTable, TableFooter } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
@@ -27,9 +28,7 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 

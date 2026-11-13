@@ -1,4 +1,4 @@
-import { MessageCard } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { validate as validateUuid } from "uuid";
@@ -224,9 +224,7 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
   const user = await getUserFromSession(await auth());
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
   if (!canModerate(user)) {

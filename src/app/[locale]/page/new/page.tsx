@@ -1,4 +1,5 @@
-import { MessageCard, SubmitButton } from "@con2/components";
+import { SubmitButton } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import {
   Alert,
   Card,

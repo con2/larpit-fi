@@ -5,12 +5,8 @@ import { canModerate, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
-import {
-  AutoSubmitForm,
-  Column,
-  DataTable,
-  MessageCard,
-} from "@con2/components";
+import { AutoSubmitForm, Column, DataTable } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import { FormLabel, FormSelect } from "react-bootstrap";
 import { setUserRole } from "./actions";
 
@@ -78,9 +74,7 @@ export default async function UsersPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
   if (!canModerate(user)) {

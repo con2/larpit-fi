@@ -15,11 +15,8 @@ import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
-import {
-  MessageCard,
-  SubmitButton,
-  UnrenderedMarkdown,
-} from "@con2/components";
+import { SubmitButton, UnrenderedMarkdown } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import Link from "next/link";
@@ -56,9 +53,7 @@ export default async function ModerationRequestPage({ params }: Props) {
   const session = await auth();
   if (!session?.user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 

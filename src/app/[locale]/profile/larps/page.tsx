@@ -96,9 +96,7 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 

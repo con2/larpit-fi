@@ -40,9 +40,7 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
     : null;
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 

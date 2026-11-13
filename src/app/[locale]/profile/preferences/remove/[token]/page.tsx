@@ -23,9 +23,7 @@ export default async function ConfirmAccountRemovalPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <div className="lf-container">
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </div>
+      <LoginRequiredCard messages={translations.LoginRequired} container />
     );
   }
 

@@ -2,6 +2,8 @@
 
 import { signIn } from "next-auth/react";
 
+import { MessageCard } from "./MessageCard";
+
 interface Props {
   messages: {
     title: string;
@@ -16,23 +18,15 @@ interface Props {
 /// The "please sign in" gate. A client component because most call sites are Server
 /// Components, which cannot pass the signIn callback to a Client Component.
 export function LoginRequiredCard({ messages: t, container = false }: Props) {
-  const card = (
-    <section className="lf-surface mb-4" aria-labelledby="login-required-title">
-      <h2 className="lf-surface__title" id="login-required-title">
-        {t.title}
-      </h2>
-      <p className="lf-muted">{t.message}</p>
-      <div>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => signIn("kompassi")}
-        >
-          {t.actions.login}
-        </button>
-      </div>
-    </section>
+  return (
+    <MessageCard title={t.title} message={t.message} container={container}>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => signIn("kompassi")}
+      >
+        {t.actions.login}
+      </button>
+    </MessageCard>
   );
-
-  return container ? <div className="lf-container py-5">{card}</div> : card;
 }

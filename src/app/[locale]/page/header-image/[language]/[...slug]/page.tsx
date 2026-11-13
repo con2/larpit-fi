@@ -1,4 +1,4 @@
-import { MessageCard } from "@con2/components";
+import { MessageCard } from "@/components/MessageCard";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
