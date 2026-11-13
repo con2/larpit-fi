@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'b30cef0f3f3972f3eeb1fed44acb1dc980a7c3c102561c3376d81263d55359a1'>;
+  StorageHashBase<'cbe3198758045d5df1026d4166200bcb5d68598ebdcac6491c5387b367492bb4'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -321,9 +321,9 @@ type FieldTypeOverrides = {
       readonly LarpLink: {
         readonly type: {
           readonly output:
-            'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP';
+            'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP' | 'SOURCE';
           readonly input:
-            'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP';
+            'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP' | 'SOURCE';
         };
       };
       readonly ModerationRequest: {
@@ -512,9 +512,9 @@ type ColumnTypeOverrides = {
     readonly larp_link: {
       readonly type: {
         readonly output:
-          'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP';
+          'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP' | 'SOURCE';
         readonly input:
-          'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP';
+          'HOMEPAGE' | 'PHOTOS' | 'SOCIAL_MEDIA' | 'PLAYER_GUIDE' | 'OTHER' | 'SIGNUP' | 'SOURCE';
       };
     };
     readonly moderation_request: {
@@ -2226,6 +2226,7 @@ type ContractBase = Omit<
                 'PLAYER_GUIDE',
                 'OTHER',
                 'SIGNUP',
+                'SOURCE',
               ];
             };
             readonly LarpType: {

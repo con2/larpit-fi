@@ -15,6 +15,7 @@ const LINK_TYPES = [
   "SOCIAL_MEDIA",
   "PLAYER_GUIDE",
   "SIGNUP",
+  "SOURCE",
   "OTHER",
 ] as const satisfies readonly LarpLinkType[];
 type LinkType = (typeof LINK_TYPES)[number];

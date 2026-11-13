@@ -119,6 +119,7 @@ export const LarpLinkType = {
   PLAYER_GUIDE: "PLAYER_GUIDE",
   SIGNUP: "SIGNUP",
   OTHER: "OTHER",
+  SOURCE: "SOURCE",
 } as const satisfies Record<string, Row<"LarpLink">["type"]>;
 export type LarpLinkType = ValuesOf<typeof LarpLinkType>;
 true satisfies Exhaustive<typeof LarpLinkType, Row<"LarpLink">["type"]>;

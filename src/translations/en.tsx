@@ -894,6 +894,15 @@ const translations = {
               </>
             ),
           },
+          SOURCE: {
+            title: "Source",
+            helpText: (
+              <>
+                Where the information about this larp comes from, such as an
+                archived copy of an old larp calendar.
+              </>
+            ),
+          },
           OTHER: {
             title: "Other",
             helpText: <></>,

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "addNativeEnumValue.LarpLinkType.SOURCE",
+    "label": "Add value \"SOURCE\" to enum type \"LarpLinkType\"",
+    "summary": "Adds value \"SOURCE\" to enum type \"LarpLinkType\". A newly added enum value cannot be used until the transaction that adds it commits, so a migration that both appends a value and uses it in the same step will fail at apply.",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "LarpLinkType"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure enum type \"LarpLinkType\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_type\" AS \"t\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"t\".\"typtype\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LarpLinkType",
+          "e"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "enum type \"LarpLinkType\""
+        }
+      },
+      {
+        "description": "ensure value \"SOURCE\" is absent from enum type \"LarpLinkType\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_enum\" AS \"e\" INNER JOIN \"pg_type\" AS \"t\" ON \"t\".\"oid\" = \"e\".\"enumtypid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"e\".\"enumlabel\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LarpLinkType",
+          "SOURCE"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "value \"SOURCE\" in enum type \"LarpLinkType\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add value \"SOURCE\" to enum type \"LarpLinkType\"",
+        "sql": "ALTER TYPE \"public\".\"LarpLinkType\" ADD VALUE 'SOURCE'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify value \"SOURCE\" exists on enum type \"LarpLinkType\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_enum\" AS \"e\" INNER JOIN \"pg_type\" AS \"t\" ON \"t\".\"oid\" = \"e\".\"enumtypid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"e\".\"enumlabel\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LarpLinkType",
+          "SOURCE"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "value \"SOURCE\" in enum type \"LarpLinkType\""
+        }
+      }
+    ]
+  }
+]

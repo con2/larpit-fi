@@ -85,6 +85,7 @@ namespace public {
     PLAYER_GUIDE = "PLAYER_GUIDE"
     OTHER = "OTHER"
     SIGNUP = "SIGNUP"
+    SOURCE = "SOURCE"
   }
 
   native_enum SubmitterRole {

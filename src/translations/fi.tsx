@@ -912,6 +912,15 @@ const translations: Translations = {
               </>
             ),
           },
+          SOURCE: {
+            title: "Lähde",
+            helpText: (
+              <>
+                Mistä larpin tiedot ovat peräisin, esimerkiksi arkistoitu kopio
+                vanhasta larppikalenterista.
+              </>
+            ),
+          },
           OTHER: {
             title: "Muu",
             helpText: <></>,

@@ -2232,7 +2232,8 @@
                 "SOCIAL_MEDIA",
                 "PLAYER_GUIDE",
                 "OTHER",
-                "SIGNUP"
+                "SIGNUP",
+                "SOURCE"
               ],
               "typeName": "LarpLinkType"
             },
@@ -3907,7 +3908,8 @@
                 "SOCIAL_MEDIA",
                 "PLAYER_GUIDE",
                 "OTHER",
-                "SIGNUP"
+                "SIGNUP",
+                "SOURCE"
               ]
             },
             "LarpType": {
@@ -4004,7 +4006,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "b30cef0f3f3972f3eeb1fed44acb1dc980a7c3c102561c3376d81263d55359a1"
+    "storageHash": "cbe3198758045d5df1026d4166200bcb5d68598ebdcac6491c5387b367492bb4"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",
