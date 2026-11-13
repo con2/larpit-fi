@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 import {
   findLarpByAliasRedirect,
+  findLarpRedirect,
   larpIdOrAliasFilter,
   type LarpIdOrAliasFilter,
 } from "@/models/Larp";
@@ -54,8 +55,11 @@ export async function GET(
   }
 
   let larpRow = await loadLarp(filter);
-  if (!larpRow && "alias" in filter) {
-    const target = await findLarpByAliasRedirect(filter.alias, dbRead);
+  if (!larpRow) {
+    const target =
+      "alias" in filter
+        ? await findLarpByAliasRedirect(filter.alias, dbRead)
+        : await findLarpRedirect(filter.id, dbRead);
     if (target) larpRow = await loadLarp({ id: target.id });
   }
 

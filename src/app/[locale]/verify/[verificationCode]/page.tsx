@@ -81,6 +81,10 @@ export default async function VerificationCodePage({ params }: Props) {
       title = translations.DeleteLarpPage.title;
       break;
 
+    // Merges are recorded as approved, without a verification code.
+    case EditAction.MERGE:
+      notFound();
+
     default:
       const exhaustiveCheck: never = request.action;
       throw new Error(`EditAction not implemented: ${exhaustiveCheck}`);

@@ -2,7 +2,7 @@ import { toISODateNull } from "@con2/components/helpers";
 import { validate as validateUuid } from "uuid";
 import { publicUrl } from "@/config";
 import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
+import { db, type Tx } from "@/prisma/db";
 import {
   EditAction,
   EditStatus,
@@ -74,31 +74,44 @@ export function ensureLocation(
 // because the sql tag cooks backslash escapes out of the template text.
 const runIndicatorPattern = String.raw`\s*\(\d+\..*\)$`;
 
-export async function findExistingLarpsForFillIn(
+/**
+ * Larps whose names match once run indicators, case and punctuation are ignored, and whose date
+ * ranges overlap the given one. A missing end date means a one-day larp.
+ */
+export async function findLarpIdsWithSameNameAndDates(
   name: string,
   startsAt: string | null,
   endsAt: string | null,
-): Promise<Larp[]> {
+  options: { onlyLarps: boolean; excludeId?: string },
+): Promise<string[]> {
   const rows = await query<{ id: string }>(sql`
     select
       id
     from
       larp
     where
-      -- only consider actual larps
-      type in ('ONE_SHOT', 'CAMPAIGN_LARP')
+      (not ${options.onlyLarps}::boolean or type in ('ONE_SHOT', 'CAMPAIGN_LARP'))
+      and (${options.excludeId ?? null}::uuid is null or id <> ${options.excludeId ?? null}::uuid)
       -- strip run indicator like "(1. pelautus)" then normalize to letters and numbers only
       and regexp_replace(lower(regexp_replace(name, ${runIndicatorPattern}, '')), '[^a-z0-9]', '', 'g')
         = regexp_replace(lower(regexp_replace(${name}, ${runIndicatorPattern}, '')), '[^a-z0-9]', '', 'g')
       -- date ranges overlap: [starts_at, coalesce(ends_at, starts_at)] overlaps [startsAt, coalesce(endsAt, startsAt)]
-      -- null end date means one-day larp (end = start)
       and starts_at is not null
       and starts_at <= coalesce(${endsAt}::date, ${startsAt}::date)
       and ${startsAt}::date <= coalesce(ends_at, starts_at)
   `);
-  if (rows.length === 0) return [];
+  return rows.map((r) => r.id);
+}
 
-  const ids = rows.map((r) => r.id);
+export async function findExistingLarpsForFillIn(
+  name: string,
+  startsAt: string | null,
+  endsAt: string | null,
+): Promise<Larp[]> {
+  const ids = await findLarpIdsWithSameNameAndDates(name, startsAt, endsAt, {
+    onlyLarps: true,
+  });
+  if (ids.length === 0) return [];
   return parseDates(await db.orm.public.Larp.where((l) => l.id.in(ids)).all());
 }
 
@@ -313,6 +326,37 @@ function isLarpAliasUniqueViolation(error: unknown): boolean {
   return sqlState === "23505" && constraint === "larp_alias_key";
 }
 
+/**
+ * Gives a larp a new alias within a transaction. The old alias keeps leading to the larp as a
+ * redirect, and a redirect of the new alias is replaced by the larp itself.
+ */
+export async function changeLarpAlias(
+  tx: Tx,
+  larpId: string,
+  oldAlias: string | null,
+  newAlias: string | null,
+) {
+  await tx.orm.public.Larp.where({ id: larpId }).update({ alias: newAlias });
+  if (!newAlias) return;
+
+  await tx.orm.public.LarpAliasRedirect.where({ alias: newAlias }).delete();
+  if (oldAlias && oldAlias !== newAlias) {
+    await addLarpAliasRedirect(tx, oldAlias, larpId);
+  }
+}
+
+export async function addLarpAliasRedirect(
+  tx: Tx,
+  alias: string,
+  larpId: string,
+) {
+  await tx.orm.public.LarpAliasRedirect.upsert({
+    create: { alias, larpId },
+    update: { larpId },
+    conflictOn: { alias },
+  });
+}
+
 export type SetLarpAliasResult =
   | { ok: true; alias: string | null }
   | { ok: false; error: LarpAliasError | "forbidden" | "notFound" };
@@ -381,17 +425,7 @@ export async function setLarpAlias(
       });
       if (!larp) return false;
 
-      await tx.orm.public.Larp.where({ id: larpId }).update({ alias });
-      if (!alias) return true;
-
-      await tx.orm.public.LarpAliasRedirect.where({ alias }).delete();
-      if (larp.alias && larp.alias !== alias) {
-        await tx.orm.public.LarpAliasRedirect.upsert({
-          create: { alias: larp.alias, larpId },
-          update: { larpId },
-          conflictOn: { alias: larp.alias },
-        });
-      }
+      await changeLarpAlias(tx, larpId, larp.alias, alias);
       return true;
     });
   } catch (error) {
@@ -412,5 +446,16 @@ export async function findLarpByAliasRedirect(
   const redirect = await reader.orm.public.LarpAliasRedirect.select("larpId")
     .include("larp", (larp) => larp.select("id", "alias"))
     .first({ alias });
+  return redirect?.larp ?? null;
+}
+
+/** The larp that a larp merged into it used to be. */
+export async function findLarpRedirect(
+  id: string,
+  reader: typeof db = db,
+): Promise<{ id: string; alias: string | null } | null> {
+  const redirect = await reader.orm.public.LarpRedirect.select("larpId")
+    .include("larp", (larp) => larp.select("id", "alias"))
+    .first({ fromId: id });
   return redirect?.larp ?? null;
 }

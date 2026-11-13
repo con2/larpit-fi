@@ -110,6 +110,7 @@ namespace public {
     UPDATE = "UPDATE"
     CLAIM = "CLAIM"
     DELETE = "DELETE"
+    MERGE = "MERGE"
   }
 
   native_enum HeaderImageSource {
@@ -248,6 +249,7 @@ namespace public {
     unauthenticatedSignups UnauthenticatedSignup[]
     requests               ModerationRequest[]
     aliasRedirects         LarpAliasRedirect[]
+    redirects              LarpRedirect[]
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
     headerImage            HeaderImage?                   @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
@@ -343,6 +345,18 @@ namespace public {
     larp      Larp              @relation(fields:[larpId], references:[id], onDelete: Cascade)
 
     @@map("larp_alias_redirect")
+  }
+
+  // The id of a larp that was merged into another one, kept so that links to it still lead to
+  // the surviving larp.
+  model LarpRedirect {
+    fromId    Uuid              @id @map("from_id")
+    larpId    Uuid              @map("larp_id")
+    createdAt TimestamptzString @default(now()) @map("created_at")
+
+    larp      Larp              @relation(fields:[larpId], references:[id], onDelete: Cascade)
+
+    @@map("larp_redirect")
   }
 
   model Page {

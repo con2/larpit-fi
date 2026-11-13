@@ -22,6 +22,7 @@ import {
   CalendarIcon,
   EditIcon,
   ImageIcon,
+  MergeIcon,
   LinkIcon,
   ListIcon,
   PagesIcon,
@@ -55,7 +56,8 @@ export type PaletteIcon =
   | "list"
   | "stats"
   | "theme"
-  | "image";
+  | "image"
+  | "merge";
 
 export type PaletteAction = "copyLink" | "share" | "switchTheme";
 
@@ -100,6 +102,7 @@ const iconComponents: Record<PaletteIcon, typeof SearchIcon> = {
   stats: StatsIcon,
   theme: ThemeIcon,
   image: ImageIcon,
+  merge: MergeIcon,
 };
 
 // ---------- platform ----------

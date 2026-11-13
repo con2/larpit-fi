@@ -54,6 +54,7 @@ const translations = {
       editShort: "edit",
       suggestChange: "Suggest a change",
       claim: "I’m the GM — claim this page",
+      mergeDuplicate: "Merge a duplicate",
     },
     details: {
       when: "When",
@@ -565,6 +566,112 @@ const translations = {
       title: "Pages",
       previous: "Previous",
       next: "Next",
+    },
+  },
+  MergeLarpPage: {
+    eyebrow: "Moderator",
+    title: "Merge a duplicate into this page",
+    lede: "Pick the duplicate, decide which details to keep, and the duplicate page goes away. Everything attached to it moves here, and its addresses lead here from now on.",
+    sides: {
+      a: { tag: "A · this page", note: "Survives" },
+      b: { tag: "B · the duplicate", note: "Becomes a redirect" },
+    },
+    pick: {
+      suggestions: "Looks like a duplicate",
+      noSuggestions: "No larp with the same name and overlapping dates.",
+      label: "Or pick any larp",
+      submit: "Compare",
+    },
+    change: "Change",
+    swap: "Swap: keep the other page instead",
+    notFound: "The larp to merge was not found.",
+    form: {
+      identical: "{count} fields identical",
+      differ: "{count} fields differ",
+      progress: "{auto} auto-resolved · {needed} need you",
+      status: {
+        conflict: "Needs you",
+        decided: "Decided",
+        filled: "Auto · filled beats empty",
+        keepA: "Auto · this page’s wins",
+      },
+      writeOwn: "Write your own",
+      empty: "Empty",
+      yes: "Yes",
+      no: "No",
+      showMore: "Show all",
+      fields: {
+        name: "Name",
+        tagline: "Tagline",
+        type: "Type",
+        language: "Language",
+        openness: "Openness",
+        description: "Description",
+        fluffText: "Fluff text",
+        locationText: "Venue",
+        municipalityId: "Municipality",
+        numPlayerCharacters: "Player characters",
+        numTotalParticipants: "Total participants",
+        startsAt: "Starting date",
+        endsAt: "Ending date",
+        signupStartsAt: "Signup start date",
+        signupEndsAt: "Signup end date",
+        cancelledAt: "Cancelled",
+        alias: "Short address",
+        headerImageId: "Header image",
+      },
+      fieldNotes: {
+        alias: "The address not chosen redirects here too.",
+        headerImageId: "The image not chosen is deleted.",
+      },
+      links: {
+        title: "Links",
+        hint: "Duplicates are combined. Untick a link to drop it.",
+        none: "Neither page has links.",
+        origin: { a: "A", b: "B", both: "A + B" },
+      },
+      combined: {
+        title: "Always combined",
+        people: "People",
+        peopleValue: "{a} on A + {b} on B → {merged}",
+        peopleNote:
+          "Game masters, players, favourites and other roles. The same role on both counts once.",
+        relatedLarps: "Related larps",
+        relatedLarpsValue: "{a} on A + {b} on B → {merged}",
+        history: "History",
+        historyValue: "{a} + {b} requests, pending ones included",
+        signups: "Sign-ups",
+        signupsValue: "{a} + {b}",
+        addresses: "Addresses",
+        addressesValue:
+          "B’s id address, short address and {count} former addresses lead here",
+      },
+      result: {
+        title: "Result",
+        linkCount: "{count} links",
+        redirect: "B’s addresses redirect here permanently",
+        irreversible: "Cannot be undone",
+        pending: "{count} fields still need a decision",
+        allDecided: "All fields decided",
+        submit: "Merge B into this page",
+        defaults: {
+          title: "How defaults are picked",
+          items: [
+            "Identical fields need nothing.",
+            "A filled field beats an empty one.",
+            "This page’s short address and header image are kept unless you pick B’s.",
+            "Where both pages have a different value, you decide.",
+          ],
+        },
+      },
+      errors: {
+        stale:
+          "One of the pages changed while you were deciding. Reload the page and check the choices again.",
+        undecided: "Some fields still need a decision.",
+        notFound: "One of the pages no longer exists.",
+        sameLarp: "A page cannot be merged into itself.",
+        forbidden: "Only moderators can merge pages.",
+      },
     },
   },
   DeleteLarpPage: {
@@ -1166,6 +1273,9 @@ const translations = {
           DELETE: {
             title: "Delete page",
           },
+          MERGE: {
+            title: "Merge pages",
+          },
         },
       },
       name: {
@@ -1337,6 +1447,9 @@ const translations = {
     },
     messages: {
       approvedAutomaticallyBecauseUserIs: (_role: UserRole): string => {
+        throw new Error("This message should not be used in English.");
+      },
+      mergedFrom: (_name: string, _id: string): string => {
         throw new Error("This message should not be used in English.");
       },
     },
@@ -2037,6 +2150,7 @@ const translations = {
       addRelated: "Add a related larp",
       claim: "Claim this page as GM",
       addToCalendar: "Add to calendar",
+      mergeDuplicate: "Merge a duplicate into this larp",
       copyLink: "Copy link to this larp",
       share: "Share…",
       subscribe: "Subscribe to the calendar",
@@ -2108,6 +2222,7 @@ const translations = {
         "Save the date",
         "Remind me",
       ],
+      "larp:mergeDuplicate": ["Duplicate", "Combine pages", "Same larp twice"],
       "calendar:subscribe": [
         "Calendar feed",
         "iCal",

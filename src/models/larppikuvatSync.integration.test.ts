@@ -186,6 +186,30 @@ describe("syncFromLarppikuvat", () => {
     ]);
   });
 
+  it("follows the id of a larp that was merged into another one", async () => {
+    const larp = await createLarp();
+    const mergedAwayId = "0190a1b2-c3d4-7e5f-8a9b-0c1d2e3f4a5b";
+    await db.orm.public.LarpRedirect.create({
+      fromId: mergedAwayId,
+      larpId: larp.id,
+    });
+
+    const result = await syncFromLarppikuvat({
+      apiUrl,
+      fetchImpl: fakeFetch([
+        {
+          path: "/test-larp",
+          eventMetadataUrl: `https://larp.fi/larp/${mergedAwayId}`,
+        },
+      ]),
+    });
+
+    expect(result).toMatchObject({ added: 1, missing: 0 });
+    expect(await photosLinks(larp.id)).toEqual([
+      "https://larppikuvat.fi/test-larp",
+    ]);
+  });
+
   it("does nothing when the larp already links to the album", async () => {
     // Trailing slash and www. must not make the existing link look different.
     const larp = await createLarp([

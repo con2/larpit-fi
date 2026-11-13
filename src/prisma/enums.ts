@@ -156,6 +156,7 @@ export const EditAction = {
   UPDATE: "UPDATE",
   CLAIM: "CLAIM",
   DELETE: "DELETE",
+  MERGE: "MERGE",
 } as const satisfies Record<string, Row<"ModerationRequest">["action"]>;
 export type EditAction = ValuesOf<typeof EditAction>;
 true satisfies Exhaustive<

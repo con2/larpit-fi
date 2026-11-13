@@ -1679,3 +1679,229 @@ html[lang="en"] {
     flex-basis: 20.5ch;
   }
 }
+
+// ---------- merge larps ----------
+
+.lf-merge-sides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 48px;
+
+  > * {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+}
+
+.lf-merge-side__header,
+.lf-merge-side__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+}
+
+.lf-merge-candidates {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lf-merge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 48px 64px;
+}
+
+.lf-merge__main {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.lf-merge__aside {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: sticky;
+  top: 24px;
+}
+
+.lf-merge__section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.lf-merge__section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lf-merge-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--larpit-hairline);
+  padding-top: 20px;
+  min-width: 0;
+}
+
+.lf-merge-field__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  float: none;
+  margin: 0;
+  font-size: inherit;
+}
+
+.lf-merge-field__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.lf-merge-option {
+  min-width: 0;
+}
+
+.lf-merge-option--own {
+  grid-column: 1 / -1;
+}
+
+.lf-merge-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+
+  > .lf-tag {
+    align-self: flex-start;
+  }
+}
+
+.lf-merge-option__clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.lf-merge-option__image {
+  width: 100%;
+  aspect-ratio: 3;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.lf-merge__identical {
+  border-top: 1px solid var(--larpit-hairline);
+  padding-top: 20px;
+
+  summary {
+    color: var(--larpit-muted);
+  }
+
+  dl {
+    margin: 16px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  dd {
+    margin: 4px 0 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.lf-merge__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lf-merge__link {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+
+  input {
+    flex: 0 0 auto;
+    margin-top: 4px;
+  }
+}
+
+.lf-merge__link-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lf-merge__href {
+  overflow-wrap: anywhere;
+}
+
+.lf-merge__combined {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  dd {
+    margin: 4px 0 0;
+  }
+}
+
+.lf-merge__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid var(--larpit-hairline);
+  padding-bottom: 14px;
+  overflow-wrap: anywhere;
+}
+
+.lf-merge__checklist {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--larpit-muted);
+}
+
+.lf-merge__checklist-pending {
+  color: var(--larpit-ember);
+}
+
+.lf-merge__defaults ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--larpit-muted);
+  font-size: 14px;
+}

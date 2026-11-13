@@ -181,6 +181,15 @@ export function RelatedIcon(props: IconProps) {
   );
 }
 
+/** Two branches joining into one. */
+export function MergeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 2 V5 C4 7.5 8 7.5 8 10 V14 M12 2 V5 C12 7.5 8 7.5 8 10" />
+    </Icon>
+  );
+}
+
 export function ShieldIcon(props: IconProps) {
   return (
     <Icon {...props}>

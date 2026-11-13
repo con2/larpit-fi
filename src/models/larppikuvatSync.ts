@@ -11,6 +11,7 @@ import {
 import { toJson } from "@/prisma/json";
 import {
   findLarpByAliasRedirect,
+  findLarpRedirect,
   larpIdOrAliasFilter,
   type LarpIdOrAliasFilter,
 } from "./Larp";
@@ -76,11 +77,14 @@ function loadLarpWithPhotosLinks(filter: LarpIdOrAliasFilter) {
     .first(filter);
 }
 
-/** Follows a former alias of a larp too. */
+/** Follows a former alias of a larp and the id of a larp merged into another one too. */
 async function findLarpWithPhotosLinks(filter: LarpIdOrAliasFilter) {
   const larp = await loadLarpWithPhotosLinks(filter);
-  if (larp || !("alias" in filter)) return larp;
-  const redirectTarget = await findLarpByAliasRedirect(filter.alias);
+  if (larp) return larp;
+  const redirectTarget =
+    "alias" in filter
+      ? await findLarpByAliasRedirect(filter.alias)
+      : await findLarpRedirect(filter.id);
   return redirectTarget
     ? loadLarpWithPhotosLinks({ id: redirectTarget.id })
     : null;

@@ -55,6 +55,7 @@ const translations: Translations = {
       editShort: "muokkaa",
       suggestChange: "Ehdota muutosta",
       claim: "Pelinjohtaja! Ota sivu hallintaan!",
+      mergeDuplicate: "Yhdistä kaksoiskappale",
     },
     details: {
       when: "Milloin",
@@ -582,6 +583,114 @@ const translations: Translations = {
       title: "Sivut",
       previous: "Edelliset",
       next: "Seuraavat",
+    },
+  },
+  MergeLarpPage: {
+    eyebrow: "Moderaattori",
+    title: "Yhdistä kaksoiskappale tähän sivuun",
+    lede: "Valitse kaksoiskappale ja päätä, mitkä tiedot jäävät, niin kaksoiskappaleen sivu poistuu. Kaikki siihen liitetty siirtyy tänne, ja sen osoitteet johtavat jatkossa tänne.",
+    sides: {
+      a: { tag: "A · tämä sivu", note: "Säilyy" },
+      b: { tag: "B · kaksoiskappale", note: "Muuttuu uudelleenohjaukseksi" },
+    },
+    pick: {
+      suggestions: "Näyttää kaksoiskappaleelta",
+      noSuggestions:
+        "Samannimistä larppia päällekkäisillä päivämäärillä ei löytynyt.",
+      label: "Tai valitse mikä tahansa larppi",
+      submit: "Vertaa",
+    },
+    change: "Vaihda",
+    swap: "Toisin päin: säilytä toinen sivu",
+    notFound: "Yhdistettävää larppia ei löytynyt.",
+    form: {
+      identical: "{count} kenttää samat",
+      differ: "{count} kenttää eroaa",
+      progress:
+        "{auto} ratkaistu automaattisesti · {needed} odottaa päätöstäsi",
+      status: {
+        conflict: "Päätä",
+        decided: "Päätetty",
+        filled: "Automaattinen · täytetty voittaa tyhjän",
+        keepA: "Automaattinen · tämän sivun säilyy",
+      },
+      writeOwn: "Kirjoita oma",
+      empty: "Tyhjä",
+      yes: "Kyllä",
+      no: "Ei",
+      showMore: "Näytä kaikki",
+      fields: {
+        name: "Nimi",
+        tagline: "Tunnuslause",
+        type: "Tyyppi",
+        language: "Kieli",
+        openness: "Avoimuus",
+        description: "Kuvaus",
+        fluffText: "Fluffiteksti",
+        locationText: "Pelipaikka",
+        municipalityId: "Kunta",
+        numPlayerCharacters: "Pelaajahahmoja",
+        numTotalParticipants: "Osallistujia yhteensä",
+        startsAt: "Alkamispäivä",
+        endsAt: "Päättymispäivä",
+        signupStartsAt: "Ilmoittautumisen alkamispäivä",
+        signupEndsAt: "Ilmoittautumisen päättymispäivä",
+        cancelledAt: "Peruttu",
+        alias: "Lyhyt osoite",
+        headerImageId: "Otsikkokuva",
+      },
+      fieldNotes: {
+        alias: "Valitsematta jäänyt osoite ohjaa myös tänne.",
+        headerImageId: "Valitsematta jäänyt kuva poistetaan.",
+      },
+      links: {
+        title: "Linkit",
+        hint: "Samat linkit yhdistetään. Poista rasti linkistä, jonka haluat pudottaa.",
+        none: "Kummallakaan sivulla ei ole linkkejä.",
+        origin: { a: "A", b: "B", both: "A + B" },
+      },
+      combined: {
+        title: "Yhdistetään aina",
+        people: "Ihmiset",
+        peopleValue: "A:ssa {a} + B:ssä {b} → {merged}",
+        peopleNote:
+          "Pelinjohtajat, pelaajat, suosikit ja muut roolit. Sama rooli molemmissa lasketaan kerran.",
+        relatedLarps: "Liittyvät larpit",
+        relatedLarpsValue: "A:ssa {a} + B:ssä {b} → {merged}",
+        history: "Historia",
+        historyValue: "{a} + {b} pyyntöä, myös käsittelemättömät",
+        signups: "Ilmoittautumiset",
+        signupsValue: "{a} + {b}",
+        addresses: "Osoitteet",
+        addressesValue:
+          "B:n id-osoite, lyhyt osoite ja {count} aiempaa osoitetta johtavat tänne",
+      },
+      result: {
+        title: "Lopputulos",
+        linkCount: "{count} linkkiä",
+        redirect: "B:n osoitteet ohjaavat pysyvästi tänne",
+        irreversible: "Ei voi perua",
+        pending: "{count} kenttää odottaa päätöstä",
+        allDecided: "Kaikki kentät päätetty",
+        submit: "Yhdistä B tähän sivuun",
+        defaults: {
+          title: "Miten oletukset valitaan",
+          items: [
+            "Samat kentät eivät vaadi mitään.",
+            "Täytetty kenttä voittaa tyhjän.",
+            "Tämän sivun lyhyt osoite ja otsikkokuva säilyvät, ellet valitse B:n.",
+            "Kun sivuilla on eri arvot, päätät sinä.",
+          ],
+        },
+      },
+      errors: {
+        stale:
+          "Toinen sivuista muuttui päättäessäsi. Lataa sivu uudelleen ja tarkista valinnat.",
+        undecided: "Osa kentistä odottaa vielä päätöstä.",
+        notFound: "Toista sivuista ei enää ole.",
+        sameLarp: "Sivua ei voi yhdistää itseensä.",
+        forbidden: "Vain moderaattorit voivat yhdistää sivuja.",
+      },
     },
   },
   DeleteLarpPage: {
@@ -1185,6 +1294,9 @@ const translations: Translations = {
           DELETE: {
             title: "Sivun poistaminen",
           },
+          MERGE: {
+            title: "Sivujen yhdistäminen",
+          },
         },
       },
       name: {
@@ -1370,6 +1482,8 @@ const translations: Translations = {
         }
         return `Hyväksytty automaattisesti, koska lähettäjä on ${roleName}.`;
       },
+      mergedFrom: (name: string, id: string) =>
+        `Yhdistetty larpista ”${name}” (${id}).`,
     },
   },
   VerificationCodePage: {
@@ -2069,6 +2183,7 @@ const translations: Translations = {
       addRelated: "Lisää liittyvä larppi",
       claim: "Ota sivu haltuun pelinjohtajana",
       addToCalendar: "Lisää kalenteriin",
+      mergeDuplicate: "Yhdistä tähän larppiin kaksoiskappale",
       copyLink: "Kopioi linkki tähän larppiin",
       share: "Jaa…",
       subscribe: "Tilaa kalenteri",
@@ -2138,6 +2253,12 @@ const translations: Translations = {
         "Kalenteritiedosto",
         "Merkitse kalenteriin",
         "Muistutus",
+      ],
+      "larp:mergeDuplicate": [
+        "Kaksoiskappale",
+        "Tupla",
+        "Yhdistä sivut",
+        "Sama larppi kahdesti",
       ],
       "calendar:subscribe": [
         "Kalenterisyöte",

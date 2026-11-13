@@ -69,6 +69,7 @@ import {
   ImageIcon,
   LinkIcon,
   ListIcon,
+  MergeIcon,
   ShieldIcon,
   TrashIcon,
   UserIcon,
@@ -757,6 +758,7 @@ export default async function LarpPage({
   const relatedHref = `/larp/${larp.id}/related`;
   const calendarHref = larp.startsAt ? `/larp/${larp.id}/calendar.ics` : null;
   const headerImageHref = `/larp/${larp.id}/header-image`;
+  const mergeHref = `/larp/${larp.id}/merge`;
   const canManageHeaderImage =
     headerImagesEnabled && isGmOrModerator(user, larp);
   const hasRelatedLarps =
@@ -802,6 +804,16 @@ export default async function LarpPage({
             label: paletteT.addToCalendar,
             icon: "calendar" as const,
             href: calendarHref,
+          },
+        ]
+      : []),
+    ...(canModerate(user)
+      ? [
+          {
+            id: "larp:mergeDuplicate",
+            label: paletteT.mergeDuplicate,
+            icon: "merge" as const,
+            href: mergeHref,
           },
         ]
       : []),
@@ -978,6 +990,11 @@ export default async function LarpPage({
                       href: `/larp/${larp.id}/alias`,
                       label: t.actions.alias,
                       icon: <LinkIcon size={18} />,
+                    },
+                    {
+                      href: mergeHref,
+                      label: t.actions.mergeDuplicate,
+                      icon: <MergeIcon size={18} />,
                     },
                   ]
                 : []),

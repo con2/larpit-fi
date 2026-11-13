@@ -24,6 +24,7 @@ const builtinCommandLabels: Record<string, CommandLabelKey[]> = {
   "larp:claim": ["claim"],
   "larp:headerImage": ["headerImage"],
   "larp:addToCalendar": ["addToCalendar"],
+  "larp:mergeDuplicate": ["mergeDuplicate"],
   "calendar:subscribe": ["subscribe"],
   "calendar:jumpToToday": ["jumpToToday"],
 };

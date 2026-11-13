@@ -1,3 +1,5 @@
+import { publicUrl } from "@/config";
+import { findLarpRedirect } from "@/models/Larp";
 import { renderLarpCalendar } from "@/models/LarpCalendar";
 import { parseDates } from "@/prisma/dates";
 import { dbRead } from "@/prisma/db";
@@ -28,6 +30,15 @@ export async function GET(_request: Request, { params }: Context) {
   )
     .include("municipality", (m) => m.select("nameFi"))
     .first({ id: larpId });
+  if (!row) {
+    const redirectTarget = await findLarpRedirect(larpId, dbRead);
+    if (redirectTarget) {
+      return Response.redirect(
+        `${publicUrl}/larp/${redirectTarget.id}/calendar.ics`,
+        308,
+      );
+    }
+  }
   const larp = row && parseDates(row);
   if (!larp?.startsAt) {
     return new Response("Not found", { status: 404 });
