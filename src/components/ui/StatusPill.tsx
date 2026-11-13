@@ -9,8 +9,6 @@ import {
   type SignupPillLarp,
 } from "./signupPillState";
 
-export type { SignupPillKind, SignupPillLarp };
-
 export interface SignupPill {
   kind: SignupPillKind;
   content: ReactNode;
@@ -20,7 +18,7 @@ export interface SignupPill {
  * `short` drops the year from the date, as list rows do; the larp page signup card uses the long
  * form.
  */
-export function getSignupPill(
+function getSignupPill(
   larp: SignupPillLarp,
   messages: Translations["Larp"],
   locale: string,

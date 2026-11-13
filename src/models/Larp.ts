@@ -3,14 +3,9 @@ import { validate as validateUuid } from "uuid";
 import { publicUrl } from "@/config";
 import { parseDates } from "@/prisma/dates";
 import { db, type Tx } from "@/prisma/db";
-import {
-  EditAction,
-  EditStatus,
-  RelatedUserRole,
-  SubmitterRole,
-} from "@/prisma/enums";
+import { EditAction, EditStatus, SubmitterRole } from "@/prisma/enums";
 import { toJson } from "@/prisma/json";
-import type { Larp, Municipality, RelatedUser, User } from "@/prisma/models";
+import type { Larp, Municipality, User } from "@/prisma/models";
 import { query, sql } from "@/prisma/sql";
 import { supportedLanguages } from "@/i18n/locales";
 import { getLarpHref } from "./Larp.client";
@@ -27,18 +22,11 @@ import { canModerate } from "./User";
 export {
   getLarpHref,
   ensureEndsAt,
-  isSignupOpen,
-  isSignupOpeningSoon,
   isSignupOpenOrOpeningSoon,
-  isSignupOver,
 } from "./Larp.client";
 
 export function getLarpUrl(larp: Parameters<typeof getLarpHref>[0]): string {
   return `${publicUrl}${getLarpHref(larp)}`;
-}
-
-export function hasEditors(larp: { relatedUsers: RelatedUser[] }): boolean {
-  return larp.relatedUsers.some((user) => user.role === RelatedUserRole.EDITOR);
 }
 
 export function ensureLocation(

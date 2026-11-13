@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
-export interface MissingField {
+interface MissingField {
   /** Id of the element to focus: the input itself, or the first radio of a group. */
   id: string;
   label: string;

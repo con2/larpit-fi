@@ -79,7 +79,6 @@ export default async function SignupPage({ params, searchParams }: Props) {
   const larp = parseDates(larpRow);
 
   const codeParam = resolvedSearchParams.code ?? null;
-  const _emailSent = !!resolvedSearchParams.emailSent;
   const signupStatus = getLocalSignupStatusForUser(user, larp, codeParam);
 
   switch (signupStatus) {

@@ -9,7 +9,7 @@ export interface CalendarSpan {
   endsAt: string | null;
 }
 
-export interface WeekBar<T> {
+interface WeekBar<T> {
   item: T;
   /** 0-based. */
   lane: number;
@@ -43,7 +43,7 @@ function minDate(a: Temporal.PlainDate, b: Temporal.PlainDate) {
   return Temporal.PlainDate.compare(a, b) <= 0 ? a : b;
 }
 
-export function overlaps(
+function overlaps(
   item: CalendarSpan,
   first: Temporal.PlainDate,
   last: Temporal.PlainDate,
@@ -133,13 +133,13 @@ export function layoutWeek<T extends CalendarSpan>(
   return { monday, bars, laneCount: lanes.length };
 }
 
-export interface AgendaEntry<T> {
+interface AgendaEntry<T> {
   item: T;
   /** Set when the item lasts past the day it is listed on. */
   endsOn: Temporal.PlainDate | null;
 }
 
-export interface AgendaDay<T> {
+interface AgendaDay<T> {
   date: Temporal.PlainDate;
   entries: AgendaEntry<T>[];
 }

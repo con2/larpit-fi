@@ -32,7 +32,7 @@ export interface MergeFormField {
   b: MergeFormValue;
 }
 
-export interface MergeFormLink {
+interface MergeFormLink {
   id: string;
   typeLabel: string;
   href: string;
@@ -40,7 +40,7 @@ export interface MergeFormLink {
   origin: MergeLinkOrigin;
 }
 
-export interface MergeFormMessages {
+interface MergeFormMessages {
   sideTags: { a: string; b: string };
   /** `{count}` */
   identical: string;

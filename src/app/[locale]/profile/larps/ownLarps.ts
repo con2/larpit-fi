@@ -59,7 +59,7 @@ export async function loadOwnLarps(userId: string) {
 }
 
 /** Latest first, undated larps last. */
-export async function loadLarpsWithRoles(roleRows: RoleRow[]) {
+async function loadLarpsWithRoles(roleRows: RoleRow[]) {
   const rolesByLarp = new Map<string, Set<RelatedUserRole>>();
   for (const { larpId, role } of roleRows) {
     const roles = rolesByLarp.get(larpId) ?? new Set();
@@ -138,10 +138,6 @@ export function getRoleTags(roles: RelatedUserRole[]): RelatedUserRole[] {
     if (role === RelatedUserRole.CREATED_BY) return roles.length === 1;
     return true;
   });
-}
-
-export function isOrganizing(roles: RelatedUserRole[]): boolean {
-  return roles.some((role) => organizingRoles.includes(role));
 }
 
 export interface YearGroup {

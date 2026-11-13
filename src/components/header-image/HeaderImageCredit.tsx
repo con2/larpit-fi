@@ -7,7 +7,7 @@ interface Props {
   className?: string;
 }
 
-export function formatCredit(template: string, credit: string): string {
+function formatCredit(template: string, credit: string): string {
   return template.replace("{credit}", credit);
 }
 

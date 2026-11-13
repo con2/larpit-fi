@@ -9,7 +9,7 @@ import { getSignupPillState } from "./ui/signupPillState";
 import styles from "./LarpForm.module.scss";
 import { useFormSnapshot } from "./useFormSnapshot";
 
-export interface LarpFormPreviewMessages {
+interface LarpFormPreviewMessages {
   title: string;
   note: string;
   signupNote: string;

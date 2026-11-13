@@ -129,7 +129,7 @@ export async function submitSignup(
   }
 }
 
-export async function removeLocalSignup(
+async function removeLocalSignup(
   locale: string,
   larpId: string,
   _data?: FormData,

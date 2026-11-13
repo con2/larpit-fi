@@ -35,7 +35,7 @@ type Status =
   | { kind: "processing" }
   | { kind: "error"; code: ErrorCode };
 
-export interface ExistingHeaderImage {
+interface ExistingHeaderImage {
   full: string;
   width: number;
   height: number;

@@ -8,8 +8,8 @@ import {
 
 import { type VariantName, variantKey } from "./headerImageKeys";
 
-export const maxInputPixels = 40_000_000;
-export const minOriginalWidth = 1200;
+const maxInputPixels = 40_000_000;
+const minOriginalWidth = 1200;
 
 const acceptedFormats = new Set(["jpeg", "png", "webp", "heif"]);
 

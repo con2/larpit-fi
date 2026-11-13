@@ -36,7 +36,7 @@ export interface BuiltinCommand {
   synonyms: string;
 }
 
-export function getBuiltinCommands(): BuiltinCommand[] {
+function getBuiltinCommands(): BuiltinCommand[] {
   return supportedLanguages.flatMap((language) => {
     const t = getTranslations(language).CommandPalette;
     return Object.entries(builtinCommandLabels).map(

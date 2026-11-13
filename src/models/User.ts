@@ -152,7 +152,7 @@ export async function getUserFromSession(
     : null;
 }
 
-export type LocalSignupRole = Extract<
+type LocalSignupRole = Extract<
   RelatedUserRole,
   "LOCAL_SIGNUP_YES" | "LOCAL_SIGNUP_MAYBE" | "LOCAL_SIGNUP_NO"
 >;
@@ -163,7 +163,7 @@ export const localSignupRoles = [
   RelatedUserRole.LOCAL_SIGNUP_NO,
 ] as const;
 
-export const participantVisibilityRoles = [
+const participantVisibilityRoles = [
   RelatedUserRole.GAME_MASTER,
   RelatedUserRole.TEAM_MEMBER,
   RelatedUserRole.VOLUNTEER,
@@ -193,7 +193,7 @@ export function isGmOrModerator(
   );
 }
 
-export function isParticipant(
+function isParticipant(
   user: Pick<User, "id"> | null,
   larp: { relatedUsers: Pick<RelatedUser, "userId" | "role">[] },
 ): boolean {

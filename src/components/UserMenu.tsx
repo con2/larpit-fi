@@ -53,7 +53,7 @@ interface Props {
   themeSwitching: boolean;
 }
 
-export function getInitials(user: UserMenuUser): string {
+function getInitials(user: UserMenuUser): string {
   const words = (user.name ?? "").trim().split(/\s+/).filter(Boolean);
   if (words.length >= 2) {
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();

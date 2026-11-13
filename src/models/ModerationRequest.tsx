@@ -44,18 +44,18 @@ export enum Resolution {
   REJECTED = "REJECTED",
 }
 
-export const zLarpType = z.enum(LarpType).default(LarpType.ONE_SHOT);
+const zLarpType = z.enum(LarpType).default(LarpType.ONE_SHOT);
 export const zResolution = z.enum(Resolution);
-export const zOpenness = z.preprocess(
+const zOpenness = z.preprocess(
   (value) => (value === "" ? null : value),
   z.enum(Openness).nullable().default(null),
 );
-export const zSubmitterRole = z.enum(SubmitterRole);
+const zSubmitterRole = z.enum(SubmitterRole);
 const zCountNull = z.preprocess(
   (value) => (value === "" ? null : value),
   z.coerce.number().int().nonnegative().nullable().default(null),
 );
-export const zLanguage = z.enum(Language).default(Language.fi);
+const zLanguage = z.enum(Language).default(Language.fi);
 
 /**
  * Free text as stored on a larp, in Unicode NFC. Pasted text can spell "ä" as "a" plus a
@@ -207,7 +207,7 @@ export function diffLarpContent(
   return result;
 }
 
-export function contentToLarp(content: ModerationRequestContent) {
+function contentToLarp(content: ModerationRequestContent) {
   const {
     municipality,
     startsAt,
@@ -229,9 +229,7 @@ export function contentToLarp(content: ModerationRequestContent) {
   };
 }
 
-export function partialContentToLarp(
-  content: Partial<ModerationRequestContent>,
-) {
+function partialContentToLarp(content: Partial<ModerationRequestContent>) {
   const {
     municipality,
     startsAt,

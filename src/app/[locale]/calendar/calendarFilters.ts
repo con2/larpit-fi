@@ -69,12 +69,6 @@ export function matchesFilters(
   return true;
 }
 
-export function isFiltered(filters: CalendarFilters): boolean {
-  return (
-    filters.type !== null || filters.signupOpen || filters.languages.length > 0
-  );
-}
-
 /** `/calendar` with the given month and filters; parameters at their defaults are left out. */
 export function calendarHref(
   month: string | null,

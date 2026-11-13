@@ -13,7 +13,7 @@ export const databaseUrl = process.env.DATABASE_URL || "postgresql:///";
 export const databaseReplicaUrl = process.env.DATABASE_URL_REPLICA || undefined;
 
 // kompassi SSO
-export const kompassiBaseUrl =
+const kompassiBaseUrl =
   process.env.NEXT_PUBLIC_KOMPASSI_BASE_URL || "https://dev.kompassi.eu";
 export const kompassiProfileUrl = `${kompassiBaseUrl}/profile`;
 export const kompassiOidc = {
@@ -43,7 +43,7 @@ export const nodemailerConfig: SMTPTransport.Options = {
   },
 };
 
-export const mailSender = process.env.MAIL_SENDER || "larpit-fi@tracon.fi";
+const mailSender = process.env.MAIL_SENDER || "larpit-fi@tracon.fi";
 export const formattedMailFrom =
   process.env.FORMATTED_MAIL_FROM || `Larp.fi <larpit-fi@tracon.fi>`;
 

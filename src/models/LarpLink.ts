@@ -29,7 +29,7 @@ export type LarpLinkRemovable = z.infer<typeof LarpLinkRemovable>;
 // Only http(s) URLs may be stored as link hrefs. Schemes like `javascript:` or
 // `data:` parse successfully via `new URL` but would become XSS vectors when
 // rendered as anchor hrefs on the public larp page.
-export function isSafeLinkHref(href: string): boolean {
+function isSafeLinkHref(href: string): boolean {
   try {
     const url = new URL(href);
     return url.protocol === "http:" || url.protocol === "https:";

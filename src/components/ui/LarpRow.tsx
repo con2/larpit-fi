@@ -28,7 +28,7 @@ export type LarpRowLarp = Pick<
   municipality: Pick<Municipality, "nameFi"> | null;
 };
 
-export function LarpName({ name }: { name: string }) {
+function LarpName({ name }: { name: string }) {
   const split = splitRunSuffix(name);
   return (
     <>

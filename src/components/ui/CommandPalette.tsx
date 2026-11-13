@@ -44,7 +44,7 @@ import { pagePathInUiLanguage } from "@/models/Page.client";
 import type { LarpSearchResult, PageSearchResult } from "@/search/search";
 import { getEffectiveTheme, setThemePreference } from "./themeClient";
 
-export type PaletteIcon =
+type PaletteIcon =
   | "edit"
   | "related"
   | "shield"
@@ -59,7 +59,7 @@ export type PaletteIcon =
   | "image"
   | "merge";
 
-export type PaletteAction = "copyLink" | "share" | "switchTheme";
+type PaletteAction = "copyLink" | "share" | "switchTheme";
 
 export interface PaletteCommand {
   /**
@@ -137,7 +137,7 @@ function useMediaQuery(query: string) {
 const noop = () => () => {};
 
 /** "⌘K" on Apple platforms, "Ctrl K" elsewhere; null on the server and on touch-only devices. */
-export function useShortcutKeycap(): string | null {
+function useShortcutKeycap(): string | null {
   const isTouchOnly = useMediaQuery(touchOnlyQuery);
   const isApple = useSyncExternalStore(noop, isApplePlatform, () => null);
   if (isApple === null || isTouchOnly) return null;
@@ -158,7 +158,7 @@ function readRecent(): RecentLarp[] {
   }
 }
 
-export function rememberRecentLarp(larp: RecentLarp) {
+function rememberRecentLarp(larp: RecentLarp) {
   try {
     const recent = [
       larp,

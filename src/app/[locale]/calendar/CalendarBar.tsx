@@ -39,7 +39,7 @@ const kindClass: Record<BarKind, string> = {
   overOrUnknown: styles.kindOverOrUnknown,
 };
 
-export function barKind(larp: CalendarLarp): BarKind {
+function barKind(larp: CalendarLarp): BarKind {
   const state = getSignupPillState(larp);
   if (state?.kind === "cancelled") return "cancelled";
   const group = typeGroupByType[larp.type];

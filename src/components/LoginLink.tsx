@@ -3,7 +3,7 @@
 import { signIn, signOut } from "next-auth/react";
 import { ReactNode } from "react";
 
-export function LoginLink({ children }: { children: ReactNode }) {
+function LoginLink({ children }: { children: ReactNode }) {
   return (
     <a href="#" onClick={() => signIn("kompassi")}>
       {children}

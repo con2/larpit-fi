@@ -5,7 +5,7 @@ import { contractFromJson } from "@prisma/orm-postgres/static";
 import type { Contract } from "./contract.d.ts";
 import contractJson from "./contract.json" with { type: "json" };
 
-export const contract = contractFromJson<Contract>(contractJson);
+const contract = contractFromJson<Contract>(contractJson);
 
 /** Module-level singleton for the process lifetime; shares its connection pool with raw SQL. */
 export const db = postgres({ contract, pg: pool });

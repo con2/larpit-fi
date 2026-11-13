@@ -29,7 +29,7 @@ export type MergeableField = (typeof mergeableFields)[number];
 
 export type MergeSide = "a" | "b";
 
-export type MergeFieldValue = string | number | null;
+type MergeFieldValue = string | number | null;
 
 export type MergeableLarp = Record<MergeableField, MergeFieldValue>;
 
@@ -110,7 +110,7 @@ export interface MergeLink extends MergeLinkInput {
 }
 
 /** Drops differences that do not change where a link leads: host case and trailing slashes. */
-export function normalizeLinkHref(href: string): string {
+function normalizeLinkHref(href: string): string {
   const trimmed = href.trim();
   try {
     const url = new URL(trimmed);

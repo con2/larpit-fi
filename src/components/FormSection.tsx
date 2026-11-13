@@ -52,7 +52,7 @@ export function RequiredMark() {
   );
 }
 
-export interface RadioChoice {
+interface RadioChoice {
   value: string;
   title: ReactNode;
   description?: ReactNode;

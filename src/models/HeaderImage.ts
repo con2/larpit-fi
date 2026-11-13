@@ -127,7 +127,7 @@ function cropColumns(crop: Crop) {
   };
 }
 
-export function headerImageView(row: HeaderImageRow): HeaderImageView {
+function headerImageView(row: HeaderImageRow): HeaderImageView {
   const storage = getStorage();
   const banner1200 = storage.url(
     variantKey(row.id, row.revision, "banner-1200"),
