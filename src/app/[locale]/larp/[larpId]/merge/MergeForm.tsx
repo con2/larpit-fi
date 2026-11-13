@@ -235,30 +235,30 @@ export default function MergeForm({
         <div className="lf-merge-field__options">
           {option("a")}
           {option("b")}
-          {f.field === "name" && (
-            <label className={`${optionClass} lf-merge-option--own`}>
-              <input
-                type="radio"
-                name={radioName}
-                value="own"
-                checked={sides.name === "own"}
-                onClick={() => choose("name", "own")}
-                onChange={() => undefined}
-              />
-              <span className="lf-merge-option__body">
-                <span>{t.writeOwn}</span>
-                <FormControl
-                  type="text"
-                  value={customName}
-                  maxLength={customNameMaxLength}
-                  aria-label={t.writeOwn}
-                  onFocus={() => choose("name", "own")}
-                  onChange={(event) => setCustomName(event.target.value)}
-                />
-              </span>
-            </label>
-          )}
         </div>
+        {f.field === "name" && (
+          <label className={optionClass}>
+            <input
+              type="radio"
+              name={radioName}
+              value="own"
+              checked={sides.name === "own"}
+              onClick={() => choose("name", "own")}
+              onChange={() => undefined}
+            />
+            <span className="lf-merge-option__body">
+              <span>{t.writeOwn}</span>
+              <FormControl
+                type="text"
+                value={customName}
+                maxLength={customNameMaxLength}
+                aria-label={t.writeOwn}
+                onFocus={() => choose("name", "own")}
+                onChange={(event) => setCustomName(event.target.value)}
+              />
+            </span>
+          </label>
+        )}
         {isLong && !isExpanded && (
           <button
             type="button"
