@@ -60,8 +60,10 @@ export async function resolveRequest(
     throw new Error("Only admins can approve deletion requests");
   }
 
+  // Already resolved, typically by submitting again from a page left open or reached with
+  // Back; the request page shows how it was resolved.
   if (request.status !== EditStatus.VERIFIED) {
-    throw new Error(`Request cannot be resolved from status ${request.status}`);
+    return void redirect(`/moderate/${request.id}`);
   }
 
   const resolveRequest = ResolveRequest.parse(
@@ -126,8 +128,10 @@ export async function markChecked(
     throw new Error("Insufficient privileges");
   }
 
+  // Already checked, typically by submitting again from a page left open or reached with
+  // Back; the request page shows how it was resolved.
   if (request.status !== EditStatus.AUTO_APPROVED) {
-    throw new Error(`Request cannot be checked from status ${request.status}`);
+    return void redirect(`/moderate/${request.id}`);
   }
 
   const markChecked = MarkCheckedRequest.parse(

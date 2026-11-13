@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { NewVersionNoticeProvider } from "@/components/NewVersionNotice";
 import ReloadButton from "@/components/ReloadButton";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+import AutoThemeSync from "@/components/ui/AutoThemeSync";
 import { CommandPaletteProvider } from "@/components/ui/CommandPalette";
 import HeroMessage, { heroActionClasses } from "@/components/ui/HeroMessage";
 import { featureFlags } from "@/config";
@@ -83,6 +84,7 @@ export default async function RootLayout({ children, params }: Props) {
           )}
         </head>
         <body>
+          {featureFlags.nordicNight && <AutoThemeSync />}
           <CommandPaletteProvider
             locale={locale}
             messages={translations.CommandPalette}
