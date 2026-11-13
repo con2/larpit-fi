@@ -2005,6 +2005,12 @@ const translations: Translations = {
   GatePage: {
     backToPage: "Takaisin sivulle",
   },
+  NewVersionPage: {
+    eyebrow: "Päivitetty",
+    title: "Larp.fi-sivustosta on uusi versio",
+    lede: "Lataa sivu uudelleen jatkaaksesi. Viimeisimpiä muutoksiasi ei tallennettu.",
+    reload: "Lataa sivu uudelleen",
+  },
   NotFoundPage: {
     eyebrow: "404",
     title: "Sivua ei löytynyt",

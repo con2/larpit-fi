@@ -6,8 +6,11 @@ import { ReactNode } from "react";
 
 import AppBar from "@/components/AppBar";
 import Footer from "@/components/Footer";
+import { NewVersionNoticeProvider } from "@/components/NewVersionNotice";
+import ReloadButton from "@/components/ReloadButton";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import { CommandPaletteProvider } from "@/components/ui/CommandPalette";
+import HeroMessage, { heroActionClasses } from "@/components/ui/HeroMessage";
 import { featureFlags } from "@/config";
 import { routing } from "@/i18n/routing";
 import {
@@ -49,6 +52,19 @@ export default async function RootLayout({ children, params }: Props) {
       ([type, choice]) => [type, choice.title],
     ),
   ) as Record<keyof typeof translations.Larp.attributes.type.choices, string>;
+  const newVersionT = translations.NewVersionPage;
+  const newVersionNotice = (
+    <HeroMessage
+      eyebrow={newVersionT.eyebrow}
+      title={newVersionT.title}
+      lede={newVersionT.lede}
+    >
+      <ReloadButton
+        className={heroActionClasses.primary}
+        label={newVersionT.reload}
+      />
+    </HeroMessage>
+  );
 
   return (
     <SessionProviderWrapper>
@@ -75,7 +91,11 @@ export default async function RootLayout({ children, params }: Props) {
           >
             <div className="lf-page">
               <AppBar locale={locale} />
-              <main>{children}</main>
+              <main>
+                <NewVersionNoticeProvider notice={newVersionNotice}>
+                  {children}
+                </NewVersionNoticeProvider>
+              </main>
               <Footer locale={locale} />
             </div>
           </CommandPaletteProvider>

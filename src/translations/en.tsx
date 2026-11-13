@@ -1971,6 +1971,12 @@ const translations = {
   GatePage: {
     backToPage: "Back to the page",
   },
+  NewVersionPage: {
+    eyebrow: "Updated",
+    title: "There is a new version of the Larp.fi site",
+    lede: "Refresh the page to continue. Your latest changes were not saved.",
+    reload: "Refresh the page",
+  },
   NotFoundPage: {
     eyebrow: "404",
     title: "Page not found",
