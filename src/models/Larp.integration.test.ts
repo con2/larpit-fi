@@ -1,7 +1,13 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { db } from "@/prisma/db";
-import { Language, LarpLinkType, LarpType, UserRole } from "@/prisma/enums";
+import {
+  Language,
+  LarpLinkType,
+  LarpType,
+  RelatedLarpType,
+  UserRole,
+} from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 import {
@@ -322,5 +328,55 @@ describe("executeImportAction", () => {
     expect(await linksOf(existing.id)).toEqual([
       { type: LarpLinkType.SOURCE, href: "https://example.com/b", title: null },
     ]);
+  });
+
+  it("adds relations to an existing larp", async () => {
+    const user = await importer();
+    const campaign = await createLarp();
+    const member = await createLarp();
+
+    await executeImportAction(
+      { kind: "update", larpId: member.id, name: member.name, fields: {} },
+      user,
+      "imported",
+      [],
+      [
+        {
+          leftId: member.id,
+          rightId: campaign.id,
+          type: RelatedLarpType.IN_CAMPAIGN,
+        },
+      ],
+    );
+
+    const relations = await db.orm.public.RelatedLarp.where({
+      leftId: member.id,
+    })
+      .select("rightId", "type")
+      .all();
+    expect(relations).toEqual([
+      { rightId: campaign.id, type: RelatedLarpType.IN_CAMPAIGN },
+    ]);
+  });
+
+  it("refuses relations for a larp that does not exist yet", async () => {
+    const user = await importer();
+    const content = ModerationRequestContent.parse({ name: "Uusi" });
+
+    await expect(
+      executeImportAction(
+        { kind: "create", content },
+        user,
+        "imported",
+        [],
+        [
+          {
+            leftId: "019a0000-0000-7000-8000-000000000000",
+            rightId: "019a0000-0000-7000-8000-000000000001",
+            type: RelatedLarpType.IN_SERIES,
+          },
+        ],
+      ),
+    ).rejects.toThrow();
   });
 });

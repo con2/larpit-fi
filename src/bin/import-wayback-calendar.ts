@@ -13,15 +13,15 @@ import {
 } from "@/models/ModerationRequest";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
-import { LarpLinkType } from "@/prisma/enums";
+import { LarpLinkType, RelatedLarpType } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 
 /**
  * Imports larps scraped from Wayback Machine captures of the old larp.fi calendar
  * (www.larp.fi/kalenteri.html, 2003–2014). The input is a reviewed plan whose items either
- * create a larp or fill in the empty fields of an existing one. Every item carries a SOURCE
- * link to its archived calendar entry; an item whose SOURCE link already exists is skipped,
- * so the import can be re-run.
+ * create a larp or fill in the empty fields of an existing one, and may relate the larp to an
+ * existing campaign or series. Every item carries a SOURCE link to its archived calendar
+ * entry; an item whose SOURCE link already exists is skipped, so the import can be re-run.
  *
  *   npx tsx src/bin/import-wayback-calendar.ts --dry-run import.json
  *   npx tsx src/bin/import-wayback-calendar.ts --user <user id> import.json
@@ -33,6 +33,11 @@ const ImportItem = z.object({
   larpId: z.string().uuid().optional(),
   content: ModerationRequestContent,
   links: z.array(LarpLinkUpsertable),
+  relatedLarps: z
+    .array(
+      z.object({ type: z.enum(RelatedLarpType), rightId: z.string().uuid() }),
+    )
+    .default([]),
 });
 
 const ImportFile = z.object({ items: z.array(ImportItem) });
@@ -40,7 +45,12 @@ const ImportFile = z.object({ items: z.array(ImportItem) });
 type ImportItem = z.infer<typeof ImportItem>;
 
 type Planned =
-  | { item: ImportItem; action: ImportAction; addLinks: LarpLinkUpsertable[] }
+  | {
+      item: ImportItem;
+      action: ImportAction;
+      addLinks: LarpLinkUpsertable[];
+      addRelatedLarps: ImportItem["relatedLarps"];
+    }
   | { item: ImportItem; skip: string };
 
 const dryRun = process.argv.includes("--dry-run");
@@ -71,12 +81,27 @@ async function alreadyImportedSources(items: ImportItem[]): Promise<Set<string>>
   return new Set(links.map((link) => link.href));
 }
 
+async function assertRelatedLarpsExist(items: ImportItem[]): Promise<void> {
+  const ids = [
+    ...new Set(items.flatMap((i) => i.relatedLarps.map((r) => r.rightId))),
+  ];
+  if (ids.length === 0) return;
+  const found = await db.orm.public.Larp.where((l) => l.id.in(ids))
+    .select("id")
+    .all();
+  const missing = ids.filter((id) => !found.some((larp) => larp.id === id));
+  if (missing.length > 0) {
+    throw new Error(`Related larps not found: ${missing.join(", ")}`);
+  }
+}
+
 async function plan(item: ImportItem): Promise<Planned> {
   if (item.action === "create") {
     return {
       item,
       action: { kind: "create", content: item.content },
       addLinks: item.links,
+      addRelatedLarps: item.relatedLarps,
     };
   }
 
@@ -94,17 +119,30 @@ async function plan(item: ImportItem): Promise<Planned> {
       !existingHrefs.has(normalizeHref(link.href)) &&
       !(link.type === LarpLinkType.HOMEPAGE && hasHomepage),
   );
+  const existingRelations = await db.orm.public.RelatedLarp.where({
+    leftId: larp.id,
+  })
+    .select("rightId")
+    .all();
+  const addRelatedLarps = item.relatedLarps.filter(
+    (relation) =>
+      !existingRelations.some((r) => r.rightId === relation.rightId),
+  );
   return {
     item,
     action: { kind: "update", larpId: larp.id, name: larp.name, fields },
     addLinks,
+    addRelatedLarps,
   };
 }
 
 function describe(planned: Planned): string {
   const name = planned.item.content.name.slice(0, 44).padEnd(45);
   if ("skip" in planned) return `SKIP    ${name}${planned.skip}`;
-  const links = planned.addLinks.map((link) => link.type).join(", ");
+  const links = [
+    ...planned.addLinks.map((link) => link.type),
+    ...planned.addRelatedLarps.map((relation) => relation.type),
+  ].join(", ");
   if (planned.action.kind === "create") {
     return `CREATE  ${name}${planned.item.content.startsAt} links: ${links}`;
   }
@@ -127,6 +165,7 @@ async function main() {
   const { items } = ImportFile.parse(
     JSON.parse(readFileSync(filename, "utf-8")),
   );
+  await assertRelatedLarpsExist(items);
   const imported = await alreadyImportedSources(items);
 
   const planned: Planned[] = [];
@@ -151,7 +190,37 @@ async function main() {
 
   for (const p of planned) {
     if ("skip" in p) continue;
-    await executeImportAction(p.action, user, message, p.addLinks);
+    const toRelatedLarp = (larpId: string) =>
+      p.addRelatedLarps.map(({ type, rightId }) => ({
+        leftId: larpId,
+        rightId,
+        type,
+      }));
+    if (p.action.kind === "create") {
+      const larpId = await executeImportAction(
+        p.action,
+        user,
+        message,
+        p.addLinks,
+      );
+      if (larpId && p.addRelatedLarps.length > 0) {
+        await executeImportAction(
+          { kind: "update", larpId, name: p.item.content.name, fields: {} },
+          user,
+          message,
+          [],
+          toRelatedLarp(larpId),
+        );
+      }
+    } else if (p.action.kind === "update") {
+      await executeImportAction(
+        p.action,
+        user,
+        message,
+        p.addLinks,
+        toRelatedLarp(p.action.larpId),
+      );
+    }
   }
   console.log("done");
 }

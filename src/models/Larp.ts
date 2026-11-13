@@ -15,6 +15,7 @@ import { query, sql } from "@/prisma/sql";
 import { supportedLanguages } from "@/i18n/locales";
 import { getLarpHref } from "./Larp.client";
 import type { LarpLinkUpsertable } from "./LarpLink";
+import type { RelatedLarpAddable } from "./RelatedLarp";
 import {
   approveRequest,
   larpToContent,
@@ -197,12 +198,18 @@ export async function executeImportAction(
   user: Pick<User, "id" | "name" | "email" | "role">,
   message: string,
   addLinks: LarpLinkUpsertable[] = [],
+  addRelatedLarps: RelatedLarpAddable[] = [],
 ): Promise<string | null> {
   if (action.kind === "skip") {
     return null;
   }
 
   if (action.kind === "create") {
+    // Approving a create request does not apply relations, and the new larp has no id to
+    // relate from until it exists.
+    if (addRelatedLarps.length > 0) {
+      throw new Error("Relations can only be added to an existing larp");
+    }
     const request = await db.orm.public.ModerationRequest.create({
       action: EditAction.CREATE,
       status: EditStatus.VERIFIED,
@@ -233,6 +240,7 @@ export async function executeImportAction(
       message,
       newContent: toJson(action.fields),
       addLinks: toJson(addLinks),
+      addRelatedLarps: toJson(addRelatedLarps),
     });
     const larp = await approveRequest(
       request,
