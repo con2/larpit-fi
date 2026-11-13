@@ -107,6 +107,52 @@ const spec = {
           },
         };
       })(),
+      Country: (() => {
+        const properties = {
+          id: {
+            type: "string",
+            description: "Wikidata id with a wd: prefix, e.g. wd:Q33",
+          },
+          code: {
+            type: ["string", "null"],
+            description: "ISO 3166-1 alpha-2 code, e.g. FI",
+          },
+          nameFi: { type: ["string", "null"] },
+          nameSv: { type: ["string", "null"] },
+          nameEn: { type: ["string", "null"] },
+        };
+        return {
+          type: "object",
+          required: Object.keys(properties),
+          properties,
+        };
+      })(),
+      Municipality: (() => {
+        const properties = {
+          id: {
+            type: "string",
+            description: "YSO-Paikat id with a yso: prefix",
+          },
+          nameFi: {
+            type: ["string", "null"],
+            description: "Matches the municipality field of a larp",
+          },
+          nameSv: { type: ["string", "null"] },
+          nameOther: { type: ["string", "null"] },
+          nameOtherLanguageCode: { type: ["string", "null"] },
+          countryId: {
+            type: "string",
+            description: "Id of the Country the municipality is in",
+          },
+          lat: { type: "number" },
+          long: { type: "number" },
+        };
+        return {
+          type: "object",
+          required: Object.keys(properties),
+          properties,
+        };
+      })(),
       LarpDetail: {
         allOf: [
           { $ref: "#/components/schemas/LarpSummary" },
@@ -232,6 +278,56 @@ const spec = {
           },
           "404": {
             description: "Larp not found",
+          },
+        },
+      },
+    },
+    "/api/country": {
+      get: {
+        summary: "List countries",
+        operationId: "listCountries",
+        responses: {
+          "200": {
+            description: "All countries",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["items"],
+                  properties: {
+                    items: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Country" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/municipality": {
+      get: {
+        summary: "List municipalities",
+        operationId: "listMunicipalities",
+        responses: {
+          "200": {
+            description: "All municipalities",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["items"],
+                  properties: {
+                    items: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Municipality" },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

@@ -14,9 +14,9 @@ import { pool } from "@/prisma/pool";
 /**
  * Mirrors the public larp data of a larp.fi instance into this database, for development
  * against realistic content. Larps keep their ids, so local URLs match the source instance.
- * Users, roles and moderation history are not public and are not loaded. Municipalities are
- * matched by their Finnish name against the local municipality table, so import them first if
- * you want locations resolved.
+ * Countries and municipalities are loaded first, and a larp's municipality is matched by its
+ * Finnish name because that is all the larp API exposes of it. Users, roles and moderation
+ * history are not public and are not loaded.
  *
  *   npm run db:load                              # from https://larp.fi
  *   npm run db:load -- --api http://localhost:3158
@@ -80,6 +80,33 @@ const ApiLarpPage = z.object({
 
 type ApiLarpSummary = z.infer<typeof ApiLarpSummary>;
 
+const ApiCountryList = z.object({
+  items: z.array(
+    z.object({
+      id: z.string(),
+      code: z.string().nullable(),
+      nameFi: z.string().nullable(),
+      nameSv: z.string().nullable(),
+      nameEn: z.string().nullable(),
+    }),
+  ),
+});
+
+const ApiMunicipalityList = z.object({
+  items: z.array(
+    z.object({
+      id: z.string(),
+      nameFi: z.string().nullable(),
+      nameSv: z.string().nullable(),
+      nameOther: z.string().nullable(),
+      nameOtherLanguageCode: z.string().nullable(),
+      countryId: z.string(),
+      lat: z.number(),
+      long: z.number(),
+    }),
+  ),
+});
+
 async function fetchJson(path: string): Promise<unknown> {
   const response = await fetch(`${apiBase}${path}`, {
     headers: { "User-Agent": userAgent, Accept: "application/json" },
@@ -106,6 +133,28 @@ async function fetchAllLarps(): Promise<ApiLarpSummary[]> {
     console.log(`fetched ${larps.length} larps`);
   } while (cursor);
   return larps;
+}
+
+async function loadCountriesAndMunicipalities(): Promise<void> {
+  const countries = ApiCountryList.parse(await fetchJson("/api/country"));
+  for (const { id, ...fields } of countries.items) {
+    await db.orm.public.Country.upsert({
+      create: { id, ...fields },
+      update: fields,
+    });
+  }
+  const municipalities = ApiMunicipalityList.parse(
+    await fetchJson("/api/municipality"),
+  );
+  for (const { id, ...fields } of municipalities.items) {
+    await db.orm.public.Municipality.upsert({
+      create: { id, ...fields },
+      update: fields,
+    });
+  }
+  console.log(
+    `loaded ${countries.items.length} countries and ${municipalities.items.length} municipalities`,
+  );
 }
 
 async function municipalityIdsByName(): Promise<Map<string, string>> {
@@ -186,6 +235,7 @@ async function loadRelatedLarps(larps: ApiLarpSummary[]): Promise<number> {
 }
 
 async function main() {
+  await loadCountriesAndMunicipalities();
   const larps = await fetchAllLarps();
   const municipalities = await municipalityIdsByName();
   const limit = pLimit(detailConcurrency);
