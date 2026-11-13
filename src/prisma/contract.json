@@ -3121,6 +3121,13 @@
               ],
               "indexes": [
                 {
+                  "expression": "to_tsvector('simple', replace(replace(replace(replace(translate(lower(\"name\"), 'àáâãāăąçćĉčďđðèéêëēĕėęěĝğġģìíîïĩīĭįıĺļľłñńņňòóôõōŏőøŕŗřśŝşšţťùúûüũūŭůűųýÿźżž', 'aaaaaaaccccdddeeeeeeeeeggggiiiiiiiiillllnnnnoooooooorrrssssttuuuuuuuuuuyyzzz'), 'æ', 'ae'), 'œ', 'oe'), 'ß', 'ss'), 'þ', 'th'))",
+                  "name": "larp_folded_name_search_38e4386b",
+                  "prefix": "larp_folded_name_search",
+                  "type": "gin",
+                  "unique": false
+                },
+                {
                   "columns": [
                     "name",
                     "tagline",
@@ -4501,7 +4508,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "da23d287377560c6383a99e887ae733d7be0e0e4d025b104a129aa1739c6d9a9"
+    "storageHash": "1b76f7d58a7134ecf94e11c64c932e54a83c74c123f53918cf5ebee5fd9154f4"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

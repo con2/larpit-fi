@@ -1,0 +1,49 @@
+[
+  {
+    "id": "index.larp.larp_folded_name_search_38e4386b",
+    "label": "Create index \"larp_folded_name_search_38e4386b\" on \"larp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "larp_folded_name_search_38e4386b",
+        "table": "larp"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"larp_folded_name_search_38e4386b\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_folded_name_search_38e4386b\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"larp_folded_name_search_38e4386b\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"larp_folded_name_search_38e4386b\"",
+        "sql": "CREATE INDEX \"larp_folded_name_search_38e4386b\" ON \"public\".\"larp\" USING \"gin\" (to_tsvector('simple', replace(replace(replace(replace(translate(lower(\"name\"), 'àáâãāăąçćĉčďđðèéêëēĕėęěĝğġģìíîïĩīĭįıĺļľłñńņňòóôõōŏőøŕŗřśŝşšţťùúûüũūŭůűųýÿźżž', 'aaaaaaaccccdddeeeeeeeeeggggiiiiiiiiillllnnnnoooooooorrrssssttuuuuuuuuuuyyzzz'), 'æ', 'ae'), 'œ', 'oe'), 'ß', 'ss'), 'þ', 'th')))",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"larp_folded_name_search_38e4386b\" exists on \"larp\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"larp_folded_name_search_38e4386b\"",
+          "i",
+          "I",
+          "\"public\".\"larp\"",
+          "gin"
+        ]
+      }
+    ]
+  }
+]

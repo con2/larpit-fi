@@ -257,6 +257,9 @@ namespace public {
     @@fullTextIndex([name, tagline, description, fluffText], language: "english", where: sql`language = 'en'`, name: "larp_search_en")
     @@fullTextIndex([name, tagline, description, fluffText], language: "swedish", where: sql`language = 'sv'`, name: "larp_search_sv")
     @@fullTextIndex([name, tagline, description, fluffText], language: "simple", where: sql`language = 'OTHER'`, name: "larp_search_other")
+    // Names with foreign letters folded (see foldForeignLettersSql in src/search/searchQuery.ts,
+    // which must render this same expression for the index to be used).
+    @@index(expression: sql`to_tsvector('simple', replace(replace(replace(replace(translate(lower("name"), 'àáâãāăąçćĉčďđðèéêëēĕėęěĝğġģìíîïĩīĭįıĺļľłñńņňòóôõōŏőøŕŗřśŝşšţťùúûüũūŭůűųýÿźżž', 'aaaaaaaccccdddeeeeeeeeeggggiiiiiiiiillllnnnnoooooooorrrssssttuuuuuuuuuuyyzzz'), 'æ', 'ae'), 'œ', 'oe'), 'ß', 'ss'), 'þ', 'th'))`, type: "gin", name: "larp_folded_name_search")
     @@map("larp")
   }
 

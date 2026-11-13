@@ -14,7 +14,7 @@ import { parseDates } from "@/prisma/dates";
 import type { db } from "@/prisma/db";
 import type { LarpType } from "@/prisma/enums";
 import type { SqlQuery } from "@/prisma/sql";
-import type { SearchQuery } from "./searchQuery";
+import { foldForeignLettersSql, type SearchQuery } from "./searchQuery";
 
 export interface SearchReader {
   db: typeof db;
@@ -66,6 +66,15 @@ const commandColumns = ["label", "synonyms"];
 
 const excludedPageSlugs = [frontPageSlug, seeAlsoSlug];
 
+/**
+ * The larp name with foreign letters folded, unstemmed. Language stemmers keep marks such as the
+ * grave in "Erreàn" and then cut the word differently from "Errean", so neither finds the
+ * other; this document lets a name be found with or without the marks. It must render the
+ * expression of the `larp_folded_name_search` index in `contract.prisma`, or Postgres silently
+ * stops using the index; `search.integration.test.ts` checks that it does.
+ */
+const foldedNameVector = `to_tsvector('simple', ${foldForeignLettersSql('"name"')})`;
+
 /** Ids of the matching larps, best first; upcoming larps lead among equally ranked ones. */
 export async function searchLarpIds(
   reader: SearchReader,
@@ -87,19 +96,37 @@ export async function searchLarpIds(
       where language = '${language}' and ${document} @@ ${tsquery}
     `;
   });
+  const foldedTsquery = `to_tsquery('simple', $4)`;
+  branches.push(`
+    select
+      id,
+      -- Weighted as a name hit in the language documents.
+      ts_rank(setweight(${foldedNameVector}, 'A'), ${foldedTsquery}) as rank,
+      coalesce(coalesce(ends_at, starts_at) >= current_date, false) as upcoming,
+      starts_at
+    from larp
+    where ${foldedNameVector} @@ ${foldedTsquery}
+  `);
   const [row] = await reader.query<{ total: string; ids: string[] }>({
     text: `
-      with matches as (${branches.join(" union all ")})
+      with
+        matches as (${branches.join(" union all ")}),
+        -- A larp found both ways counts once, at its better rank.
+        best as (
+          select id, max(rank) as rank, upcoming, starts_at
+          from matches
+          group by id, upcoming, starts_at
+        )
       select
-        (select count(*) from matches) as total,
+        (select count(*) from best) as total,
         array(
           select id
-          from matches
+          from best
           order by rank desc, upcoming desc, starts_at desc nulls last, id
           limit $2 offset $3
         )::text[] as ids
     `,
-    values: [query.tsquery, limit, offset],
+    values: [query.tsquery, limit, offset, query.foldedTsquery],
   });
   return { total: parseInt(row.total, 10), results: row.ids };
 }

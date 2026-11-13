@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { maxQueryLength, parseSearchQuery } from "./searchQuery";
+import {
+  foldForeignLetters,
+  foldForeignLettersSql,
+  foreignLetterFolds,
+  maxQueryLength,
+  parseSearchQuery,
+} from "./searchQuery";
 
 describe("parseSearchQuery", () => {
   it("makes the last word a prefix term and ANDs the words", () => {
@@ -24,9 +30,30 @@ describe("parseSearchQuery", () => {
     expect(parseSearchQuery("&& !! --").tsquery).toBeNull();
   });
 
+  it("folds foreign letters but keeps Finnish ones in the folded query", () => {
+    expect(parseSearchQuery("Erreàn Ævintýr Äänekoski").foldedTsquery).toBe(
+      "errean & aevintyr & äänekoski:*",
+    );
+  });
+
   it("caps the input length", () => {
     const parsed = parseSearchQuery("a".repeat(maxQueryLength + 50));
     expect(parsed.text).toHaveLength(maxQueryLength);
     expect(parsed.tsquery).toBe(`${"a".repeat(maxQueryLength)}:*`);
+  });
+});
+
+describe("foldForeignLetters", () => {
+  it("folds marked letters and keeps å, ä and ö", () => {
+    expect(foldForeignLetters("Balançoire Z-ØM Łódź Åland Öljy")).toBe(
+      "balancoire z-om lodz åland öljy",
+    );
+  });
+
+  it("has a SQL counterpart that lists every fold", () => {
+    const sql = foldForeignLettersSql('"name"');
+    for (const letter of Object.keys(foreignLetterFolds)) {
+      expect(sql).toContain(letter);
+    }
   });
 });

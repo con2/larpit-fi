@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'da23d287377560c6383a99e887ae733d7be0e0e4d025b104a129aa1739c6d9a9'>;
+  StorageHashBase<'1b76f7d58a7134ecf94e11c64c932e54a83c74c123f53918cf5ebee5fd9154f4'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -1465,6 +1465,13 @@ type ContractBase = Omit<
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['alias'] }];
               indexes: readonly [
+                {
+                  readonly name: 'larp_folded_name_search_38e4386b';
+                  readonly prefix: 'larp_folded_name_search';
+                  readonly expression: "to_tsvector('simple', replace(replace(replace(replace(translate(lower(\"name\"), 'àáâãāăąçćĉčďđðèéêëēĕėęěĝğġģìíîïĩīĭįıĺļľłñńņňòóôõōŏőøŕŗřśŝşšţťùúûüũūŭůűųýÿźżž', 'aaaaaaaccccdddeeeeeeeeeggggiiiiiiiiillllnnnnoooooooorrrssssttuuuuuuuuuuyyzzz'), 'æ', 'ae'), 'œ', 'oe'), 'ß', 'ss'), 'þ', 'th'))";
+                  readonly unique: false;
+                  readonly type: 'gin';
+                },
                 {
                   readonly name: 'larp_search_en_62b430ca';
                   readonly prefix: 'larp_search_en';

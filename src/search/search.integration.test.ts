@@ -142,6 +142,28 @@ describe("searchLarps", () => {
     await createLarp("Kummitus");
     expect(await larpNames("!!")).toEqual([]);
   });
+
+  it("finds names with foreign letters when typed without the marks", async () => {
+    // The Finnish stemmer cuts "Erreàn" and "Errean" differently, so only folding finds it.
+    await createLarp("Erreàn kronikat");
+    await createLarp("Balançoire");
+    await createLarp("Z-ØM – Turvapaikka");
+    expect(await larpNames("Errean")).toEqual(["Erreàn kronikat"]);
+    expect(await larpNames("errean kron")).toEqual(["Erreàn kronikat"]);
+    expect(await larpNames("balancoire")).toEqual(["Balançoire"]);
+    expect(await larpNames("z om")).toEqual(["Z-ØM – Turvapaikka"]);
+  });
+
+  it("still finds names with foreign letters when typed with them", async () => {
+    await createLarp("Erreàn kronikat");
+    expect(await larpNames("Erreàn")).toEqual(["Erreàn kronikat"]);
+  });
+
+  it("keeps ä and ö apart from a and o", async () => {
+    await createLarp("Pöllö");
+    await createLarp("Pollo");
+    expect(await larpNames("pollo")).toEqual(["Pollo"]);
+  });
 });
 
 describe("searchPages", () => {
@@ -353,6 +375,7 @@ describe("index use", () => {
         new RegExp(`Index Scan on larp_search_${index}_`),
       );
     }
+    expect(larpPlan).toMatch(/Index Scan on larp_folded_name_search_/);
   });
 
   it("uses the page index of the UI language", async () => {
