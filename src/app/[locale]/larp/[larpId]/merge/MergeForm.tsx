@@ -40,12 +40,6 @@ export interface MergeFormLink {
   origin: MergeLinkOrigin;
 }
 
-export interface MergeFormCombinedRow {
-  label: string;
-  value: string;
-  note?: string;
-}
-
 export interface MergeFormMessages {
   sideTags: { a: string; b: string };
   /** `{count}` */
@@ -66,7 +60,6 @@ export interface MergeFormMessages {
     none: string;
     origin: Record<MergeLinkOrigin, string>;
   };
-  combinedTitle: string;
   result: {
     title: string;
     /** `{count}` */
@@ -93,7 +86,6 @@ export interface MergeFormProps {
   };
   fields: MergeFormField[];
   links: MergeFormLink[];
-  combined: MergeFormCombinedRow[];
   locale: string;
   messages: MergeFormMessages;
 }
@@ -119,7 +111,6 @@ export default function MergeForm({
   tokens,
   fields,
   links,
-  combined,
   locale,
   messages: t,
 }: MergeFormProps) {
@@ -213,8 +204,12 @@ export default function MergeForm({
     const isLong = longFields.has(f.field);
     const isExpanded = expanded.has(f.field);
     const radioName = `choice.${f.field}`;
+    // A preselected conflict choice looks different until the moderator confirms it.
+    const optionClass = `lf-radio-card lf-merge-option${
+      isDecided(f) ? "" : " lf-merge-option--unconfirmed"
+    }`;
     const option = (side: MergeSide) => (
-      <label className="lf-radio-card lf-merge-option" key={side}>
+      <label className={optionClass} key={side}>
         <input
           type="radio"
           name={radioName}
@@ -241,7 +236,7 @@ export default function MergeForm({
           {option("a")}
           {option("b")}
           {f.field === "name" && (
-            <label className="lf-radio-card lf-merge-option lf-merge-option--own">
+            <label className={`${optionClass} lf-merge-option--own`}>
               <input
                 type="radio"
                 name={radioName}
@@ -376,23 +371,6 @@ export default function MergeForm({
               ))}
             </ul>
           )}
-        </section>
-
-        <section className="lf-merge__section">
-          <h2 className="lf-heading">{t.combinedTitle}</h2>
-          <dl className="lf-merge__combined">
-            {combined.map((row) => (
-              <div key={row.label}>
-                <dt className="lf-label">{row.label}</dt>
-                <dd>
-                  {row.value}
-                  {row.note && (
-                    <span className="lf-help d-block">{row.note}</span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </section>
       </div>
 

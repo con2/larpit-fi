@@ -588,7 +588,7 @@ const translations: Translations = {
   MergeLarpPage: {
     eyebrow: "Moderaattori",
     title: "Yhdistä kaksoiskappale tähän sivuun",
-    lede: "Valitse kaksoiskappale ja päätä, mitkä tiedot jäävät, niin kaksoiskappaleen sivu poistuu. Kaikki siihen liitetty siirtyy tänne, ja sen osoitteet johtavat jatkossa tänne.",
+    lede: "Valitse kaksoiskappale ja tiedot, jotka säilytetään. Kaksoiskappaleen sivu poistuu, kaikki siihen liitetty siirtyy tänne, ja sen osoitteet johtavat jatkossa tänne.",
     sides: {
       a: { tag: "A · tämä sivu", note: "Säilyy" },
       b: { tag: "B · kaksoiskappale", note: "Muuttuu uudelleenohjaukseksi" },
@@ -607,10 +607,10 @@ const translations: Translations = {
       identical: "{count} kenttää samat",
       differ: "{count} kenttää eroaa",
       progress:
-        "{auto} ratkaistu automaattisesti · {needed} odottaa päätöstäsi",
+        "{auto} ratkaistu automaattisesti · {needed} odottaa valintaasi",
       status: {
-        conflict: "Päätä",
-        decided: "Päätetty",
+        conflict: "Valitse",
+        decided: "Valittu",
         filled: "Automaattinen · täytetty voittaa tyhjän",
         keepA: "Automaattinen · tämän sivun säilyy",
       },
@@ -649,29 +649,13 @@ const translations: Translations = {
         none: "Kummallakaan sivulla ei ole linkkejä.",
         origin: { a: "A", b: "B", both: "A + B" },
       },
-      combined: {
-        title: "Yhdistetään aina",
-        people: "Ihmiset",
-        peopleValue: "A:ssa {a} + B:ssä {b} → {merged}",
-        peopleNote:
-          "Pelinjohtajat, pelaajat, suosikit ja muut roolit. Sama rooli molemmissa lasketaan kerran.",
-        relatedLarps: "Liittyvät larpit",
-        relatedLarpsValue: "A:ssa {a} + B:ssä {b} → {merged}",
-        history: "Historia",
-        historyValue: "{a} + {b} pyyntöä, myös käsittelemättömät",
-        signups: "Ilmoittautumiset",
-        signupsValue: "{a} + {b}",
-        addresses: "Osoitteet",
-        addressesValue:
-          "B:n id-osoite, lyhyt osoite ja {count} aiempaa osoitetta johtavat tänne",
-      },
       result: {
         title: "Lopputulos",
         linkCount: "{count} linkkiä",
         redirect: "B:n osoitteet ohjaavat pysyvästi tänne",
         irreversible: "Ei voi perua",
-        pending: "{count} kenttää odottaa päätöstä",
-        allDecided: "Kaikki kentät päätetty",
+        pending: "{count} kenttää odottaa valintaa",
+        allDecided: "Kaikki kentät valittu",
         submit: "Yhdistä B tähän sivuun",
         defaults: {
           title: "Miten oletukset valitaan",
@@ -679,14 +663,14 @@ const translations: Translations = {
             "Samat kentät eivät vaadi mitään.",
             "Täytetty kenttä voittaa tyhjän.",
             "Tämän sivun lyhyt osoite ja otsikkokuva säilyvät, ellet valitse B:n.",
-            "Kun sivuilla on eri arvot, päätät sinä.",
+            "Kun sivuilla on eri arvot, valitset sinä.",
           ],
         },
       },
       errors: {
         stale:
-          "Toinen sivuista muuttui päättäessäsi. Lataa sivu uudelleen ja tarkista valinnat.",
-        undecided: "Osa kentistä odottaa vielä päätöstä.",
+          "Toinen sivuista muuttui valitessasi. Lataa sivu uudelleen ja tarkista valinnat.",
+        undecided: "Osa kentistä odottaa vielä valintaa.",
         notFound: "Toista sivuista ei enää ole.",
         sameLarp: "Sivua ei voi yhdistää itseensä.",
         forbidden: "Vain moderaattorit voivat yhdistää sivuja.",

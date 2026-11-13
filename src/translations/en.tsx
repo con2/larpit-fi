@@ -630,22 +630,6 @@ const translations = {
         none: "Neither page has links.",
         origin: { a: "A", b: "B", both: "A + B" },
       },
-      combined: {
-        title: "Always combined",
-        people: "People",
-        peopleValue: "{a} on A + {b} on B → {merged}",
-        peopleNote:
-          "Game masters, players, favourites and other roles. The same role on both counts once.",
-        relatedLarps: "Related larps",
-        relatedLarpsValue: "{a} on A + {b} on B → {merged}",
-        history: "History",
-        historyValue: "{a} + {b} requests, pending ones included",
-        signups: "Sign-ups",
-        signupsValue: "{a} + {b}",
-        addresses: "Addresses",
-        addressesValue:
-          "B’s id address, short address and {count} former addresses lead here",
-      },
       result: {
         title: "Result",
         linkCount: "{count} links",

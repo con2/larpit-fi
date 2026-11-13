@@ -26,7 +26,6 @@ import { db } from "@/prisma/db";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 
 import MergeForm, {
-  type MergeFormCombinedRow,
   type MergeFormField,
   type MergeFormValue,
 } from "./MergeForm";
@@ -37,12 +36,6 @@ interface Props {
 }
 
 type Translations = ReturnType<typeof getTranslations>;
-
-function fill(template: string, values: Record<string, string | number>) {
-  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
-    key in values ? String(values[key]) : match,
-  );
-}
 
 async function loadSummary(id: string) {
   return db.orm.public.Larp.select(
@@ -355,32 +348,6 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
 
   const fields = await buildFormFields(preview, locale, translations);
   const formT = t.form;
-  const { counts } = preview;
-  const combined: MergeFormCombinedRow[] = [
-    {
-      label: formT.combined.people,
-      value: fill(formT.combined.peopleValue, counts.relatedUsers),
-      note: formT.combined.peopleNote,
-    },
-    {
-      label: formT.combined.relatedLarps,
-      value: fill(formT.combined.relatedLarpsValue, counts.relatedLarps),
-    },
-    {
-      label: formT.combined.history,
-      value: fill(formT.combined.historyValue, counts.requests),
-    },
-    {
-      label: formT.combined.signups,
-      value: fill(formT.combined.signupsValue, counts.signups),
-    },
-    {
-      label: formT.combined.addresses,
-      value: fill(formT.combined.addressesValue, {
-        count: counts.aliasRedirects,
-      }),
-    },
-  ];
 
   return (
     <LarpSubpage {...header} wide>
@@ -418,7 +385,6 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
           title: link.title,
           origin: link.origin,
         }))}
-        combined={combined}
         locale={locale}
         messages={{
           sideTags: { a: "A", b: "B" },
@@ -432,7 +398,6 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
           fields: formT.fields,
           fieldNotes: formT.fieldNotes,
           links: formT.links,
-          combinedTitle: formT.combined.title,
           result: formT.result,
           errors: formT.errors,
         }}

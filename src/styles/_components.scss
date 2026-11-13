@@ -1777,6 +1777,21 @@ html[lang="en"] {
   min-width: 0;
 }
 
+.lf-radio-card.lf-merge-option--unconfirmed {
+  input {
+    accent-color: var(--larpit-ember);
+  }
+
+  &:has(input:checked) {
+    border-color: var(--larpit-ember);
+    background: var(--larpit-ember-tint);
+  }
+
+  &:has(input:focus-visible) {
+    outline-color: var(--larpit-ember);
+  }
+}
+
 .lf-merge-option--own {
   grid-column: 1 / -1;
 }
@@ -1866,17 +1881,6 @@ html[lang="en"] {
   overflow-wrap: anywhere;
 }
 
-.lf-merge__combined {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  dd {
-    margin: 4px 0 0;
-  }
-}
-
 .lf-merge__preview {
   display: flex;
   flex-direction: column;
@@ -1899,9 +1903,17 @@ html[lang="en"] {
   color: var(--larpit-ember);
 }
 
-.lf-merge__defaults ul {
-  margin: 0;
-  padding-left: 1.2em;
-  color: var(--larpit-muted);
+// Matches the notes in the larp page's sidebar.
+.lf-merge__defaults {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   font-size: 14px;
+  line-height: 1.5;
+  color: var(--larpit-dim);
+
+  ul {
+    margin: 0;
+    padding-left: 1.2em;
+  }
 }

@@ -6,7 +6,6 @@ import { db, type Tx } from "@/prisma/db";
 import { EditAction, EditStatus, SubmitterRole } from "@/prisma/enums";
 import { toJson } from "@/prisma/json";
 import type { Row, User } from "@/prisma/models";
-import { query, sql } from "@/prisma/sql";
 
 import {
   addLarpAliasRedirect,
@@ -62,22 +61,11 @@ export async function findMergeCandidates(
     .all();
 }
 
-export interface MergeCounts {
-  /** Distinct (user, role) pairs, such as GMs, players and favourites. */
-  relatedUsers: { a: number; b: number; merged: number };
-  /** Relations to larps other than A and B. */
-  relatedLarps: { a: number; b: number; merged: number };
-  requests: { a: number; b: number };
-  signups: { a: number; b: number };
-  aliasRedirects: number;
-}
-
 export interface MergePreview {
   a: MergeLarpRow;
   b: MergeLarpRow;
   diff: MergeFieldDiff[];
   links: MergeLink[];
-  counts: MergeCounts;
 }
 
 function loadMergeLarp(id: string) {
@@ -88,51 +76,14 @@ function loadMergeLarp(id: string) {
     .first({ id });
 }
 
-async function countMergedRows(aId: string, bId: string): Promise<MergeCounts> {
-  const [counts] = await query<Record<string, string>>(sql`
-      select
-        (select count(*) from related_user where larp_id = ${aId}::uuid) as "usersA",
-        (select count(*) from related_user where larp_id = ${bId}::uuid) as "usersB",
-        (select count(*) from (
-          select user_id, role from related_user where larp_id in (${aId}::uuid, ${bId}::uuid)
-          group by user_id, role
-        ) u) as "usersMerged",
-        (select count(*) from related_larp
-          where (left_id = ${aId}::uuid and right_id <> ${bId}::uuid)
-            or (right_id = ${aId}::uuid and left_id <> ${bId}::uuid)) as "larpsA",
-        (select count(*) from related_larp
-          where (left_id = ${bId}::uuid and right_id <> ${aId}::uuid)
-            or (right_id = ${bId}::uuid and left_id <> ${aId}::uuid)) as "larpsB",
-        (select count(distinct other) from (
-          select case when left_id in (${aId}::uuid, ${bId}::uuid) then right_id else left_id end as other
-          from related_larp
-          where left_id in (${aId}::uuid, ${bId}::uuid) or right_id in (${aId}::uuid, ${bId}::uuid)
-        ) r where other not in (${aId}::uuid, ${bId}::uuid)) as "larpsMerged",
-        (select count(*) from moderation_request where larp_id = ${aId}::uuid) as "requestsA",
-        (select count(*) from moderation_request where larp_id = ${bId}::uuid) as "requestsB",
-        (select count(*) from unauthenticated_signup where larp_id = ${aId}::uuid) as "signupsA",
-        (select count(*) from unauthenticated_signup where larp_id = ${bId}::uuid) as "signupsB",
-        (select count(*) from larp_alias_redirect where larp_id = ${bId}::uuid) as "aliasRedirects"
-  `);
-  const n = (key: string) => Number(counts[key]);
-  return {
-    relatedUsers: { a: n("usersA"), b: n("usersB"), merged: n("usersMerged") },
-    relatedLarps: { a: n("larpsA"), b: n("larpsB"), merged: n("larpsMerged") },
-    requests: { a: n("requestsA"), b: n("requestsB") },
-    signups: { a: n("signupsA"), b: n("signupsB") },
-    aliasRedirects: n("aliasRedirects"),
-  };
-}
-
 export async function getMergePreview(
   aId: string,
   bId: string,
 ): Promise<MergePreview | null> {
   if (aId === bId) return null;
-  const [aRow, bRow, counts] = await Promise.all([
+  const [aRow, bRow] = await Promise.all([
     loadMergeLarp(aId),
     loadMergeLarp(bId),
-    countMergedRows(aId, bId),
   ]);
   if (!aRow || !bRow) return null;
   const { links: aLinks, ...a } = aRow;
@@ -142,7 +93,6 @@ export async function getMergePreview(
     b,
     diff: diffLarps(a, b),
     links: unionLinks(aLinks, bLinks),
-    counts,
   };
 }
 
