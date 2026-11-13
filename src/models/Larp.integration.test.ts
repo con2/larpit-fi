@@ -1,17 +1,24 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { db } from "@/prisma/db";
-import { Language, UserRole } from "@/prisma/enums";
+import { Language, LarpLinkType, LarpType, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 import {
+  executeImportAction,
   findLarpByAliasRedirect,
   getLarpsWithoutAlias,
   larpIdOrAliasFilter,
   setLarpAlias,
 } from "./Larp";
+import { ModerationRequestContent } from "./ModerationRequest";
 
 const moderator = { role: UserRole.MODERATOR };
+
+afterAll(async () => {
+  await db.close();
+  await pool.end();
+});
 
 async function createLarp(alias: string | null = null) {
   return db.orm.public.Larp.create({
@@ -83,10 +90,6 @@ describe("getLarpsWithoutAlias", () => {
 
 describe("setLarpAlias", () => {
   beforeEach(truncateAll);
-  afterAll(async () => {
-    await db.close();
-    await pool.end();
-  });
 
   it("sets a normalized alias", async () => {
     const larp = await createLarp();
@@ -248,5 +251,76 @@ describe("setLarpAlias", () => {
         "ok",
       ),
     ).toEqual({ ok: false, error: "notFound" });
+  });
+});
+
+describe("executeImportAction", () => {
+  beforeEach(truncateAll);
+
+  const importer = () =>
+    db.orm.public.User.create({
+      email: "importer@example.com",
+      name: "Importer",
+      role: UserRole.ADMIN,
+    });
+
+  const linksOf = async (larpId: string) =>
+    (
+      await db.orm.public.LarpLink.where({ larpId })
+        .select("type", "href", "title")
+        .all()
+    ).sort((a, b) => a.type.localeCompare(b.type));
+
+  it("creates a larp with its links", async () => {
+    const user = await importer();
+    const content = ModerationRequestContent.parse({
+      name: "Kolme Mannerta 2",
+      type: LarpType.ONE_SHOT,
+      startsAt: "2003-05-02",
+      endsAt: "2003-05-04",
+    });
+
+    const larpId = await executeImportAction(
+      { kind: "create", content },
+      user,
+      "imported",
+      [
+        {
+          type: LarpLinkType.SOURCE,
+          href: "https://example.com/a",
+          title: "A",
+        },
+      ],
+    );
+
+    const larp = await db.orm.public.Larp.first({ id: larpId! });
+    expect(larp?.name).toBe("Kolme Mannerta 2");
+    expect(larp?.startsAt).toBe("2003-05-02");
+    expect(await linksOf(larpId!)).toEqual([
+      { type: LarpLinkType.SOURCE, href: "https://example.com/a", title: "A" },
+    ]);
+  });
+
+  it("fills in fields and adds links to an existing larp", async () => {
+    const user = await importer();
+    const existing = await createLarp();
+
+    await executeImportAction(
+      {
+        kind: "update",
+        larpId: existing.id,
+        name: existing.name,
+        fields: { locationText: "Ohkola" },
+      },
+      user,
+      "imported",
+      [{ type: LarpLinkType.SOURCE, href: "https://example.com/b" }],
+    );
+
+    const larp = await db.orm.public.Larp.first({ id: existing.id });
+    expect(larp?.locationText).toBe("Ohkola");
+    expect(await linksOf(existing.id)).toEqual([
+      { type: LarpLinkType.SOURCE, href: "https://example.com/b", title: null },
+    ]);
   });
 });

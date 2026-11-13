@@ -14,6 +14,7 @@ import type { Larp, Municipality, RelatedUser, User } from "@/prisma/models";
 import { query, sql } from "@/prisma/sql";
 import { supportedLanguages } from "@/i18n/locales";
 import { getLarpHref } from "./Larp.client";
+import type { LarpLinkUpsertable } from "./LarpLink";
 import {
   approveRequest,
   larpToContent,
@@ -120,7 +121,7 @@ function isFieldEmpty(value: unknown): boolean {
   return value === null || value === undefined || value === "";
 }
 
-function getFieldsToFill(
+export function getFieldsToFill(
   existing: ModerationRequestContent,
   incoming: ModerationRequestContent,
 ): Partial<ModerationRequestContent> {
@@ -195,30 +196,35 @@ export async function executeImportAction(
   action: ImportAction,
   user: Pick<User, "id" | "name" | "email" | "role">,
   message: string,
+  addLinks: LarpLinkUpsertable[] = [],
 ): Promise<string | null> {
   if (action.kind === "skip") {
     return null;
   }
 
-  const status = EditStatus.APPROVED;
-
   if (action.kind === "create") {
     const request = await db.orm.public.ModerationRequest.create({
       action: EditAction.CREATE,
-      status,
+      status: EditStatus.VERIFIED,
       submitterId: user.id,
       submitterName: user.name || "",
       submitterEmail: user.email,
       submitterRole: SubmitterRole.NONE,
       message,
       newContent: toJson(action.content),
+      addLinks: toJson(addLinks),
     });
-    const larp = await approveRequest(request, user, message, status);
+    const larp = await approveRequest(
+      request,
+      user,
+      message,
+      EditStatus.APPROVED,
+    );
     return larp.id;
   } else {
     const request = await db.orm.public.ModerationRequest.create({
       action: EditAction.UPDATE,
-      status,
+      status: EditStatus.VERIFIED,
       larpId: action.larpId,
       submitterId: user.id,
       submitterName: user.name || "",
@@ -226,8 +232,14 @@ export async function executeImportAction(
       submitterRole: SubmitterRole.NONE,
       message,
       newContent: toJson(action.fields),
+      addLinks: toJson(addLinks),
     });
-    const larp = await approveRequest(request, user, message, status);
+    const larp = await approveRequest(
+      request,
+      user,
+      message,
+      EditStatus.APPROVED,
+    );
     return larp.id;
   }
 }
