@@ -169,6 +169,18 @@ async function municipalityIdsByName(): Promise<Map<string, string>> {
   );
 }
 
+/** Aliases that moved to another larp in the source would otherwise violate larp_alias_key. */
+async function releaseMovedAliases(larps: ApiLarpSummary[]): Promise<number> {
+  const withAlias = larps.filter((larp) => larp.alias);
+  const result = await pool.query(
+    `update larp set alias = null
+    from unnest($1::uuid[], $2::text[]) as source (id, alias)
+    where larp.alias = source.alias and larp.id <> source.id`,
+    [withAlias.map((larp) => larp.id), withAlias.map((larp) => larp.alias)],
+  );
+  return result.rowCount ?? 0;
+}
+
 async function loadLarp(
   summary: ApiLarpSummary,
   municipalities: Map<string, string>,
@@ -237,6 +249,8 @@ async function loadRelatedLarps(larps: ApiLarpSummary[]): Promise<number> {
 async function main() {
   await loadCountriesAndMunicipalities();
   const larps = await fetchAllLarps();
+  const released = await releaseMovedAliases(larps);
+  if (released > 0) console.log(`released ${released} moved aliases`);
   const municipalities = await municipalityIdsByName();
   const limit = pLimit(detailConcurrency);
   let loaded = 0;
