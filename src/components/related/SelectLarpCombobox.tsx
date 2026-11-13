@@ -70,6 +70,7 @@ export default function SelectLarpCombobox({
       <input type="hidden" name={name} value={selected?.value ?? ""} required />
       <Select
         inputId={id}
+        classNamePrefix="larpit-select"
         options={options}
         value={selected}
         onChange={(opt: SingleValue<Option>) => setSelected(opt ?? null)}

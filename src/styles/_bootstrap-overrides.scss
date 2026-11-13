@@ -232,3 +232,45 @@ kbd {
 .dropdown-menu {
   --bs-dropdown-color: var(--larpit-text);
 }
+
+.larpit-select__control {
+  min-height: 44px;
+  background-color: var(--larpit-surface);
+  border-color: var(--larpit-control-border);
+
+  &:hover {
+    border-color: var(--larpit-control-border);
+  }
+}
+
+.larpit-select__control--is-focused {
+  border-color: var(--larpit-aurora);
+  box-shadow: 0 0 0 0.2rem rgba(var(--larpit-aurora-rgb), 0.25);
+}
+
+.larpit-select__single-value,
+.larpit-select__input-container {
+  color: var(--larpit-text);
+}
+
+.larpit-select__menu {
+  background-color: var(--larpit-raised);
+  border: 1px solid var(--larpit-control-border);
+}
+
+.larpit-select__option {
+  color: var(--larpit-text);
+
+  &.larpit-select__option--is-focused {
+    background-color: rgba(var(--larpit-aurora-rgb), 0.18);
+  }
+
+  &.larpit-select__option--is-selected {
+    background-color: var(--larpit-aurora);
+    color: var(--larpit-on-accent);
+  }
+}
+
+.larpit-select__menu-notice {
+  color: var(--larpit-muted);
+}
