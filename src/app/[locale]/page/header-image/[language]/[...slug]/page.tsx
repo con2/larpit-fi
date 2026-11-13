@@ -1,5 +1,5 @@
-import { MessageCard } from "@/components/MessageCard";
 import Link from "next/link";
+import { AccessDeniedPage, gateActions } from "@/components/GatePage";
 import { notFound } from "next/navigation";
 
 import { auth } from "@/auth";
@@ -25,6 +25,8 @@ export default async function PageHeaderImagePage({ params }: Props) {
   if (!headerImagesEnabled) notFound();
 
   const translations = getTranslations(locale);
+
+  const gate = gateActions(translations);
   const t = translations.HeaderImage;
 
   const page = await db.orm.public.Page.select("slug", "language", "title")
@@ -35,10 +37,9 @@ export default async function PageHeaderImagePage({ params }: Props) {
   const user = await getUserFromSession(await auth());
   if (!canEditPages(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.page(slug, language), gate.contact]}
       />
     );
   }

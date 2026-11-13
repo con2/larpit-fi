@@ -1,10 +1,13 @@
-import { MessageCard } from "@/components/MessageCard";
 import Link from "next/link";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 import { notFound } from "next/navigation";
 import { validate as validateUuid } from "uuid";
 
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import SelectLarpCombobox from "@/components/related/SelectLarpCombobox";
 import { formatDate, formatDateRange } from "@/helpers/dates";
@@ -216,6 +219,7 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
   const resolvedParams = await params;
   const locale = toSupportedLanguage(resolvedParams.locale);
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.MergeLarpPage;
   const aId = resolvedParams.larpId;
 
@@ -224,15 +228,17 @@ export default async function MergeLarpPage({ params, searchParams }: Props) {
   const user = await getUserFromSession(await auth());
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.larp(aId)]}
+      />
     );
   }
   if (!canModerate(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.larp(aId), gate.contact]}
       />
     );
   }

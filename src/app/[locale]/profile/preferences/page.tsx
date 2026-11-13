@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import { LoginRequiredPage, gateActions } from "@/components/GatePage";
 import { displayNameMaxLength } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
@@ -27,6 +27,7 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { accountRemovalRequested } = await searchParams;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.Preferences;
 
   const session = await auth();
@@ -40,7 +41,10 @@ export default async function PreferencesPage({ params, searchParams }: Props) {
     : null;
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
 

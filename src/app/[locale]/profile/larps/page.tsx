@@ -1,8 +1,8 @@
 import Link from "next/link";
+import { LoginRequiredPage, gateActions } from "@/components/GatePage";
 import { ReactNode } from "react";
 
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import {
   CalendarIcon,
   CheckIcon,
@@ -90,13 +90,17 @@ async function getPendingEditIds(userId: string) {
 export default async function OwnLarpsPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.OwnLarpsPage;
 
   const session = await auth();
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.allLarps]}
+      />
     );
   }
 

@@ -1,5 +1,5 @@
 import { MarkdownEditor, SubmitButton } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
+import { AccessDeniedPage, gateActions } from "@/components/GatePage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -39,6 +39,7 @@ export default async function EditPagePage({ params, searchParams }: Props) {
   const slug = slugSegments.join("/");
   const { error } = await searchParams;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.Page;
 
   const page = await db.orm.public.Page.first({ slug, language });
@@ -49,10 +50,9 @@ export default async function EditPagePage({ params, searchParams }: Props) {
   const user = await getUserFromSession(await auth());
   if (!canEditPages(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.page(slug, language), gate.contact]}
       />
     );
   }

@@ -1,8 +1,11 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 import { EditAction, EditStatus } from "@/prisma/enums";
 import { Column, DataTable, TableFooter } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
 import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import { ModerationRequestContent } from "@/models/ModerationRequest";
@@ -23,12 +26,16 @@ const defaultStatuses = [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED];
 export default async function ModerationPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.ModerationRequest;
 
   const session = await auth();
   if (!session?.user?.id) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
 
@@ -37,10 +44,9 @@ export default async function ModerationPage({ params, searchParams }: Props) {
   });
   if (!canModerate(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

@@ -1,5 +1,5 @@
 import { SubmitButton } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
+import { AccessDeniedPage, gateActions } from "@/components/GatePage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardBody, Form } from "react-bootstrap";
@@ -19,6 +19,7 @@ export default async function DeletePagePage({ params }: Props) {
   const { locale, language, slug: slugSegments } = await params;
   const slug = slugSegments.join("/");
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.Page;
 
   const page = await db.orm.public.Page.select("title").first({
@@ -30,19 +31,21 @@ export default async function DeletePagePage({ params }: Props) {
   const user = await getUserFromSession(await auth());
   if (!canManagePages(user)) {
     return (
-      <MessageCard
-        title={translations.AdminRequired.title}
-        message={translations.AdminRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.AdminRequired}
+        actions={[gate.page(slug, language), gate.contact]}
       />
     );
   }
   if (protectedPageSlugs.includes(slug)) {
     return (
-      <MessageCard
-        title={t.deleteTitle}
-        message={t.errors.protected}
-        container
+      <AccessDeniedPage
+        messages={{
+          eyebrow: t.deleteTitle,
+          title: page.title,
+          message: t.errors.protected,
+        }}
+        actions={[gate.page(slug, language)]}
       />
     );
   }

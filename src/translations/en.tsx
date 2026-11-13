@@ -1961,6 +1961,7 @@ const translations = {
     },
   },
   LoginRequired: {
+    eyebrow: "Sign in",
     title: "Login required",
     message: "You need to be logged in to see this page.",
     actions: {
@@ -1968,12 +1969,23 @@ const translations = {
     },
   },
   ModeratorRequired: {
+    eyebrow: "Moderators only",
     title: "Insufficient privileges",
     message: "You need moderator rights to see this page.",
   },
   AdminRequired: {
+    eyebrow: "Admins only",
     title: "Insufficient privileges",
     message: "You need admin rights to see this page.",
+  },
+  GmRequired: {
+    eyebrow: "Game masters only",
+    title: "Insufficient privileges",
+    message:
+      "Only the game masters of this larp and moderators can see this page. If you are a GM of this larp, claim the page first.",
+  },
+  GatePage: {
+    backToPage: "Back to the page",
   },
   NotFoundPage: {
     eyebrow: "404",

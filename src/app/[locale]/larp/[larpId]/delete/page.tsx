@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import { gateActions, LoginRequiredPage } from "@/components/GatePage";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import {
   getDeleteLarpInitialStatusForUser,
@@ -47,9 +47,10 @@ export default async function DeleteLarpPage({ params }: Props) {
 
   if (!session || !user) {
     return (
-      <LarpSubpage title={t.title} larp={larp}>
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </LarpSubpage>
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gateActions(translations).larp(larp.id)]}
+      />
     );
   }
 

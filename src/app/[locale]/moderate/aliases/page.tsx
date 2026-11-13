@@ -1,8 +1,11 @@
-import { MessageCard } from "@/components/MessageCard";
 import Link from "next/link";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import { suggestLarpAlias } from "@/helpers/larpAlias";
 import { typesetDashes } from "@/helpers/larpName";
 import { formatDateRange } from "@/helpers/dates";
@@ -27,20 +30,23 @@ interface Props {
 export default async function LarpAliasesPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.LarpAliasesPage;
 
   const user = await getUserFromSession(await auth());
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
   if (!canModerate(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

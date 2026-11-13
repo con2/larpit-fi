@@ -1,5 +1,9 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 import ModerationRequestChanges from "@/components/ModerationRequestChanges";
 import {
   EditAction,
@@ -16,7 +20,6 @@ import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { SubmitButton, UnrenderedMarkdown } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
 import { FormattedDateTime } from "@/components/FormattedDates";
 import { uuid7ToZonedDateTime } from "@con2/components/helpers";
 import Link from "next/link";
@@ -47,13 +50,18 @@ export default async function ModerationRequestPage({ params }: Props) {
   const { locale, requestId } = await params;
 
   const translations = getTranslations(locale);
+
+  const gate = gateActions(translations);
   const t = translations.ModerationRequest;
   const larpT = translations.Larp;
 
   const session = await auth();
   if (!session?.user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
 
@@ -74,10 +82,9 @@ export default async function ModerationRequestPage({ params }: Props) {
   const request = requestRow && parseDates(requestRow);
   if (!canModerate(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

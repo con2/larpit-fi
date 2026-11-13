@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import { LoginRequiredPage, gateActions } from "@/components/GatePage";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { RelatedUserRole, RelatedUserVisibility } from "@/prisma/enums";
 import { getLocalSignupStatusForUser, getUserFromSession } from "@/models/User";
@@ -43,6 +43,8 @@ export default async function SignupPage({ params, searchParams }: Props) {
   }
 
   const translations = getTranslations(locale);
+
+  const gate = gateActions(translations);
   const t = translations.LocalSignupPage;
   const signupStatusChoices = t.attributes.signupStatus.choices;
   const visibilityChoices = t.attributes.visibility.choices;
@@ -52,7 +54,10 @@ export default async function SignupPage({ params, searchParams }: Props) {
 
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.larp(larpId)]}
+      />
     );
   }
 

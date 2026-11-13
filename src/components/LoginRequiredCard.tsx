@@ -1,8 +1,5 @@
-"use client";
-
-import { signIn } from "next-auth/react";
-
 import { MessageCard } from "./MessageCard";
+import SignInButton from "./SignInButton";
 
 interface Props {
   messages: {
@@ -12,21 +9,13 @@ interface Props {
       login: string;
     };
   };
-  container?: boolean;
 }
 
-/// The "please sign in" gate. A client component because most call sites are Server
-/// Components, which cannot pass the signIn callback to a Client Component.
-export function LoginRequiredCard({ messages: t, container = false }: Props) {
+/** A "please sign in" notice in place of one section of a page. Whole pages use `LoginRequiredPage`. */
+export function LoginRequiredCard({ messages: t }: Props) {
   return (
-    <MessageCard title={t.title} message={t.message} container={container}>
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={() => signIn("kompassi")}
-      >
-        {t.actions.login}
-      </button>
+    <MessageCard title={t.title} message={t.message}>
+      <SignInButton className="btn btn-primary">{t.actions.login}</SignInButton>
     </MessageCard>
   );
 }

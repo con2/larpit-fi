@@ -1,5 +1,5 @@
 import { SubmitButton } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
+import { AccessDeniedPage, gateActions } from "@/components/GatePage";
 import {
   Alert,
   Card,
@@ -34,15 +34,15 @@ export default async function NewPagePage({ params, searchParams }: Props) {
   const { locale } = await params;
   const previous = await searchParams;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.Page;
 
   const user = await getUserFromSession(await auth());
   if (!canManagePages(user)) {
     return (
-      <MessageCard
-        title={translations.AdminRequired.title}
-        message={translations.AdminRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.AdminRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

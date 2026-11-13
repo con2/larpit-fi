@@ -1995,6 +1995,7 @@ const translations: Translations = {
     },
   },
   LoginRequired: {
+    eyebrow: "Kirjautuminen",
     title: "Kirjautuminen vaaditaan",
     message: "Sinun on kirjauduttava sisään nähdäksesi tämän sivun.",
     actions: {
@@ -2002,12 +2003,23 @@ const translations: Translations = {
     },
   },
   ModeratorRequired: {
+    eyebrow: "Vain moderaattoreille",
     title: "Ei käyttöoikeutta",
     message: "Tämä näkymä edellyttää moderaattorin oikeuksia.",
   },
   AdminRequired: {
+    eyebrow: "Vain ylläpitäjille",
     title: "Ei käyttöoikeutta",
     message: "Tämä näkymä edellyttää ylläpitäjän oikeuksia.",
+  },
+  GmRequired: {
+    eyebrow: "Vain pelinjohtajille",
+    title: "Ei käyttöoikeutta",
+    message:
+      "Tämän näkymän näkevät vain larpin pelinjohtajat ja moderaattorit. Jos olet tämän larpin pelinjohtaja, ota ensin sivu hallintaasi.",
+  },
+  GatePage: {
+    backToPage: "Takaisin sivulle",
   },
   NotFoundPage: {
     eyebrow: "404",

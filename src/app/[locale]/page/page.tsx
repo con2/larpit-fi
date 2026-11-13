@@ -1,7 +1,10 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 import { Column, DataTable } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
 import {
   contentPagePath,
   pageAdminPath,
@@ -30,6 +33,7 @@ async function getData() {
 export default async function PagesPage({ params }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.Page;
 
   const session = await auth();
@@ -37,15 +41,17 @@ export default async function PagesPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
   if (!canEditPages(user)) {
     return (
-      <MessageCard
-        title={translations.ModeratorRequired.title}
-        message={translations.ModeratorRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.ModeratorRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

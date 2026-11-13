@@ -1,6 +1,10 @@
 import { auth } from "@/auth";
 import LocalSignupSettingsFormComponent from "@/components/LocalSignupSettingsFormComponent";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import {
+  AccessDeniedPage,
+  gateActions,
+  LoginRequiredPage,
+} from "@/components/GatePage";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
 import { LocalSignupStatus, RelatedUserVisibility } from "@/prisma/enums";
 import { getUserFromSession, isGmOrModerator } from "@/models/User";
@@ -53,11 +57,21 @@ export default async function SignupSettingsPage({
     notFound();
   }
 
+  const gate = gateActions(translations);
+  if (!user) {
+    return (
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.larp(larp.id)]}
+      />
+    );
+  }
   if (!isGmOrModerator(user, larp)) {
     return (
-      <LarpSubpage title={t.title} larp={larp}>
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </LarpSubpage>
+      <AccessDeniedPage
+        messages={translations.GmRequired}
+        actions={[gate.larp(larp.id), gate.claimLarp(larp.id)]}
+      />
     );
   }
 

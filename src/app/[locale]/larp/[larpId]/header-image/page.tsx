@@ -4,7 +4,11 @@ import { validate as validateUuid } from "uuid";
 import { auth } from "@/auth";
 import HeaderImageEditor from "@/components/header-image/HeaderImageEditor";
 import LarpSubpage from "@/components/larp-page/LarpSubpage";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import {
+  AccessDeniedPage,
+  gateActions,
+  LoginRequiredPage,
+} from "@/components/GatePage";
 import { headerImagesEnabled } from "@/config";
 import { headerImageViewOrNull } from "@/models/HeaderImage";
 import { getUserFromSession, isGmOrModerator } from "@/models/User";
@@ -34,11 +38,21 @@ export default async function LarpHeaderImagePage({ params }: Props) {
     .first({ id: larpId });
   if (!larp) notFound();
 
+  const gate = gateActions(translations);
+  if (!user) {
+    return (
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.larp(larp.id)]}
+      />
+    );
+  }
   if (!isGmOrModerator(user, larp)) {
     return (
-      <LarpSubpage title={t.title} larp={larp}>
-        <LoginRequiredCard messages={translations.LoginRequired} />
-      </LarpSubpage>
+      <AccessDeniedPage
+        messages={translations.GmRequired}
+        actions={[gate.larp(larp.id), gate.claimLarp(larp.id)]}
+      />
     );
   }
 

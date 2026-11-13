@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { LoginRequiredPage, gateActions } from "@/components/GatePage";
 import CompactLarpFormComponent from "@/components/CompactLarpFormComponent";
 import { LarpBasicInfoFormComponent } from "@/components/LarpBasicInfoFormComponent";
 import LarpCancelledFormComponent from "@/components/LarpCancelledFormComponent";
@@ -7,7 +8,6 @@ import LarpLocationFormComponent from "@/components/LarpLocationFormComponent";
 import { LarpPageContentFormComponent } from "@/components/LarpPageContentFormComponent";
 import { LarpSignupInfoFormComponent } from "@/components/LarpSignupInfoFormComponent";
 import { LarpTimeFormComponent } from "@/components/LarpTimeFormComponent";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import { FormSection } from "@/components/FormSection";
 import LarpFormSidebar from "@/components/LarpFormSidebar";
@@ -48,6 +48,8 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   const locale = toSupportedLanguage(resolvedParams.locale);
 
   const translations = getTranslations(locale);
+
+  const gate = gateActions(translations);
   const t = translations.EditLarpPage;
 
   if (!validateUuid(resolvedParams.larpId)) {
@@ -87,7 +89,10 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   const initialStatus = getEditLarpInitialStatusForUserAndLarp(user, larp);
   if (!initialStatus) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.larp(larp.id)]}
+      />
     );
   }
 

@@ -1,12 +1,15 @@
 import { auth } from "@/auth";
+import {
+  AccessDeniedPage,
+  LoginRequiredPage,
+  gateActions,
+} from "@/components/GatePage";
 import { SubtlePrivacyPolicyLink } from "@/components/ExternalLinks";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
 import { canModerate, getUserFromSession } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
 import { Translations } from "@/translations/en";
 import { AutoSubmitForm, Column, DataTable } from "@con2/components";
-import { MessageCard } from "@/components/MessageCard";
 import { FormLabel, FormSelect } from "react-bootstrap";
 import { setUserRole } from "./actions";
 
@@ -67,6 +70,7 @@ function UserRoleForm({
 export default async function UsersPage({ params }: Props) {
   const { locale } = await params;
   const translations = getTranslations(locale);
+  const gate = gateActions(translations);
   const t = translations.User;
 
   const session = await auth();
@@ -74,15 +78,17 @@ export default async function UsersPage({ params }: Props) {
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
   if (!canModerate(user)) {
     return (
-      <MessageCard
-        title={translations.AdminRequired.title}
-        message={translations.AdminRequired.message}
-        container
+      <AccessDeniedPage
+        messages={translations.AdminRequired}
+        actions={[gate.frontPage, gate.contact]}
       />
     );
   }

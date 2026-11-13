@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { LoginRequiredCard } from "@/components/LoginRequiredCard";
+import { LoginRequiredPage, gateActions } from "@/components/GatePage";
 import { findAccountRemovalToken, getUserFromSession } from "@/models/User";
 import { getTranslations } from "@/translations";
 import { SubmitButton } from "@con2/components";
@@ -17,13 +17,18 @@ export default async function ConfirmAccountRemovalPage({ params }: Props) {
   const { locale, token } = await params;
 
   const translations = getTranslations(locale);
+
+  const gate = gateActions(translations);
   const t = translations.AccountRemovalPage;
 
   const session = await auth();
   const user = await getUserFromSession(session);
   if (!user) {
     return (
-      <LoginRequiredCard messages={translations.LoginRequired} container />
+      <LoginRequiredPage
+        messages={translations.LoginRequired}
+        actions={[gate.frontPage]}
+      />
     );
   }
 
