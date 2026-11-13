@@ -24,6 +24,7 @@ import {
   ImageIcon,
   LinkIcon,
   ListIcon,
+  PagesIcon,
   PlusIcon,
   RelatedIcon,
   SearchIcon,
@@ -33,10 +34,13 @@ import {
   ThemeIcon,
   TodayIcon,
 } from "./icons";
-import { searchLarps, type LarpSearchResults } from "./searchLarps";
+import { searchPalette, type PaletteSearchResults } from "./searchPalette";
 import type { SignupPillState } from "./signupPillState";
 import StatusPill from "./StatusPill";
 import { formatShortDateRange } from "@/helpers/dates";
+import { useDebouncedValue } from "@/helpers/useDebouncedValue";
+import { pagePathInUiLanguage } from "@/models/Page.client";
+import type { LarpSearchResult, PageSearchResult } from "@/search/search";
 import { getEffectiveTheme, setThemePreference } from "./themeClient";
 
 export type PaletteIcon =
@@ -56,6 +60,11 @@ export type PaletteIcon =
 export type PaletteAction = "copyLink" | "share" | "switchTheme";
 
 export interface PaletteCommand {
+  /**
+   * The action of the command in the `command` table, such as `larp:editLarp`. Search hits are
+   * matched to commands by it, so it must stay in sync with `builtinCommandLabels` in
+   * `src/models/Command.ts`.
+   */
   id: string;
   label: string;
   icon: PaletteIcon;
@@ -74,6 +83,8 @@ export interface RecentLarp {
 export interface PalettePageContext {
   title: string;
   commands: PaletteCommand[];
+  /** Fills `{larpId}` in the URL templates of commands added in the database. */
+  larpId?: string;
 }
 
 const iconComponents: Record<PaletteIcon, typeof SearchIcon> = {
@@ -291,14 +302,16 @@ type PaletteItem =
       kind: "larp";
       key: string;
       href: string;
-      result: LarpSearchResults["results"][number];
+      result: LarpSearchResult;
     }
+  | { kind: "page"; key: string; href: string; page: PageSearchResult }
+  | { kind: "allResults"; key: string; href: string }
   | { kind: "command"; key: string; command: PaletteCommand }
   | { kind: "recent"; key: string; href: string; recent: RecentLarp };
 
 interface PaletteGroup {
   key: string;
-  label: string;
+  label?: string;
   aside?: string;
   items: PaletteItem[];
 }
@@ -328,7 +341,7 @@ function pillText(
 // are not pages the client router can render.
 function needsDocumentNavigation(item: PaletteItem, href: string) {
   return (
-    (item.kind === "command" && item.command.id === "language") ||
+    (item.kind === "command" && item.command.id === "global:language") ||
     !href.startsWith("/") ||
     href.split(/[?#]/)[0].endsWith(".ics")
   );
@@ -336,6 +349,28 @@ function needsDocumentNavigation(item: PaletteItem, href: string) {
 
 function matches(label: string, query: string) {
   return label.toLowerCase().includes(query.toLowerCase());
+}
+
+const minSearchLength = 2;
+const searchDelayMs = 250;
+
+/** The href of a command added in the database, or null if the page lacks a value it needs. */
+function fillUrlTemplate(
+  template: string,
+  values: Record<string, string | undefined>,
+): string | null {
+  let complete = true;
+  const href = template.replace(/\{(\w+)\}/g, (_, name: string) => {
+    const value = values[name];
+    if (value === undefined) complete = false;
+    return encodeURIComponent(value ?? "");
+  });
+  return complete ? href : null;
+}
+
+interface SearchResponse {
+  query: string;
+  results: Exclude<PaletteSearchResults, { rateLimited: true }>;
 }
 
 interface DialogProps {
@@ -362,19 +397,23 @@ function CommandPaletteDialog({
   const listId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
-  const [search, setSearch] = useState<LarpSearchResults>({
-    total: 0,
-    results: [],
-  });
+  const [response, setResponse] = useState<SearchResponse | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const isPhone = useMediaQuery(phoneQuery);
   const [recent] = useState(readRecent);
   const [effectiveTheme] = useState(getEffectiveTheme);
 
-  const commandsOnly = query.startsWith(">");
-  const commandQuery = (commandsOnly ? query.slice(1) : query).trim();
-  const larpQuery = commandsOnly ? "" : query.trim();
+  const trimmedQuery = query.trim();
+  const commandsOnly = trimmedQuery.startsWith(">");
+  const searchText = (
+    commandsOnly ? trimmedQuery.slice(1) : trimmedQuery
+  ).trim();
+  const searchable = searchText.length >= minSearchLength;
+  const debouncedQuery = useDebouncedValue(
+    searchable ? trimmedQuery : "",
+    searchDelayMs,
+  );
 
   useEffect(() => {
     const previousFocus = document.activeElement as HTMLElement | null;
@@ -388,48 +427,59 @@ function CommandPaletteDialog({
   }, []);
 
   useEffect(() => {
-    if (!larpQuery) return;
+    if (!debouncedQuery) return;
     let cancelled = false;
-    const timeout = window.setTimeout(async () => {
-      const results = await searchLarps(larpQuery, locale);
-      if (!cancelled) setSearch(results);
-    }, 150);
+    searchPalette(debouncedQuery, locale)
+      .then((results) => {
+        // When rate limited, the previous results stay up until a search gets through.
+        if (!cancelled && !results.rateLimited) {
+          setResponse({ query: debouncedQuery, results });
+        }
+      })
+      .catch(() => {});
     return () => {
       cancelled = true;
-      window.clearTimeout(timeout);
     };
-  }, [larpQuery, locale]);
+  }, [debouncedQuery, locale]);
 
-  const shownSearch = larpQuery ? search : { total: 0, results: [] };
+  // The latest response stays up while the next one is on its way.
+  const shown = searchable ? response?.results : undefined;
+  const shownLarps = shown?.larps ?? { total: 0, results: [] };
+  const shownPages = shown?.pages ?? { total: 0, results: [] };
 
   const otherLocale = locale === "fi" ? "en" : "fi";
   const globalCommands: PaletteCommand[] = [
     {
-      id: "addLarp",
+      id: "global:addLarp",
       label: t.commands.addLarp,
       icon: "plus",
       href: "/larp/new",
       shortcut: "N",
     },
     {
-      id: "calendar",
+      id: "global:calendar",
       label: t.commands.calendar,
       icon: "calendar",
       href: "/calendar",
       shortcut: "G C",
     },
     {
-      id: "allLarps",
+      id: "global:allLarps",
       label: t.commands.allLarps,
       icon: "list",
       href: "/larp",
       shortcut: "G L",
     },
-    { id: "stats", label: t.commands.stats, icon: "stats", href: "/stats" },
+    {
+      id: "global:stats",
+      label: t.commands.stats,
+      icon: "stats",
+      href: "/stats",
+    },
     ...(themeSwitching
       ? [
           {
-            id: "theme",
+            id: "global:theme",
             label:
               effectiveTheme === "dark"
                 ? t.commands.themeToDay
@@ -440,41 +490,107 @@ function CommandPaletteDialog({
         ]
       : []),
     {
-      id: "language",
+      id: "global:language",
       label: t.commands.switchLanguage,
       icon: "list",
       href: `/${otherLocale}${pathname}`,
     },
   ];
 
+  const commandRanks = new Map(
+    shown?.commands.map((command, index) => [command.action, index]),
+  );
+  const rankOf = (command: PaletteCommand) =>
+    commandRanks.get(command.id) ?? Infinity;
+  // Search hits come first in rank order; label substring matches catch what stemming misses.
   const filterCommands = (commands: PaletteCommand[]) =>
-    commandQuery
-      ? commands.filter((command) => matches(command.label, commandQuery))
+    searchText
+      ? commands
+          .filter(
+            (command) =>
+              commandRanks.has(command.id) ||
+              matches(command.label, searchText),
+          )
+          .sort((a, b) => rankOf(a) - rankOf(b))
       : commands;
 
+  const knownCommandIds = new Set(
+    [...globalCommands, ...(pageContext?.commands ?? [])].map(
+      (command) => command.id,
+    ),
+  );
+  const databaseCommands: PaletteCommand[] = (shown?.commands ?? []).flatMap(
+    (command) => {
+      if (!command.action.startsWith("/")) return [];
+      if (knownCommandIds.has(command.action)) return [];
+      const href = fillUrlTemplate(command.action, {
+        larpId: pageContext?.larpId,
+      });
+      if (!href) return [];
+      return [{ id: command.action, label: command.label, icon: "link", href }];
+    },
+  );
+  const isContextual = (command: PaletteCommand) => command.id.includes("{");
+
   const groups: PaletteGroup[] = [];
-  if (larpQuery) {
+  if (!commandsOnly && searchable) {
     groups.push({
       key: "larps",
       label: t.larps,
-      aside: shownSearch.total
+      aside: shownLarps.total
         ? t.resultCount
-            .replace("{shown}", String(shownSearch.results.length))
-            .replace("{total}", String(shownSearch.total))
+            .replace("{shown}", String(shownLarps.results.length))
+            .replace("{total}", String(shownLarps.total))
         : undefined,
-      items: shownSearch.results.map((result) => ({
+      items: shownLarps.results.map((result) => ({
         kind: "larp" as const,
         key: `larp-${result.id}`,
         href: result.href,
         result,
       })),
     });
+    if (shownPages.results.length > 0) {
+      groups.push({
+        key: "pages",
+        label: t.pages,
+        aside:
+          shownPages.total > shownPages.results.length
+            ? t.resultCount
+                .replace("{shown}", String(shownPages.results.length))
+                .replace("{total}", String(shownPages.total))
+            : undefined,
+        items: shownPages.results.map((page) => ({
+          kind: "page" as const,
+          key: `page-${page.slug}`,
+          href: pagePathInUiLanguage(page.slug),
+          page,
+        })),
+      });
+    }
+    if (
+      shownLarps.total > shownLarps.results.length ||
+      shownPages.total > shownPages.results.length
+    ) {
+      groups.push({
+        key: "allResults",
+        items: [
+          {
+            kind: "allResults",
+            key: "allResults",
+            href: `/search?${new URLSearchParams({ search: searchText })}`,
+          },
+        ],
+      });
+    }
   }
   if (pageContext) {
     groups.push({
       key: "page",
       label: `${t.thisPage} · ${pageContext.title}`,
-      items: filterCommands(pageContext.commands).map((command) => ({
+      items: filterCommands([
+        ...pageContext.commands,
+        ...databaseCommands.filter(isContextual),
+      ]).map((command) => ({
         kind: "command" as const,
         key: `page-${command.id}`,
         command,
@@ -484,7 +600,10 @@ function CommandPaletteDialog({
   groups.push({
     key: "global",
     label: t.everywhere,
-    items: filterCommands(globalCommands).map((command) => ({
+    items: filterCommands([
+      ...globalCommands,
+      ...databaseCommands.filter((command) => !isContextual(command)),
+    ]).map((command) => ({
       kind: "command" as const,
       key: `global-${command.id}`,
       command,
@@ -647,10 +766,12 @@ function CommandPaletteDialog({
           {groups.map((group, groupIndex) => (
             <Fragment key={group.key}>
               {groupIndex > 0 && <div className="lf-palette__divider" />}
-              <div className="lf-palette__group-label" role="presentation">
-                <span>{group.label}</span>
-                {group.aside && <span>{group.aside}</span>}
-              </div>
+              {group.label && (
+                <div className="lf-palette__group-label" role="presentation">
+                  <span>{group.label}</span>
+                  {group.aside && <span>{group.aside}</span>}
+                </div>
+              )}
               {group.key === "larps" && group.items.length === 0 && (
                 <div className="lf-palette__empty">{t.noResults}</div>
               )}
@@ -690,7 +811,7 @@ function CommandPaletteDialog({
                               : result.language
                           }
                         >
-                          <Highlight text={result.name} query={larpQuery} />
+                          <Highlight text={result.name} query={searchText} />
                         </span>
                         <span className="lf-palette__sub">
                           {[result.municipality, typeTitles[result.type]]
@@ -703,6 +824,40 @@ function CommandPaletteDialog({
                           {pillText(result.pill, t.pill, locale)}
                         </StatusPill>
                       )}
+                      {isSelected && !isPhone && <kbd>↵</kbd>}
+                    </a>
+                  );
+                }
+
+                if (item.kind === "page") {
+                  return (
+                    <a
+                      key={item.key}
+                      href={item.href}
+                      className="lf-palette__item"
+                      {...common}
+                    >
+                      <PagesIcon />
+                      <span className="lf-palette__label">
+                        <Highlight text={item.page.title} query={searchText} />
+                      </span>
+                      {isSelected && !isPhone && <kbd>↵</kbd>}
+                    </a>
+                  );
+                }
+
+                if (item.kind === "allResults") {
+                  return (
+                    <a
+                      key={item.key}
+                      href={item.href}
+                      className="lf-palette__item"
+                      {...common}
+                    >
+                      <SearchIcon />
+                      <span className="lf-palette__label">
+                        {t.allResults.replace("{query}", searchText)}
+                      </span>
                       {isSelected && !isPhone && <kbd>↵</kbd>}
                     </a>
                   );
@@ -736,7 +891,7 @@ function CommandPaletteDialog({
                     className="lf-palette__item"
                     {...common}
                   >
-                    {command.id === "language" ? (
+                    {command.id === "global:language" ? (
                       <span className="lf-palette__lang-icon">
                         {otherLocale.toUpperCase()}
                       </span>
@@ -782,10 +937,11 @@ function CommandPaletteDialog({
 export function PaletteContext({
   title,
   commands,
+  larpId,
   recent,
 }: PalettePageContext & { recent?: RecentLarp }) {
   const { setPageContext } = useCommandPalette();
-  const serialized = JSON.stringify({ title, commands });
+  const serialized = JSON.stringify({ title, commands, larpId });
 
   useEffect(() => {
     setPageContext(JSON.parse(serialized));

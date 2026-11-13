@@ -763,9 +763,14 @@ export default async function LarpPage({
     larp.relatedLarpsLeft.length + larp.relatedLarpsRight.length > 0;
 
   const paletteCommands: PaletteCommand[] = [
-    { id: "editLarp", label: paletteT.editLarp, icon: "edit", href: editHref },
     {
-      id: "addRelated",
+      id: "larp:editLarp",
+      label: paletteT.editLarp,
+      icon: "edit",
+      href: editHref,
+    },
+    {
+      id: "larp:addRelated",
       label: paletteT.addRelated,
       icon: "related",
       href: relatedHref,
@@ -774,7 +779,7 @@ export default async function LarpPage({
       ? []
       : [
           {
-            id: "claim",
+            id: "larp:claim",
             label: paletteT.claim,
             icon: "shield" as const,
             href: claimHref,
@@ -783,7 +788,7 @@ export default async function LarpPage({
     ...(canManageHeaderImage
       ? [
           {
-            id: "headerImage",
+            id: "larp:headerImage",
             label: paletteT.headerImage,
             icon: "image" as const,
             href: headerImageHref,
@@ -793,7 +798,7 @@ export default async function LarpPage({
     ...(calendarHref
       ? [
           {
-            id: "addToCalendar",
+            id: "larp:addToCalendar",
             label: paletteT.addToCalendar,
             icon: "calendar" as const,
             href: calendarHref,
@@ -801,12 +806,17 @@ export default async function LarpPage({
         ]
       : []),
     {
-      id: "copyLink",
+      id: "larp:copyLink",
       label: paletteT.copyLink,
       icon: "link",
       action: "copyLink",
     },
-    { id: "share", label: paletteT.share, icon: "share", action: "share" },
+    {
+      id: "larp:share",
+      label: paletteT.share,
+      icon: "share",
+      action: "share",
+    },
   ];
 
   const currentYear = String(toPlainDate(new Date()).year);
@@ -829,6 +839,7 @@ export default async function LarpPage({
       <PaletteContext
         title={typesetDashes(larp.name)}
         commands={paletteCommands}
+        larpId={larp.id}
         recent={{
           href: getLarpHref(larp),
           name: typesetDashes(larp.name),

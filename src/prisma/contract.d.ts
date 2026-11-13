@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'cbe3198758045d5df1026d4166200bcb5d68598ebdcac6491c5387b367492bb4'>;
+  StorageHashBase<'3fbb682a1785fb1cc080b64270d39e7c8192be27a41cab8bca3b64681d683e0d'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -662,6 +662,15 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'user';
   };
+  export type public_Command = {
+    action: FieldOutputTypes['public']['Command']['action'];
+    id: FieldOutputTypes['public']['Command']['id'];
+    isBuiltin: FieldOutputTypes['public']['Command']['isBuiltin'];
+    label: FieldOutputTypes['public']['Command']['label'];
+    language: FieldOutputTypes['public']['Command']['language'];
+    synonyms: FieldOutputTypes['public']['Command']['synonyms'];
+    readonly [RelationKeys]?: never;
+  };
   export type public_Country = {
     code: FieldOutputTypes['public']['Country']['code'];
     id: FieldOutputTypes['public']['Country']['id'];
@@ -874,6 +883,7 @@ export namespace Models {
 export declare const models: {
   public: {
     Account: Models.public_Account;
+    Command: Models.public_Command;
     Country: Models.public_Country;
     HeaderImage: Models.public_HeaderImage;
     Holiday: Models.public_Holiday;
@@ -1008,6 +1018,84 @@ type ContractBase = Omit<
                   };
                 },
               ];
+            };
+            readonly command: {
+              columns: {
+                readonly action: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'uuidv7()' };
+                  readonly many: false;
+                };
+                readonly is_builtin: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly label: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly language: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly synonyms: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', ''>;
+                  };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['language', 'action'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'command_search_en_00ead116';
+                  readonly prefix: 'command_search_en';
+                  readonly columns: readonly ['label', 'synonyms'];
+                  readonly where: "language = 'en'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'english';
+                    readonly weightGroups: readonly [readonly ['label'], readonly ['synonyms']];
+                  };
+                },
+                {
+                  readonly name: 'command_search_fi_01626d12';
+                  readonly prefix: 'command_search_fi';
+                  readonly columns: readonly ['label', 'synonyms'];
+                  readonly where: "language = 'fi'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'finnish';
+                    readonly weightGroups: readonly [readonly ['label'], readonly ['synonyms']];
+                  };
+                },
+              ];
+              foreignKeys: readonly [];
             };
             readonly country: {
               columns: {
@@ -1366,7 +1454,76 @@ type ContractBase = Omit<
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['alias'] }];
-              indexes: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'larp_search_en_62b430ca';
+                  readonly prefix: 'larp_search_en';
+                  readonly columns: readonly ['name', 'tagline', 'description', 'fluff_text'];
+                  readonly where: "language = 'en'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'english';
+                    readonly weightGroups: readonly [
+                      readonly ['name'],
+                      readonly ['tagline'],
+                      readonly ['description'],
+                      readonly ['fluff_text'],
+                    ];
+                  };
+                },
+                {
+                  readonly name: 'larp_search_fi_85cd72f4';
+                  readonly prefix: 'larp_search_fi';
+                  readonly columns: readonly ['name', 'tagline', 'description', 'fluff_text'];
+                  readonly where: "language = 'fi'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'finnish';
+                    readonly weightGroups: readonly [
+                      readonly ['name'],
+                      readonly ['tagline'],
+                      readonly ['description'],
+                      readonly ['fluff_text'],
+                    ];
+                  };
+                },
+                {
+                  readonly name: 'larp_search_other_d4fec3bd';
+                  readonly prefix: 'larp_search_other';
+                  readonly columns: readonly ['name', 'tagline', 'description', 'fluff_text'];
+                  readonly where: "language = 'OTHER'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'simple';
+                    readonly weightGroups: readonly [
+                      readonly ['name'],
+                      readonly ['tagline'],
+                      readonly ['description'],
+                      readonly ['fluff_text'],
+                    ];
+                  };
+                },
+                {
+                  readonly name: 'larp_search_sv_bc657d4d';
+                  readonly prefix: 'larp_search_sv';
+                  readonly columns: readonly ['name', 'tagline', 'description', 'fluff_text'];
+                  readonly where: "language = 'sv'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'swedish';
+                    readonly weightGroups: readonly [
+                      readonly ['name'],
+                      readonly ['tagline'],
+                      readonly ['description'],
+                      readonly ['fluff_text'],
+                    ];
+                  };
+                },
+              ];
               foreignKeys: readonly [
                 {
                   readonly source: {
@@ -1830,7 +1987,40 @@ type ContractBase = Omit<
               };
               primaryKey: { readonly columns: readonly ['slug', 'language'] };
               uniques: readonly [];
-              indexes: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'page_search_en_63313553';
+                  readonly prefix: 'page_search_en';
+                  readonly columns: readonly ['title', 'ingress', 'content'];
+                  readonly where: "language = 'en'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'english';
+                    readonly weightGroups: readonly [
+                      readonly ['title'],
+                      readonly ['ingress'],
+                      readonly ['content'],
+                    ];
+                  };
+                },
+                {
+                  readonly name: 'page_search_fi_1c3e666f';
+                  readonly prefix: 'page_search_fi';
+                  readonly columns: readonly ['title', 'ingress', 'content'];
+                  readonly where: "language = 'fi'";
+                  readonly unique: false;
+                  readonly type: 'fullText';
+                  readonly options: {
+                    readonly language: 'finnish';
+                    readonly weightGroups: readonly [
+                      readonly ['title'],
+                      readonly ['ingress'],
+                      readonly ['content'],
+                    ];
+                  };
+                },
+              ];
               foreignKeys: readonly [
                 {
                   readonly source: {
@@ -2309,6 +2499,7 @@ type ContractBase = Omit<
   readonly targetFamily: 'sql';
   readonly roots: {
     readonly account: { readonly namespace: 'public' & NamespaceId; readonly model: 'Account' };
+    readonly command: { readonly namespace: 'public' & NamespaceId; readonly model: 'Command' };
     readonly country: { readonly namespace: 'public' & NamespaceId; readonly model: 'Country' };
     readonly header_image: {
       readonly namespace: 'public' & NamespaceId;
@@ -2441,6 +2632,47 @@ type ContractBase = Omit<
                 readonly type: { readonly column: 'type' };
                 readonly updatedAt: { readonly column: 'updated_at' };
                 readonly userId: { readonly column: 'user_id' };
+              };
+            };
+          };
+          readonly Command: {
+            readonly fields: {
+              readonly action: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly isBuiltin: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly label: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly language: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly synonyms: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'command';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly action: { readonly column: 'action' };
+                readonly id: { readonly column: 'id' };
+                readonly isBuiltin: { readonly column: 'is_builtin' };
+                readonly label: { readonly column: 'label' };
+                readonly language: { readonly column: 'language' };
+                readonly synonyms: { readonly column: 'synonyms' };
               };
             };
           };

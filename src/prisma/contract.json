@@ -8,6 +8,10 @@
       "model": "Account",
       "namespace": "public"
     },
+    "command": {
+      "model": "Command",
+      "namespace": "public"
+    },
     "country": {
       "model": "Country",
       "namespace": "public"
@@ -225,6 +229,77 @@
               },
               "namespaceId": "public",
               "table": "account"
+            }
+          },
+          "Command": {
+            "fields": {
+              "action": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "isBuiltin": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "label": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "language": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "synonyms": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "action": {
+                  "column": "action"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "isBuiltin": {
+                  "column": "is_builtin"
+                },
+                "label": {
+                  "column": "label"
+                },
+                "language": {
+                  "column": "language"
+                },
+                "synonyms": {
+                  "column": "synonyms"
+                }
+              },
+              "namespaceId": "public",
+              "table": "command"
             }
           },
           "Country": {
@@ -2436,6 +2511,112 @@
               },
               "uniques": []
             },
+            "command": {
+              "columns": {
+                "action": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "is_builtin": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "label": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "language": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "synonyms": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": ""
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "label",
+                    "synonyms"
+                  ],
+                  "name": "command_search_en_00ead116",
+                  "options": {
+                    "language": "english",
+                    "weightGroups": [
+                      [
+                        "label"
+                      ],
+                      [
+                        "synonyms"
+                      ]
+                    ]
+                  },
+                  "prefix": "command_search_en",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'en'"
+                },
+                {
+                  "columns": [
+                    "label",
+                    "synonyms"
+                  ],
+                  "name": "command_search_fi_01626d12",
+                  "options": {
+                    "language": "finnish",
+                    "weightGroups": [
+                      [
+                        "label"
+                      ],
+                      [
+                        "synonyms"
+                      ]
+                    ]
+                  },
+                  "prefix": "command_search_fi",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'fi'"
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "language",
+                    "action"
+                  ]
+                }
+              ]
+            },
             "country": {
               "columns": {
                 "code": {
@@ -2860,7 +3041,128 @@
                   }
                 }
               ],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "name",
+                    "tagline",
+                    "description",
+                    "fluff_text"
+                  ],
+                  "name": "larp_search_en_62b430ca",
+                  "options": {
+                    "language": "english",
+                    "weightGroups": [
+                      [
+                        "name"
+                      ],
+                      [
+                        "tagline"
+                      ],
+                      [
+                        "description"
+                      ],
+                      [
+                        "fluff_text"
+                      ]
+                    ]
+                  },
+                  "prefix": "larp_search_en",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'en'"
+                },
+                {
+                  "columns": [
+                    "name",
+                    "tagline",
+                    "description",
+                    "fluff_text"
+                  ],
+                  "name": "larp_search_fi_85cd72f4",
+                  "options": {
+                    "language": "finnish",
+                    "weightGroups": [
+                      [
+                        "name"
+                      ],
+                      [
+                        "tagline"
+                      ],
+                      [
+                        "description"
+                      ],
+                      [
+                        "fluff_text"
+                      ]
+                    ]
+                  },
+                  "prefix": "larp_search_fi",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'fi'"
+                },
+                {
+                  "columns": [
+                    "name",
+                    "tagline",
+                    "description",
+                    "fluff_text"
+                  ],
+                  "name": "larp_search_other_d4fec3bd",
+                  "options": {
+                    "language": "simple",
+                    "weightGroups": [
+                      [
+                        "name"
+                      ],
+                      [
+                        "tagline"
+                      ],
+                      [
+                        "description"
+                      ],
+                      [
+                        "fluff_text"
+                      ]
+                    ]
+                  },
+                  "prefix": "larp_search_other",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'OTHER'"
+                },
+                {
+                  "columns": [
+                    "name",
+                    "tagline",
+                    "description",
+                    "fluff_text"
+                  ],
+                  "name": "larp_search_sv_bc657d4d",
+                  "options": {
+                    "language": "swedish",
+                    "weightGroups": [
+                      [
+                        "name"
+                      ],
+                      [
+                        "tagline"
+                      ],
+                      [
+                        "description"
+                      ],
+                      [
+                        "fluff_text"
+                      ]
+                    ]
+                  },
+                  "prefix": "larp_search_sv",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'sv'"
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
@@ -3384,7 +3686,60 @@
                   }
                 }
               ],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "title",
+                    "ingress",
+                    "content"
+                  ],
+                  "name": "page_search_en_63313553",
+                  "options": {
+                    "language": "english",
+                    "weightGroups": [
+                      [
+                        "title"
+                      ],
+                      [
+                        "ingress"
+                      ],
+                      [
+                        "content"
+                      ]
+                    ]
+                  },
+                  "prefix": "page_search_en",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'en'"
+                },
+                {
+                  "columns": [
+                    "title",
+                    "ingress",
+                    "content"
+                  ],
+                  "name": "page_search_fi_1c3e666f",
+                  "options": {
+                    "language": "finnish",
+                    "weightGroups": [
+                      [
+                        "title"
+                      ],
+                      [
+                        "ingress"
+                      ],
+                      [
+                        "content"
+                      ]
+                    ]
+                  },
+                  "prefix": "page_search_fi",
+                  "type": "fullText",
+                  "unique": false,
+                  "where": "language = 'fi'"
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "slug",
@@ -4006,7 +4361,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "cbe3198758045d5df1026d4166200bcb5d68598ebdcac6491c5387b367492bb4"
+    "storageHash": "3fbb682a1785fb1cc080b64270d39e7c8192be27a41cab8bca3b64681d683e0d"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

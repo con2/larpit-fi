@@ -251,6 +251,10 @@ namespace public {
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
     headerImage            HeaderImage?                   @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
+    @@fullTextIndex([name, tagline, description, fluffText], language: "finnish", where: sql`language = 'fi'`, name: "larp_search_fi")
+    @@fullTextIndex([name, tagline, description, fluffText], language: "english", where: sql`language = 'en'`, name: "larp_search_en")
+    @@fullTextIndex([name, tagline, description, fluffText], language: "swedish", where: sql`language = 'sv'`, name: "larp_search_sv")
+    @@fullTextIndex([name, tagline, description, fluffText], language: "simple", where: sql`language = 'OTHER'`, name: "larp_search_other")
     @@map("larp")
   }
 
@@ -355,7 +359,28 @@ namespace public {
     headerImage HeaderImage?             @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
     @@id([slug, language])
+    @@fullTextIndex([title, ingress, content], language: "finnish", where: sql`language = 'fi'`, name: "page_search_fi")
+    @@fullTextIndex([title, ingress, content], language: "english", where: sql`language = 'en'`, name: "page_search_en")
     @@map("page")
+  }
+
+  // Command palette entries in one UI language, searched by label and synonyms. Rows with
+  // isBuiltin are rewritten from the translations at startup; other rows are left alone.
+  model Command {
+    id        Uuid    @id @default(sql`uuidv7()`)
+    language  String
+    // A slug such as `larp:editLarp` that the palette implements, or a URL template such as
+    // `/larp/{larpId}/roles`.
+    action    String
+    label     String
+    // One synonym per line.
+    synonyms  String  @default("")
+    isBuiltin Boolean @default(false) @map("is_builtin")
+
+    @@unique([language, action])
+    @@fullTextIndex([label, synonyms], language: "finnish", where: sql`language = 'fi'`, name: "command_search_fi")
+    @@fullTextIndex([label, synonyms], language: "english", where: sql`language = 'en'`, name: "command_search_en")
+    @@map("command")
   }
 
   model UnauthenticatedSignup {

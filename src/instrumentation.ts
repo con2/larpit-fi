@@ -9,4 +9,11 @@ export async function register() {
     // database is briefly unavailable at startup.
     console.error("ensureDefaultPages failed:", error);
   }
+  const { ensureBuiltinCommands } = await import("@/models/Command");
+  try {
+    await ensureBuiltinCommands();
+  } catch (error) {
+    // Without built-in commands the palette finds no commands by search, but still lists them.
+    console.error("ensureBuiltinCommands failed:", error);
+  }
 }

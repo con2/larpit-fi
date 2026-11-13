@@ -176,13 +176,13 @@ export default async function CalendarPage({ params, searchParams }: Props) {
         title={t.title}
         commands={[
           {
-            id: "subscribe",
+            id: "calendar:subscribe",
             label: translations.CommandPalette.commands.subscribe,
             icon: "calendar",
             href: "#subscribe",
           },
           {
-            id: "jumpToToday",
+            id: "calendar:jumpToToday",
             label: translations.CommandPalette.commands.jumpToToday,
             icon: "today",
             href: todayHref,
