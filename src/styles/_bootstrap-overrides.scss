@@ -9,6 +9,10 @@ $larpit-button-roles: (
   danger: rowan,
 );
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
 }
