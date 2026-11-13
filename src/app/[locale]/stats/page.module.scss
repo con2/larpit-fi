@@ -195,6 +195,7 @@ $phone: 767.98px;
 
 .columnScroll {
   overflow-x: auto;
+  overflow-y: hidden;
   padding-top: 18px;
 }
 
@@ -225,6 +226,7 @@ $phone: 767.98px;
   height: 14px;
   font-family: $mono;
   font-size: 11px;
+  line-height: 14px;
   color: var(--larpit-dim);
 
   > span {
@@ -249,6 +251,7 @@ $phone: 767.98px;
     bottom: 2px;
     font-family: $mono;
     font-size: 11px;
+    line-height: 14px;
     color: var(--larpit-dim);
   }
 }
@@ -285,6 +288,7 @@ $phone: 767.98px;
   gap: 4px;
   font-family: $mono;
   font-size: 11px;
+  line-height: 14px;
   color: var(--larpit-dim);
 
   > span {

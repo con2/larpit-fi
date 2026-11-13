@@ -8,6 +8,7 @@ $mono: var(--larpit-mono-font), ui-monospace, monospace;
 
 .timelineScroll {
   overflow-x: auto;
+  overflow-y: hidden;
   padding-top: 12px;
 }
 
@@ -60,6 +61,7 @@ $mono: var(--larpit-mono-font), ui-monospace, monospace;
   gap: 4px;
   font-family: $mono;
   font-size: 11px;
+  line-height: 14px;
   color: var(--larpit-dim);
 
   > span {
