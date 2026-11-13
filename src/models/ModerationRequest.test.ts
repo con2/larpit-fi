@@ -22,4 +22,13 @@ describe("ModerationRequestContent", () => {
     expect(content.numPlayerCharacters).toBe(12);
     expect(content.numTotalParticipants).toBe(15);
   });
+
+  it("stores text composed, so search treats pasted letters like typed ones", () => {
+    const content = ModerationRequestContent.parse({
+      name: "Po\u0308llo\u0308",
+      tagline: "Errea\u0300n",
+    });
+    expect(content.name).toBe("Pöllö");
+    expect(content.tagline).toBe("Erreàn");
+  });
 });

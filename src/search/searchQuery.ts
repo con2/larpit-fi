@@ -84,7 +84,9 @@ function toTsquery(tokens: string[]): string {
  * digits, so the result never contains `to_tsquery` operators from the input.
  */
 export function parseSearchQuery(raw: string): SearchQuery {
-  const text = raw.trim().slice(0, maxQueryLength);
+  // A combining mark is neither a letter nor a digit, so a decomposed "ö" would lose its dots
+  // below; composing first keeps it.
+  const text = raw.normalize("NFC").trim().slice(0, maxQueryLength);
   const tokens = text
     .split(/\s+/)
     .map((token) => token.replace(/[^\p{L}\p{N}]/gu, ""))

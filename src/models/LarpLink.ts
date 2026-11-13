@@ -12,7 +12,8 @@ const zLarpLinkType = z.enum(LarpLinkType);
 export const LarpLinkUpsertable = z.object({
   type: zLarpLinkType,
   href: z.string().max(400),
-  title: z.string().max(200).optional(),
+  // NFC, like the text fields of a larp (see ModerationRequestContent).
+  title: z.string().normalize().max(200).optional(),
 });
 
 export type LarpLinkUpsertable = z.infer<typeof LarpLinkUpsertable>;

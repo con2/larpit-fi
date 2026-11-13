@@ -36,6 +36,12 @@ describe("parseSearchQuery", () => {
     );
   });
 
+  it("composes decomposed letters instead of dropping their marks", () => {
+    // "pöllö" typed as o + combining diaeresis, as pasted from some macOS sources.
+    const decomposed = "po\u0308llo\u0308";
+    expect(parseSearchQuery(decomposed).tsquery).toBe("pöllö:*");
+  });
+
   it("caps the input length", () => {
     const parsed = parseSearchQuery("a".repeat(maxQueryLength + 50));
     expect(parsed.text).toHaveLength(maxQueryLength);

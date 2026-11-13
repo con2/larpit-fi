@@ -27,6 +27,7 @@ import {
 } from "@/prisma/enums";
 import type { Larp, ModerationRequest, User } from "@/prisma/models";
 import { toSupportedLanguage } from "@/translations";
+import { personNameSchema } from "./User";
 import {
   handleLarpLinks,
   LarpLinkRemovable,
@@ -56,16 +57,22 @@ const zCountNull = z.preprocess(
 );
 export const zLanguage = z.enum(Language).default(Language.fi);
 
+/**
+ * Free text as stored on a larp, in Unicode NFC. Pasted text can spell "ä" as "a" plus a
+ * combining mark, which search would neither stem nor fold like the composed letter.
+ */
+const zText = () => z.string().normalize();
+
 export const ModerationRequestContent = z.object({
-  name: z.string().min(1).max(200),
-  tagline: z.string().max(500).optional().default(""),
+  name: zText().min(1).max(200),
+  tagline: zText().max(500).optional().default(""),
   type: zLarpType,
   openness: zOpenness,
   language: zLanguage,
-  fluffText: z.string().max(2000).optional().default(""),
-  description: z.string().max(2000).optional().default(""),
+  fluffText: zText().max(2000).optional().default(""),
+  description: zText().max(2000).optional().default(""),
 
-  locationText: z.string().max(200).optional().default(""),
+  locationText: zText().max(200).optional().default(""),
   municipality: z.preprocess(
     (v) => (v === "" ? null : v),
     z.string().max(20).nullable().default(null),
@@ -83,7 +90,7 @@ export const ModerationRequestContent = z.object({
 });
 
 export const ModerationRequestForm = ModerationRequestContent.extend({
-  submitterName: z.string().min(1).max(100).optional(),
+  submitterName: personNameSchema(100).optional(),
   submitterEmail: z.email().optional(),
   submitterRole: zSubmitterRole,
   cat: z.coerce.string().optional(),

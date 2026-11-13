@@ -152,7 +152,8 @@ const zSide = z.enum(["a", "b"]);
 
 export const MergeChoices = z.object({
   fields: z.partialRecord(z.enum(mergeableFields), zSide),
-  customName: z.string().trim().max(customNameMaxLength).optional(),
+  // NFC, like the name when it is edited (see ModerationRequestContent).
+  customName: z.string().normalize().trim().max(customNameMaxLength).optional(),
   keepLinkIds: z.array(z.uuid()),
   aUpdateCount: z.number().int(),
   bUpdateCount: z.number().int(),

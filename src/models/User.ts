@@ -13,16 +13,26 @@ import {
 } from "@/prisma/enums";
 import type { RelatedUser, User } from "@/prisma/models";
 
+/**
+ * A person's name as others will see it: trimmed, in Unicode NFC, 1 to `maxLength` characters,
+ * without control characters (newlines, tabs etc.) and without the bidi embedding, override and
+ * isolate characters, which would reorder the text shown after the name, as in a list of names.
+ * Zero-width joiners stay allowed, as emoji sequences need them.
+ */
+export function personNameSchema(maxLength: number) {
+  return z
+    .string()
+    .normalize()
+    .trim()
+    .min(1)
+    .max(maxLength)
+    .regex(/^[^\p{Cc}\u202a-\u202e\u2066-\u2069]+$/u);
+}
+
 /// Display name validation, shared between the HTML form (maxLength) and the
-/// saveUserPreferences server action. Trims whitespace, requires 1–80 visible
-/// characters and disallows control characters (newlines, tabs, etc.).
+/// saveUserPreferences and sign-up server actions.
 export const displayNameMaxLength = 80;
-export const DisplayNameSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(displayNameMaxLength)
-  .regex(/^[^\p{Cc}]+$/u);
+export const DisplayNameSchema = personNameSchema(displayNameMaxLength);
 
 export function canModerate(user: Pick<User, "role"> | null): boolean {
   return user?.role === UserRole.MODERATOR || user?.role === UserRole.ADMIN;

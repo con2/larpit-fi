@@ -11,17 +11,19 @@ import {
   validatePageSlug,
 } from "./Page.client";
 
+// Text is stored in Unicode NFC, as on larps (see ModerationRequestContent), so that search
+// treats pasted letters like typed ones.
 export const PageForm = z.object({
-  title: z.string().min(1),
-  ingress: z.string().optional().default(""),
-  content: z.string().optional().default(""),
+  title: z.string().normalize().min(1),
+  ingress: z.string().normalize().optional().default(""),
+  content: z.string().normalize().optional().default(""),
   menuPosition: z.number().int().nullable(),
 });
 
 export const NewPageForm = z.object({
   slug: z.string(),
   language: z.enum(["fi", "en"]),
-  title: z.string().min(1),
+  title: z.string().normalize().min(1),
   menuPosition: z.number().int().nullable(),
 });
 
