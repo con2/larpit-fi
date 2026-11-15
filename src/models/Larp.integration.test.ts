@@ -13,6 +13,7 @@ import { truncateAll } from "@/test/truncate";
 import {
   executeImportAction,
   findLarpByAliasRedirect,
+  getFieldsToFill,
   getLarpsWithoutAlias,
   larpIdOrAliasFilter,
   setLarpAlias,
@@ -378,5 +379,28 @@ describe("executeImportAction", () => {
         ],
       ),
     ).rejects.toThrow();
+  });
+});
+
+describe("getFieldsToFill", () => {
+  const content = (fields: Partial<ModerationRequestContent>) =>
+    ModerationRequestContent.parse({ name: "Larppi", ...fields });
+
+  it("fills only fields that are empty", () => {
+    expect(
+      getFieldsToFill(
+        content({ locationText: "Ohkola" }),
+        content({ locationText: "Mäntsälä", description: "Kuvaus" }),
+      ),
+    ).toEqual({ description: "Kuvaus" });
+  });
+
+  it("treats a participant count of 0 as unknown", () => {
+    expect(
+      getFieldsToFill(
+        content({ numPlayerCharacters: 0 }),
+        content({ numPlayerCharacters: 25 }),
+      ),
+    ).toEqual({ numPlayerCharacters: 25 });
   });
 });

@@ -21,7 +21,9 @@ import { pool } from "@/prisma/pool";
  * (www.larp.fi/kalenteri.html, 2003–2014). The input is a reviewed plan whose items either
  * create a larp or fill in the empty fields of an existing one, and may relate the larp to an
  * existing campaign or series. Every item carries a SOURCE link to its archived calendar
- * entry; an item whose SOURCE link already exists is skipped, so the import can be re-run.
+ * entry. A create whose SOURCE link already exists is skipped, and a fill only writes empty
+ * fields and missing links, so the import can be re-run, and a fill can backfill fields of
+ * larps an earlier run created.
  *
  *   npx tsx src/bin/import-wayback-calendar.ts --dry-run import.json
  *   npx tsx src/bin/import-wayback-calendar.ts --user <user id> import.json
@@ -139,6 +141,13 @@ async function plan(item: ImportItem): Promise<Planned> {
     (relation) =>
       !existingRelations.some((r) => r.rightId === relation.rightId),
   );
+  if (
+    Object.keys(fields).length === 0 &&
+    addLinks.length === 0 &&
+    addRelatedLarps.length === 0
+  ) {
+    return { item, skip: "nothing to fill" };
+  }
   return {
     item,
     action: { kind: "update", larpId: larp.id, name: larp.name, fields },
@@ -183,7 +192,7 @@ async function main() {
   const planned: Planned[] = [];
   for (const item of items) {
     planned.push(
-      imported.has(sourceHref(item))
+      item.action === "create" && imported.has(sourceHref(item))
         ? { item, skip: "already imported" }
         : await plan(item),
     );

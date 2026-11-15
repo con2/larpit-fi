@@ -120,7 +120,8 @@ export type ImportAction =
   | { kind: "skip"; name: string; reason: "already_complete" };
 
 function isFieldEmpty(value: unknown): boolean {
-  return value === null || value === undefined || value === "";
+  // A participant count of 0 means unknown, as on the larp page and in the stats.
+  return value === null || value === undefined || value === "" || value === 0;
 }
 
 export function getFieldsToFill(
