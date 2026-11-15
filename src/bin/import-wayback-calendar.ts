@@ -72,10 +72,21 @@ function normalizeHref(href: string): string {
   return href.trim().replace(/\/+$/, "").toLowerCase();
 }
 
+/** The SOURCE link identifies an item across runs, so no two items may share one. */
+function assertUniqueSources(items: ImportItem[]): void {
+  const seen = new Set<string>();
+  for (const item of items) {
+    const href = sourceHref(item);
+    if (seen.has(href)) throw new Error(`${item.key}: duplicate SOURCE ${href}`);
+    seen.add(href);
+  }
+}
+
 async function alreadyImportedSources(items: ImportItem[]): Promise<Set<string>> {
-  const links = await db.orm.public.LarpLink.where((l) =>
-    l.href.in(items.map(sourceHref)),
-  )
+  const links = await db.orm.public.LarpLink.where({
+    type: LarpLinkType.SOURCE,
+  })
+    .where((l) => l.href.in(items.map(sourceHref)))
     .select("href")
     .all();
   return new Set(links.map((link) => link.href));
@@ -165,6 +176,7 @@ async function main() {
   const { items } = ImportFile.parse(
     JSON.parse(readFileSync(filename, "utf-8")),
   );
+  assertUniqueSources(items);
   await assertRelatedLarpsExist(items);
   const imported = await alreadyImportedSources(items);
 
