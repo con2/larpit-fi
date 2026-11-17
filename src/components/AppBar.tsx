@@ -9,12 +9,12 @@ import {
   canEditPages,
   canManageUsers,
   canModerate,
-  getDeleteLarpInitialStatusForUser,
   getUserFromSession,
 } from "@/models/User";
 import { db } from "@/prisma/db";
 import { getReader } from "@/prisma/reader";
-import { EditAction, EditStatus, RelatedUserRole } from "@/prisma/enums";
+import { countOpenRequests } from "@/models/ModerationQueue";
+import { EditStatus, RelatedUserRole } from "@/prisma/enums";
 import { query, sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
 import { nightSkyProps } from "./ui/Aurora";
@@ -32,25 +32,11 @@ interface Props {
 
 const languageOrder: readonly SupportedLanguage[] = ["fi", "en"];
 
-async function getModerationCounts() {
-  const [nonDelete, deletes] = await Promise.all([
-    db.orm.public.ModerationRequest.where((r) =>
-      r.status.in([EditStatus.VERIFIED, EditStatus.AUTO_APPROVED]),
-    )
-      .where((r) => r.action.neq(EditAction.DELETE))
-      .aggregate((a) => ({ count: a.count() }))
-      .then((r) => r.count),
-    db.orm.public.ModerationRequest.where({
-      status: EditStatus.VERIFIED,
-      action: EditAction.DELETE,
-    })
-      .aggregate((a) => ({ count: a.count() }))
-      .then((r) => r.count),
-  ]);
-  return { nonDelete, deletes };
-}
-
-async function getUserCounts(userId: string) {
+/**
+ * Pending edits are counted only for moderators: they link to the request page, which nobody
+ * else can open.
+ */
+async function getUserCounts(userId: string, countPendingEdits: boolean) {
   const [counts] = await query<{
     all: string;
     played: string;
@@ -63,15 +49,17 @@ async function getUserCounts(userId: string) {
     from related_user
     where user_id = ${userId}
   `);
-  const pending = await db.orm.public.ModerationRequest.where({
-    submitterId: userId,
-  })
-    .where((r) =>
-      r.status.in([EditStatus.PENDING_VERIFICATION, EditStatus.VERIFIED]),
-    )
-    .select("id")
-    .orderBy((r) => r.id.desc())
-    .all();
+  const pending = countPendingEdits
+    ? await db.orm.public.ModerationRequest.where({
+        submitterId: userId,
+      })
+        .where((r) =>
+          r.status.in([EditStatus.PENDING_VERIFICATION, EditStatus.VERIFIED]),
+        )
+        .select("id")
+        .orderBy((r) => r.id.desc())
+        .all()
+    : [];
 
   const result: UserMenuCounts = {
     all: Number(counts.all),
@@ -108,13 +96,10 @@ export default async function AppBar({ locale }: Props) {
   const session = await auth();
   const user = await getUserFromSession(session);
   const [userCounts, moderationCounts, infoItems] = await Promise.all([
-    user ? getUserCounts(user.id) : null,
-    canModerate(user) ? getModerationCounts() : null,
+    user ? getUserCounts(user.id, canModerate(user)) : null,
+    canModerate(user) ? countOpenRequests(user) : null,
     getInfoMenuItems(locale),
   ]);
-
-  const isAdmin =
-    getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
 
   const adminLinks: AdminLink[] = [];
   if (moderationCounts) {
@@ -122,8 +107,7 @@ export default async function AppBar({ locale }: Props) {
       href: "/moderate",
       title: navigationMessages.actions.moderate,
       icon: "moderate",
-      badge:
-        moderationCounts.nonDelete + (isAdmin ? moderationCounts.deletes : 0),
+      badge: moderationCounts.VERIFIED + moderationCounts.AUTO_APPROVED,
     });
   }
   if (canModerate(user)) {

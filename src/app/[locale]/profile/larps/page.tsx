@@ -13,7 +13,7 @@ import {
 import LarpRow from "@/components/ui/LarpRow";
 import { YearHeading } from "@/components/ui/SectionHeading";
 import { LarpStatusPill } from "@/components/ui/StatusPill";
-import { getUserFromSession } from "@/models/User";
+import { canModerate, getUserFromSession } from "@/models/User";
 import { EditStatus, RelatedUserRole } from "@/prisma/enums";
 import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
@@ -110,7 +110,8 @@ export default async function OwnLarpsPage({ params, searchParams }: Props) {
 
   const [allLarps, pendingEditIds] = await Promise.all([
     loadOwnLarps(user.id),
-    getPendingEditIds(user.id),
+    // The pending-edits button opens the request page, which only moderators can see.
+    canModerate(user) ? getPendingEditIds(user.id) : [],
   ]);
   const counts = countOwnLarps(allLarps);
   const larps = filterOwnLarps(allLarps, filter);

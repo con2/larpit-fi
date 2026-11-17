@@ -162,10 +162,7 @@ export function parseRequestChanges(
   }
 
   return {
-    newContent:
-      request.action === EditAction.CREATE
-        ? ModerationRequestContent.parse(request.newContent)
-        : parsePartialContent(request.newContent),
+    newContent: parsePartialContent(request.newContent),
     addLinks: parse(z.array(LarpLinkUpsertable), request.addLinks),
     removeLinks: parse(z.array(LarpLinkRemovable), request.removeLinks),
     addTags: parse(TagIds, request.addTags),
