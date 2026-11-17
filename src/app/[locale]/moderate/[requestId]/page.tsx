@@ -1,126 +1,209 @@
-import { auth } from "@/auth";
+import { UnrenderedMarkdown } from "@con2/components";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
+import z from "zod";
+
+import { FormattedDateTime } from "@/components/FormattedDates";
+import ModerationRequestChanges, {
+  ChangeItem,
+} from "@/components/ModerationRequestChanges";
+import { submitterStanding } from "@/components/moderation/ModerationQueueRow";
 import {
-  AccessDeniedPage,
-  LoginRequiredPage,
-  gateActions,
-} from "@/components/GatePage";
-import ModerationRequestChanges from "@/components/ModerationRequestChanges";
+  DotSeparated,
+  requestCreatedAt,
+  requestLarpName,
+  StatusPill,
+  SummaryChips,
+} from "@/components/moderation/requestDisplay";
+import { typesetDashes } from "@/helpers/larpName";
+import { getLarpHref } from "@/models/Larp.client";
+import {
+  canSeeDeleteRequests,
+  getQueueNeighbours,
+  getRequestsForLarp,
+  getSubmitterHistory,
+  summarizeRequest,
+} from "@/models/ModerationQueue";
+import {
+  larpToContent,
+  type ModerationRequestContent,
+  parsePartialContent,
+  parseRequestChanges,
+  type RequestChanges,
+} from "@/models/ModerationRequest";
+import { tagName } from "@/models/Tag.client";
+import { parseDates } from "@/prisma/dates";
+import { db } from "@/prisma/db";
 import {
   EditAction,
   EditStatus,
   RelatedUserRole,
   SubmitterRole,
 } from "@/prisma/enums";
-import { getLarpHref } from "@/models/Larp";
-import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
-import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
-import { TagIds } from "@/models/Tag";
-import { tagName } from "@/models/Tag.client";
-import { larpToContent, parsePartialContent } from "@/models/ModerationRequest";
-import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
-import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
 import { getTranslations } from "@/translations";
-import { SubmitButton, UnrenderedMarkdown } from "@con2/components";
-import { FormattedDateTime } from "@/components/FormattedDates";
-import { uuid7ToZonedDateTime } from "@con2/components/helpers";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Fragment, ReactNode } from "react";
-import {
-  Alert,
-  Card,
-  CardBody,
-  CardText,
-  CardTitle,
-  Form,
-  FormCheck,
-  FormControl,
-  FormLabel,
-  FormText,
-  Row,
-} from "react-bootstrap";
-import z from "zod";
+
+import HandledNotice from "../HandledNotice";
+import { requireModerator } from "../requireModerator";
 import { markChecked, resolveRequest } from "./actions";
-import { typesetDashes } from "@/helpers/larpName";
+import ApproveButton from "./ApproveButton";
 
 interface Props {
   params: Promise<{ locale: string; requestId: string }>;
+  searchParams: Promise<{ handled?: string }>;
 }
 
-export default async function ModerationRequestPage({ params }: Props) {
+const decisionFormId = "ModerationRequestPage-decision";
+
+const unresolvedStatuses: EditStatus[] = [
+  EditStatus.PENDING_VERIFICATION,
+  EditStatus.VERIFIED,
+  EditStatus.AUTO_APPROVED,
+];
+
+const DeclinedChanges = z
+  .object({
+    newContent: z.unknown(),
+    addLinks: z.unknown(),
+    removeLinks: z.unknown(),
+    addTags: z.unknown(),
+    removeTags: z.unknown(),
+    addRelatedLarps: z.unknown(),
+    removeRelatedLarps: z.unknown(),
+    role: z.enum(SubmitterRole).catch(SubmitterRole.NONE),
+  })
+  .partial();
+
+function parseDeclined(
+  action: EditAction,
+  declined: unknown,
+): RequestChanges | null {
+  if (!declined) return null;
+  const parsed = DeclinedChanges.safeParse(declined);
+  if (!parsed.success) return null;
+  const raw = parsed.data;
+  return parseRequestChanges(
+    {
+      action,
+      newContent: raw.newContent ?? {},
+      addLinks: raw.addLinks ?? [],
+      removeLinks: raw.removeLinks ?? [],
+      addTags: raw.addTags ?? [],
+      removeTags: raw.removeTags ?? [],
+      addRelatedLarps: raw.addRelatedLarps ?? [],
+      removeRelatedLarps: raw.removeRelatedLarps ?? [],
+      submitterRole: raw.role ?? SubmitterRole.NONE,
+    } as Parameters<typeof parseRequestChanges>[0],
+    { lenient: true },
+  );
+}
+
+export default async function ModerationRequestPage({
+  params,
+  searchParams,
+}: Props) {
   const { locale, requestId } = await params;
-
+  const { handled } = await searchParams;
   const translations = getTranslations(locale);
-
-  const gate = gateActions(translations);
   const t = translations.ModerationRequest;
+  const detailT = t.detail;
   const larpT = translations.Larp;
+  const tagT = translations.Tag.moderation;
 
-  const session = await auth();
-  if (!session?.user) {
-    return (
-      <LoginRequiredPage
-        messages={translations.LoginRequired}
-        actions={[gate.frontPage]}
-      />
-    );
-  }
+  const moderator = await requireModerator(translations);
+  if (!moderator.ok) return moderator.gate;
+  const { user } = moderator;
 
-  const [requestRow, user] = await Promise.all([
-    db.orm.public.ModerationRequest.include("resolvedBy", (u) =>
-      u.select("id", "name"),
+  if (!z.uuid().safeParse(requestId).success) notFound();
+
+  const requestRow = await db.orm.public.ModerationRequest.include(
+    "resolvedBy",
+    (u) => u.select("id", "name"),
+  )
+    .include("larp", (l) =>
+      l.include("relatedUsers", (r) => r.select("userId", "role")),
     )
-      .include("larp", (l) =>
-        l.include("relatedUsers", (r) => r.select("userId", "role")),
-      )
-      .first({ id: requestId }),
-    session?.user?.id
-      ? db.orm.public.User.select("id", "role").first({
-          id: session.user.id,
-        })
-      : null,
+    .first({ id: requestId });
+  if (!requestRow) notFound();
+  const request = parseDates(requestRow);
+  const larp = request.larp && parseDates(request.larp);
+
+  const [neighbours, submitterHistory, larpRequests] = await Promise.all([
+    getQueueNeighbours(user, request),
+    getSubmitterHistory(request),
+    request.larpId ? getRequestsForLarp(user, request.larpId) : [],
   ]);
-  const request = requestRow && parseDates(requestRow);
-  if (!canModerate(user)) {
-    return (
-      <AccessDeniedPage
-        messages={translations.ModeratorRequired}
-        actions={[gate.frontPage, gate.contact]}
-      />
-    );
+
+  const changes = parseRequestChanges(request, { lenient: true });
+  const declined = parseDeclined(request.action, request.declined);
+  const summary = summarizeRequest(request);
+  const isCreate = request.action === EditAction.CREATE;
+  const isOpenForDecision = request.status === EditStatus.VERIFIED;
+  const canDecide =
+    request.action !== EditAction.DELETE || canSeeDeleteRequests(user);
+  const selectFormId =
+    isOpenForDecision && canDecide && request.action !== EditAction.DELETE
+      ? decisionFormId
+      : null;
+
+  // Before/after for the content fields: the live larp while the edit is still to be decided,
+  // the stored pre-edit values once it has been applied.
+  let before: Partial<ModerationRequestContent> | null = null;
+  let columns = {
+    before: detailT.columns.before,
+    after: detailT.columns.after,
+  };
+  if (!isCreate) {
+    if (
+      larp &&
+      (request.status === EditStatus.VERIFIED ||
+        request.status === EditStatus.PENDING_VERIFICATION)
+    ) {
+      before = larpToContent(larp);
+      columns = {
+        before: detailT.columns.now,
+        after: detailT.columns.afterApproval,
+      };
+    } else if (request.oldContent) {
+      before = parsePartialContent(request.oldContent);
+      if (request.status === EditStatus.AUTO_APPROVED) {
+        columns = {
+          before: detailT.columns.beforeEdit,
+          after: detailT.columns.liveNow,
+        };
+      }
+    }
   }
-  if (!request) {
-    return notFound();
-  }
 
-  // Show only what changed: for UPDATE the stored newContent is already a
-  // minimal diff against the larp at submission time; for CREATE it holds the
-  // non-empty fields. parsePartialContent gives just the present keys.
-  const changes = parsePartialContent(request.newContent);
+  const allChanges = declined ? [changes, declined] : [changes];
 
-  // The larp's current state is a valid "old" baseline only while the edit has
-  // not been applied yet (PENDING_VERIFICATION / VERIFIED). Once a request is
-  // approved, auto-approved, rejected or withdrawn, the larp has since changed,
-  // so showing old → new against the current state would be misleading — we
-  // then show just the values the request set.
-  const showOldValues =
-    !!request.larp &&
-    (request.status === EditStatus.PENDING_VERIFICATION ||
-      request.status === EditStatus.VERIFIED);
-  const oldContent = showOldValues ? larpToContent(request.larp!) : null;
-
-  // Resolve municipality ids referenced by the change to display names.
   const municipalityIds = [
-    oldContent?.municipality,
-    changes.municipality,
-  ].filter((id): id is string => !!id);
-  const municipalities =
+    before?.municipality,
+    ...allChanges.map((c) => c.newContent.municipality),
+  ].filter((id): id is string => typeof id === "string" && !!id);
+  const tagIds = allChanges.flatMap((c) => [...c.addTags, ...c.removeTags]);
+  const relatedLarpIds = allChanges
+    .flatMap((c) => [...c.addRelatedLarps, ...c.removeRelatedLarps])
+    .flatMap((r) => [r.leftId, r.rightId])
+    .filter((id) => id !== request.larpId);
+
+  const [municipalities, tags, relatedLarps] = await Promise.all([
     municipalityIds.length > 0
-      ? await db.orm.public.Municipality.where((m) => m.id.in(municipalityIds))
+      ? db.orm.public.Municipality.where((m) => m.id.in(municipalityIds))
           .select("id", "nameFi", "nameSv", "nameOther")
           .all()
-      : [];
+      : [],
+    tagIds.length > 0
+      ? db.orm.public.Tag.where((tag) => tag.id.in(tagIds))
+          .select("id", "slug", "nameFi", "nameEn")
+          .all()
+      : [],
+    relatedLarpIds.length > 0
+      ? db.orm.public.Larp.where((l) => l.id.in(relatedLarpIds))
+          .select("id", "alias", "name")
+          .all()
+      : [],
+  ]);
   const municipalityNames = Object.fromEntries(
     municipalities.map((m) => [
       m.id,
@@ -131,483 +214,574 @@ export default async function ModerationRequestPage({ params }: Props) {
         m.id,
     ]),
   );
+  const tagById = new Map(tags.map((tag) => [tag.id, tag]));
+  const larpById = new Map(relatedLarps.map((l) => [l.id, l]));
 
-  // Warn the moderator if there are older, not-yet-resolved requests for the
-  // same larp; they should be reviewed oldest-first (UUIDv7 ids sort by time).
-  const olderPendingCount = request.larpId
-    ? await db.orm.public.ModerationRequest.where({ larpId: request.larpId })
-        .where((r) => r.id.lt(request.id))
-        .where((r) =>
-          r.status.in([
-            EditStatus.PENDING_VERIFICATION,
-            EditStatus.VERIFIED,
-            EditStatus.AUTO_APPROVED,
-          ]),
-        )
-        .aggregate((a) => ({ count: a.count() }))
-        .then((r) => r.count)
-    : 0;
+  const olderOpenCount = larpRequests.filter(
+    (other) =>
+      other.id < request.id && unresolvedStatuses.includes(other.status),
+  ).length;
 
-  // Roles granted by approving this request. Currently only the submitter's own
-  // role (from submitterRole) can be added; the implicit CREATED_BY role given
-  // to the creator is intentionally not shown. Adding roles for other users or
-  // removing roles is not implemented yet — handle that here when it is.
-  const rolesBeingAdded: RelatedUserRole[] = [];
-  if (request.submitterId && request.submitterRole !== SubmitterRole.NONE) {
-    const role = request.submitterRole as unknown as RelatedUserRole;
-    const alreadyHasRole =
-      request.larp?.relatedUsers.some(
-        (ru) => ru.userId === request.submitterId && ru.role === role,
-      ) ?? false;
-    if (!alreadyHasRole) {
-      rolesBeingAdded.push(role);
-    }
-  }
+  const name = requestLarpName(request);
+  const displayName = name ? typesetDashes(name) : detailT.unknownLarp;
+  const standing = submitterStanding(request);
+  const roleAlreadyHeld =
+    changes.role !== SubmitterRole.NONE &&
+    !!larp?.relatedUsers.some(
+      (related) =>
+        related.userId === request.submitterId &&
+        related.role === (changes.role as RelatedUserRole),
+    );
 
-  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
-
-  // Old removeLinks records may lack `type`; degrade gracefully by dropping unparseable entries
-  const removeLinks = z
-    .array(LarpLinkRemovable)
-    .catch([])
-    .parse(request.removeLinks);
-
-  const addRelatedLarps = z
-    .array(RelatedLarpAddable)
-    .catch([])
-    .parse(request.addRelatedLarps);
-  const removeRelatedLarps = z
-    .array(RelatedLarpRemovable)
-    .catch([])
-    .parse(request.removeRelatedLarps);
-
-  const addTags = TagIds.catch([]).parse(request.addTags);
-  const removeTags = TagIds.catch([]).parse(request.removeTags);
-  const referencedTagIds = [...addTags, ...removeTags];
-  const referencedTags =
-    referencedTagIds.length > 0
-      ? await db.orm.public.Tag.where((tag) => tag.id.in(referencedTagIds))
-          .select("id", "slug", "nameFi", "nameEn")
-          .all()
-      : [];
-  const tagById = new Map(referencedTags.map((tag) => [tag.id, tag]));
-
-  // Collect all referenced larp IDs (other than the request's own larp) to look up names
-  const referencedLarpIds = [
-    ...addRelatedLarps.flatMap((r) => [r.leftId, r.rightId]),
-    ...removeRelatedLarps.flatMap((r) => [r.leftId, r.rightId]),
-  ].filter((id) => id !== request.larpId);
-
-  const referencedLarps =
-    referencedLarpIds.length > 0
-      ? await db.orm.public.Larp.where((l) => l.id.in(referencedLarpIds))
-          .select("id", "alias", "name")
-          .all()
-      : [];
-  const larpById = Object.fromEntries(referencedLarps.map((l) => [l.id, l]));
-
-  function Empty() {
-    return <em className="text-muted">{larpT.attributes.emptyAttribute}</em>;
-  }
-
-  function Field({
+  function Section({
+    id,
     title,
-    value,
-    className = "",
     children,
   }: {
-    className?: string;
+    id: string;
     title: string;
-    value?: ReactNode;
-    children?: ReactNode;
+    children: ReactNode;
   }) {
+    const headingId = `ModerationRequestPage-${id}`;
     return (
-      <dl className={className}>
-        <dt>{title}</dt>
-        <dd>{children || value || <Empty />}</dd>
-      </dl>
+      <section
+        className="lf-section lf-mod-section"
+        id={id}
+        aria-labelledby={headingId}
+      >
+        <h2 className="lf-label lf-mod-section__title" id={headingId}>
+          {title}
+        </h2>
+        {children}
+      </section>
     );
   }
 
+  function otherLarp(relation: { leftId: string; rightId: string }) {
+    const otherId =
+      relation.leftId === request.larpId ? relation.rightId : relation.leftId;
+    const other = larpById.get(otherId);
+    return other ? (
+      <Link href={getLarpHref(other)}>{typesetDashes(other.name)}</Link>
+    ) : (
+      otherId
+    );
+  }
+
+  function relationLabel(relation: {
+    leftId: string;
+    type: keyof typeof larpT.attributes.leftRelatedLarps.types;
+  }) {
+    return relation.leftId === request.larpId
+      ? larpT.attributes.leftRelatedLarps.types[relation.type]
+      : larpT.attributes.rightRelatedLarps.types[relation.type];
+  }
+
+  /** The role, link, tag and related-larp changes, selectable when `formId` is given. */
+  function listSections(
+    listChanges: RequestChanges,
+    formId: string | null,
+    idPrefix: string,
+  ) {
+    const hasLinks =
+      listChanges.addLinks.length + listChanges.removeLinks.length > 0;
+    const hasTags =
+      listChanges.addTags.length + listChanges.removeTags.length > 0;
+    const hasRelated =
+      listChanges.addRelatedLarps.length +
+        listChanges.removeRelatedLarps.length >
+      0;
+
+    return (
+      <>
+        {listChanges.role !== SubmitterRole.NONE && (
+          <Section id={`${idPrefix}role`} title={detailT.sections.role}>
+            <ul className="lf-mod-items">
+              <ChangeItem selectFormId={formId} value="role">
+                {detailT.becomes(
+                  request.submitterName,
+                  t.attributes.submitterRole.choices[listChanges.role].title,
+                )}
+                {roleAlreadyHeld && (
+                  <span className="lf-help d-block">
+                    {detailT.alreadyHasRole}
+                  </span>
+                )}
+              </ChangeItem>
+            </ul>
+          </Section>
+        )}
+
+        {hasLinks && (
+          <Section id={`${idPrefix}links`} title={detailT.sections.links}>
+            <ul className="lf-mod-items">
+              {listChanges.addLinks.map((link, index) => (
+                <ChangeItem
+                  key={`add-${index}`}
+                  selectFormId={formId}
+                  value={`addLinks:${index}`}
+                  verb={detailT.addLink}
+                >
+                  <span className="lf-dim">
+                    {larpT.attributes.links.types[link.type].title}:{" "}
+                  </span>
+                  <a href={link.href} target="_blank" rel="noopener noreferrer">
+                    {link.href}
+                  </a>
+                  {link.title && <> — {link.title}</>}
+                </ChangeItem>
+              ))}
+              {listChanges.removeLinks.map((link, index) => (
+                <ChangeItem
+                  key={`remove-${index}`}
+                  selectFormId={formId}
+                  value={`removeLinks:${index}`}
+                  verb={detailT.removeLink}
+                >
+                  <span className="lf-dim">
+                    {larpT.attributes.links.types[link.type].title}:{" "}
+                  </span>
+                  <s>{link.href}</s>
+                  {link.title && <> — {link.title}</>}
+                </ChangeItem>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {hasTags && (
+          <Section id={`${idPrefix}tags`} title={detailT.sections.tags}>
+            <ul className="lf-mod-items">
+              {(
+                [
+                  ["addTags", detailT.addTag],
+                  ["removeTags", detailT.removeTag],
+                ] as const
+              ).flatMap(([key, verb]) =>
+                listChanges[key].map((tagId, index) => {
+                  const tag = tagById.get(tagId);
+                  return (
+                    <ChangeItem
+                      key={`${key}-${index}`}
+                      selectFormId={formId}
+                      value={`${key}:${index}`}
+                      verb={verb}
+                    >
+                      {tag ? (
+                        <Link href={`/tag/${tag.slug}`}>
+                          {tagName(tag, locale)}
+                        </Link>
+                      ) : (
+                        <em className="lf-dim">{tagT.deletedTag}</em>
+                      )}
+                    </ChangeItem>
+                  );
+                }),
+              )}
+            </ul>
+          </Section>
+        )}
+
+        {hasRelated && (
+          <Section id={`${idPrefix}related`} title={detailT.sections.related}>
+            <ul className="lf-mod-items">
+              {(
+                [
+                  ["addRelatedLarps", detailT.addRelation],
+                  ["removeRelatedLarps", detailT.removeRelation],
+                ] as const
+              ).flatMap(([key, verb]) =>
+                listChanges[key].map((relation, index) => (
+                  <ChangeItem
+                    key={`${key}-${index}`}
+                    selectFormId={formId}
+                    value={`${key}:${index}`}
+                    verb={verb}
+                  >
+                    <span className="lf-dim">
+                      {relationLabel(relation) || relation.type}:{" "}
+                    </span>
+                    {otherLarp(relation)}
+                  </ChangeItem>
+                )),
+              )}
+            </ul>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  const selectableCount = selectFormId
+    ? summary.total - (isCreate ? Object.keys(changes.newContent).length : 0)
+    : 0;
+
   return (
     <div className="lf-container">
-      <header className="lf-page-header">
-        <h1 className="lf-display-l">{t.listTitle}</h1>
+      <header className="lf-page-header lf-mod-header">
+        <nav className="lf-mod-header__nav">
+          <Link href="/moderate" className="lf-link-quiet">
+            ← {detailT.back}
+          </Link>
+          {neighbours && (
+            <span className="lf-mod-header__position">
+              {neighbours.previousId && (
+                <Link
+                  href={`/moderate/${neighbours.previousId}`}
+                  className="lf-link-quiet"
+                  rel="prev"
+                >
+                  ← {detailT.previous}
+                </Link>
+              )}
+              <span className="lf-data lf-dim">
+                {detailT.position(neighbours.position, neighbours.total)}
+              </span>
+              {neighbours.nextId && (
+                <Link
+                  href={`/moderate/${neighbours.nextId}`}
+                  className="lf-link-quiet"
+                  rel="next"
+                >
+                  {detailT.next} →
+                </Link>
+              )}
+            </span>
+          )}
+        </nav>
+        <HandledNotice requestId={handled} messages={t} />
+        <p className="lf-eyebrow">
+          <StatusPill status={request.status} messages={t} />{" "}
+          {t.actionLabels[request.action]}
+        </p>
+        <h1 className="lf-display-l">
+          {detailT.titles[request.action](displayName)}
+        </h1>
+        <p className="lf-muted mb-0">
+          <DotSeparated>
+            {[
+              request.submitterName,
+              <FormattedDateTime
+                key="created"
+                locale={locale}
+                value={requestCreatedAt(request.id)}
+              />,
+              standing && larpT.clientAttributes.role.choices[standing],
+              larp && (
+                <Link key="larp" href={getLarpHref(larp)}>
+                  {detailT.openLarp}
+                </Link>
+              ),
+            ]}
+          </DotSeparated>
+        </p>
+        <SummaryChips summary={summary} messages={t.chips} linkToSections />
       </header>
-      <div className="py-5">
-        {olderPendingCount > 0 ? (
-          <Alert variant="warning">
-            {t.changes.olderPendingWarning(olderPendingCount)}
-          </Alert>
-        ) : null}
 
-        <Card className="mb-4">
-          <CardBody>
-            <CardTitle>
-              {t.attributes.status.choices[request.status].label}:{" "}
-              {t.attributes.action.choices[request.action].title}
-            </CardTitle>
+      <div className="lf-main-aside">
+        <div>
+          {request.message && (
+            <Section id="message" title={detailT.sections.message}>
+              <blockquote className="lf-mod-message">
+                <UnrenderedMarkdown>{request.message}</UnrenderedMarkdown>
+              </blockquote>
+            </Section>
+          )}
 
-            <div className="row mt-3">
-              <Field
-                className="col-md-6"
-                title={t.attributes.submitterName.title}
-                value={request.submitterName}
+          {(summary.fieldKeys.length > 0 ||
+            request.action !== EditAction.DELETE) && (
+            <Section id="details" title={detailT.sections.details}>
+              <ModerationRequestChanges
+                action={request.action}
+                changes={changes.newContent}
+                before={before}
+                columns={columns}
+                selectFormId={isCreate ? null : selectFormId}
+                larpT={larpT}
+                changesT={t.changes}
+                detailT={detailT}
+                locale={locale}
+                municipalityNames={municipalityNames}
               />
-              <Field
-                className="col-md-6"
-                title={t.attributes.submitterEmail.title}
-                value={request.submitterEmail}
-              />
-            </div>
-            <div className="row">
-              <Field
-                className="col-md-6"
-                title={t.attributes.submitterRole.title}
-                value={
+            </Section>
+          )}
+
+          {listSections(changes, selectFormId, "")}
+
+          {declined && (
+            <section
+              className="lf-section lf-mod-declined"
+              aria-labelledby="ModerationRequestPage-notApplied"
+            >
+              <div className="lf-section-heading">
+                <h2
+                  className="lf-heading"
+                  id="ModerationRequestPage-notApplied"
+                >
+                  {detailT.sections.notApplied}
+                </h2>
+              </div>
+              <p className="lf-help mt-2">{detailT.notAppliedHelp}</p>
+              {Object.keys(declined.newContent).length > 0 && (
+                <ModerationRequestChanges
+                  action={request.action}
+                  changes={declined.newContent}
+                  before={null}
+                  columns={columns}
+                  selectFormId={null}
+                  larpT={larpT}
+                  changesT={t.changes}
+                  detailT={detailT}
+                  locale={locale}
+                  municipalityNames={municipalityNames}
+                />
+              )}
+              {listSections(declined, null, "declined-")}
+            </section>
+          )}
+        </div>
+
+        <aside>
+          {isOpenForDecision && !canDecide && (
+            <p className="lf-notice mb-0">{t.actions.deleteAdminOnly}</p>
+          )}
+
+          {isOpenForDecision && canDecide && (
+            <form
+              id={decisionFormId}
+              action={resolveRequest.bind(null, locale, request.id)}
+              className="lf-surface lf-mod-card lf-mod-card--decision"
+            >
+              <h2 className="lf-surface__title">{detailT.decision.title}</h2>
+              <p className="lf-muted">
+                {detailT.decision.changes(summary.total)}
+              </p>
+              {olderOpenCount > 0 && (
+                <p className="lf-mod-warning">
+                  {t.changes.olderPendingWarning(olderOpenCount)}
+                </p>
+              )}
+              {selectableCount > 0 && (
+                <p className="lf-help">{detailT.decision.untickHelp}</p>
+              )}
+              <div>
+                <label
+                  htmlFor="ModerationRequestPage-reason"
+                  className="form-label"
+                >
+                  {t.attributes.resolvedMessage.label}
+                </label>
+                <textarea
+                  id="ModerationRequestPage-reason"
+                  name="reason"
+                  rows={4}
+                  className="form-control"
+                />
+                <p className="lf-help mt-1 mb-0">
+                  {t.attributes.resolvedMessage.helpText}
+                </p>
+              </div>
+              <div className="lf-mod-card__actions">
+                {request.action === EditAction.DELETE ? (
+                  <button
+                    type="submit"
+                    name="resolution"
+                    value="APPROVED"
+                    className="btn btn-danger"
+                  >
+                    {detailT.decision.approveDelete}
+                  </button>
+                ) : isCreate ? (
+                  <ApproveButton
+                    formId={decisionFormId}
+                    total={selectableCount}
+                    allLabel={detailT.decision.approveCreate}
+                    someLabel={detailT.decision.approveCreate}
+                    allowNone
+                  />
+                ) : (
+                  <ApproveButton
+                    formId={decisionFormId}
+                    total={selectableCount}
+                    allLabel={
+                      selectableCount > 1
+                        ? detailT.decision.approveAll
+                        : detailT.decision.approve
+                    }
+                    someLabel={detailT.decision.approveSome}
+                  />
+                )}
+                <button
+                  type="submit"
+                  name="resolution"
+                  value="REJECTED"
+                  className="btn btn-outline-danger"
+                >
+                  {detailT.decision.reject}
+                </button>
+              </div>
+            </form>
+          )}
+
+          {request.status === EditStatus.AUTO_APPROVED && (
+            <form
+              action={markChecked.bind(null, locale, request.id)}
+              className="lf-surface lf-mod-card lf-mod-card--check"
+            >
+              <h2 className="lf-surface__title">{detailT.check.title}</h2>
+              <p className="lf-muted">{detailT.check.description}</p>
+              <div>
+                <label
+                  htmlFor="ModerationRequestPage-note"
+                  className="form-label"
+                >
+                  {t.attributes.resolvedMessage.label}
+                </label>
+                <textarea
+                  id="ModerationRequestPage-note"
+                  name="reason"
+                  rows={3}
+                  className="form-control"
+                />
+              </div>
+              <div className="lf-mod-card__actions">
+                <button type="submit" className="btn btn-primary">
+                  {detailT.check.submit}
+                </button>
+                {request.larpId && (
+                  <Link
+                    href={`/larp/${request.larpId}/edit`}
+                    className="btn btn-outline-secondary"
+                  >
+                    {detailT.check.fix}
+                  </Link>
+                )}
+              </div>
+            </form>
+          )}
+
+          {request.status === EditStatus.PENDING_VERIFICATION && (
+            <p className="lf-notice mb-0">{detailT.pendingVerification}</p>
+          )}
+
+          {!unresolvedStatuses.includes(request.status) && (
+            <section className="lf-surface lf-surface--compact lf-mod-card">
+              <h2 className="lf-surface__title">{detailT.outcome.title}</h2>
+              <p>
+                <StatusPill status={request.status} messages={t} />
+              </p>
+              <dl className="lf-mod-facts">
+                <dt>{detailT.outcome.resolvedBy}</dt>
+                <dd>
+                  {request.resolvedBy?.name ?? (
+                    <em className="lf-dim">{detailT.outcome.notResolved}</em>
+                  )}
+                </dd>
+                {request.resolvedAt && (
+                  <>
+                    <dt>{detailT.outcome.resolvedAt}</dt>
+                    <dd>
+                      <FormattedDateTime
+                        locale={locale}
+                        value={request.resolvedAt}
+                      />
+                    </dd>
+                  </>
+                )}
+                {request.resolvedMessage && (
+                  <>
+                    <dt>{detailT.outcome.reason}</dt>
+                    <dd>
+                      <UnrenderedMarkdown>
+                        {request.resolvedMessage}
+                      </UnrenderedMarkdown>
+                    </dd>
+                  </>
+                )}
+              </dl>
+            </section>
+          )}
+
+          <section className="lf-surface lf-surface--compact lf-mod-card">
+            <h2 className="lf-surface__title">{detailT.submitter.title}</h2>
+            <dl className="lf-mod-facts">
+              <dt>{t.attributes.submitterName.title}</dt>
+              <dd>{request.submitterName}</dd>
+              <dt>{t.attributes.submitterEmail.title}</dt>
+              <dd>
+                <a href={`mailto:${request.submitterEmail}`}>
+                  {request.submitterEmail}
+                </a>
+              </dd>
+              <dt>{t.attributes.submitterRole.title}</dt>
+              <dd>
+                {
                   t.attributes.submitterRole.choices[request.submitterRole]
                     .title
                 }
-              />
-              <Field
-                className="col-md-6"
-                title={t.attributes.createdAt.title}
-                value={
-                  <FormattedDateTime
-                    value={uuid7ToZonedDateTime(request.id)}
-                    locale={locale}
-                  />
-                }
-              />
-            </div>
-            <Row>
-              <Field
-                className="col-md-6"
-                title={t.attributes.status.title}
-                value={
-                  <>
-                    {t.attributes.status.choices[request.status].title}{" "}
-                    <FormattedDateTime
-                      value={request.resolvedAt}
-                      locale={locale}
-                    />
-                  </>
-                }
-              />
-              <Field
-                className="col-md-6"
-                title={t.attributes.resolvedBy.title}
-                value={
-                  request.resolvedBy ? (
-                    request.resolvedBy.name
-                  ) : (
-                    <em>{t.attributes.resolvedBy.notResolved}</em>
-                  )
-                }
-              />
-            </Row>
-            {request.message ? (
-              <Field
-                title={t.attributes.message.title}
-                value={
-                  <UnrenderedMarkdown>{request.message}</UnrenderedMarkdown>
-                }
-              />
-            ) : null}
-            {request.resolvedMessage ? (
-              <Field
-                title={t.attributes.resolvedMessage.title}
-                value={
-                  <UnrenderedMarkdown>
-                    {request.resolvedMessage}
-                  </UnrenderedMarkdown>
-                }
-              />
-            ) : null}
-            {request.larp ? (
-              <Field
-                title={t.attributes.larp.title}
-                value={
-                  <Link
-                    href={getLarpHref(request.larp)}
-                    className="link-subtle"
-                  >
-                    {typesetDashes(request.larp.name)}
-                  </Link>
-                }
-              />
-            ) : null}
-          </CardBody>
-        </Card>
-
-        <ModerationRequestChanges
-          action={request.action}
-          oldContent={oldContent}
-          changes={changes}
-          showOldValues={showOldValues}
-          larpT={larpT}
-          changesT={t.changes}
-          locale={locale}
-          municipalityNames={municipalityNames}
-        />
-
-        {rolesBeingAdded.length > 0 ? (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.changes.rolesAdded}</CardTitle>
-              <dl>
-                {rolesBeingAdded.map((role) => (
-                  <Fragment key={role}>
-                    <dt>{larpT.clientAttributes.role.choices[role]}</dt>
-                    <dd>{request.submitterName}</dd>
-                  </Fragment>
-                ))}
-              </dl>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {addLinks.length > 0 ? (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.attributes.addLinks.title}</CardTitle>
-              <dl>
-                {addLinks.map((link) => (
-                  <Fragment key={JSON.stringify(link)}>
-                    <dt>{larpT.attributes.links.types[link.type].title}</dt>
-                    <dd>
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="link-subtle"
-                      >
-                        {link.href}
-                      </a>
-                      {link.title && <> — {link.title}</>}
-                    </dd>
-                  </Fragment>
-                ))}
-              </dl>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {removeLinks.length > 0 ? (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.attributes.removeLinks.title}</CardTitle>
-              <dl>
-                {removeLinks.map((link) => (
-                  <Fragment key={JSON.stringify(link)}>
-                    <dt>{larpT.attributes.links.types[link.type].title}</dt>
-                    <dd>
-                      {link.href}
-                      {link.title && <> — {link.title}</>}
-                    </dd>
-                  </Fragment>
-                ))}
-              </dl>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {(
-          [
-            [addTags, translations.Tag.moderation.tagsAdded],
-            [removeTags, translations.Tag.moderation.tagsRemoved],
-          ] as const
-        ).map(([tagIds, title]) =>
-          tagIds.length > 0 ? (
-            <Card className="mb-4" key={title}>
-              <CardBody>
-                <CardTitle>{title}</CardTitle>
-                <ul className="mb-0">
-                  {tagIds.map((tagId) => {
-                    const tag = tagById.get(tagId);
-                    return (
-                      <li key={tagId}>
-                        {tag ? (
-                          <Link href={`/tag/${tag.slug}`}>
-                            {tagName(tag, locale)}
-                          </Link>
-                        ) : (
-                          <em className="text-muted">
-                            {translations.Tag.moderation.deletedTag}
-                          </em>
-                        )}
-                      </li>
+              </dd>
+            </dl>
+            <p className="lf-help mb-0">
+              {request.submitterId
+                ? detailT.submitter.signedIn
+                : detailT.submitter.notSignedIn}
+            </p>
+            <div>
+              <h3 className="lf-label mb-2">{detailT.submitter.history}</h3>
+              {Object.keys(submitterHistory).length === 0 ? (
+                <p className="lf-help mb-0">{detailT.submitter.noHistory}</p>
+              ) : (
+                <div className="lf-tags">
+                  {Object.values(EditStatus).flatMap((status) => {
+                    const count = submitterHistory[status];
+                    return count ? (
+                      <span key={status} className="lf-mod-history">
+                        <StatusPill status={status} messages={t} />
+                        <span className="lf-data">{count}</span>
+                      </span>
+                    ) : (
+                      []
                     );
                   })}
-                </ul>
-              </CardBody>
-            </Card>
-          ) : null,
-        )}
+                </div>
+              )}
+            </div>
+          </section>
 
-        {addRelatedLarps.length > 0 ? (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.attributes.addRelatedLarps.title}</CardTitle>
-              <dl>
-                {addRelatedLarps.map((rel) => {
-                  const otherLarp =
-                    larpById[
-                      rel.leftId === request.larpId ? rel.rightId : rel.leftId
-                    ];
-                  const typeLabel =
-                    rel.leftId === request.larpId
-                      ? larpT.attributes.leftRelatedLarps.types[rel.type]
-                      : larpT.attributes.rightRelatedLarps.types[rel.type];
-                  return (
-                    <Fragment key={JSON.stringify(rel)}>
-                      <dt>{typeLabel || rel.type}</dt>
-                      <dd>
-                        {otherLarp ? (
-                          <Link
-                            href={getLarpHref(otherLarp)}
-                            className="link-subtle"
-                          >
-                            {typesetDashes(otherLarp.name)}
-                          </Link>
-                        ) : rel.leftId === request.larpId ? (
-                          rel.rightId
-                        ) : (
-                          rel.leftId
+          {larpRequests.length > 1 && (
+            <section aria-labelledby="ModerationRequestPage-larpRequests">
+              <h2
+                id="ModerationRequestPage-larpRequests"
+                className="lf-label lf-sidebar-heading"
+              >
+                {detailT.larpRequests.title}
+              </h2>
+              <ul className="lf-mod-larp-requests">
+                {larpRequests.map((other) => (
+                  <li key={other.id}>
+                    <Link
+                      href={`/moderate/${other.id}`}
+                      aria-current={
+                        other.id === request.id ? "page" : undefined
+                      }
+                    >
+                      <StatusPill status={other.status} messages={t} />
+                      <span>
+                        {t.actionLabels[other.action]} · {other.submitterName}
+                        {other.id === request.id && (
+                          <span className="lf-dim">
+                            {" "}
+                            ({detailT.larpRequests.current})
+                          </span>
                         )}
-                      </dd>
-                    </Fragment>
-                  );
-                })}
-              </dl>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {removeRelatedLarps.length > 0 ? (
-          <Card className="mb-4">
-            <CardBody>
-              <CardTitle>{t.attributes.removeRelatedLarps.title}</CardTitle>
-              <dl>
-                {removeRelatedLarps.map((rel) => {
-                  const otherLarp =
-                    larpById[
-                      rel.leftId === request.larpId ? rel.rightId : rel.leftId
-                    ];
-                  const typeLabel =
-                    rel.leftId === request.larpId
-                      ? larpT.attributes.leftRelatedLarps.types[rel.type]
-                      : larpT.attributes.rightRelatedLarps.types[rel.type];
-                  return (
-                    <Fragment key={JSON.stringify(rel)}>
-                      <dt>{typeLabel || rel.type}</dt>
-                      <dd>
-                        {otherLarp ? (
-                          <Link
-                            href={getLarpHref(otherLarp)}
-                            className="link-subtle"
-                          >
-                            {typesetDashes(otherLarp.name)}
-                          </Link>
-                        ) : rel.leftId === request.larpId ? (
-                          rel.rightId
-                        ) : (
-                          rel.leftId
-                        )}
-                      </dd>
-                    </Fragment>
-                  );
-                })}
-              </dl>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {request.action === EditAction.DELETE &&
-        getDeleteLarpInitialStatusForUser(user) !== EditStatus.APPROVED ? (
-          <Card className="mb-5">
-            <CardBody>
-              <CardText>{t.actions.deleteAdminOnly}</CardText>
-            </CardBody>
-          </Card>
-        ) : request.status === EditStatus.VERIFIED ? (
-          <Card className="mb-5">
-            <CardBody>
-              <CardTitle>{t.actions.resolve.title}</CardTitle>
-              <Form action={resolveRequest.bind(null, locale, requestId)}>
-                <FormLabel>
-                  {t.actions.resolve.attributes.resolution.title}*
-                </FormLabel>
-                <Row>
-                  {Object.entries(
-                    t.actions.resolve.attributes.resolution.choices,
-                  ).map(([resolution, { title, description, already }]) => (
-                    <div className="col-md-6" key={resolution}>
-                      <Card className="mb-3">
-                        <CardBody>
-                          <FormCheck
-                            type="radio"
-                            name="resolution"
-                            id={`ModerationRequestPage-resolution-${resolution}`}
-                            value={resolution}
-                            label={title}
-                            className="fw-bold"
-                            disabled={request.status === resolution}
-                            required
-                          />
-                          <CardText className="mt-2">
-                            {request.status === resolution ? (
-                              <span className="text-muted">{already}</span>
-                            ) : (
-                              description
-                            )}
-                          </CardText>
-                        </CardBody>
-                      </Card>
-                    </div>
-                  ))}
-                </Row>
-                <FormLabel htmlFor="ModerationRequestPage-reason">
-                  {t.attributes.resolvedMessage.label}
-                </FormLabel>
-                <FormControl
-                  as={"textarea"}
-                  rows={5}
-                  id="ModerationRequestPage-reason"
-                  name="reason"
-                />
-                <FormText>{t.attributes.resolvedMessage.helpText}</FormText>
-                <SubmitButton className="d-block w-100 mt-4 btn btn-primary btn-lg">
-                  {t.actions.resolve.submit}
-                </SubmitButton>
-              </Form>
-            </CardBody>
-          </Card>
-        ) : null}
-
-        {request.status === EditStatus.AUTO_APPROVED ? (
-          <Card className="mb-5">
-            <CardBody>
-              <CardTitle>{t.actions.markChecked.title}</CardTitle>
-              {t.actions.markChecked.description}
-              <Form action={markChecked.bind(null, locale, requestId)}>
-                <FormLabel htmlFor="ModerationRequestPage-reason">
-                  {t.attributes.resolvedMessage.label}
-                </FormLabel>
-                <FormControl
-                  as={"textarea"}
-                  rows={5}
-                  id="ModerationRequestPage-reason"
-                  name="reason"
-                />
-                <FormText>{t.attributes.resolvedMessage.helpText}</FormText>
-                <SubmitButton className="d-block w-100 mt-4 btn btn-primary btn-lg">
-                  {t.actions.markChecked.submit}
-                </SubmitButton>
-              </Form>
-            </CardBody>
-          </Card>
-        ) : null}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </aside>
       </div>
     </div>
   );

@@ -1277,17 +1277,173 @@ const translations: Translations = {
   ModerationRequest: {
     listTitle: "Moderointipyynnöt",
     singleTitle: "Moderointipyyntö",
-    tableFooter: (count: number, totalCount: number) => (
-      <>
-        Näytetään {count} pyyntö{count === 1 ? "" : "ä"} (yhteensä {totalCount}
-        ).
-      </>
-    ),
+    eyebrow: "Moderaattori",
+    tabs: {
+      label: "Moderointipyynnöt",
+      open: "Avoimet",
+      resolved: "Käsitellyt",
+      all: "Kaikki",
+    },
+    resolvedTitle: "Käsitellyt pyynnöt",
+    allTitle: "Kaikki pyynnöt",
+    actionLabels: {
+      CREATE: "Uusi larppi",
+      UPDATE: "Muokkaus",
+      CLAIM: "Omistajuus",
+      DELETE: "Poisto",
+      MERGE: "Yhdistäminen",
+    },
+    queue: {
+      lede: (decisions: number, checks: number) =>
+        decisions + checks === 0
+          ? "Mikään ei odota moderaattoria."
+          : `${decisions} ${decisions === 1 ? "pyyntö odottaa" : "pyyntöä odottaa"} päätöstä ja ${checks} ${checks === 1 ? "muokkaus on" : "muokkausta on"} jo sivustolla tarkistusta odottamassa.`,
+      pendingVerification: (count: number) =>
+        `Lisäksi ${count} ${count === 1 ? "pyyntö odottaa" : "pyyntöä odottaa"}, että lähettäjä vahvistaa sähköpostiosoitteensa.`,
+      sections: {
+        VERIFIED: {
+          title: "Odottaa päätöstä",
+          description:
+            "Nämä eivät näy sivustolla ennen kuin moderaattori hyväksyy ne. Vanhimmat ensin.",
+          empty: "Mikään ei odota päätöstä.",
+          button: "Käsittele",
+        },
+        AUTO_APPROVED: {
+          title: "Sivustolla, odottaa tarkistusta",
+          description:
+            "Nämä menivät sivustolle heti, koska lähettäjään luotetaan. Tarkista, että ne näyttävät oikeilta. Vanhimmat ensin.",
+          empty: "Mikään ei odota tarkistusta.",
+          button: "Tarkista",
+        },
+      },
+      age: (days: number) => (days === 0 ? "tänään" : `${days} pv`),
+      signedIn: "kirjautunut",
+      notSignedIn: "ei kirjautunut",
+      olderOpen: "Tästä larpista on avoinna vanhempi pyyntö.",
+      recentlyResolved: "Äskettäin käsitellyt",
+      allResolved: "Kaikki käsitellyt pyynnöt",
+    },
+    chips: {
+      fields: (count: number) =>
+        `${count} ${count === 1 ? "kenttä" : "kenttää"}`,
+      role: "lisää roolin",
+      linksAdded: (count: number) =>
+        `+${count} ${count === 1 ? "linkki" : "linkkiä"}`,
+      linksRemoved: (count: number) =>
+        `−${count} ${count === 1 ? "linkki" : "linkkiä"}`,
+      tagsAdded: (count: number) =>
+        `+${count} ${count === 1 ? "tägi" : "tägiä"}`,
+      tagsRemoved: (count: number) =>
+        `−${count} ${count === 1 ? "tägi" : "tägiä"}`,
+      relationsAdded: (count: number) =>
+        `+${count} ${count === 1 ? "liittyvä larppi" : "liittyvää larppia"}`,
+      relationsRemoved: (count: number) =>
+        `−${count} ${count === 1 ? "liittyvä larppi" : "liittyvää larppia"}`,
+      marksCancelled: "merkitsee larpin perutuksi",
+      noChanges: "ei muutoksia",
+    },
+    list: {
+      outcome: "Ratkaisu",
+      status: "Tila",
+      action: "Pyyntö",
+      any: "Kaikki",
+      count: (count: number) =>
+        `${count} ${count === 1 ? "pyyntö" : "pyyntöä"}`,
+      by: (name: string) => `käsitteli ${name}`,
+      empty: "Näillä rajauksilla ei löydy pyyntöjä.",
+      pagination: {
+        title: "Sivut",
+        previous: "Uudemmat",
+        next: "Vanhemmat",
+      },
+    },
+    detail: {
+      back: "Moderointijono",
+      position: (position: number, total: number) => `${position} / ${total}`,
+      previous: "Edellinen",
+      next: "Seuraava",
+      titles: {
+        CREATE: (name: string) => `Uusi larppi ${name}`,
+        UPDATE: (name: string) => `Muokkaus: ${name}`,
+        CLAIM: (name: string) => `Omistajuus: ${name}`,
+        DELETE: (name: string) => `Poisto: ${name}`,
+        MERGE: (name: string) => `Yhdistäminen: ${name}`,
+      },
+      unknownLarp: "tuntematon larppi",
+      openLarp: "Avaa larpin sivu",
+      handled: (status: string, name: string) => `${status}: ${name}`,
+      openHandledLarp: "avaa sivu",
+      sections: {
+        message: "Lähettäjän viesti",
+        details: "Larpin tiedot",
+        role: "Rooli",
+        links: "Linkit",
+        tags: "Tägit",
+        related: "Liittyvät larpit",
+        notApplied: "Ei toteutettu",
+      },
+      notAppliedHelp:
+        "Moderaattori jätti nämä pois hyväksyessään muun osan pyynnöstä.",
+      columns: {
+        now: "Nyt",
+        afterApproval: "Hyväksynnän jälkeen",
+        beforeEdit: "Ennen muokkausta",
+        liveNow: "Sivustolla nyt",
+        before: "Ennen",
+        after: "Jälkeen",
+      },
+      leftEmpty: "Jätetty tyhjäksi:",
+      addLink: "Lisää",
+      removeLink: "Poista",
+      addTag: "Lisää",
+      removeTag: "Poista",
+      addRelation: "Lisää",
+      removeRelation: "Poista",
+      becomes: (name: string, role: string) => `${name}: ${role}`,
+      alreadyHasRole: "Hänellä on jo tämä rooli.",
+      decision: {
+        title: "Päätös",
+        changes: (count: number) =>
+          `${count} ${count === 1 ? "ehdotettu muutos" : "ehdotettua muutosta"}`,
+        approveAll: "Hyväksy kaikki {count} muutosta",
+        approveSome: "Hyväksy {count}/{total} muutosta",
+        approve: "Hyväksy",
+        approveCreate: "Hyväksy ja luo larppi",
+        approveDelete: "Hyväksy ja poista",
+        reject: "Hylkää",
+        untickHelp:
+          "Poista rasti muutoksesta jättääksesi sen pois. Muut muutokset toteutetaan, ja pois jätetyt jäävät näkyviin pyyntöön.",
+      },
+      check: {
+        title: "Tarkistus",
+        description:
+          "Tämä muokkaus meni sivustolle ilman moderaattoria, koska lähettäjään luotetaan. Tarkista larpin sivu ja merkitse muokkaus tarkistetuksi, tai korjaa korjattava suoraan sivulla.",
+        submit: "Näyttää hyvältä, merkitse tarkistetuksi",
+        fix: "Korjaa sivulla",
+      },
+      pendingVerification:
+        "Lähettäjä ei ole vielä vahvistanut sähköpostiosoitettaan. Pyynnöstä voi päättää, kun hän on vahvistanut sen.",
+      outcome: {
+        title: "Ratkaisu",
+        resolvedBy: "Käsittelijä",
+        resolvedAt: "Käsitelty",
+        reason: "Perustelu",
+        notResolved: "Ei käsitelty",
+      },
+      submitter: {
+        title: "Lähettäjä",
+        signedIn: "Oli kirjautunut lähettäessään",
+        notSignedIn: "Ei ollut kirjautunut lähettäessään",
+        history: "Muut pyynnöt",
+        noHistory: "Ei muita pyyntöjä.",
+      },
+      larpRequests: {
+        title: "Tämän larpin pyynnöt",
+        current: "tämä pyyntö",
+      },
+    },
     changes: {
-      title: "Muutokset",
-      createTitle: "Uusi larppi",
       noChanges: "Ei muutoksia larpin tietoihin.",
-      rolesAdded: "Lisättävät roolit",
       boolean: {
         true: "Kyllä",
         false: "Ei",
@@ -1303,26 +1459,6 @@ const translations: Translations = {
     attributes: {
       createdAt: {
         title: "Pyynnön ajankohta",
-      },
-      action: {
-        title: "Pyydetty muokkaus",
-        choices: {
-          CREATE: {
-            title: "Uusi sivu",
-          },
-          UPDATE: {
-            title: "Muokkaus",
-          },
-          CLAIM: {
-            title: "Haltuunotto",
-          },
-          DELETE: {
-            title: "Sivun poistaminen",
-          },
-          MERGE: {
-            title: "Sivujen yhdistäminen",
-          },
-        },
       },
       name: {
         title: "Larpin nimi",
@@ -1399,10 +1535,6 @@ const translations: Translations = {
           },
         },
       },
-      resolvedBy: {
-        title: "Pyynnön käsittelijä",
-        notResolved: "Ei vielä käsitelty",
-      },
       isResolved: {
         title: "Pyynnön tila",
         choices: {
@@ -1421,7 +1553,6 @@ const translations: Translations = {
           "On täysin okei jättää tämä kenttä tyhjäksi, jos sinulla ei ole lisättävää.",
       },
       resolvedMessage: {
-        title: "Käsittelijän viesti",
         label: "Käsittelijän viesti",
         helpText: (
           <>
@@ -1432,68 +1563,9 @@ const translations: Translations = {
           </>
         ),
       },
-      larp: {
-        title: "Larppi jota pyyntö koskee",
-      },
-      addLinks: {
-        title: "Lisätyt linkit",
-      },
-      removeLinks: {
-        title: "Poistetut linkit",
-      },
-      addRelatedLarps: {
-        title: "Lisätyt suhteet",
-      },
-      removeRelatedLarps: {
-        title: "Poistetut suhteet",
-      },
     },
     actions: {
-      showAll: {
-        title: "Näytä myös käsitellyt pyynnöt",
-        active: "Näytetään myös käsitellyt pyynnöt.",
-      },
       deleteAdminOnly: "Vain ylläpitäjä voi hyväksyä poistopyyntöjä.",
-      resolve: {
-        title: "Käsittele pyyntö",
-        submit: "Käsittele pyyntö",
-        attributes: {
-          resolution: {
-            title: "Ratkaisu",
-            choices: {
-              APPROVED: {
-                title: "Hyväksy pyyntö",
-                description: "Pyydetty muutos toteutetaan.",
-                already: "Tämä pyyntö on jo hyväksytty.",
-              },
-              REJECTED: {
-                title: "Hylkää pyyntö",
-                description: "Pyydettyä muutosta ei toteuteta.",
-                already: "Tämä pyyntö on jo hylätty.",
-              },
-            },
-          },
-        },
-      },
-      markChecked: {
-        title: "Merkitse automaattisesti hyväksytty pyyntö tarkistetuksi",
-        submit: "Merkitse tarkistetuksi",
-        description: (
-          <>
-            <p>
-              Tämä pyyntö hyväksyttiin automaattisesti, koska lähettäjä oli
-              aiemmin luonut larpin joka hyväksyttiin. Tällöin saman lähettäjän
-              myöhemmät larpit hyväksytään automaattisesti, mutta ne merkitään
-              jälkikäteen tarkistettavaksi.
-            </p>
-            <p>
-              Kun olet tarkistanut larpin sivun, merkitse tämä pyyntö
-              tarkistetuksi. Jos sisällössä on ongelmia, korjaa ne muokkaamalla
-              suoraan larpin sivua.
-            </p>
-          </>
-        ),
-      },
     },
     messages: {
       approvedAutomaticallyBecauseUserIs: (role: UserRole) => {
@@ -1884,8 +1956,6 @@ const translations: Translations = {
       larpCount: "{count} larppia",
     },
     moderation: {
-      tagsAdded: "Lisätyt tägit",
-      tagsRemoved: "Poistetut tägit",
       deletedTag: "Poistettu tägi",
     },
     stats: {

@@ -1,165 +1,165 @@
-import { auth } from "@/auth";
-import {
-  AccessDeniedPage,
-  LoginRequiredPage,
-  gateActions,
-} from "@/components/GatePage";
-import { EditAction, EditStatus } from "@/prisma/enums";
-import { Column, DataTable, TableFooter } from "@con2/components";
-import { FormattedDateTime } from "@/components/FormattedDates";
-import { uuid7ToZonedDateTime } from "@con2/components/helpers";
-import { ModerationRequestContent } from "@/models/ModerationRequest";
-import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
-import { parseDates } from "@/prisma/dates";
-import { db } from "@/prisma/db";
-import { getTranslations } from "@/translations";
 import Link from "next/link";
+
+import CompactRow from "@/components/ui/CompactRow";
+import ModerationQueueRow from "@/components/moderation/ModerationQueueRow";
+import { requestCreatedAt } from "@/components/moderation/requestDisplay";
+import { formatShortDateRange } from "@/helpers/dates";
 import { typesetDashes } from "@/helpers/larpName";
+import {
+  countPendingVerification,
+  getOpenRequests,
+  getRecentlyResolved,
+  isOpenStatus,
+  openStatuses,
+} from "@/models/ModerationQueue";
+import { EditStatus } from "@/prisma/enums";
+import { getTranslations } from "@/translations";
+
+import HandledNotice from "./HandledNotice";
+import ModerationTabs from "./ModerationTabs";
+import { requireModerator } from "./requireModerator";
 
 interface Props {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ status?: string[] }>;
+  searchParams: Promise<{ handled?: string }>;
 }
 
-const defaultStatuses = [EditStatus.VERIFIED, EditStatus.AUTO_APPROVED];
+const recentlyResolvedCount = 5;
 
-export default async function ModerationPage({ params, searchParams }: Props) {
+export default async function ModerationQueuePage({
+  params,
+  searchParams,
+}: Props) {
   const { locale } = await params;
+  const { handled } = await searchParams;
   const translations = getTranslations(locale);
-  const gate = gateActions(translations);
   const t = translations.ModerationRequest;
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    return (
-      <LoginRequiredPage
-        messages={translations.LoginRequired}
-        actions={[gate.frontPage]}
-      />
-    );
-  }
+  const moderator = await requireModerator(translations);
+  if (!moderator.ok) return moderator.gate;
+  const { user } = moderator;
 
-  const user = await db.orm.public.User.select("id", "role").first({
-    id: session.user.id,
-  });
-  if (!canModerate(user)) {
-    return (
-      <AccessDeniedPage
-        messages={translations.ModeratorRequired}
-        actions={[gate.frontPage, gate.contact]}
-      />
-    );
-  }
-
-  let { status: statuses } = await searchParams;
-  if (typeof statuses === "string") {
-    statuses = [statuses];
-  }
-  if (!statuses || statuses.length === 0) {
-    statuses = defaultStatuses;
-  }
-  if (statuses.includes("ALL")) {
-    statuses = Object.values(EditStatus);
-  }
-  statuses = statuses.filter(
-    (status) => EditStatus[status as keyof typeof EditStatus],
-  );
-
-  const isShowingAll = Object.values(EditStatus).every((status) =>
-    statuses.includes(status),
-  );
-
-  const canModerateDeleteRequests =
-    getDeleteLarpInitialStatusForUser(user) === EditStatus.APPROVED;
-
-  const selectedStatuses = statuses as EditStatus[];
-  let requestQuery = db.orm.public.ModerationRequest.where((r) =>
-    r.status.in(selectedStatuses),
-  );
-  if (!canModerateDeleteRequests) {
-    requestQuery = requestQuery.where((r) => r.action.neq(EditAction.DELETE));
-  }
-  const [requestRows, totalCount] = await Promise.all([
-    requestQuery
-      .include("resolvedBy", (u) => u.select("id", "name"))
-      .include("larp", (l) => l.select("id", "name"))
-      .orderBy((r) => r.id.desc())
-      .all(),
-    db.orm.public.ModerationRequest.aggregate((a) => ({
-      count: a.count(),
-    })).then((r) => r.count),
+  const [requests, pendingVerification, recentlyResolved] = await Promise.all([
+    getOpenRequests(user),
+    countPendingVerification(user),
+    getRecentlyResolved(user, recentlyResolvedCount),
   ]);
-  const requests = parseDates(requestRows);
+  const now = new Date();
 
-  const columns: Column<(typeof requests)[number]>[] = [
-    {
-      slug: "createdAt",
-      title: t.attributes.createdAt.title,
-      getCellContents: (row) => (
-        <FormattedDateTime
-          value={uuid7ToZonedDateTime(row.id)}
-          locale={locale}
-        />
-      ),
-    },
-    {
-      slug: "action",
-      title: t.attributes.action.title,
-      getCellContents: (row) => t.attributes.action.choices[row.action].title,
-    },
-    {
-      slug: "name",
-      title: t.attributes.name.title,
-      getCellContents: (row) =>
-        typesetDashes(
-          row.larp?.name ||
-            (row.newContent as ModerationRequestContent).name ||
-            "",
-        ) || <em>{t.attributes.name.unknown}</em>,
-    },
-    {
-      slug: "submitterName",
-      title: t.attributes.submitterName.title,
-    },
-    {
-      slug: "status",
-      title: t.attributes.status.title,
-      getCellContents: (row) => (
-        <>
-          <div className="small">
-            {t.attributes.status.choices[row.status].title}{" "}
-            {<FormattedDateTime value={row.resolvedAt} locale={locale} />}
-          </div>
-        </>
-      ),
-    },
-  ];
+  const oldestOpenByLarp = new Map<string, string>();
+  for (const request of requests) {
+    if (request.larpId && !oldestOpenByLarp.has(request.larpId)) {
+      oldestOpenByLarp.set(request.larpId, request.id);
+    }
+  }
+
+  const sections = openStatuses.map((status) => ({
+    status,
+    requests: requests.flatMap((request) =>
+      request.status === status && isOpenStatus(request.status)
+        ? [{ ...request, status }]
+        : [],
+    ),
+  }));
+  const [decisions, checks] = sections.map(
+    (section) => section.requests.length,
+  );
 
   return (
     <div className="lf-container">
-      <header className="lf-page-header">
-        <h1 className="lf-display-l">{t.listTitle}</h1>
-        {isShowingAll ? (
-          <p className="lf-muted mb-0">{t.actions.showAll.active}</p>
-        ) : (
-          <p className="mb-0">
-            <Link className="lf-link-quiet" href="/moderate?status=ALL">
-              {t.actions.showAll.title} →
+      <ModerationTabs
+        current="open"
+        title={t.listTitle}
+        openCount={decisions + checks}
+        messages={t}
+        lede={<p className="lf-lede">{t.queue.lede(decisions, checks)}</p>}
+      >
+        {pendingVerification > 0 && (
+          <p className="lf-muted small mb-0">
+            <Link
+              href={`/moderate/all?status=${EditStatus.PENDING_VERIFICATION}`}
+              className="lf-link-quiet"
+            >
+              {t.queue.pendingVerification(pendingVerification)}
             </Link>
           </p>
         )}
-      </header>
-      <div className="py-5 table-responsive">
-        <DataTable
-          className="table table-hover"
-          columns={columns}
-          rows={requests}
-          getRowHref={(row) => `/moderate/${row.id}`}
-        >
-          <TableFooter colSpan={columns.length}>
-            {t.tableFooter(requests.length, totalCount)}
-          </TableFooter>
-        </DataTable>
+      </ModerationTabs>
+
+      <div className="lf-main-aside">
+        <div>
+          <HandledNotice requestId={handled} messages={t} />
+          {sections.map(({ status, requests }) => {
+            const sectionT = t.queue.sections[status];
+            const headingId = `ModerationQueue-${status}`;
+            return (
+              <section
+                key={status}
+                className={`lf-section lf-mod-queue lf-mod-queue--${status === EditStatus.VERIFIED ? "decision" : "check"}`}
+                aria-labelledby={headingId}
+              >
+                <div className="lf-section-heading">
+                  <h2 className="lf-heading" id={headingId}>
+                    {sectionT.title}{" "}
+                    <span className="lf-count">{requests.length}</span>
+                  </h2>
+                </div>
+                <p className="lf-help mt-2 mb-0">{sectionT.description}</p>
+                {requests.length === 0 ? (
+                  <p className="lf-empty mt-3">{sectionT.empty}</p>
+                ) : (
+                  requests.map((request) => (
+                    <ModerationQueueRow
+                      key={request.id}
+                      request={request}
+                      hasOlderOpen={
+                        !!request.larpId &&
+                        oldestOpenByLarp.get(request.larpId) !== request.id
+                      }
+                      now={now}
+                      locale={locale}
+                      messages={t}
+                      larpMessages={translations.Larp}
+                    />
+                  ))
+                )}
+              </section>
+            );
+          })}
+        </div>
+
+        <aside>
+          <section aria-labelledby="ModerationQueue-recentlyResolved">
+            <h2
+              id="ModerationQueue-recentlyResolved"
+              className="lf-label lf-sidebar-heading"
+            >
+              {t.queue.recentlyResolved}
+            </h2>
+            <div className="lf-compact-list">
+              {recentlyResolved.map((request) => (
+                <CompactRow
+                  key={request.id}
+                  href={`/moderate/${request.id}`}
+                  date={formatShortDateRange(
+                    request.resolvedAt ?? requestCreatedAt(request.id),
+                    null,
+                    locale,
+                  )}
+                  name={
+                    request.name
+                      ? typesetDashes(request.name)
+                      : t.attributes.name.unknown
+                  }
+                  sub={`${t.attributes.status.choices[request.status].title} · ${t.actionLabels[request.action]}`}
+                />
+              ))}
+            </div>
+            <Link href="/moderate/resolved" className="lf-more-link d-block">
+              {t.queue.allResolved} →
+            </Link>
+          </section>
+        </aside>
       </div>
     </div>
   );

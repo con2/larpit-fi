@@ -1,55 +1,35 @@
-import { EditAction } from "@/prisma/enums";
-import { FormattedDate } from "@/components/FormattedDates";
-import type { ModerationRequestContent } from "@/models/ModerationRequest";
-import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
 import { diffWords } from "diff";
-import { Card, CardBody, CardTitle } from "react-bootstrap";
+import type { ReactNode } from "react";
 
-type FieldKind =
-  | "text"
-  | "multiline"
-  | "enum"
-  | "date"
-  | "number"
-  | "boolean"
-  | "municipality";
-
-/// Display order and rendering kind of the larp content fields shown in a diff.
-const FIELDS: { key: keyof ModerationRequestContent; kind: FieldKind }[] = [
-  { key: "name", kind: "text" },
-  { key: "tagline", kind: "text" },
-  { key: "type", kind: "enum" },
-  { key: "language", kind: "enum" },
-  { key: "openness", kind: "enum" },
-  { key: "isCancelled", kind: "boolean" },
-  { key: "locationText", kind: "text" },
-  { key: "municipality", kind: "municipality" },
-  { key: "numPlayerCharacters", kind: "number" },
-  { key: "numTotalParticipants", kind: "number" },
-  { key: "startsAt", kind: "date" },
-  { key: "endsAt", kind: "date" },
-  { key: "signupStartsAt", kind: "date" },
-  { key: "signupEndsAt", kind: "date" },
-  { key: "fluffText", kind: "multiline" },
-  { key: "description", kind: "multiline" },
-];
+import { FormattedDate } from "@/components/FormattedDates";
+import { Separated } from "@/components/moderation/requestDisplay";
+import { selectionInputName } from "@/components/moderation/selection";
+import {
+  type ContentFieldKind,
+  contentFields,
+  shownContentFields,
+} from "@/models/ModerationQueue";
+import type { ModerationRequestContent } from "@/models/ModerationRequest";
+import { EditAction } from "@/prisma/enums";
+import type { Translations } from "@/translations/en";
 
 interface Props {
   action: EditAction;
-  /// Pre-edit content of the larp, used only when showOldValues is true.
-  oldContent: ModerationRequestContent | null;
-  /// The changed (UPDATE) or non-empty (CREATE) fields to display.
+  /** The values the request sets: changed fields for an edit, filled-in fields for a new larp. */
   changes: Partial<ModerationRequestContent>;
-  /// Whether to show old → new. Only meaningful while the edit has not been
-  /// applied yet (the larp still represents the pre-edit baseline). For already
-  /// resolved/applied requests the larp has since changed, so we just show the
-  /// values the request set, without a stale "old" column.
-  showOldValues: boolean;
+  /**
+   * The values the changed fields had before, or null to show the request's values alone,
+   * as for a new larp or an edit applied before pre-edit values were kept.
+   */
+  before: Partial<ModerationRequestContent> | null;
+  columns: { before: string; after: string };
+  /** The form whose checkboxes select fields for approval, or null for a read-only view. */
+  selectFormId: string | null;
   larpT: Translations["Larp"];
   changesT: Translations["ModerationRequest"]["changes"];
+  detailT: Translations["ModerationRequest"]["detail"];
   locale: string;
-  /// Municipality id -> name, for rendering the municipality field.
   municipalityNames: Record<string, string>;
 }
 
@@ -59,30 +39,31 @@ function isEmptyValue(value: unknown): boolean {
 
 export default function ModerationRequestChanges({
   action,
-  oldContent,
   changes,
-  showOldValues,
+  before,
+  columns,
+  selectFormId,
   larpT,
   changesT,
+  detailT,
   locale,
   municipalityNames,
 }: Props) {
   const isCreate = action === EditAction.CREATE;
+  const fields = shownContentFields(action, changes);
 
-  const Empty = () => (
-    <em className="text-muted">{larpT.attributes.emptyAttribute}</em>
-  );
+  const empty = <em className="lf-dim">{larpT.attributes.emptyAttribute}</em>;
 
   function displayValue(
-    kind: FieldKind,
+    kind: ContentFieldKind,
     key: keyof ModerationRequestContent,
     value: unknown,
-  ) {
+  ): ReactNode {
     if (kind === "boolean") {
       return value ? changesT.boolean.true : changesT.boolean.false;
     }
     if (isEmptyValue(value)) {
-      return <Empty />;
+      return empty;
     }
     switch (kind) {
       case "enum":
@@ -110,7 +91,14 @@ export default function ModerationRequestChanges({
         return String(value);
       case "date":
         return (
-          <FormattedDate locale={locale} date={value as Temporal.PlainDate} />
+          <FormattedDate
+            locale={locale}
+            date={
+              value instanceof Temporal.PlainDate
+                ? value
+                : Temporal.PlainDate.from(String(value))
+            }
+          />
         );
       case "municipality":
         return municipalityNames[value as string] ?? String(value);
@@ -119,101 +107,142 @@ export default function ModerationRequestChanges({
     }
   }
 
-  const changedFields = FIELDS.filter(({ key, kind }) => {
-    if (!(key in changes)) {
-      return false;
-    }
-    // On create, compactObject keeps `false` booleans (it only drops null/"").
-    // Skip them so the "new larp" view shows only meaningful fields.
-    if (isCreate && kind === "boolean" && changes[key] === false) {
-      return false;
-    }
-    return true;
-  });
+  const leftEmpty = isCreate
+    ? contentFields
+        .filter(({ key, kind }) => kind !== "boolean" && !(key in changes))
+        .map(({ key }) => larpT.attributes[key].title)
+    : [];
+
+  if (fields.length === 0) {
+    return <p className="lf-empty">{changesT.noChanges}</p>;
+  }
 
   return (
-    <Card className="mb-4">
-      <CardBody>
-        <CardTitle>
-          {isCreate ? changesT.createTitle : changesT.title}
-        </CardTitle>
+    <div className="lf-mod-changes">
+      {fields.map(({ key, kind }) => {
+        const title = larpT.attributes[key].title;
+        const newValue = changes[key];
+        const hasBefore = before !== null && key in before;
+        const oldValue = hasBefore ? before[key] : undefined;
+        const checkboxId = `ModerationRequestChanges-${key}`;
 
-        {changedFields.length === 0 ? (
-          <p className="text-muted mb-0">{changesT.noChanges}</p>
+        const label = selectFormId ? (
+          <label className="lf-mod-change__label" htmlFor={checkboxId}>
+            <input
+              type="checkbox"
+              className="form-check-input"
+              id={checkboxId}
+              form={selectFormId}
+              name={selectionInputName}
+              value={`fields:${key}`}
+              defaultChecked
+            />
+            {title}
+          </label>
         ) : (
-          changedFields.map(({ key, kind }) => {
-            const newValue = changes[key];
-            const oldValue = oldContent ? oldContent[key] : undefined;
-            const title = larpT.attributes[key].title;
+          <span className="lf-mod-change__label">{title}</span>
+        );
 
-            if (kind === "multiline") {
-              return (
-                <div className="mb-3" key={key}>
-                  <div className="fw-bold">{title}</div>
-                  <div
-                    className="border rounded p-2 font-monospace"
-                    style={{ whiteSpace: "pre-wrap" }}
-                  >
-                    {showOldValues ? (
-                      <TextDiff
-                        oldText={String(oldValue ?? "")}
-                        newText={String(newValue ?? "")}
-                      />
-                    ) : (
-                      String(newValue ?? "")
-                    )}
-                  </div>
+        let values: ReactNode;
+        if (!hasBefore) {
+          values = (
+            <div className="lf-mod-value lf-mod-value--single">
+              {kind === "multiline" ? (
+                <div className="lf-mod-value__text">
+                  {String(newValue ?? "")}
                 </div>
-              );
-            }
-
-            // When not showing old → new (a new larp, or an already
-            // resolved/applied request whose pre-edit baseline is no longer
-            // available), show just the value the request set, in a neutral,
-            // full-width frame like a read-only form field.
-            if (!showOldValues) {
-              return (
-                <div className="mb-3" key={key}>
-                  <div className="fw-bold">{title}</div>
-                  <div className="border rounded px-2 py-1">
-                    {displayValue(kind, key, newValue)}
-                  </div>
-                </div>
-              );
-            }
-
-            const cleared = kind !== "boolean" && isEmptyValue(newValue);
-
-            // Old and new are equal-width and together fill the container.
-            const fillStyle = { flexBasis: 0, minWidth: 0 };
-            return (
-              <div className="mb-3" key={key}>
-                <div className="fw-bold">{title}</div>
-                <div className="d-flex align-items-stretch gap-2">
-                  <div
-                    className="border rounded px-2 py-1 flex-grow-1 text-muted text-decoration-line-through"
-                    style={fillStyle}
-                  >
-                    {displayValue(kind, key, oldValue)}
-                  </div>
-                  <div className="d-flex align-items-center" aria-hidden>
-                    →
-                  </div>
-                  <div
-                    className={`border rounded px-2 py-1 flex-grow-1 ${
-                      cleared ? "border-danger" : "border-success"
-                    }`}
-                    style={fillStyle}
-                  >
-                    {cleared ? <Empty /> : displayValue(kind, key, newValue)}
-                  </div>
-                </div>
+              ) : (
+                displayValue(kind, key, newValue)
+              )}
+            </div>
+          );
+        } else if (kind === "multiline") {
+          values = (
+            <div className="lf-mod-value lf-mod-value--single">
+              <span className="lf-label">
+                {columns.before} → {columns.after}
+              </span>
+              <div className="lf-mod-value__text">
+                <TextDiff
+                  oldText={String(oldValue ?? "")}
+                  newText={String(newValue ?? "")}
+                />
               </div>
-            );
-          })
-        )}
-      </CardBody>
-    </Card>
+            </div>
+          );
+        } else {
+          values = (
+            <div className="lf-mod-values">
+              <div className="lf-mod-value lf-mod-value--before">
+                <span className="lf-label">{columns.before}</span>
+                <div>{displayValue(kind, key, oldValue)}</div>
+              </div>
+              <div className="lf-mod-value lf-mod-value--after">
+                <span className="lf-label">{columns.after}</span>
+                <div>{displayValue(kind, key, newValue)}</div>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="lf-mod-change" key={key}>
+            {label}
+            {values}
+          </div>
+        );
+      })}
+      {leftEmpty.length > 0 && (
+        <p className="lf-help mb-0">
+          {detailT.leftEmpty} <Separated separator=", ">{leftEmpty}</Separated>
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * One change from a list (a link, a tag, a related larp, the role), with a checkbox when the
+ * change can be selected for approval.
+ */
+export function ChangeItem({
+  selectFormId,
+  value,
+  verb,
+  children,
+}: {
+  selectFormId: string | null;
+  /** The checkbox value, such as `addLinks:0`. */
+  value: string;
+  verb?: string;
+  children: ReactNode;
+}) {
+  const id = `ModerationRequestChange-${value.replace(":", "-")}`;
+  const content = (
+    <>
+      {verb && <span className="lf-label lf-mod-item__verb">{verb}</span>}
+      <span className="lf-mod-item__content">{children}</span>
+    </>
+  );
+  return (
+    <li className="lf-mod-item">
+      {selectFormId ? (
+        <label htmlFor={id}>
+          <input
+            type="checkbox"
+            className="form-check-input"
+            id={id}
+            form={selectFormId}
+            name={selectionInputName}
+            value={value}
+            defaultChecked
+          />
+          {content}
+        </label>
+      ) : (
+        content
+      )}
+    </li>
   );
 }
 
@@ -224,19 +253,16 @@ function TextDiff({ oldText, newText }: { oldText: string; newText: string }) {
       {parts.map((part, index) => {
         if (part.added) {
           return (
-            <span key={index} className="bg-success-subtle">
+            <ins key={index} className="lf-mod-diff--added">
               {part.value}
-            </span>
+            </ins>
           );
         }
         if (part.removed) {
           return (
-            <span
-              key={index}
-              className="bg-danger-subtle text-decoration-line-through"
-            >
+            <del key={index} className="lf-mod-diff--removed">
               {part.value}
-            </span>
+            </del>
           );
         }
         return <span key={index}>{part.value}</span>;

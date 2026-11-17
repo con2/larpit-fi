@@ -1,6 +1,11 @@
 "use server";
 
 import { auth } from "@/auth";
+import {
+  parseApprovalSelection,
+  selectionInputName,
+} from "@/components/moderation/selection";
+import { getQueueNeighbours } from "@/models/ModerationQueue";
 import { EditAction, EditStatus } from "@/prisma/enums";
 import {
   approveRequest,
@@ -69,6 +74,15 @@ export async function resolveRequest(
   const resolveRequest = ResolveRequest.parse(
     Object.fromEntries(formData.entries()),
   );
+  const selection =
+    request.action === EditAction.DELETE
+      ? undefined
+      : parseApprovalSelection(
+          formData
+            .getAll(selectionInputName)
+            .filter((v) => typeof v === "string"),
+        );
+  const neighbours = await getQueueNeighbours(actor, request);
 
   console.log("AUDIT", "resolveRequest", {
     actorUserId: actor.id,
@@ -85,20 +99,34 @@ export async function resolveRequest(
         actor,
         resolveRequest.reason || null,
         EditStatus.APPROVED,
+        selection,
       );
-
-      if (request.action === EditAction.DELETE) {
-        return void redirect(`/moderate`);
-      }
-
-      return void redirect(`/larp/${larp.id}`);
+      revalidatePath(`/${locale}/larp/${larp.id}`);
+      break;
 
     case Resolution.REJECTED:
       await rejectRequest(request, actor, resolveRequest.reason || null);
-      revalidatePath(`/${locale}/moderate/${request.id}`);
-      revalidatePath(`/${locale}/moderate`);
-      return void redirect(`/moderate`);
+      break;
   }
+
+  redirectToNext(locale, request.id, neighbours?.afterHandledId ?? null);
+}
+
+/**
+ * Moves on to the next open request of the same kind, or back to the queue when none is left,
+ * saying which request was just handled.
+ */
+function redirectToNext(
+  locale: string,
+  handledId: string,
+  nextId: string | null,
+): never {
+  revalidatePath(`/${locale}/moderate`, "layout");
+  redirect(
+    nextId
+      ? `/moderate/${nextId}?handled=${handledId}`
+      : `/moderate?handled=${handledId}`,
+  );
 }
 
 export async function markChecked(
@@ -137,6 +165,7 @@ export async function markChecked(
   const markChecked = MarkCheckedRequest.parse(
     Object.fromEntries(formData.entries()),
   );
+  const neighbours = await getQueueNeighbours(actor, request);
 
   console.log("AUDIT", "markChecked", {
     actorUserId: actor.id,
@@ -153,5 +182,5 @@ export async function markChecked(
     resolvedMessage: markChecked.reason || null,
   });
 
-  return void redirect(`/larp/${request.larpId}`);
+  redirectToNext(locale, request.id, neighbours?.afterHandledId ?? null);
 }

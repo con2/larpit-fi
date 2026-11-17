@@ -1257,16 +1257,168 @@ const translations = {
   ModerationRequest: {
     listTitle: "Moderation requests",
     singleTitle: "Moderation request",
-    tableFooter: (count: number, totalCount: number) => (
-      <>
-        Showing {count} request{count === 1 ? "" : "s"} (total {totalCount}).
-      </>
-    ),
+    eyebrow: "Moderator",
+    tabs: {
+      label: "Moderation requests",
+      open: "Open",
+      resolved: "Resolved",
+      all: "All",
+    },
+    resolvedTitle: "Resolved requests",
+    allTitle: "All requests",
+    actionLabels: {
+      CREATE: "New larp",
+      UPDATE: "Edit",
+      CLAIM: "Claim",
+      DELETE: "Deletion",
+      MERGE: "Merge",
+    },
+    queue: {
+      lede: (decisions: number, checks: number) =>
+        decisions + checks === 0
+          ? "Nothing is waiting for a moderator."
+          : `${decisions} ${decisions === 1 ? "request is" : "requests are"} waiting for a decision and ${checks} ${checks === 1 ? "edit is" : "edits are"} live waiting for a check.`,
+      pendingVerification: (count: number) =>
+        `${count} more ${count === 1 ? "is" : "are"} waiting for the submitter to verify their e-mail.`,
+      sections: {
+        VERIFIED: {
+          title: "Waiting for a decision",
+          description:
+            "Not on the site until a moderator approves them. Oldest first.",
+          empty: "Nothing is waiting for a decision.",
+          button: "Review",
+        },
+        AUTO_APPROVED: {
+          title: "Live, waiting for a check",
+          description:
+            "Already on the site because the submitter is trusted. Check that they look right. Oldest first.",
+          empty: "Nothing is waiting for a check.",
+          button: "Check",
+        },
+      },
+      age: (days: number) => (days === 0 ? "today" : `${days} d`),
+      signedIn: "signed in",
+      notSignedIn: "not signed in",
+      olderOpen: "An older request for this larp is still open.",
+      recentlyResolved: "Recently resolved",
+      allResolved: "All resolved requests",
+    },
+    chips: {
+      fields: (count: number) => `${count} field${count === 1 ? "" : "s"}`,
+      role: "adds a role",
+      linksAdded: (count: number) => `+${count} link${count === 1 ? "" : "s"}`,
+      linksRemoved: (count: number) =>
+        `−${count} link${count === 1 ? "" : "s"}`,
+      tagsAdded: (count: number) => `+${count} tag${count === 1 ? "" : "s"}`,
+      tagsRemoved: (count: number) => `−${count} tag${count === 1 ? "" : "s"}`,
+      relationsAdded: (count: number) =>
+        `+${count} related larp${count === 1 ? "" : "s"}`,
+      relationsRemoved: (count: number) =>
+        `−${count} related larp${count === 1 ? "" : "s"}`,
+      marksCancelled: "marks the larp cancelled",
+      noChanges: "no changes",
+    },
+    list: {
+      outcome: "Outcome",
+      status: "Status",
+      action: "Request",
+      any: "Any",
+      count: (count: number) => `${count} request${count === 1 ? "" : "s"}`,
+      by: (name: string) => `by ${name}`,
+      empty: "No requests match these filters.",
+      pagination: {
+        title: "Pages",
+        previous: "Newer",
+        next: "Older",
+      },
+    },
+    detail: {
+      back: "Moderation queue",
+      position: (position: number, total: number) => `${position} of ${total}`,
+      previous: "Previous",
+      next: "Next",
+      titles: {
+        CREATE: (name: string) => `New larp ${name}`,
+        UPDATE: (name: string) => `Edit to ${name}`,
+        CLAIM: (name: string) => `Claim of ${name}`,
+        DELETE: (name: string) => `Delete ${name}`,
+        MERGE: (name: string) => `Merge into ${name}`,
+      },
+      unknownLarp: "an unknown larp",
+      openLarp: "Open the larp page",
+      handled: (status: string, name: string) => `${status}: ${name}`,
+      openHandledLarp: "open the page",
+      sections: {
+        message: "Message from the submitter",
+        details: "Larp details",
+        role: "Role",
+        links: "Links",
+        tags: "Tags",
+        related: "Related larps",
+        notApplied: "Not applied",
+      },
+      notAppliedHelp:
+        "The moderator left these out when approving the rest of the request.",
+      columns: {
+        now: "Now",
+        afterApproval: "After approval",
+        beforeEdit: "Before the edit",
+        liveNow: "Live now",
+        before: "Before",
+        after: "After",
+      },
+      leftEmpty: "Left empty:",
+      addLink: "Add",
+      removeLink: "Remove",
+      addTag: "Add",
+      removeTag: "Remove",
+      addRelation: "Add",
+      removeRelation: "Remove",
+      becomes: (name: string, role: string) => `${name} becomes ${role}`,
+      alreadyHasRole: "Already holds this role.",
+      decision: {
+        title: "Decision",
+        changes: (count: number) =>
+          `${count} change${count === 1 ? "" : "s"} proposed`,
+        approveAll: "Approve all {count} changes",
+        approveSome: "Approve {count} of {total} changes",
+        approve: "Approve",
+        approveCreate: "Approve and create the larp",
+        approveDelete: "Approve and delete",
+        reject: "Reject",
+        untickHelp:
+          "Untick a change to leave it out; the rest is applied and the left-out changes are kept on the request.",
+      },
+      check: {
+        title: "Check",
+        description:
+          "This edit went live without a moderator because the submitter is trusted. Check the larp page and mark the edit checked, or fix what needs fixing on the page.",
+        submit: "Looks good, mark checked",
+        fix: "Fix on the page",
+      },
+      pendingVerification:
+        "The submitter has not verified their e-mail address yet. The request can be decided once they do.",
+      outcome: {
+        title: "Outcome",
+        resolvedBy: "Resolved by",
+        resolvedAt: "Resolved at",
+        reason: "Reason",
+        notResolved: "Not resolved",
+      },
+      submitter: {
+        title: "Submitter",
+        signedIn: "Signed in when submitting",
+        notSignedIn: "Not signed in when submitting",
+        history: "Other requests",
+        noHistory: "No other requests.",
+      },
+      larpRequests: {
+        title: "Requests for this larp",
+        current: "this request",
+      },
+    },
     changes: {
-      title: "Changes",
-      createTitle: "New larp",
       noChanges: "No changes to larp fields.",
-      rolesAdded: "Roles added",
       boolean: {
         true: "Yes",
         false: "No",
@@ -1282,26 +1434,6 @@ const translations = {
     attributes: {
       createdAt: {
         title: "Request date",
-      },
-      action: {
-        title: "Request action",
-        choices: {
-          CREATE: {
-            title: "Create page",
-          },
-          UPDATE: {
-            title: "Suggest changes",
-          },
-          CLAIM: {
-            title: "Claim page",
-          },
-          DELETE: {
-            title: "Delete page",
-          },
-          MERGE: {
-            title: "Merge pages",
-          },
-        },
       },
       name: {
         title: "Name of the larp",
@@ -1387,17 +1519,12 @@ const translations = {
           },
         },
       },
-      resolvedBy: {
-        title: "Resolved by",
-        notResolved: "Not resolved",
-      },
       message: {
         title: "Message from submitter",
         label: "Message to the person processing this request",
         helpText: "It's okay to leave this blank if you've nothing to add.",
       },
       resolvedMessage: {
-        title: "Message from resolver",
         label: "Reason",
         helpText: (
           <>
@@ -1408,67 +1535,9 @@ const translations = {
           </>
         ),
       },
-      larp: {
-        title: "Larp subject to the request",
-      },
-      addLinks: {
-        title: "Added links",
-      },
-      removeLinks: {
-        title: "Removed links",
-      },
-      addRelatedLarps: {
-        title: "Added related larps",
-      },
-      removeRelatedLarps: {
-        title: "Removed related larps",
-      },
     },
     actions: {
-      showAll: {
-        title: "Also show resolved requests",
-        active: "Showing all requests (including resolved ones)",
-      },
       deleteAdminOnly: "Only admins can approve deletion requests.",
-      resolve: {
-        title: "Resolve this request",
-        submit: "Resolve request",
-        attributes: {
-          resolution: {
-            title: "Resolution",
-            choices: {
-              APPROVED: {
-                title: "Approve the request",
-                description: "The requested edit will be applied.",
-                already: "This request has already been approved.",
-              },
-              REJECTED: {
-                title: "Reject the request",
-                description: "The requested edit will not be applied.",
-                already: "This request has already been rejected.",
-              },
-            },
-          },
-        },
-      },
-      markChecked: {
-        title: "Mark automatically approved request as checked",
-        submit: "Mark as checked",
-        description: (
-          <>
-            <p>
-              This request was approved automatically, as the submitter had
-              previously submitted a larp that was approved. On such occasions,
-              subsequent larps created by them are flagged for post-moderation.
-            </p>
-            <p>
-              Once you have checked the larp page, please mark this request as
-              checked. If there is a problem with the content, please fix it by
-              editing the larp page.
-            </p>
-          </>
-        ),
-      },
     },
     messages: {
       approvedAutomaticallyBecauseUserIs: (_role: UserRole): string => {
@@ -1851,8 +1920,6 @@ const translations = {
       larpCount: "{count} larps",
     },
     moderation: {
-      tagsAdded: "Tags added",
-      tagsRemoved: "Tags removed",
       deletedTag: "Deleted tag",
     },
     stats: {

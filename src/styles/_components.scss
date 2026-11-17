@@ -1933,3 +1933,306 @@ html[lang="en"] {
     padding-left: 1.2em;
   }
 }
+
+// ---------- moderation ----------
+
+// Ember marks what waits for a moderator's decision, ice what is live and waits for a check.
+
+.lf-mod-header .lf-display-l {
+  font-size: clamp(32px, 5vw, 52px);
+}
+
+.lf-mod-header__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  font-size: 14px;
+}
+
+.lf-mod-header__position {
+  display: inline-flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.lf-mod-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+  margin-top: 8px;
+
+  > a {
+    padding: 6px 0;
+    min-height: 36px;
+    color: var(--larpit-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      color: var(--larpit-text);
+    }
+
+    &[aria-current="page"] {
+      color: var(--larpit-text);
+      border-bottom-color: var(--larpit-aurora);
+    }
+  }
+}
+
+.lf-mod-queue {
+  .lf-section-heading {
+    border-bottom-color: var(--lf-mod-accent);
+  }
+}
+
+.lf-mod-queue--decision {
+  --lf-mod-accent: var(--larpit-ember);
+}
+
+.lf-mod-queue--check {
+  --lf-mod-accent: var(--larpit-ice);
+}
+
+.lf-mod-row__age {
+  flex: 0 0 12ch;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+  color: var(--lf-mod-accent, var(--larpit-muted));
+
+  @media (max-width: $lf-phone) {
+    flex-basis: 100%;
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
+.lf-mod-warning {
+  font-size: 14px;
+  color: var(--larpit-ember-on-tint);
+  background: var(--larpit-ember-tint);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 6px;
+}
+
+.lf-mod-section {
+  gap: 12px;
+  scroll-margin-top: 24px;
+}
+
+.lf-mod-section__title {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--larpit-hairline);
+}
+
+.lf-mod-message {
+  margin: 0;
+  padding: 4px 0 4px 16px;
+  border-left: 3px solid var(--larpit-aurora);
+  color: var(--larpit-prose);
+  white-space: pre-wrap;
+}
+
+.lf-mod-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lf-mod-change {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lf-mod-change__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+
+  input {
+    margin: 0;
+  }
+}
+
+.lf-mod-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: $lf-phone) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.lf-mod-value {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--larpit-hairline);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+
+  .lf-label {
+    font-size: 11px;
+  }
+}
+
+.lf-mod-value--before {
+  color: var(--larpit-muted);
+  background: var(--larpit-raised);
+}
+
+.lf-mod-value--after {
+  border-color: rgba(var(--larpit-open-rgb), 0.5);
+  background: var(--larpit-open-tint);
+}
+
+.lf-mod-value__text {
+  white-space: pre-wrap;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.lf-mod-diff--added {
+  text-decoration: none;
+  color: var(--larpit-open-on-tint);
+  background: var(--larpit-open-tint);
+}
+
+.lf-mod-diff--removed {
+  color: var(--larpit-rowan-on-tint);
+  background: var(--larpit-rowan-tint);
+}
+
+.lf-mod-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lf-mod-item {
+  border-bottom: 1px solid var(--larpit-hairline);
+  padding: 10px 0;
+  overflow-wrap: anywhere;
+
+  > label {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    cursor: pointer;
+
+    input {
+      flex: 0 0 auto;
+      margin: 0;
+      align-self: center;
+    }
+  }
+}
+
+.lf-mod-item__verb {
+  display: inline-block;
+  min-width: 8ch;
+  margin-right: 10px;
+}
+
+.lf-mod-item__content {
+  min-width: 0;
+}
+
+.lf-mod-declined {
+  gap: 16px;
+  opacity: 0.85;
+
+  .lf-section-heading {
+    border-bottom: 1px dashed var(--larpit-control-border);
+  }
+}
+
+.lf-mod-card {
+  .form-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  > p {
+    margin: 0;
+  }
+}
+
+.lf-mod-card--decision {
+  border-top: 3px solid var(--larpit-ember);
+}
+
+.lf-mod-card--check {
+  border-top: 3px solid var(--larpit-ice);
+}
+
+.lf-mod-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  > * {
+    flex: 1 1 auto;
+  }
+}
+
+.lf-mod-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 14px;
+  margin: 0;
+  font-size: 14px;
+
+  dt {
+    font-weight: 500;
+    color: var(--larpit-dim);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.lf-mod-history {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lf-mod-larp-requests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  a {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--larpit-hairline);
+    color: inherit;
+    text-decoration: none;
+    font-size: 14px;
+
+    &:hover > span:last-child {
+      color: var(--larpit-aurora);
+    }
+
+    &[aria-current="page"] {
+      font-weight: 600;
+    }
+  }
+}
