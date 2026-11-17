@@ -258,3 +258,12 @@ export function PagesIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function TagIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 2.5v4.6l6.9 6.9 5.1-5.1L7.1 2H2.5Z" />
+      <circle cx="5" cy="5" r="0.9" />
+    </Icon>
+  );
+}

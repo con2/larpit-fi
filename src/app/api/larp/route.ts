@@ -5,6 +5,8 @@ import { validate as uuidValidate } from "uuid";
 import { iso, parseDates } from "@/prisma/dates";
 import { dbRead } from "@/prisma/db";
 import { readPool } from "@/prisma/pool";
+import { queryRead } from "@/prisma/sql";
+import { getApiTagsOfLarps } from "@/models/Tag";
 import { larpToApi } from "./helpers";
 
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
@@ -98,6 +100,7 @@ async function loadLarps(
   ids: string[],
   includeLinks: boolean,
   includeRelatedLarps: boolean,
+  includeTags: boolean,
 ) {
   const larps = dbRead.orm.public.Larp.where((l) => l.id.in(ids))
     .select(
@@ -127,11 +130,14 @@ async function loadLarps(
   );
   const byId = new Map(rows.map((row) => [row.id, row]));
   const ordered = ids.map((id) => byId.get(id)!);
-  if (!includeRelatedLarps) return ordered;
-  const related = await relatedLarpsOf(ids);
+  const [related, tags] = await Promise.all([
+    includeRelatedLarps ? relatedLarpsOf(ids) : null,
+    includeTags ? getApiTagsOfLarps({ query: queryRead }, ids) : null,
+  ]);
   return ordered.map((larp) => ({
     ...larp,
-    relatedLarps: related.get(larp.id) ?? [],
+    ...(related && { relatedLarps: related.get(larp.id) ?? [] }),
+    ...(tags && { tags: tags.get(larp.id) ?? [] }),
   }));
 }
 
@@ -157,12 +163,15 @@ export async function GET(request: Request) {
 
   let includeLinks = false;
   let includeRelatedLarps = false;
+  let includeTags = false;
   if (includeParam) {
     for (const include of includeParam.split(",")) {
       if (include === "links") {
         includeLinks = true;
       } else if (include === "relatedLarps") {
         includeRelatedLarps = true;
+      } else if (include === "tags") {
+        includeTags = true;
       } else {
         return NextResponse.json(
           { error: "Invalid include value" },
@@ -199,7 +208,7 @@ export async function GET(request: Request) {
   const ids = await pageOfLarpIds(updatedAfter, cursor, limit);
   const larps =
     ids.length > 0
-      ? await loadLarps(ids, includeLinks, includeRelatedLarps)
+      ? await loadLarps(ids, includeLinks, includeRelatedLarps, includeTags)
       : [];
 
   const hasMore = limit !== undefined && larps.length > limit;

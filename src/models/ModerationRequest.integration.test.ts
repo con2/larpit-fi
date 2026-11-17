@@ -581,4 +581,118 @@ describe("ModerationRequest integration tests", () => {
     expect(updated?.resolvedMessage).toBe("Spam");
     expect(updated?.resolvedAt).not.toBeNull();
   });
+
+  describe("tags", () => {
+    async function createTag(slug: string) {
+      return db.orm.public.Tag.create({ slug, nameFi: slug, nameEn: slug });
+    }
+
+    async function tagIdsOf(larpId: string) {
+      const rows = await db.orm.public.LarpTag.where({ larpId }).all();
+      return rows.map((row) => row.tagId).sort();
+    }
+
+    it("approveCreateLarpRequest gives the new larp its tags", async () => {
+      const user = await db.orm.public.User.create(testUser);
+      const horror = await createTag("horror");
+      const scifi = await createTag("scifi");
+
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.CREATE,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        newContent: minimalNewContent,
+        addTags: [horror.id, scifi.id],
+      });
+
+      const larp = await approveCreateLarpRequest(
+        request,
+        user,
+        null,
+        "APPROVED",
+      );
+
+      expect(await tagIdsOf(larp.id)).toEqual([horror.id, scifi.id].sort());
+    });
+
+    it("approveUpdateLarpRequest adds and removes tags", async () => {
+      const user = await db.orm.public.User.create(testUser);
+      const larp = await db.orm.public.Larp.create({
+        name: "Larp",
+        language: Language.fi,
+      });
+      const kept = await createTag("kept");
+      const removed = await createTag("removed");
+      const added = await createTag("added");
+      await db.orm.public.LarpTag.createAndCount([
+        { larpId: larp.id, tagId: kept.id },
+        { larpId: larp.id, tagId: removed.id },
+      ]);
+
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        newContent: {},
+        addTags: [added.id],
+        removeTags: [removed.id],
+      });
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+      expect(await tagIdsOf(larp.id)).toEqual([kept.id, added.id].sort());
+    });
+
+    it("approves a pending request whose tag was deleted meanwhile", async () => {
+      const user = await db.orm.public.User.create(testUser);
+      const larp = await db.orm.public.Larp.create({
+        name: "Larp",
+        language: Language.fi,
+      });
+      const deleted = await createTag("deleted");
+      const surviving = await createTag("surviving");
+
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        newContent: {},
+        addTags: [deleted.id, surviving.id],
+      });
+      await db.orm.public.Tag.where({ id: deleted.id }).deleteAndCount();
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+      expect(await tagIdsOf(larp.id)).toEqual([surviving.id]);
+    });
+
+    it("does not fail when the larp already has an added tag", async () => {
+      const user = await db.orm.public.User.create(testUser);
+      const larp = await db.orm.public.Larp.create({
+        name: "Larp",
+        language: Language.fi,
+      });
+      const tag = await createTag("tag");
+      await db.orm.public.LarpTag.create({ larpId: larp.id, tagId: tag.id });
+
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        newContent: {},
+        addTags: [tag.id],
+      });
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+      expect(await tagIdsOf(larp.id)).toEqual([tag.id]);
+    });
+  });
 });

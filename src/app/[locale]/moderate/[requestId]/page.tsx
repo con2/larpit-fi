@@ -14,6 +14,8 @@ import {
 import { getLarpHref } from "@/models/Larp";
 import { LarpLinkRemovable, LarpLinkUpsertable } from "@/models/LarpLink";
 import { RelatedLarpAddable, RelatedLarpRemovable } from "@/models/RelatedLarp";
+import { TagIds } from "@/models/Tag";
+import { tagName } from "@/models/Tag.client";
 import { larpToContent, parsePartialContent } from "@/models/ModerationRequest";
 import { canModerate, getDeleteLarpInitialStatusForUser } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
@@ -178,6 +180,17 @@ export default async function ModerationRequestPage({ params }: Props) {
     .array(RelatedLarpRemovable)
     .catch([])
     .parse(request.removeRelatedLarps);
+
+  const addTags = TagIds.catch([]).parse(request.addTags);
+  const removeTags = TagIds.catch([]).parse(request.removeTags);
+  const referencedTagIds = [...addTags, ...removeTags];
+  const referencedTags =
+    referencedTagIds.length > 0
+      ? await db.orm.public.Tag.where((tag) => tag.id.in(referencedTagIds))
+          .select("id", "slug", "nameFi", "nameEn")
+          .all()
+      : [];
+  const tagById = new Map(referencedTags.map((tag) => [tag.id, tag]));
 
   // Collect all referenced larp IDs (other than the request's own larp) to look up names
   const referencedLarpIds = [
@@ -398,6 +411,39 @@ export default async function ModerationRequestPage({ params }: Props) {
             </CardBody>
           </Card>
         ) : null}
+
+        {(
+          [
+            [addTags, translations.Tag.moderation.tagsAdded],
+            [removeTags, translations.Tag.moderation.tagsRemoved],
+          ] as const
+        ).map(([tagIds, title]) =>
+          tagIds.length > 0 ? (
+            <Card className="mb-4" key={title}>
+              <CardBody>
+                <CardTitle>{title}</CardTitle>
+                <ul className="mb-0">
+                  {tagIds.map((tagId) => {
+                    const tag = tagById.get(tagId);
+                    return (
+                      <li key={tagId}>
+                        {tag ? (
+                          <Link href={`/tag/${tag.slug}`}>
+                            {tagName(tag, locale)}
+                          </Link>
+                        ) : (
+                          <em className="text-muted">
+                            {translations.Tag.moderation.deletedTag}
+                          </em>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardBody>
+            </Card>
+          ) : null,
+        )}
 
         {addRelatedLarps.length > 0 ? (
           <Card className="mb-4">

@@ -13,6 +13,8 @@ import { FormSection } from "@/components/FormSection";
 import LarpFormSidebar from "@/components/LarpFormSidebar";
 import styles from "@/components/LarpForm.module.scss";
 import { getLarpHref } from "@/models/Larp.client";
+import { compareTagNames } from "@/models/Tag.client";
+import { getTagsWithCounts } from "@/models/Tag";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
 import { EditFormPreference, SubmitterRole } from "@/prisma/enums";
 import {
@@ -22,6 +24,7 @@ import {
 } from "@/models/User";
 import { parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
+import { query } from "@/prisma/sql";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -57,7 +60,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
   }
 
   const session = await auth();
-  const [user, larpRow] = await Promise.all([
+  const [user, larpRow, tags] = await Promise.all([
     session?.user?.id
       ? db.orm.public.User.select(
           "id",
@@ -71,8 +74,11 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
       .include("relatedUsers", (r) =>
         r.include("user", (u) => u.select("id", "email")),
       )
+      .include("tags", (t) => t.select("tagId"))
       .first({ id: resolvedParams.larpId }),
+    getTagsWithCounts({ query }),
   ]);
+  tags.sort(compareTagNames(locale));
   const larp = larpRow && parseDates(larpRow);
   if (!larp) {
     notFound();
@@ -96,6 +102,7 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
     );
   }
 
+  const tagIds = larp.tags.map((tag) => tag.tagId);
   const isCompact = user?.editFormPreference === EditFormPreference.COMPACT;
   const newT = translations.NewLarpPage;
   const linksMessages = { links: translations.Larp.attributes.links };
@@ -118,6 +125,8 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
             translations={translations}
             locale={locale}
             larp={larp}
+            tags={tags}
+            tagIds={tagIds}
           />
           <FormSection id="links" title={newT.sections.links.title} compact>
             <LarpLinksManager
@@ -142,6 +151,8 @@ export default async function EditLarpPage({ params, searchParams }: Props) {
             translations={translations}
             locale={locale}
             larp={larp}
+            tags={tags}
+            tagIds={tagIds}
           />
           <LarpTimeFormComponent
             translations={translations}

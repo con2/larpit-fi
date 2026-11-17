@@ -40,6 +40,10 @@
       "model": "LarpRedirect",
       "namespace": "public"
     },
+    "larp_tag": {
+      "model": "LarpTag",
+      "namespace": "public"
+    },
     "moderation_request": {
       "model": "ModerationRequest",
       "namespace": "public"
@@ -58,6 +62,10 @@
     },
     "related_user": {
       "model": "RelatedUser",
+      "namespace": "public"
+    },
+    "tag": {
+      "model": "Tag",
       "namespace": "public"
     },
     "unauthenticated_signup": {
@@ -959,6 +967,21 @@
                   "namespace": "public"
                 }
               },
+              "tags": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "larpId"
+                  ]
+                },
+                "to": {
+                  "model": "LarpTag",
+                  "namespace": "public"
+                }
+              },
               "unauthenticatedSignups": {
                 "cardinality": "1:N",
                 "on": {
@@ -1251,6 +1274,70 @@
               "table": "larp_redirect"
             }
           },
+          "LarpTag": {
+            "fields": {
+              "larpId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "tagId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "larp": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "larpId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Larp",
+                  "namespace": "public"
+                }
+              },
+              "tag": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "tagId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Tag",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "larpId": {
+                  "column": "larp_id"
+                },
+                "tagId": {
+                  "column": "tag_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "larp_tag"
+            }
+          },
           "ModerationRequest": {
             "fields": {
               "action": {
@@ -1271,6 +1358,13 @@
                 }
               },
               "addRelatedLarps": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "addTags": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/jsonb@1",
@@ -1313,6 +1407,13 @@
                 }
               },
               "removeRelatedLarps": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "removeTags": {
                 "nullable": false,
                 "type": {
                   "codecId": "pg/jsonb@1",
@@ -1457,6 +1558,9 @@
                 "addRelatedLarps": {
                   "column": "add_related_larps"
                 },
+                "addTags": {
+                  "column": "add_tags"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -1474,6 +1578,9 @@
                 },
                 "removeRelatedLarps": {
                   "column": "remove_related_larps"
+                },
+                "removeTags": {
+                  "column": "remove_tags"
                 },
                 "resolvedAt": {
                   "column": "resolved_at"
@@ -1926,6 +2033,93 @@
               },
               "namespaceId": "public",
               "table": "related_user"
+            }
+          },
+          "Tag": {
+            "fields": {
+              "descriptionEn": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "descriptionFi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameEn": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nameFi": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "larps": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "tagId"
+                  ]
+                },
+                "to": {
+                  "model": "LarpTag",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "descriptionEn": {
+                  "column": "description_en"
+                },
+                "descriptionFi": {
+                  "column": "description_fi"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "nameEn": {
+                  "column": "name_en"
+                },
+                "nameFi": {
+                  "column": "name_fi"
+                },
+                "slug": {
+                  "column": "slug"
+                }
+              },
+              "namespaceId": "public",
+              "table": "tag"
             }
           },
           "UnauthenticatedSignup": {
@@ -3455,6 +3649,76 @@
               },
               "uniques": []
             },
+            "larp_tag": {
+              "columns": {
+                "larp_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "tag_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "larp_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp_tag"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "larp_tag_tag_id_idx_94b47830"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "tag_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "larp_tag"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "tag"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "tag_id"
+                  ],
+                  "name": "larp_tag_tag_id_idx_94b47830",
+                  "prefix": "larp_tag_tag_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "larp_id",
+                  "tag_id"
+                ]
+              },
+              "uniques": []
+            },
             "moderation_request": {
               "columns": {
                 "action": {
@@ -3481,6 +3745,15 @@
                   "nullable": false
                 },
                 "add_related_larps": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "add_tags": {
                   "codecId": "pg/jsonb@1",
                   "dataType": "pg/jsonb",
                   "default": {
@@ -3527,6 +3800,15 @@
                   "nullable": false
                 },
                 "remove_related_larps": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "default": {
+                    "expression": "'[]'::jsonb",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "remove_tags": {
                   "codecId": "pg/jsonb@1",
                   "dataType": "pg/jsonb",
                   "default": {
@@ -4066,6 +4348,66 @@
               },
               "uniques": []
             },
+            "tag": {
+              "columns": {
+                "description_en": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": ""
+                  },
+                  "nullable": false
+                },
+                "description_fi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": ""
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "default": {
+                    "expression": "uuidv7()",
+                    "kind": "function"
+                  },
+                  "nullable": false
+                },
+                "name_en": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name_fi": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
+            },
             "unauthenticated_signup": {
               "checks": [
                 {
@@ -4508,7 +4850,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1b76f7d58a7134ecf94e11c64c932e54a83c74c123f53918cf5ebee5fd9154f4"
+    "storageHash": "da074fda7e862176f5e3b3554fda34e4d6a392d4a9d29777f61cc326ea83e6e1"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

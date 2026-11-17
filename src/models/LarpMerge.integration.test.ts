@@ -203,6 +203,30 @@ describe("mergeLarps", () => {
     expect(relations).toHaveLength(2);
   });
 
+  it("gives A the union of the tags of both larps", async () => {
+    const a = await createLarp();
+    const b = await createLarp();
+    const [shared, onlyA, onlyB] = await Promise.all(
+      ["shared", "only-a", "only-b"].map((slug) =>
+        db.orm.public.Tag.create({ slug, nameFi: slug, nameEn: slug }),
+      ),
+    );
+    await db.orm.public.LarpTag.createAndCount([
+      { larpId: a.id, tagId: shared.id },
+      { larpId: a.id, tagId: onlyA.id },
+      { larpId: b.id, tagId: shared.id },
+      { larpId: b.id, tagId: onlyB.id },
+    ]);
+
+    await merge(a.id, b.id);
+
+    const larpTags = await db.orm.public.LarpTag.all();
+    expect(larpTags.map((lt) => lt.larpId)).toEqual([a.id, a.id, a.id]);
+    expect(larpTags.map((lt) => lt.tagId).sort()).toEqual(
+      [shared.id, onlyA.id, onlyB.id].sort(),
+    );
+  });
+
   it("collapses duplicate links and drops the ones the moderator unticked", async () => {
     const a = await createLarp();
     const b = await createLarp();

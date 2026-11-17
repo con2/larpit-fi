@@ -11,6 +11,7 @@ export default function Footer({ locale }: { locale: string }) {
         <Link href="/" className="lf-logo lf-logo--footer">
           larp<span>.fi</span>
         </Link>
+        <Link href="/tag">{t.tags}</Link>
         <a href={privacyPolicyUrl}>{t.privacyPolicy}</a>
         <a href="https://github.com/con2/larpit-fi">{t.source}</a>
         <Link href="/api-docs" prefetch={false}>

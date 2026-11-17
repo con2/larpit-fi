@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 
 import { Language, LarpType, Openness } from "@/prisma/enums";
 import { sql } from "@/prisma/sql";
+import { tagName } from "@/models/Tag.client";
 import { getTranslations } from "@/translations";
 import {
   ChartTable,
@@ -102,6 +103,13 @@ function getAvailableSinceFilters(currentYear: number): SinceFilter[] {
 interface MuniRow {
   municipalityId: string;
   municipalityName: string;
+  count: string;
+}
+
+interface TagRow {
+  slug: string;
+  nameFi: string;
+  nameEn: string;
   count: string;
 }
 
@@ -269,6 +277,7 @@ export default async function StatsPage({ params, searchParams }: Props) {
     playersRows,
     [totals],
     [shape],
+    tagRows,
   ] = await Promise.all([
     readQuery<MuniRow>(sql`
       select
@@ -454,6 +463,23 @@ export default async function StatsPage({ params, searchParams }: Props) {
         and cancelled_at is null
         and starts_at >= ${cutoff}::date
     `),
+    readQuery<TagRow>(sql`
+      select
+        t.slug,
+        t.name_fi as "nameFi",
+        t.name_en as "nameEn",
+        count(l.id) as count
+      from
+        tag t
+        join larp_tag lt on lt.tag_id = t.id
+        join larp l on l.id = lt.larp_id
+      where
+        l.starts_at >= ${cutoff}::date
+        and l.type::text = any(${larpTypes}::text[])
+        and l.cancelled_at is null
+      group by t.id
+      order by count desc, t.slug asc
+    `),
   ]);
 
   const sinceOptions: FilterOption[] = availableSinceFilters.map((value) => {
@@ -583,19 +609,34 @@ export default async function StatsPage({ params, searchParams }: Props) {
     (row) => row.numTotalParticipants,
   );
 
-  const muniMax = maxOf(muniRows, (row) => row.count);
-  const renderMunicipality = (row: MuniRow, index: number) => (
-    <li key={row.municipalityId} className={styles.muniRow}>
-      <span className={styles.muniName}>{row.municipalityName}</span>
+  const renderBarRow = (
+    key: string,
+    label: ReactNode,
+    count: number,
+    max: number,
+    index: number,
+  ) => (
+    <li key={key} className={styles.muniRow}>
+      <span className={styles.muniName}>{label}</span>
       <span className={styles.muniTrack} aria-hidden="true">
         <span
           className={index === 0 ? styles.toneAurora : styles.toneIce}
-          style={{ width: `${(Number(row.count) / muniMax) * 100}%` }}
+          style={{ width: `${(count / max) * 100}%` }}
         />
       </span>
-      <span className={styles.muniCount}>{formatCount(Number(row.count))}</span>
+      <span className={styles.muniCount}>{formatCount(count)}</span>
     </li>
   );
+  const muniMax = maxOf(muniRows, (row) => row.count);
+  const renderMunicipality = (row: MuniRow, index: number) =>
+    renderBarRow(
+      row.municipalityId,
+      row.municipalityName,
+      Number(row.count),
+      muniMax,
+      index,
+    );
+  const tagMax = maxOf(tagRows, (row) => row.count);
 
   const typeItems: ProportionItem[] = typeRows.map((row) => ({
     key: row.type,
@@ -796,6 +837,23 @@ export default async function StatsPage({ params, searchParams }: Props) {
                 </details>
               )}
             </Section>
+            {tagRows.length > 0 && (
+              <Section title={translations.Tag.stats.title}>
+                <ol className={styles.muniList}>
+                  {tagRows.map((row, index) =>
+                    renderBarRow(
+                      row.slug,
+                      <Link href={`/tag/${row.slug}`}>
+                        {tagName(row, locale)}
+                      </Link>,
+                      Number(row.count),
+                      tagMax,
+                      index,
+                    ),
+                  )}
+                </ol>
+              </Section>
+            )}
           </div>
 
           <div className={styles.gridColumn}>

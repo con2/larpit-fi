@@ -10,6 +10,7 @@ import HeaderImageBackdrop, {
 import Aurora, { nightSkyProps } from "@/components/ui/Aurora";
 import CompactRow from "@/components/ui/CompactRow";
 import LarpRow from "@/components/ui/LarpRow";
+import TagChips from "@/components/ui/TagChips";
 import { splitRunSuffix, typesetDashes } from "@/helpers/larpName";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { formatShortDateRange, isoWeekOf } from "@/helpers/dates";
@@ -20,6 +21,7 @@ import {
 } from "@/models/Larp";
 import { headerImageViewOrNull } from "@/models/HeaderImage";
 import { frontPageSlug, seeAlsoSlug } from "@/models/Page.client";
+import { getTagsWithCounts } from "@/models/Tag";
 import { iso, parseDates } from "@/prisma/dates";
 import { Language, LarpType, Openness } from "@/prisma/enums";
 import { getTranslations } from "@/translations";
@@ -61,6 +63,8 @@ async function getHomePageLarps(since: string) {
   );
 }
 
+const frontPageTagCount = 8;
+
 function langOf(language: Language) {
   return language === Language.OTHER ? undefined : language;
 }
@@ -75,8 +79,9 @@ export default async function HomePage({ params }: Props) {
   const monday = week.monday.toString();
   const sunday = week.sunday.toString();
 
-  const { db: reader } = await getReader();
-  const [larps, page, seeAlso, recentChanges] = await Promise.all([
+  const readerContext = await getReader();
+  const { db: reader } = readerContext;
+  const [larps, page, seeAlso, recentChanges, tags] = await Promise.all([
     getHomePageLarps(monday),
     reader.orm.public.Page.include("headerImage").first({
       slug: frontPageSlug,
@@ -84,7 +89,12 @@ export default async function HomePage({ params }: Props) {
     }),
     reader.orm.public.Page.first({ slug: seeAlsoSlug, language: locale }),
     getRecentChanges(),
+    getTagsWithCounts(readerContext),
   ]);
+  const topTags = tags
+    .filter((tag) => tag.larpCount > 0)
+    .sort((a, b) => b.larpCount - a.larpCount)
+    .slice(0, frontPageTagCount);
 
   const visibleLarps = larps.filter(
     (larp) => larp.openness !== Openness.INVITE_ONLY,
@@ -302,6 +312,18 @@ export default async function HomePage({ params }: Props) {
               </div>
               <Link href={otherEventsHref} className="lf-more-link">
                 {t.sections.otherEvents.all(upcomingOtherEventCount)} →
+              </Link>
+            </section>
+          )}
+
+          {topTags.length > 0 && (
+            <section className={styles.cmsAside}>
+              <h2 className="lf-label">{translations.Tag.browseByTheme}</h2>
+              <div className="lf-tags">
+                <TagChips tags={topTags} locale={locale} />
+              </div>
+              <Link href="/tag" className="lf-more-link">
+                {translations.Tag.allTags} →
               </Link>
             </section>
           )}

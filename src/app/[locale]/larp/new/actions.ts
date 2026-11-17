@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { EditAction, EditStatus } from "@/prisma/enums";
 import { compactObject, normalizeFormData } from "@con2/components/helpers";
 import { parseIndexedLinksFromFormData } from "@/models/LarpLink";
+import { parseTagIdsFromFormData } from "@/models/Tag.client";
 import {
   approveRequest,
   ModerationRequestForm,
@@ -31,6 +32,7 @@ export async function createLarp(
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const addLinks = parseIndexedLinksFromFormData(data);
+  const addTags = parseTagIdsFromFormData(data) ?? [];
 
   const {
     submitterName = user?.name,
@@ -65,6 +67,7 @@ export async function createLarp(
     message: message ?? null,
     newContent: toJson(compactObject(newContent)),
     addLinks: toJson(addLinks),
+    addTags: toJson(addTags),
   });
 
   if (status === EditStatus.PENDING_VERIFICATION) {

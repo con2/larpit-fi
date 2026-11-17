@@ -854,6 +854,26 @@ $lf-phone: 767.98px;
   border-color: rgba(var(--larpit-aurora-rgb), 0.5);
 }
 
+.lf-tag--topic {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--larpit-text);
+  text-decoration: none;
+}
+
+a.lf-tag--topic:hover,
+a.lf-tag--topic:focus-visible {
+  border-color: var(--larpit-aurora);
+  color: var(--larpit-aurora);
+}
+
+.lf-tag--current,
+a.lf-tag--current:hover {
+  background: var(--larpit-aurora);
+  border-color: var(--larpit-aurora);
+  color: var(--larpit-on-accent);
+}
+
 .lf-tags {
   display: flex;
   flex-wrap: wrap;
@@ -954,6 +974,11 @@ $lf-phone: 767.98px;
 .lf-row__suffix {
   color: var(--larpit-dim);
   font-weight: 500;
+}
+
+.lf-row__tags {
+  margin-top: 6px;
+  gap: 4px 6px;
 }
 
 .lf-row__sub {

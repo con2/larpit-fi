@@ -1,0 +1,111 @@
+.facts {
+  margin: 0;
+}
+
+.headerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+}
+
+.body {
+  display: grid;
+  gap: 32px;
+  padding-block: 32px 80px;
+}
+
+@media (min-width: 992px) {
+  .withAside {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--larpit-hairline);
+  scroll-margin-top: 96px;
+}
+
+.rowEditing {
+  background: rgba(var(--larpit-aurora-rgb), 0.08);
+}
+
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowName {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--larpit-text);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--larpit-aurora);
+  }
+}
+
+.rowDescription {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--larpit-muted);
+}
+
+.rowCount {
+  white-space: nowrap;
+}
+
+.rowEdit {
+  color: var(--larpit-muted);
+
+  &:hover {
+    color: var(--larpit-text);
+  }
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 96px;
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: 8px;
+}
+
+.deleteAction {
+  border-top: 1px solid var(--larpit-hairline);
+  padding-top: 12px;
+}

@@ -1767,6 +1767,83 @@ const translations: Translations = {
     noDate: "Päivämäärä puuttuu",
     empty: "Yksikään larppi ei vastaa näitä suodattimia.",
   },
+  Tag: {
+    title: "Tunniste",
+    listTitle: "Tunnisteet",
+    indexEyebrow: "Selaa teemoittain",
+    indexIntro:
+      "Moderaattorien ylläpitämiä teemoja, lajityyppejä ja miljöitä. Kullakin larpilla on niistä muutama.",
+    summary: (tagCount: string, larpCount: string) =>
+      `${tagCount} ${tagCount === "1" ? "tunniste" : "tunnistetta"} ${larpCount} larpilla`,
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larppi" : "larppia"}`,
+    upcomingCount: (count: string) => `${count} tulossa`,
+    firstIn: (year: number) => `ensimmäinen vuonna ${year}`,
+    allTags: "Kaikki tunnisteet",
+    browseAll: "Selaa kaikkia tunnisteita",
+    browseByTheme: "Selaa teemoittain",
+    pick: "Valitse tunniste",
+    empty: "Tunnisteita ei vielä ole.",
+    sort: {
+      label: "Järjestys",
+      used: "Käytetyimmät",
+      name: "Nimi",
+      created: "Uusimmat",
+    },
+    actions: {
+      newTag: "Uusi tunniste",
+      editTag: "Muokkaa tunnistetta",
+      edit: (name: string) => `Muokkaa tunnistetta ${name}`,
+      save: "Tallenna",
+      cancel: "Peruuta",
+      delete: "Poista tunniste",
+      deleteConfirm: (name: string, count: number) =>
+        count === 0
+          ? `Poistetaanko tunniste ”${name}”? Sitä ei ole millään larpilla.`
+          : `Poistetaanko tunniste ”${name}”? Se poistuu ${count} larpilta. Odottavat muokkaukset, jotka lisäävät sen, ohittavat sen.`,
+    },
+    attributes: {
+      nameFi: { title: "Nimi suomeksi" },
+      nameEn: { title: "Nimi englanniksi" },
+      slug: {
+        title: "Osoite",
+        helpText:
+          "Pieniä kirjaimia, numeroita ja väliviivoja. Jätä tyhjäksi, niin osoite muodostetaan englanninkielisestä nimestä.",
+        lockedHelpText:
+          "Tunniste on larpeilla, joten sen osoite pysyy ennallaan. Nimeä tunniste uudelleen tarvittaessa.",
+      },
+      descriptionFi: { title: "Kuvaus suomeksi" },
+      descriptionEn: { title: "Kuvaus englanniksi" },
+      descriptionHelpText:
+        "Markdownia. Näytetään tunnisteen sivulla ja tunnisteiden valitsimessa.",
+    },
+    errors: {
+      invalidSlug:
+        "Osoitteessa saa olla vain pieniä kirjaimia, numeroita ja yksittäisiä väliviivoja.",
+      slugTaken: "Toisella tunnisteella on jo tämä osoite.",
+      slugLocked:
+        "Tunniste on larpeilla, joten sen osoite ei voi enää muuttua.",
+      notFound: "Tunnistetta ei enää ole.",
+    },
+    field: {
+      label: "Tunnisteet",
+      helpText:
+        "Valitse 3–5 larppia parhaiten kuvaavaa tunnistetta: teemat, lajityyppi, miljöö.",
+      placeholder: "Hae tunnisteita…",
+      noOptions: "Tunnistetta ei löydy. Tunnisteita ylläpitävät moderaattorit;",
+      suggest: "ehdota uutta",
+      larpCount: "{count} larppia",
+      maxReached: "Larpilla voi olla enintään {max} tunnistetta.",
+    },
+    moderation: {
+      tagsAdded: "Lisätyt tunnisteet",
+      tagsRemoved: "Poistetut tunnisteet",
+      deletedTag: "Poistettu tunniste",
+    },
+    stats: {
+      title: "Tunnisteittain",
+    },
+  },
   StatsPage: {
     title: "Tilastoja",
     eyebrow: "Larpit lukuina",
@@ -2025,6 +2102,7 @@ const translations: Translations = {
       moderate: "Moderoi",
       manageUsers: "Käyttäjät",
       aliases: "Lyhyet osoitteet",
+      tags: "Tunnisteet",
     },
   },
   UserMenu: {
@@ -2141,6 +2219,7 @@ const translations: Translations = {
     infoMenu: "Larppaaminen?",
   },
   Footer: {
+    tags: "Tunnisteet",
     privacyPolicy: "Tietosuojaseloste",
     source: "Lähdekoodi GitHubissa",
     api: "API",
@@ -2154,6 +2233,7 @@ const translations: Translations = {
     close: "Peruuta",
     larps: "Larpit",
     pages: "Sivut",
+    tags: "Tunnisteet",
     allResults: "Kaikki tulokset haulle ”{query}”",
     thisPage: "Tämä sivu",
     everywhere: "Kaikkialla",
@@ -2178,6 +2258,7 @@ const translations: Translations = {
       calendar: "Siirry kalenteriin",
       allLarps: "Selaa kaikkia larppeja",
       stats: "Tilastoja",
+      allTags: "Selaa kaikkia tunnisteita",
       themeToNight: "Vaihda tummaan teemaan",
       themeToDay: "Vaihda vaaleaan teemaan",
       switchLanguage: "Switch to English",
@@ -2193,6 +2274,7 @@ const translations: Translations = {
       copied: "Linkki kopioitu",
     },
     commandSynonyms: {
+      "global:allTags": ["Tunnisteet", "Teemat", "Lajityypit", "Aiheet"],
       "global:addLarp": [
         "Uusi larppi",
         "Luo larppi",

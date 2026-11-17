@@ -15,6 +15,7 @@ const builtinCommandLabels: Record<string, CommandLabelKey[]> = {
   "global:calendar": ["calendar"],
   "global:allLarps": ["allLarps"],
   "global:stats": ["stats"],
+  "global:allTags": ["allTags"],
   "global:theme": ["themeToNight", "themeToDay"],
   "global:language": ["switchLanguage"],
   "larp:editLarp": ["editLarp"],

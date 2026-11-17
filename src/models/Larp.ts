@@ -277,6 +277,7 @@ const reservedLarpAliases: ReadonlySet<string> = new Set([
   "profile",
   "search",
   "stats",
+  "tag",
   "user",
   "verify",
   ...supportedLanguages,

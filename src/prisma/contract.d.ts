@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1b76f7d58a7134ecf94e11c64c932e54a83c74c123f53918cf5ebee5fd9154f4'>;
+  StorageHashBase<'da074fda7e862176f5e3b3554fda34e4d6a392d4a9d29777f61cc326ea83e6e1'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -741,6 +741,7 @@ export namespace Models {
     relatedLarpsRight: public_RelatedLarp[];
     relatedUsers: public_RelatedUser[];
     requests: public_ModerationRequest[];
+    tags: public_LarpTag[];
     unauthenticatedSignups: public_UnauthenticatedSignup[];
     readonly [RelationKeys]?:
       | 'aliasRedirects'
@@ -752,6 +753,7 @@ export namespace Models {
       | 'relatedLarpsRight'
       | 'relatedUsers'
       | 'requests'
+      | 'tags'
       | 'unauthenticatedSignups';
   };
   export type public_LarpAliasRedirect = {
@@ -777,16 +779,25 @@ export namespace Models {
     larp: public_Larp;
     readonly [RelationKeys]?: 'larp';
   };
+  export type public_LarpTag = {
+    larpId: FieldOutputTypes['public']['LarpTag']['larpId'];
+    tagId: FieldOutputTypes['public']['LarpTag']['tagId'];
+    larp: public_Larp;
+    tag: public_Tag;
+    readonly [RelationKeys]?: 'larp' | 'tag';
+  };
   export type public_ModerationRequest = {
     action: FieldOutputTypes['public']['ModerationRequest']['action'];
     addLinks: FieldOutputTypes['public']['ModerationRequest']['addLinks'];
     addRelatedLarps: FieldOutputTypes['public']['ModerationRequest']['addRelatedLarps'];
+    addTags: FieldOutputTypes['public']['ModerationRequest']['addTags'];
     id: FieldOutputTypes['public']['ModerationRequest']['id'];
     larpId: FieldOutputTypes['public']['ModerationRequest']['larpId'];
     message: FieldOutputTypes['public']['ModerationRequest']['message'];
     newContent: FieldOutputTypes['public']['ModerationRequest']['newContent'];
     removeLinks: FieldOutputTypes['public']['ModerationRequest']['removeLinks'];
     removeRelatedLarps: FieldOutputTypes['public']['ModerationRequest']['removeRelatedLarps'];
+    removeTags: FieldOutputTypes['public']['ModerationRequest']['removeTags'];
     resolvedAt: FieldOutputTypes['public']['ModerationRequest']['resolvedAt'];
     resolvedById: FieldOutputTypes['public']['ModerationRequest']['resolvedById'];
     resolvedMessage: FieldOutputTypes['public']['ModerationRequest']['resolvedMessage'];
@@ -846,6 +857,16 @@ export namespace Models {
     user: public_User;
     readonly [RelationKeys]?: 'larp' | 'user';
   };
+  export type public_Tag = {
+    descriptionEn: FieldOutputTypes['public']['Tag']['descriptionEn'];
+    descriptionFi: FieldOutputTypes['public']['Tag']['descriptionFi'];
+    id: FieldOutputTypes['public']['Tag']['id'];
+    nameEn: FieldOutputTypes['public']['Tag']['nameEn'];
+    nameFi: FieldOutputTypes['public']['Tag']['nameFi'];
+    slug: FieldOutputTypes['public']['Tag']['slug'];
+    larps: public_LarpTag[];
+    readonly [RelationKeys]?: 'larps';
+  };
   export type public_UnauthenticatedSignup = {
     createdAt: FieldOutputTypes['public']['UnauthenticatedSignup']['createdAt'];
     displayName: FieldOutputTypes['public']['UnauthenticatedSignup']['displayName'];
@@ -900,11 +921,13 @@ export declare const models: {
     LarpAliasRedirect: Models.public_LarpAliasRedirect;
     LarpLink: Models.public_LarpLink;
     LarpRedirect: Models.public_LarpRedirect;
+    LarpTag: Models.public_LarpTag;
     ModerationRequest: Models.public_ModerationRequest;
     Municipality: Models.public_Municipality;
     Page: Models.public_Page;
     RelatedLarp: Models.public_RelatedLarp;
     RelatedUser: Models.public_RelatedUser;
+    Tag: Models.public_Tag;
     UnauthenticatedSignup: Models.public_UnauthenticatedSignup;
     User: Models.public_User;
     VerificationToken: Models.public_VerificationToken;
@@ -1719,6 +1742,58 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly larp_tag: {
+              columns: {
+                readonly larp_id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly tag_id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['larp_id', 'tag_id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'larp_tag_tag_id_idx_94b47830';
+                  readonly prefix: 'larp_tag_tag_id_idx';
+                  readonly columns: readonly ['tag_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp_tag';
+                    readonly columns: readonly ['larp_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'larp_tag';
+                    readonly columns: readonly ['tag_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'tag';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly moderation_request: {
               columns: {
                 readonly action: {
@@ -1739,6 +1814,16 @@ type ContractBase = Omit<
                   readonly many: false;
                 };
                 readonly add_related_larps: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: "'[]'::jsonb";
+                  };
+                  readonly many: false;
+                };
+                readonly add_tags: {
                   readonly dataType: 'pg/jsonb';
                   readonly codecId: 'pg/jsonb@1';
                   readonly nullable: false;
@@ -1788,6 +1873,16 @@ type ContractBase = Omit<
                   readonly many: false;
                 };
                 readonly remove_related_larps: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: "'[]'::jsonb";
+                  };
+                  readonly many: false;
+                };
+                readonly remove_tags: {
                   readonly dataType: 'pg/jsonb';
                   readonly codecId: 'pg/jsonb@1';
                   readonly nullable: false;
@@ -2222,6 +2317,59 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly tag: {
+              columns: {
+                readonly description_en: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', ''>;
+                  };
+                  readonly many: false;
+                };
+                readonly description_fi: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', ''>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/uuid';
+                  readonly codecId: 'pg/uuid@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'uuidv7()' };
+                  readonly many: false;
+                };
+                readonly name_en: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly name_fi: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly slug: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['slug'] }];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly unauthenticated_signup: {
               columns: {
                 readonly created_at: {
@@ -2580,6 +2728,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'LarpRedirect';
     };
+    readonly larp_tag: { readonly namespace: 'public' & NamespaceId; readonly model: 'LarpTag' };
     readonly moderation_request: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'ModerationRequest';
@@ -2597,6 +2746,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'RelatedUser';
     };
+    readonly tag: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tag' };
     readonly unauthenticated_signup: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'UnauthenticatedSignup';
@@ -3167,6 +3317,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['larpId'];
                 };
               };
+              readonly tags: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'LarpTag';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['larpId'];
+                };
+              };
               readonly unauthenticatedSignups: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3338,6 +3499,46 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly LarpTag: {
+            readonly fields: {
+              readonly larpId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly tagId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+            };
+            readonly relations: {
+              readonly larp: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Larp' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['larpId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly tag: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tag' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['tagId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'larp_tag';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly larpId: { readonly column: 'larp_id' };
+                readonly tagId: { readonly column: 'tag_id' };
+              };
+            };
+          };
           readonly ModerationRequest: {
             readonly fields: {
               readonly action: {
@@ -3353,6 +3554,10 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
               readonly addRelatedLarps: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
+              readonly addTags: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
@@ -3377,6 +3582,10 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
               readonly removeRelatedLarps: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
+              readonly removeTags: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
@@ -3471,12 +3680,14 @@ type ContractBase = Omit<
                 readonly action: { readonly column: 'action' };
                 readonly addLinks: { readonly column: 'add_links' };
                 readonly addRelatedLarps: { readonly column: 'add_related_larps' };
+                readonly addTags: { readonly column: 'add_tags' };
                 readonly id: { readonly column: 'id' };
                 readonly larpId: { readonly column: 'larp_id' };
                 readonly message: { readonly column: 'message' };
                 readonly newContent: { readonly column: 'new_content' };
                 readonly removeLinks: { readonly column: 'remove_links' };
                 readonly removeRelatedLarps: { readonly column: 'remove_related_larps' };
+                readonly removeTags: { readonly column: 'remove_tags' };
                 readonly resolvedAt: { readonly column: 'resolved_at' };
                 readonly resolvedById: { readonly column: 'resolved_by_id' };
                 readonly resolvedMessage: { readonly column: 'resolved_message' };
@@ -3749,6 +3960,59 @@ type ContractBase = Omit<
                 readonly role: { readonly column: 'role' };
                 readonly userId: { readonly column: 'user_id' };
                 readonly visibility: { readonly column: 'visibility' };
+              };
+            };
+          };
+          readonly Tag: {
+            readonly fields: {
+              readonly descriptionEn: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly descriptionFi: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
+              };
+              readonly nameEn: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly nameFi: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly slug: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly larps: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'LarpTag';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['tagId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'tag';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly descriptionEn: { readonly column: 'description_en' };
+                readonly descriptionFi: { readonly column: 'description_fi' };
+                readonly id: { readonly column: 'id' };
+                readonly nameEn: { readonly column: 'name_en' };
+                readonly nameFi: { readonly column: 'name_fi' };
+                readonly slug: { readonly column: 'slug' };
               };
             };
           };

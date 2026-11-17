@@ -1734,6 +1734,82 @@ const translations = {
     noDate: "Date not set",
     empty: "No larps match these filters.",
   },
+  Tag: {
+    title: "Tag",
+    listTitle: "Tags",
+    indexEyebrow: "Browse by theme",
+    indexIntro:
+      "Themes, genres and settings, curated by the moderators. Each larp carries a few of them.",
+    summary: (tagCount: string, larpCount: string) =>
+      `${tagCount} ${tagCount === "1" ? "tag" : "tags"} on ${larpCount} ${larpCount === "1" ? "larp" : "larps"}`,
+    larpCount: (count: string) =>
+      `${count} ${count === "1" ? "larp" : "larps"}`,
+    upcomingCount: (count: string) => `${count} upcoming`,
+    firstIn: (year: number) => `first in ${year}`,
+    allTags: "All tags",
+    browseAll: "Browse all tags",
+    browseByTheme: "Browse by theme",
+    pick: "Pick a tag",
+    empty: "No tags yet.",
+    sort: {
+      label: "Sort",
+      used: "Most used",
+      name: "Name",
+      created: "Newest",
+    },
+    actions: {
+      newTag: "New tag",
+      editTag: "Edit tag",
+      edit: (name: string) => `Edit tag ${name}`,
+      save: "Save",
+      cancel: "Cancel",
+      delete: "Delete tag",
+      deleteConfirm: (name: string, count: number) =>
+        count === 0
+          ? `Delete the tag “${name}”? No larp has it.`
+          : `Delete the tag “${name}”? ${count} ${count === 1 ? "larp loses" : "larps lose"} it. Pending edits that add it will skip it.`,
+    },
+    attributes: {
+      nameFi: { title: "Name in Finnish" },
+      nameEn: { title: "Name in English" },
+      slug: {
+        title: "Address",
+        helpText:
+          "Lowercase letters, digits and hyphens. Leave empty to derive it from the English name.",
+        lockedHelpText:
+          "Larps have this tag, so its address stays as it is. Rename the tag instead.",
+      },
+      descriptionFi: { title: "Description in Finnish" },
+      descriptionEn: { title: "Description in English" },
+      descriptionHelpText:
+        "Markdown. Shown on the tag page and in the tag picker.",
+    },
+    errors: {
+      invalidSlug:
+        "The address may contain only lowercase letters, digits and single hyphens.",
+      slugTaken: "Another tag already has this address.",
+      slugLocked: "Larps have this tag, so its address can no longer change.",
+      notFound: "The tag no longer exists.",
+    },
+    field: {
+      label: "Tags",
+      helpText:
+        "Pick the 3–5 tags that describe the larp best: themes, genre, setting.",
+      placeholder: "Search tags…",
+      noOptions: "No such tag. Tags are curated by the moderators;",
+      suggest: "suggest a new one",
+      larpCount: "{count} larps",
+      maxReached: "A larp can have at most {max} tags.",
+    },
+    moderation: {
+      tagsAdded: "Tags added",
+      tagsRemoved: "Tags removed",
+      deletedTag: "Deleted tag",
+    },
+    stats: {
+      title: "By tag",
+    },
+  },
   StatsPage: {
     title: "Statistics",
     eyebrow: "Larps in numbers",
@@ -1991,6 +2067,7 @@ const translations = {
       moderate: "Moderate",
       manageUsers: "Users",
       aliases: "Short addresses",
+      tags: "Tags",
     },
   },
   UserMenu: {
@@ -2108,6 +2185,7 @@ const translations = {
     infoMenu: "What is larp?",
   },
   Footer: {
+    tags: "Tags",
     privacyPolicy: "Privacy policy",
     source: "Source on GitHub",
     api: "API",
@@ -2121,6 +2199,7 @@ const translations = {
     close: "Cancel",
     larps: "Larps",
     pages: "Pages",
+    tags: "Tags",
     allResults: "All results for “{query}”",
     thisPage: "This page",
     everywhere: "Everywhere",
@@ -2145,6 +2224,7 @@ const translations = {
       calendar: "Go to calendar",
       allLarps: "Browse all larps",
       stats: "Statistics",
+      allTags: "Browse all tags",
       themeToNight: "Switch to dark theme",
       themeToDay: "Switch to light theme",
       switchLanguage: "Vaihda suomeksi",
@@ -2160,6 +2240,7 @@ const translations = {
       copied: "Link copied",
     },
     commandSynonyms: {
+      "global:allTags": ["Tags", "Themes", "Genres", "Topics"],
       "global:addLarp": [
         "New larp",
         "Create a larp",

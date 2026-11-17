@@ -132,6 +132,14 @@ async function mergeRelatedRows(tx: Tx, aId: string, bId: string) {
   `);
 
   await run(tx.raw.sql`
+    insert into larp_tag (larp_id, tag_id)
+    select ${aId}::uuid, tag_id
+    from larp_tag
+    where larp_id = ${bId}::uuid
+    on conflict (larp_id, tag_id) do nothing
+  `);
+
+  await run(tx.raw.sql`
     delete from related_larp
     where (left_id = ${aId}::uuid and right_id = ${bId}::uuid)
       or (left_id = ${bId}::uuid and right_id = ${aId}::uuid)

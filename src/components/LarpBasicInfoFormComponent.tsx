@@ -2,13 +2,17 @@ import { LarpType } from "@/prisma/enums";
 import type { Larp } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
 import { FormControl, FormLabel, FormText } from "react-bootstrap";
+import type { TagSummary } from "@/models/Tag.client";
 import { FormSection, RadioGroup, RequiredMark } from "./FormSection";
+import TagsField from "./TagsField";
 import styles from "./LarpForm.module.scss";
 
 interface Props {
   translations: Translations;
   locale: string;
   larp: Pick<Larp, "name" | "tagline" | "type" | "language"> | null;
+  tags: TagSummary[];
+  tagIds: string[];
   readOnly?: boolean;
   compact?: boolean;
 }
@@ -17,6 +21,8 @@ export function LarpBasicInfoFormComponent({
   translations,
   locale,
   larp,
+  tags,
+  tagIds,
   readOnly,
   compact,
 }: Props) {
@@ -93,6 +99,16 @@ export function LarpBasicInfoFormComponent({
         )}
         helpText={showHelpText ? t.attributes.language.helpText : undefined}
       />
+
+      {tags.length > 0 && !readOnly && (
+        <TagsField
+          tags={tags}
+          defaultTagIds={tagIds}
+          locale={locale}
+          messages={translations.Tag.field}
+          compact={compact}
+        />
+      )}
     </FormSection>
   );
 }

@@ -38,6 +38,7 @@ import {
   RelatedLarpAddable,
   RelatedLarpRemovable,
 } from "./RelatedLarp";
+import { handleLarpTags, TagIds } from "./Tag";
 
 export enum Resolution {
   APPROVED = "APPROVED",
@@ -112,6 +113,8 @@ export async function approveRequest(
     | "removeLinks"
     | "addRelatedLarps"
     | "removeRelatedLarps"
+    | "addTags"
+    | "removeTags"
     | "submitterId"
     | "submitterRole"
   >,
@@ -311,6 +314,7 @@ export async function approveCreateLarpRequest(
     | "larpId"
     | "newContent"
     | "addLinks"
+    | "addTags"
     | "submitterId"
     | "submitterRole"
   >,
@@ -331,6 +335,7 @@ export async function approveCreateLarpRequest(
   const content = ModerationRequestContent.parse(request.newContent);
   const data = contentToLarp(content);
   const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
+  const addTags = TagIds.parse(request.addTags);
 
   return db.transaction(async (tx) => {
     const larp = await tx.orm.public.Larp.select("id").create(
@@ -348,6 +353,7 @@ export async function approveCreateLarpRequest(
     }
 
     await handleLarpLinks(tx, larp.id, addLinks, []);
+    await handleLarpTags(tx, larp.id, addTags, []);
     await handleRequestStatusUpdate(
       tx,
       request.id,
@@ -400,6 +406,8 @@ export async function approveUpdateLarpRequest(
     | "removeLinks"
     | "addRelatedLarps"
     | "removeRelatedLarps"
+    | "addTags"
+    | "removeTags"
     | "submitterId"
     | "submitterRole"
   >,
@@ -427,6 +435,8 @@ export async function approveUpdateLarpRequest(
   const removeRelatedLarps = z
     .array(RelatedLarpRemovable)
     .parse(request.removeRelatedLarps);
+  const addTags = TagIds.parse(request.addTags);
+  const removeTags = TagIds.parse(request.removeTags);
   const larpId = request.larpId;
 
   return db.transaction(async (tx) => {
@@ -454,6 +464,7 @@ export async function approveUpdateLarpRequest(
     }
 
     await handleLarpLinks(tx, larp.id, addLinks, removeLinks);
+    await handleLarpTags(tx, larp.id, addTags, removeTags);
     await handleRelatedLarps(tx, addRelatedLarps, removeRelatedLarps);
 
     await handleRequestStatusUpdate(

@@ -32,10 +32,15 @@ import {
   ShareIcon,
   ShieldIcon,
   StatsIcon,
+  TagIcon,
   ThemeIcon,
   TodayIcon,
 } from "./icons";
-import { searchPalette, type PaletteSearchResults } from "./searchPalette";
+import {
+  searchPalette,
+  type PaletteSearchResults,
+  type TagSearchResult,
+} from "./searchPalette";
 import type { SignupPillState } from "./signupPillState";
 import StatusPill from "./StatusPill";
 import { formatShortDateRange } from "@/helpers/dates";
@@ -57,7 +62,8 @@ type PaletteIcon =
   | "stats"
   | "theme"
   | "image"
-  | "merge";
+  | "merge"
+  | "tag";
 
 type PaletteAction = "copyLink" | "share" | "switchTheme";
 
@@ -103,6 +109,7 @@ const iconComponents: Record<PaletteIcon, typeof SearchIcon> = {
   theme: ThemeIcon,
   image: ImageIcon,
   merge: MergeIcon,
+  tag: TagIcon,
 };
 
 // ---------- platform ----------
@@ -308,6 +315,7 @@ type PaletteItem =
       result: LarpSearchResult;
     }
   | { kind: "page"; key: string; href: string; page: PageSearchResult }
+  | { kind: "tag"; key: string; href: string; tag: TagSearchResult }
   | { kind: "allResults"; key: string; href: string }
   | { kind: "command"; key: string; command: PaletteCommand }
   | { kind: "recent"; key: string; href: string; recent: RecentLarp };
@@ -449,6 +457,7 @@ function CommandPaletteDialog({
   const shown = searchable ? response?.results : undefined;
   const shownLarps = shown?.larps ?? { total: 0, results: [] };
   const shownPages = shown?.pages ?? { total: 0, results: [] };
+  const shownTags = shown?.tags ?? [];
 
   const otherLocale = locale === "fi" ? "en" : "fi";
   const globalCommands: PaletteCommand[] = [
@@ -478,6 +487,12 @@ function CommandPaletteDialog({
       label: t.commands.stats,
       icon: "stats",
       href: "/stats",
+    },
+    {
+      id: "global:allTags",
+      label: t.commands.allTags,
+      icon: "tag",
+      href: "/tag",
     },
     ...(themeSwitching
       ? [
@@ -567,6 +582,18 @@ function CommandPaletteDialog({
           key: `page-${page.slug}`,
           href: pagePathInUiLanguage(page.slug),
           page,
+        })),
+      });
+    }
+    if (shownTags.length > 0) {
+      groups.push({
+        key: "tags",
+        label: t.tags,
+        items: shownTags.map((tag) => ({
+          kind: "tag" as const,
+          key: `tag-${tag.slug}`,
+          href: `/tag/${tag.slug}`,
+          tag,
         })),
       });
     }
@@ -843,6 +870,27 @@ function CommandPaletteDialog({
                       <PagesIcon />
                       <span className="lf-palette__label">
                         <Highlight text={item.page.title} query={searchText} />
+                      </span>
+                      {isSelected && !isPhone && <kbd>↵</kbd>}
+                    </a>
+                  );
+                }
+
+                if (item.kind === "tag") {
+                  return (
+                    <a
+                      key={item.key}
+                      href={item.href}
+                      className="lf-palette__item"
+                      {...common}
+                    >
+                      <TagIcon />
+                      <span className="lf-palette__label">
+                        <Highlight text={item.tag.name} query={searchText} />{" "}
+                        <span className="lf-dim">{item.tag.otherName}</span>
+                      </span>
+                      <span className="lf-palette__sub lf-data">
+                        {item.tag.larpCount}
                       </span>
                       {isSelected && !isPhone && <kbd>↵</kbd>}
                     </a>

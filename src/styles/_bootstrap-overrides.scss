@@ -281,4 +281,43 @@ kbd {
   .larpit-select__menu-notice {
     color: var(--larpit-muted);
   }
+
+  .larpit-select__multi-value {
+    background-color: rgba(var(--larpit-aurora-rgb), 0.18);
+    border-radius: 999px;
+    padding-left: 4px;
+  }
+
+  .larpit-select__multi-value__label {
+    color: var(--larpit-text);
+  }
+
+  .larpit-select__multi-value__remove {
+    border-radius: 999px;
+    color: var(--larpit-muted);
+  }
+
+  .larpit-select__tag-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .larpit-select__tag-other,
+  .larpit-select__tag-description {
+    font-size: 13px;
+    color: var(--larpit-muted);
+  }
+
+  .larpit-select__tag-count {
+    float: right;
+    font-size: 12px;
+    color: var(--larpit-dim);
+  }
+
+  .larpit-select__option--is-selected .larpit-select__tag-other,
+  .larpit-select__option--is-selected .larpit-select__tag-description,
+  .larpit-select__option--is-selected .larpit-select__tag-count {
+    color: inherit;
+  }
 }

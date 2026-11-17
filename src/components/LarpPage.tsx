@@ -53,6 +53,7 @@ import HeaderImageBackdrop, {
   heroWithImageClassName,
 } from "./header-image/HeaderImageBackdrop";
 import LarpJsonLd from "./LarpJsonLd";
+import TagChips from "./ui/TagChips";
 import styles from "./LarpPage.module.scss";
 import TooltipTrigger from "./TooltipTrigger";
 import SignInButton from "./larp-page/SignInButton";
@@ -110,6 +111,9 @@ export async function getLarpPageData(
         .include("country", (c) => c.select("code")),
     )
     .include("headerImage")
+    .include("tags", (lt) =>
+      lt.include("tag", (t) => t.select("id", "slug", "nameFi", "nameEn")),
+    )
     .first(where);
   if (!larp) return null;
   const relatedLarpsLeft = larp.relatedLarpsLeft
@@ -127,6 +131,7 @@ export async function getLarpPageData(
     municipality,
     relatedLarpsLeft,
     relatedLarpsRight,
+    tags: larp.tags.map((larpTag) => required(larpTag.tag)),
   });
 }
 
@@ -271,6 +276,7 @@ function Hero({
                 <span className="lf-tag">{opennessChoice.title}</span>
               </TagWithDescription>
             )}
+            <TagChips tags={larp.tags} locale={locale} />
           </div>
           <h1
             className={`lf-display-l${larp.cancelledAt ? ` ${styles.cancelledTitle}` : ""}`}

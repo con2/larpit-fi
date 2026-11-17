@@ -34,6 +34,7 @@ const reservedFirstSegments: readonly string[] = [
   "profile",
   "search",
   "stats",
+  "tag",
   "user",
   "verify",
   "new",

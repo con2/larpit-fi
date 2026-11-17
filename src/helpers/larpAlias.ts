@@ -77,7 +77,7 @@ const transliterations: Record<string, string> = {
   ł: "l",
 };
 
-function slugify(text: string): string {
+export function slugify(text: string): string {
   return text
     .toLowerCase()
     .replace(/[æøßþðđł]/g, (letter) => transliterations[letter])

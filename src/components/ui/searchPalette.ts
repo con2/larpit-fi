@@ -1,6 +1,8 @@
 "use server";
 
 import { toSupportedLanguage } from "@/i18n/locales";
+import { getTagsWithCounts } from "@/models/Tag";
+import { otherTagName, tagMatches, tagName } from "@/models/Tag.client";
 import { getReader } from "@/prisma/reader";
 import { allowSearch } from "@/search/rateLimit";
 import {
@@ -21,10 +23,19 @@ export type PaletteSearchResults =
       larps: SearchResults<LarpSearchResult>;
       pages: SearchResults<PageSearchResult>;
       commands: CommandSearchResult[];
+      tags: TagSearchResult[];
     }
   | { rateLimited: true };
 
+export interface TagSearchResult {
+  slug: string;
+  name: string;
+  otherName: string;
+  larpCount: number;
+}
+
 const larpLimit = 8;
+const tagLimit = 5;
 const pageLimit = 3;
 const commandLimit = 20;
 
@@ -43,12 +54,13 @@ export async function searchPalette(
   const reader = await getReader();
   const none = { total: 0, results: [] };
 
-  const [larps, pages, commands] = await Promise.all([
+  const [larps, pages, commands, tags] = await Promise.all([
     commandsOnly ? none : searchLarps(reader, query, { limit: larpLimit }),
     commandsOnly
       ? none
       : searchPages(reader, query, language, { limit: pageLimit }),
     searchCommands(reader, query, language, { limit: commandLimit }),
+    commandsOnly ? [] : getTagsWithCounts(reader),
   ]);
   const now = new Date();
   return {
@@ -60,5 +72,15 @@ export async function searchPalette(
     },
     pages,
     commands: commands.results,
+    tags: tags
+      .filter((tag) => query.text && tagMatches(tag, query.text))
+      .sort((a, b) => b.larpCount - a.larpCount)
+      .slice(0, tagLimit)
+      .map((tag) => ({
+        slug: tag.slug,
+        name: tagName(tag, language),
+        otherName: otherTagName(tag, language),
+        larpCount: tag.larpCount,
+      })),
   };
 }

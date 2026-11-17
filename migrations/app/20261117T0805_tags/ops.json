@@ -1,0 +1,440 @@
+[
+  {
+    "id": "table.larp_tag",
+    "label": "Create table \"larp_tag\"",
+    "summary": "Creates table \"larp_tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "larp_tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"larp_tag\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"larp_tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"larp_tag\"",
+        "sql": "CREATE TABLE \"public\".\"larp_tag\" (\n  \"larp_id\" uuid NOT NULL,\n  \"tag_id\" uuid NOT NULL,\n  PRIMARY KEY (\"larp_id\", \"tag_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"larp_tag\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"larp_tag\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"larp_tag\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.tag",
+    "label": "Create table \"tag\"",
+    "summary": "Creates table \"tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"tag\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"tag\"",
+        "sql": "CREATE TABLE \"public\".\"tag\" (\n  \"description_en\" text DEFAULT '' NOT NULL,\n  \"description_fi\" text DEFAULT '' NOT NULL,\n  \"id\" uuid DEFAULT (uuidv7()) NOT NULL,\n  \"name_en\" text NOT NULL,\n  \"name_fi\" text NOT NULL,\n  \"slug\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"tag\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"tag\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"tag\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.moderation_request.add_tags",
+    "label": "Add column \"add_tags\" to \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "add_tags",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"add_tags\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "add_tags"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"add_tags\" on \"moderation_request\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"add_tags\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ADD COLUMN \"add_tags\" jsonb DEFAULT ('[]'::jsonb) NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"add_tags\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "add_tags"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"add_tags\" on \"moderation_request\""
+        }
+      },
+      {
+        "description": "verify column \"add_tags\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "add_tags",
+          "jsonb"
+        ]
+      },
+      {
+        "description": "verify column \"add_tags\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "add_tags",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.moderation_request.remove_tags",
+    "label": "Add column \"remove_tags\" to \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "remove_tags",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"remove_tags\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "remove_tags"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"remove_tags\" on \"moderation_request\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"remove_tags\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ADD COLUMN \"remove_tags\" jsonb DEFAULT ('[]'::jsonb) NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"remove_tags\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "remove_tags"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"remove_tags\" on \"moderation_request\""
+        }
+      },
+      {
+        "description": "verify column \"remove_tags\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "remove_tags",
+          "jsonb"
+        ]
+      },
+      {
+        "description": "verify column \"remove_tags\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "remove_tags",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.tag.tag_slug_key",
+    "label": "Add unique constraint on \"tag\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "tag_slug_key",
+        "table": "tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"tag_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "tag_slug_key",
+          "public",
+          "\"public\".\"tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"tag_slug_key\" on \"tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"tag_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"tag\" ADD CONSTRAINT \"tag_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"tag_slug_key\" exists on (slug)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "tag_slug_key",
+          "public",
+          "\"public\".\"tag\"",
+          "u",
+          "[\"slug\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.larp_tag.larp_tag_tag_id_idx_94b47830",
+    "label": "Create index \"larp_tag_tag_id_idx_94b47830\" on \"larp_tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "larp_tag_tag_id_idx_94b47830",
+        "table": "larp_tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"larp_tag_tag_id_idx_94b47830\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"larp_tag_tag_id_idx_94b47830\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"larp_tag_tag_id_idx_94b47830\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"larp_tag_tag_id_idx_94b47830\"",
+        "sql": "CREATE INDEX \"larp_tag_tag_id_idx_94b47830\" ON \"public\".\"larp_tag\" (\"tag_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"larp_tag_tag_id_idx_94b47830\" exists on \"larp_tag\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"larp_tag_tag_id_idx_94b47830\"",
+          "i",
+          "I",
+          "\"public\".\"larp_tag\"",
+          "btree",
+          "[\"tag_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.larp_tag.larp_tag_larp_id_fkey",
+    "label": "Add foreign key \"larp_tag_larp_id_fkey\" on \"larp_tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "larp_tag_larp_id_fkey",
+        "table": "larp_tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"larp_tag_larp_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_tag_larp_id_fkey",
+          "public",
+          "\"public\".\"larp_tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"larp_tag_larp_id_fkey\" on \"larp_tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"larp_tag_larp_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"larp_tag\"\nADD CONSTRAINT \"larp_tag_larp_id_fkey\"\nFOREIGN KEY (\"larp_id\")\nREFERENCES \"public\".\"larp\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"larp_tag_larp_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "larp_tag_larp_id_fkey",
+          "public",
+          "\"public\".\"larp_tag\"",
+          "f",
+          "[\"larp_id\"]",
+          "\"public\".\"larp\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.larp_tag.larp_tag_tag_id_fkey",
+    "label": "Add foreign key \"larp_tag_tag_id_fkey\" on \"larp_tag\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "larp_tag_tag_id_fkey",
+        "table": "larp_tag"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"larp_tag_tag_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "larp_tag_tag_id_fkey",
+          "public",
+          "\"public\".\"larp_tag\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"larp_tag_tag_id_fkey\" on \"larp_tag\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"larp_tag_tag_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"larp_tag\"\nADD CONSTRAINT \"larp_tag_tag_id_fkey\"\nFOREIGN KEY (\"tag_id\")\nREFERENCES \"public\".\"tag\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"larp_tag_tag_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "larp_tag_tag_id_fkey",
+          "public",
+          "\"public\".\"larp_tag\"",
+          "f",
+          "[\"tag_id\"]",
+          "\"public\".\"tag\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]

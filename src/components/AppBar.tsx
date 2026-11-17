@@ -132,6 +132,11 @@ export default async function AppBar({ locale }: Props) {
       title: navigationMessages.actions.aliases,
       icon: "aliases",
     });
+    adminLinks.push({
+      href: "/tag",
+      title: navigationMessages.actions.tags,
+      icon: "tags",
+    });
   }
   if (canEditPages(user)) {
     adminLinks.push({

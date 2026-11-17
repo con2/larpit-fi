@@ -8,6 +8,7 @@ import { Language, LarpType } from "@/prisma/enums";
 import type { Larp, Municipality } from "@/prisma/models";
 import type { Translations } from "@/translations/en";
 import { LarpStatusPill } from "./StatusPill";
+import TagChips, { type TagChip } from "./TagChips";
 import Link from "next/link";
 
 export type LarpRowLarp = Pick<
@@ -58,7 +59,12 @@ interface Props {
   past?: boolean;
   /** Replaces the status pill on the right. */
   aside?: ReactNode;
+  tags?: TagChip[];
+  /** The tag whose page the row is on, highlighted among `tags`. */
+  currentTagId?: string;
 }
+
+const maxRowTags = 3;
 
 export default function LarpRow({
   larp,
@@ -68,6 +74,8 @@ export default function LarpRow({
   prominentTagline = false,
   past = false,
   aside,
+  tags = [],
+  currentTagId,
 }: Props) {
   const subParts: ReactNode[] = [];
   if (larp.municipality?.nameFi) subParts.push(larp.municipality.nameFi);
@@ -123,6 +131,18 @@ export default function LarpRow({
         )}
         {prominentTagline && larp.tagline && (
           <div className="lf-row__tagline">{larp.tagline}</div>
+        )}
+        {tags.length > 0 && (
+          <div className="lf-tags lf-row__tags">
+            <TagChips
+              tags={tags}
+              locale={locale}
+              static
+              max={maxRowTags}
+              currentTagId={currentTagId}
+              small
+            />
+          </div>
         )}
       </div>
       <div className="lf-row__aside">

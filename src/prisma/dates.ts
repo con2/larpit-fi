@@ -20,6 +20,8 @@ const jsonFields = new Set([
   "removeLinks",
   "addRelatedLarps",
   "removeRelatedLarps",
+  "addTags",
+  "removeTags",
 ]);
 
 type TimestampField =
@@ -37,7 +39,9 @@ type JsonField =
   | "addLinks"
   | "removeLinks"
   | "addRelatedLarps"
-  | "removeRelatedLarps";
+  | "removeRelatedLarps"
+  | "addTags"
+  | "removeTags";
 
 type Replace<T, From, To> = T extends From ? To : T;
 

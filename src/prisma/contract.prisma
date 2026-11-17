@@ -250,6 +250,7 @@ namespace public {
     requests               ModerationRequest[]
     aliasRedirects         LarpAliasRedirect[]
     redirects              LarpRedirect[]
+    tags                   LarpTag[]
     municipality           Municipality?                  @relation(fields:[municipalityId], references:[id], onDelete: SetNull, index: false)
     headerImage            HeaderImage?                   @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 
@@ -327,6 +328,9 @@ namespace public {
     removeRelatedLarps Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_related_larps")
     addRelatedLarps    Jsonb                  @default(sql`'[]'::jsonb`) @map("add_related_larps")
 
+    removeTags         Jsonb                  @default(sql`'[]'::jsonb`) @map("remove_tags")
+    addTags            Jsonb                  @default(sql`'[]'::jsonb`) @map("add_tags")
+
     message            String?
 
     larp               Larp?                  @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
@@ -336,6 +340,34 @@ namespace public {
     submitter          User?                  @relation("RequestsSubmittedByUser", fields:[submitterId], references:[id], onDelete: SetNull, index: false)
 
     @@map("moderation_request")
+  }
+
+  // A moderator-curated label that editors attach to larps. The slug may change only while no
+  // larp has the tag.
+  model Tag {
+    // createdAt is derived from the UUIDv7 id
+    id            Uuid      @id @default(sql`uuidv7()`)
+    slug          String    @unique
+    nameFi        String    @map("name_fi")
+    nameEn        String    @map("name_en")
+    // Markdown
+    descriptionFi String    @default("") @map("description_fi")
+    descriptionEn String    @default("") @map("description_en")
+
+    larps         LarpTag[]
+
+    @@map("tag")
+  }
+
+  model LarpTag {
+    larpId Uuid @map("larp_id")
+    tagId  Uuid @map("tag_id")
+
+    larp   Larp @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
+    tag    Tag  @relation(fields:[tagId], references:[id], onDelete: Cascade)
+
+    @@id([larpId, tagId])
+    @@map("larp_tag")
   }
 
   // An alias that a larp no longer has, kept so that links to it still lead to the larp. A larp

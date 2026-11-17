@@ -15,6 +15,7 @@ import {
   PagesIcon,
   ShieldCheckIcon,
   SignOutIcon,
+  TagIcon,
   UserIcon,
 } from "./ui/icons";
 import { LanguageSegmented } from "./ui/NavLinks";
@@ -36,7 +37,7 @@ export interface UserMenuCounts {
 export interface AdminLink {
   href: string;
   title: string;
-  icon: "moderate" | "aliases" | "pages" | "users";
+  icon: "moderate" | "aliases" | "tags" | "pages" | "users";
   badge?: number;
 }
 
@@ -65,6 +66,7 @@ function getInitials(user: UserMenuUser): string {
 const adminIcons = {
   moderate: ShieldCheckIcon,
   aliases: LinkIcon,
+  tags: TagIcon,
   pages: PagesIcon,
   users: UserIcon,
 };

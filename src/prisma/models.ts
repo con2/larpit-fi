@@ -20,3 +20,5 @@ export type Country = Row<"Country">;
 export type ModerationRequest = WithDates<Row<"ModerationRequest">>;
 export type Page = WithDates<Row<"Page">>;
 export type HeaderImage = WithDates<Row<"HeaderImage">>;
+export type Tag = Row<"Tag">;
+export type LarpTag = Row<"LarpTag">;

@@ -12,6 +12,7 @@ import {
   diffLarpLinks,
   parseIndexedLinksFromFormData,
 } from "@/models/LarpLink";
+import { diffLarpTags, parseTagIdsFromFormData } from "@/models/Tag.client";
 import {
   approveRequest,
   diffLarpContent,
@@ -45,6 +46,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
       ),
   )
     .include("links", (l) => l.select("href", "type", "title"))
+    .include("tags", (t) => t.select("tagId"))
     .first({ id: larpId });
   const larp = larpRow && parseDates(larpRow);
 
@@ -56,6 +58,8 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const desiredLinks = parseIndexedLinksFromFormData(data);
+  const currentTags = larp.tags.map((t) => t.tagId);
+  const desiredTags = parseTagIdsFromFormData(data) ?? currentTags;
 
   const { name: submitterName, email: submitterEmail } = user;
   // Destructure out all form-specific fields; remainder is already-transformed ModerationRequestContent
@@ -84,6 +88,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
     larp.links.map((l) => ({ ...l, title: l.title ?? undefined })),
     desiredLinks,
   );
+  const { addTags, removeTags } = diffLarpTags(currentTags, desiredTags);
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.UPDATE,
     larpId: larp.id,
@@ -96,6 +101,8 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
     newContent: toJson(diff),
     addLinks: toJson(addLinks),
     removeLinks: toJson(removeLinks),
+    addTags: toJson(addTags),
+    removeTags: toJson(removeTags),
   });
 
   if (status === EditStatus.VERIFIED) {

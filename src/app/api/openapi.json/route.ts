@@ -104,7 +104,45 @@ const spec = {
                 "Present only when requested with include=relatedLarps",
               items: { $ref: "#/components/schemas/RelatedLarp" },
             },
+            tags: {
+              type: "array",
+              description: "Present only when requested with include=tags",
+              items: { $ref: "#/components/schemas/LarpTag" },
+            },
           },
+        };
+      })(),
+      LarpTag: (() => {
+        const properties = {
+          slug: {
+            type: "string",
+            description: "The tag page is https://larp.fi/tag/<slug>",
+          },
+          nameFi: { type: "string" },
+          nameEn: { type: "string" },
+        };
+        return {
+          type: "object",
+          required: Object.keys(properties),
+          properties,
+        };
+      })(),
+      Tag: (() => {
+        const properties = {
+          slug: {
+            type: "string",
+            description: "The tag page is https://larp.fi/tag/<slug>",
+          },
+          nameFi: { type: "string" },
+          nameEn: { type: "string" },
+          descriptionFi: { type: "string", description: "Markdown" },
+          descriptionEn: { type: "string", description: "Markdown" },
+          larpCount: { type: "integer" },
+        };
+        return {
+          type: "object",
+          required: Object.keys(properties),
+          properties,
         };
       })(),
       Country: (() => {
@@ -164,6 +202,10 @@ const spec = {
                 type: "array",
                 items: { $ref: "#/components/schemas/LarpLink" },
               },
+              tags: {
+                type: "array",
+                items: { $ref: "#/components/schemas/LarpTag" },
+              },
             };
             return {
               type: "object",
@@ -210,7 +252,7 @@ const spec = {
             in: "query",
             required: false,
             description:
-              "Comma-separated list of related data to include in each item. Supported: links, relatedLarps",
+              "Comma-separated list of related data to include in each item. Supported: links, relatedLarps, tags",
             schema: { type: "string", example: "links" },
           },
         ],
@@ -298,6 +340,31 @@ const spec = {
                     items: {
                       type: "array",
                       items: { $ref: "#/components/schemas/Country" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/tag": {
+      get: {
+        summary: "List tags",
+        operationId: "listTags",
+        responses: {
+          "200": {
+            description: "All tags, curated by the moderators",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["items"],
+                  properties: {
+                    items: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Tag" },
                     },
                   },
                 },

@@ -1,4 +1,4 @@
-import type { Country, Larp, Municipality } from "@/prisma/models";
+import type { Country, Larp, Municipality, Tag } from "@/prisma/models";
 import { getLarpUrl } from "@/models/Larp";
 import { typesetDashes } from "@/helpers/larpName";
 
@@ -19,6 +19,7 @@ type LarpJsonLdInput = Pick<
         country: Pick<Country, "code">;
       })
     | null;
+  tags: Pick<Tag, "nameFi" | "nameEn">[];
 };
 
 function larpToJsonLd(larp: LarpJsonLdInput) {
@@ -32,6 +33,11 @@ function larpToJsonLd(larp: LarpJsonLdInput) {
     url: getLarpUrl(larp),
     name: typesetDashes(larp.name),
     ...(larp.tagline && { description: larp.tagline }),
+    ...(larp.tags.length > 0 && {
+      keywords: larp.tags
+        .map((tag) => (larp.language === "fi" ? tag.nameFi : tag.nameEn))
+        .join(", "),
+    }),
     ...(larp.startsAt && { startDate: larp.startsAt }),
     ...(larp.endsAt && { endDate: larp.endsAt }),
     ...((larp.locationText || larp.municipality?.nameFi) && {

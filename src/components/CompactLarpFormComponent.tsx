@@ -5,7 +5,9 @@ import { db } from "@/prisma/db";
 import { toSupportedLanguage } from "@/translations";
 import type { Translations } from "@/translations/en";
 import { Temporal } from "@js-temporal/polyfill";
+import type { TagSummary } from "@/models/Tag.client";
 import { RequiredMark } from "./FormSection";
+import TagsField from "./TagsField";
 import { FormCheck, FormControl, FormLabel, FormSelect } from "react-bootstrap";
 import { MarkdownEditor, TextArea } from "@con2/components";
 
@@ -31,6 +33,8 @@ interface Props {
     | "description"
     | "cancelledAt"
   > | null;
+  tags: TagSummary[];
+  tagIds: string[];
 }
 
 function toISODateEmpty(
@@ -51,6 +55,8 @@ export default async function CompactLarpFormComponent({
   translations,
   locale,
   larp,
+  tags,
+  tagIds,
 }: Props) {
   const t = translations.Larp;
 
@@ -146,6 +152,16 @@ export default async function CompactLarpFormComponent({
               </FormSelect>
             </div>
           </div>
+
+          {tags.length > 0 && (
+            <TagsField
+              tags={tags}
+              defaultTagIds={tagIds}
+              locale={locale}
+              messages={translations.Tag.field}
+              compact
+            />
+          )}
 
           <div className="row mb-3">
             <div className="form-group col-lg-6">

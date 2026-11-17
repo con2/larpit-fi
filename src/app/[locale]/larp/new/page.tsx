@@ -11,7 +11,10 @@ import PrivacyFormComponent from "@/components/PrivacyFormComponent";
 import SubmitterFormComponent from "@/components/SubmitterFormComponent";
 import YoureAlmostReadyFormComponent from "@/components/YoureAlmostReadyFormComponent";
 import styles from "@/components/LarpForm.module.scss";
+import { compareTagNames } from "@/models/Tag.client";
+import { getTagsWithCounts } from "@/models/Tag";
 import { getUserFromSession } from "@/models/User";
+import { query } from "@/prisma/sql";
 import { getTranslations, toSupportedLanguage } from "@/translations";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -38,7 +41,11 @@ export default async function NewLarpPage({ params }: Props) {
   const t = translations.NewLarpPage;
 
   const session = await auth();
-  const user = await getUserFromSession(session);
+  const [user, tags] = await Promise.all([
+    getUserFromSession(session),
+    getTagsWithCounts({ query }),
+  ]);
+  tags.sort(compareTagNames(locale));
 
   return (
     <>
@@ -66,6 +73,8 @@ export default async function NewLarpPage({ params }: Props) {
             translations={translations}
             locale={locale}
             larp={null}
+            tags={tags}
+            tagIds={[]}
           />
           <LarpTimeFormComponent
             translations={translations}

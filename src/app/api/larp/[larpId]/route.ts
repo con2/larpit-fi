@@ -10,6 +10,9 @@ import {
   type LarpIdOrAliasFilter,
 } from "@/models/Larp";
 
+import { getApiTagsOfLarps } from "@/models/Tag";
+import { queryRead } from "@/prisma/sql";
+
 import { larpToApi } from "../helpers";
 
 interface Params {
@@ -68,9 +71,14 @@ export async function GET(
   }
 
   const { cancelledAt, ...rest } = parseDates(larpRow);
+  const tags = await getApiTagsOfLarps({ query: queryRead }, [rest.id]);
 
   return NextResponse.json(
-    larpToApi({ ...rest, isCancelled: cancelledAt !== null }),
+    larpToApi({
+      ...rest,
+      isCancelled: cancelledAt !== null,
+      tags: tags.get(rest.id) ?? [],
+    }),
     { headers: { "Access-Control-Allow-Origin": "*" } },
   );
 }

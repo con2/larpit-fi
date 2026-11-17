@@ -14,7 +14,7 @@ import { pool } from "@/prisma/pool";
 /**
  * Mirrors the public larp data of a larp.fi instance into this database, for development
  * against realistic content. Larps keep their ids, so local URLs match the source instance.
- * Countries and municipalities are loaded first, and a larp's municipality is matched by its
+ * Countries, municipalities and tags are loaded first, and a larp's municipality is matched by its
  * Finnish name because that is all the larp API exposes of it. Users, roles and moderation
  * history are not public and are not loaded.
  *
@@ -47,6 +47,8 @@ const ApiRelatedLarp = z.object({
   type: z.enum(RelatedLarpType),
 });
 
+const ApiLarpTag = z.object({ slug: z.string() });
+
 const ApiLarpSummary = z.object({
   id: z.string().uuid(),
   alias: z.string().nullable(),
@@ -65,6 +67,8 @@ const ApiLarpSummary = z.object({
   numTotalParticipants: z.number().int().nullable(),
   links: z.array(ApiLink),
   relatedLarps: z.array(ApiRelatedLarp),
+  // Servers that predate tags leave this out.
+  tags: z.array(ApiLarpTag).optional(),
 });
 
 const ApiLarpDetail = z.object({
@@ -88,6 +92,18 @@ const ApiCountryList = z.object({
       nameFi: z.string().nullable(),
       nameSv: z.string().nullable(),
       nameEn: z.string().nullable(),
+    }),
+  ),
+});
+
+const ApiTagList = z.object({
+  items: z.array(
+    z.object({
+      slug: z.string(),
+      nameFi: z.string(),
+      nameEn: z.string(),
+      descriptionFi: z.string(),
+      descriptionEn: z.string(),
     }),
   ),
 });
@@ -118,12 +134,12 @@ async function fetchJson(path: string): Promise<unknown> {
   return response.json();
 }
 
-async function fetchAllLarps(): Promise<ApiLarpSummary[]> {
+async function fetchAllLarps(withTags: boolean): Promise<ApiLarpSummary[]> {
   const larps: ApiLarpSummary[] = [];
   let cursor: string | null = null;
   do {
     const query = new URLSearchParams({
-      include: "links,relatedLarps",
+      include: withTags ? "links,relatedLarps,tags" : "links,relatedLarps",
       limit: String(pageSize),
     });
     if (cursor) query.set("after", cursor);
@@ -157,6 +173,29 @@ async function loadCountriesAndMunicipalities(): Promise<void> {
   );
 }
 
+/** Tag ids by slug, or null when the source predates tags. */
+async function loadTags(): Promise<Map<string, string> | null> {
+  let response: unknown;
+  try {
+    response = await fetchJson("/api/tag");
+  } catch (error) {
+    console.log(`not loading tags: ${(error as Error).message}`);
+    return null;
+  }
+  const tags = ApiTagList.parse(response);
+  const idsBySlug = new Map<string, string>();
+  for (const { slug, ...fields } of tags.items) {
+    const tag = await db.orm.public.Tag.select("id").upsert({
+      create: { slug, ...fields },
+      update: fields,
+      conflictOn: { slug },
+    });
+    idsBySlug.set(slug, tag.id);
+  }
+  console.log(`loaded ${tags.items.length} tags`);
+  return idsBySlug;
+}
+
 async function municipalityIdsByName(): Promise<Map<string, string>> {
   const municipalities = await db.orm.public.Municipality.select(
     "id",
@@ -184,6 +223,7 @@ async function releaseMovedAliases(larps: ApiLarpSummary[]): Promise<number> {
 async function loadLarp(
   summary: ApiLarpSummary,
   municipalities: Map<string, string>,
+  tagIds: Map<string, string> | null,
 ) {
   const detail = ApiLarpDetail.parse(await fetchJson(`/api/larp/${summary.id}`));
   const existing = await db.orm.public.Larp.select("cancelledAt").first({
@@ -224,6 +264,16 @@ async function loadLarp(
         summary.links.map((link) => ({ larpId: summary.id, ...link })),
       );
     }
+    if (tagIds && summary.tags) {
+      await tx.orm.public.LarpTag.where({ larpId: summary.id }).deleteAndCount();
+      const rows = summary.tags.flatMap(({ slug }) => {
+        const tagId = tagIds.get(slug);
+        return tagId ? [{ larpId: summary.id, tagId }] : [];
+      });
+      if (rows.length > 0) {
+        await tx.orm.public.LarpTag.createAndCount(rows);
+      }
+    }
   });
 }
 
@@ -248,7 +298,8 @@ async function loadRelatedLarps(larps: ApiLarpSummary[]): Promise<number> {
 
 async function main() {
   await loadCountriesAndMunicipalities();
-  const larps = await fetchAllLarps();
+  const tagIds = await loadTags();
+  const larps = await fetchAllLarps(tagIds !== null);
   const released = await releaseMovedAliases(larps);
   if (released > 0) console.log(`released ${released} moved aliases`);
   const municipalities = await municipalityIdsByName();
@@ -257,7 +308,7 @@ async function main() {
   await Promise.all(
     larps.map((larp) =>
       limit(async () => {
-        await loadLarp(larp, municipalities);
+        await loadLarp(larp, municipalities, tagIds);
         loaded++;
         if (loaded % 100 === 0) console.log(`loaded ${loaded}/${larps.length}`);
       }),
