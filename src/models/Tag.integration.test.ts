@@ -87,6 +87,31 @@ describe("tags", () => {
     ).toEqual({ ok: true, tag: { id: tagId, slug: "kauhu" } });
   });
 
+  it("bumps the updatedAt of the tag's larps on a rename, not on a description edit", async () => {
+    const result = await createTag(form);
+    if (!result.ok) throw new Error(result.error);
+    const larp = await createLarp();
+    await db.orm.public.LarpTag.create({
+      larpId: larp.id,
+      tagId: result.tag.id,
+    });
+    const longAgo = new Date("2020-01-01T00:00:00Z");
+    const backdate = () =>
+      pool.query("update larp set updated_at = $1 where id = $2", [
+        iso(longAgo),
+        larp.id,
+      ]);
+    const updatedAt = async () =>
+      parseDates((await db.orm.public.Larp.first({ id: larp.id }))!).updatedAt;
+
+    await backdate();
+    await updateTag(result.tag.id, { ...form, descriptionEn: "Scary." });
+    expect(await updatedAt()).toEqual(longAgo);
+
+    await updateTag(result.tag.id, { ...form, nameEn: "Terror" });
+    expect((await updatedAt()).getTime()).toBeGreaterThan(longAgo.getTime());
+  });
+
   it("removes the tag from its larps on delete and bumps their updatedAt", async () => {
     const result = await createTag(form);
     if (!result.ok) throw new Error(result.error);

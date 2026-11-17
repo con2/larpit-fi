@@ -4,9 +4,7 @@
  */
 import { slugify } from "@/helpers/larpAlias";
 import { foldForeignLetters } from "@/search/searchQuery";
-
-/** Enforced on save; the form hint asks for fewer. */
-export const maxTagsPerLarp = 10;
+import { validate as validateUuid } from "uuid";
 
 export const tagSlugMaxLength = 60;
 
@@ -79,28 +77,47 @@ export function tagMatches(tag: TagNames, query: string): boolean {
 /** Marks a form that has the tags field, so that a form without it leaves the tags alone. */
 export const tagsFieldMarker = "tagsField";
 
-/**
- * Reads the `tagId` fields of a larp form; null when the form has no tags field. The fields
- * repeat, which `normalizeFormData` does not support.
- */
-export function parseTagIdsFromFormData(data: FormData): string[] | null {
-  if (!data.has(tagsFieldMarker)) return null;
+function tagIdsOf(data: FormData, name: string): string[] {
   const ids = data
-    .getAll("tagId")
+    .getAll(name)
     .filter((value): value is string => typeof value === "string")
     .map((value) => value.trim())
-    .filter(Boolean);
-  return [...new Set(ids)].slice(0, maxTagsPerLarp);
+    .filter((value) => validateUuid(value));
+  return [...new Set(ids)];
 }
 
-export function diffLarpTags(
-  current: string[],
-  desired: string[],
-): { addTags: string[]; removeTags: string[] } {
-  const currentSet = new Set(current);
-  const desiredSet = new Set(desired);
+/**
+ * Reads the tags field of a larp form: the tags the larp had when the form was loaded (`tagLoaded`)
+ * and the ones picked (`tagId`). Null when the form has no tags field. The fields repeat, which
+ * `normalizeFormData` does not support.
+ */
+export function parseTagsFromFormData(
+  data: FormData,
+): { loaded: string[]; desired: string[] } | null {
+  if (!data.has(tagsFieldMarker)) return null;
   return {
-    addTags: desired.filter((id) => !currentSet.has(id)),
-    removeTags: current.filter((id) => !desiredSet.has(id)),
+    loaded: tagIdsOf(data, "tagLoaded"),
+    desired: tagIdsOf(data, "tagId"),
+  };
+}
+
+/**
+ * The changes the editor made between loading and submitting the form, against the tags the larp
+ * has now: a tag that someone else added or removed meanwhile, and this editor did not touch,
+ * stays as it is now.
+ */
+export function diffLarpTags(
+  loaded: string[],
+  desired: string[],
+  current: string[],
+): { addTags: string[]; removeTags: string[] } {
+  const loadedSet = new Set(loaded);
+  const desiredSet = new Set(desired);
+  const currentSet = new Set(current);
+  return {
+    addTags: desired.filter((id) => !loadedSet.has(id) && !currentSet.has(id)),
+    removeTags: loaded.filter(
+      (id) => !desiredSet.has(id) && currentSet.has(id),
+    ),
   };
 }

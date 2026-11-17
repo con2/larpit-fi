@@ -196,6 +196,14 @@ async function loadTags(): Promise<Map<string, string> | null> {
   return idsBySlug;
 }
 
+function unknownTagSlugs(
+  larps: ApiLarpSummary[],
+  tagIds: Map<string, string>,
+): string[] {
+  const slugs = larps.flatMap((larp) => larp.tags ?? []).map((tag) => tag.slug);
+  return [...new Set(slugs)].filter((slug) => !tagIds.has(slug));
+}
+
 async function municipalityIdsByName(): Promise<Map<string, string>> {
   const municipalities = await db.orm.public.Municipality.select(
     "id",
@@ -265,11 +273,12 @@ async function loadLarp(
       );
     }
     if (tagIds && summary.tags) {
-      await tx.orm.public.LarpTag.where({ larpId: summary.id }).deleteAndCount();
-      const rows = summary.tags.flatMap(({ slug }) => {
+      const rows = summary.tags.map(({ slug }) => {
         const tagId = tagIds.get(slug);
-        return tagId ? [{ larpId: summary.id, tagId }] : [];
+        if (!tagId) throw new Error(`${summary.id} has unknown tag ${slug}`);
+        return { larpId: summary.id, tagId };
       });
+      await tx.orm.public.LarpTag.where({ larpId: summary.id }).deleteAndCount();
       if (rows.length > 0) {
         await tx.orm.public.LarpTag.createAndCount(rows);
       }
@@ -298,8 +307,16 @@ async function loadRelatedLarps(larps: ApiLarpSummary[]): Promise<number> {
 
 async function main() {
   await loadCountriesAndMunicipalities();
-  const tagIds = await loadTags();
+  let tagIds = await loadTags();
   const larps = await fetchAllLarps(tagIds !== null);
+  // A tag created in the source while the larps were being fetched is not in the vocabulary yet.
+  if (tagIds && unknownTagSlugs(larps, tagIds).length > 0) {
+    tagIds = await loadTags();
+    const unknown = tagIds ? unknownTagSlugs(larps, tagIds) : [];
+    if (!tagIds || unknown.length > 0) {
+      throw new Error(`larps have unknown tags: ${unknown.join(", ")}`);
+    }
+  }
   const released = await releaseMovedAliases(larps);
   if (released > 0) console.log(`released ${released} moved aliases`);
   const municipalities = await municipalityIdsByName();

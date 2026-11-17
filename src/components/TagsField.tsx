@@ -6,7 +6,6 @@ import { FormLabel, FormText } from "react-bootstrap";
 import Select, { type MultiValue } from "react-select";
 
 import {
-  maxTagsPerLarp,
   otherTagName,
   tagDescription,
   tagDescriptionExcerpt,
@@ -48,7 +47,6 @@ export default function TagsField({
   const [selected, setSelected] = useState<readonly Option[]>(() =>
     options.filter((option) => defaultTagIds.includes(option.value)),
   );
-  const isFull = selected.length >= maxTagsPerLarp;
 
   return (
     <div className={compact ? "form-group mb-3" : "mb-4"}>
@@ -56,6 +54,9 @@ export default function TagsField({
         {t.label}
       </FormLabel>
       <input type="hidden" name={tagsFieldMarker} value="1" />
+      {defaultTagIds.map((tagId) => (
+        <input key={tagId} type="hidden" name="tagLoaded" value={tagId} />
+      ))}
       {selected.map((option) => (
         <input
           key={option.value}
@@ -72,18 +73,13 @@ export default function TagsField({
         options={options}
         value={selected}
         onChange={(value: MultiValue<Option>) => setSelected(value)}
-        isOptionDisabled={() => isFull}
         filterOption={(option, input) => tagMatches(option.data.tag, input)}
         placeholder={t.placeholder}
-        noOptionsMessage={() =>
-          isFull ? (
-            t.maxReached.replace("{max}", String(maxTagsPerLarp))
-          ) : (
-            <>
-              {t.noOptions} <Link href="/contact">{t.suggest}</Link>
-            </>
-          )
-        }
+        noOptionsMessage={() => (
+          <>
+            {t.noOptions} <Link href="/contact">{t.suggest}</Link>
+          </>
+        )}
         formatOptionLabel={(option, { context }) =>
           context === "value" ? (
             option.label

@@ -132,9 +132,8 @@ export async function getTagIdsOfLarp(larpId: string): Promise<string[]> {
   return rows.map((row) => row.tagId);
 }
 
-async function isSlugTaken(slug: string, exceptId?: string): Promise<boolean> {
-  const tag = await db.orm.public.Tag.select("id").first({ slug });
-  return !!tag && tag.id !== exceptId;
+async function isSlugTaken(slug: string): Promise<boolean> {
+  return !!(await db.orm.public.Tag.select("id").first({ slug }));
 }
 
 export async function createTag(form: TagForm): Promise<TagResult> {
@@ -146,26 +145,51 @@ export async function createTag(form: TagForm): Promise<TagResult> {
   return { ok: true, tag };
 }
 
-/** The slug stays as it is once a larp has the tag, so that links to the tag page keep working. */
+/**
+ * The slug stays as it is once a larp has the tag, so that links to the tag page keep working.
+ * Renaming the tag bumps the updatedAt of its larps, since the API shows tag names on larps.
+ */
 export async function updateTag(id: string, form: TagForm): Promise<TagResult> {
-  const existing = await db.orm.public.Tag.select("id", "slug").first({ id });
-  if (!existing) return { ok: false, error: "notFound" };
+  return db.transaction(async (tx) => {
+    // FOR UPDATE conflicts with the FOR KEY SHARE that adding the tag to a larp takes on this row,
+    // so no larp can get the tag between the check below and the slug change.
+    const existing = await tx.orm.public.Tag.select(
+      "id",
+      "slug",
+      "nameFi",
+      "nameEn",
+    )
+      .where({ id })
+      .forUpdate()
+      .first();
+    if (!existing) return { ok: false, error: "notFound" };
 
-  if (form.slug !== existing.slug) {
-    if (!tagSlugPattern.test(form.slug)) {
-      return { ok: false, error: "invalidSlug" };
-    }
-    const used = await db.orm.public.LarpTag.select("larpId").first({
-      tagId: id,
-    });
-    if (used) return { ok: false, error: "slugLocked" };
-    if (await isSlugTaken(form.slug, id)) {
-      return { ok: false, error: "slugTaken" };
-    }
-  }
+    const tagged = await tx.orm.public.LarpTag.select("larpId")
+      .where({ tagId: id })
+      .all();
 
-  await db.orm.public.Tag.where({ id }).update(form);
-  return { ok: true, tag: { id, slug: form.slug } };
+    if (form.slug !== existing.slug) {
+      if (!tagSlugPattern.test(form.slug)) {
+        return { ok: false, error: "invalidSlug" };
+      }
+      if (tagged.length > 0) return { ok: false, error: "slugLocked" };
+      const taken = await tx.orm.public.Tag.select("id").first({
+        slug: form.slug,
+      });
+      if (taken && taken.id !== id) return { ok: false, error: "slugTaken" };
+    }
+
+    await tx.orm.public.Tag.where({ id }).update(form);
+
+    const renamed =
+      form.nameFi !== existing.nameFi || form.nameEn !== existing.nameEn;
+    if (renamed && tagged.length > 0) {
+      await tx.orm.public.Larp.where((l) =>
+        l.id.in(tagged.map((row) => row.larpId)),
+      ).updateAndCount({ updatedAt: iso(new Date()) });
+    }
+    return { ok: true, tag: { id, slug: form.slug } };
+  });
 }
 
 /** Returns the number of larps that lost the tag, or null if there was no such tag. */
@@ -214,9 +238,10 @@ export async function handleLarpTags(
       .where((lt) => lt.tagId.in(addTags))
       .all();
     const present = new Set(presentTags.map((row) => row.tagId));
-    const rows = existingTags
-      .filter((tag) => !present.has(tag.id))
-      .map((tag) => ({ larpId, tagId: tag.id }));
+    const existing = new Set(existingTags.map((tag) => tag.id));
+    const rows = [...new Set(addTags)]
+      .filter((tagId) => existing.has(tagId) && !present.has(tagId))
+      .map((tagId) => ({ larpId, tagId }));
     if (rows.length > 0) {
       await tx.orm.public.LarpTag.createAndCount(rows);
     }

@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { EditAction, EditStatus } from "@/prisma/enums";
 import { compactObject, normalizeFormData } from "@con2/components/helpers";
 import { parseIndexedLinksFromFormData } from "@/models/LarpLink";
-import { parseTagIdsFromFormData } from "@/models/Tag.client";
+import { parseTagsFromFormData } from "@/models/Tag.client";
 import {
   approveRequest,
   ModerationRequestForm,
@@ -32,7 +32,7 @@ export async function createLarp(
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const addLinks = parseIndexedLinksFromFormData(data);
-  const addTags = parseTagIdsFromFormData(data) ?? [];
+  const addTags = parseTagsFromFormData(data)?.desired ?? [];
 
   const {
     submitterName = user?.name,

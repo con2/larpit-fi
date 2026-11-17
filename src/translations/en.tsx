@@ -1785,6 +1785,8 @@ const translations = {
         "Markdown. Shown on the tag page and in the tag picker.",
     },
     errors: {
+      invalid:
+        "Check the fields: both names are required, and names and descriptions have a length limit.",
       invalidSlug:
         "The address may contain only lowercase letters, digits and single hyphens.",
       slugTaken: "Another tag already has this address.",
@@ -1799,7 +1801,6 @@ const translations = {
       noOptions: "No such tag. Tags are curated by the moderators;",
       suggest: "suggest a new one",
       larpCount: "{count} larps",
-      maxReached: "A larp can have at most {max} tags.",
     },
     moderation: {
       tagsAdded: "Tags added",

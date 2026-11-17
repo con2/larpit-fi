@@ -12,7 +12,7 @@ import {
   diffLarpLinks,
   parseIndexedLinksFromFormData,
 } from "@/models/LarpLink";
-import { diffLarpTags, parseTagIdsFromFormData } from "@/models/Tag.client";
+import { diffLarpTags, parseTagsFromFormData } from "@/models/Tag.client";
 import {
   approveRequest,
   diffLarpContent,
@@ -58,8 +58,7 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
 
   const larpForm = ModerationRequestForm.parse(formDataObject);
   const desiredLinks = parseIndexedLinksFromFormData(data);
-  const currentTags = larp.tags.map((t) => t.tagId);
-  const desiredTags = parseTagIdsFromFormData(data) ?? currentTags;
+  const tagsForm = parseTagsFromFormData(data);
 
   const { name: submitterName, email: submitterEmail } = user;
   // Destructure out all form-specific fields; remainder is already-transformed ModerationRequestContent
@@ -88,7 +87,13 @@ export async function editLarp(locale: string, larpId: string, data: FormData) {
     larp.links.map((l) => ({ ...l, title: l.title ?? undefined })),
     desiredLinks,
   );
-  const { addTags, removeTags } = diffLarpTags(currentTags, desiredTags);
+  const { addTags, removeTags } = tagsForm
+    ? diffLarpTags(
+        tagsForm.loaded,
+        tagsForm.desired,
+        larp.tags.map((t) => t.tagId),
+      )
+    : { addTags: [], removeTags: [] };
   const request = await db.orm.public.ModerationRequest.create({
     action: EditAction.UPDATE,
     larpId: larp.id,

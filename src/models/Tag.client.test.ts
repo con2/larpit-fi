@@ -2,8 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   diffLarpTags,
-  maxTagsPerLarp,
-  parseTagIdsFromFormData,
+  parseTagsFromFormData,
   suggestTagSlug,
   tagDescriptionExcerpt,
   tagMatches,
@@ -23,44 +22,62 @@ describe("suggestTagSlug", () => {
   });
 });
 
-describe("parseTagIdsFromFormData", () => {
+const [a, b, c] = [
+  "019a0000-0000-7000-8000-00000000000a",
+  "019a0000-0000-7000-8000-00000000000b",
+  "019a0000-0000-7000-8000-00000000000c",
+];
+
+describe("parseTagsFromFormData", () => {
   it("returns null when the form has no tags field", () => {
     const data = new FormData();
-    data.append("tagId", "a");
-    expect(parseTagIdsFromFormData(data)).toBeNull();
+    data.append("tagId", a);
+    expect(parseTagsFromFormData(data)).toBeNull();
   });
 
-  it("reads every tagId once", () => {
+  it("reads every loaded and picked tag once, skipping what is not an id", () => {
     const data = new FormData();
     data.append(tagsFieldMarker, "1");
-    for (const id of ["a", "b", "a", " ", "c"]) data.append("tagId", id);
-    expect(parseTagIdsFromFormData(data)).toEqual(["a", "b", "c"]);
+    data.append("tagLoaded", a);
+    for (const id of [a, b, a, " ", "nonsense", c]) data.append("tagId", id);
+    expect(parseTagsFromFormData(data)).toEqual({
+      loaded: [a],
+      desired: [a, b, c],
+    });
   });
 
   it("reads an empty selection as no tags, so that the tags are removed", () => {
     const data = new FormData();
     data.append(tagsFieldMarker, "1");
-    expect(parseTagIdsFromFormData(data)).toEqual([]);
-  });
-
-  it("keeps at most maxTagsPerLarp tags", () => {
-    const data = new FormData();
-    data.append(tagsFieldMarker, "1");
-    for (let i = 0; i < maxTagsPerLarp + 5; i++) data.append("tagId", `t${i}`);
-    expect(parseTagIdsFromFormData(data)).toHaveLength(maxTagsPerLarp);
+    data.append("tagLoaded", a);
+    expect(parseTagsFromFormData(data)).toEqual({ loaded: [a], desired: [] });
   });
 });
 
 describe("diffLarpTags", () => {
   it("adds the new and removes the dropped tags", () => {
-    expect(diffLarpTags(["a", "b"], ["b", "c"])).toEqual({
-      addTags: ["c"],
-      removeTags: ["a"],
+    expect(diffLarpTags([a, b], [b, c], [a, b])).toEqual({
+      addTags: [c],
+      removeTags: [a],
     });
   });
 
   it("finds nothing to do when the tags stay the same in another order", () => {
-    expect(diffLarpTags(["a", "b"], ["b", "a"])).toEqual({
+    expect(diffLarpTags([a, b], [b, a], [a, b])).toEqual({
+      addTags: [],
+      removeTags: [],
+    });
+  });
+
+  it("keeps a tag that someone else added after the form was loaded", () => {
+    expect(diffLarpTags([a], [a], [a, c])).toEqual({
+      addTags: [],
+      removeTags: [],
+    });
+  });
+
+  it("does not re-add or re-remove what someone else already changed", () => {
+    expect(diffLarpTags([a], [b], [b])).toEqual({
       addTags: [],
       removeTags: [],
     });

@@ -30,13 +30,24 @@ export async function saveTag(tagId: string | null, formData: FormData) {
     const value = formData.get(name);
     return typeof value === "string" ? value : "";
   };
-  const form = TagForm.parse({
+  const submitted = {
     slug: field("slug"),
     nameFi: field("nameFi"),
     nameEn: field("nameEn"),
     descriptionFi: field("descriptionFi"),
     descriptionEn: field("descriptionEn"),
-  });
+  };
+  const backToForm = (error: string, values: Record<string, string>) => {
+    const params = new URLSearchParams({ error, ...values });
+    params.set(tagId ? "edit" : "new", tagId ? field("currentSlug") : "1");
+    redirect(`/tag?${params}`);
+  };
+
+  const parsed = TagForm.safeParse(submitted);
+  if (!parsed.success) {
+    return backToForm("invalid", submitted);
+  }
+  const form = parsed.data;
   if (!form.slug) form.slug = suggestTagSlug(form.nameEn);
 
   const result = tagId ? await updateTag(tagId, form) : await createTag(form);
@@ -49,9 +60,7 @@ export async function saveTag(tagId: string | null, formData: FormData) {
   });
 
   if (!result.ok) {
-    const params = new URLSearchParams({ error: result.error, ...form });
-    params.set(tagId ? "edit" : "new", tagId ? field("currentSlug") : "1");
-    redirect(`/tag?${params}`);
+    return backToForm(result.error, form);
   }
 
   revalidateTagPaths();

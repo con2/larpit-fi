@@ -1818,6 +1818,8 @@ const translations: Translations = {
         "Markdownia. Näytetään tunnisteen sivulla ja tunnisteiden valitsimessa.",
     },
     errors: {
+      invalid:
+        "Tarkista kentät: molemmat nimet ovat pakollisia, ja nimien ja kuvausten pituus on rajattu.",
       invalidSlug:
         "Osoitteessa saa olla vain pieniä kirjaimia, numeroita ja yksittäisiä väliviivoja.",
       slugTaken: "Toisella tunnisteella on jo tämä osoite.",
@@ -1833,7 +1835,6 @@ const translations: Translations = {
       noOptions: "Tunnistetta ei löydy. Tunnisteita ylläpitävät moderaattorit;",
       suggest: "ehdota uutta",
       larpCount: "{count} larppia",
-      maxReached: "Larpilla voi olla enintään {max} tunnistetta.",
     },
     moderation: {
       tagsAdded: "Lisätyt tunnisteet",

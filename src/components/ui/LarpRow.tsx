@@ -133,7 +133,7 @@ export default function LarpRow({
           <div className="lf-row__tagline">{larp.tagline}</div>
         )}
         {tags.length > 0 && (
-          <div className="lf-tags lf-row__tags">
+          <div className="lf-tags lf-row__tags" lang={locale}>
             <TagChips
               tags={tags}
               locale={locale}

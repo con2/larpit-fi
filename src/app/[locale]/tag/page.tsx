@@ -10,7 +10,7 @@ import FilterBar, {
 } from "@/components/ui/FilterBar";
 import { EditIcon, PlusIcon } from "@/components/ui/icons";
 import TagChips from "@/components/ui/TagChips";
-import { getTagsWithCounts, type TagError } from "@/models/Tag";
+import { getTagsWithCounts } from "@/models/Tag";
 import {
   compareTagNames,
   otherTagName,
@@ -28,6 +28,7 @@ import { removeTag, saveTag } from "./actions";
 import styles from "./page.module.scss";
 
 type Sort = "used" | "name" | "created";
+type TagFormError = keyof Translations["Tag"]["errors"];
 const sorts: Sort[] = ["used", "name", "created"];
 
 interface Props {
@@ -64,7 +65,7 @@ function TagFormAside({
   tag: TagSummary | null;
   locale: string;
   values: Record<string, string | undefined>;
-  error: TagError | null;
+  error: TagFormError | null;
   messages: Translations["Tag"];
 }) {
   const value = (field: keyof TagSummary & string) =>
@@ -191,7 +192,9 @@ export default async function TagIndexPage({ params, searchParams }: Props) {
     : null;
   const showForm = isModerator && (query.new === "1" || !!editedTag);
   const error =
-    query.error && query.error in t.errors ? (query.error as TagError) : null;
+    query.error && query.error in t.errors
+      ? (query.error as TagFormError)
+      : null;
 
   const sortOptions: FilterOption[] = sorts.map((value) => ({
     title: t.sort[value],
