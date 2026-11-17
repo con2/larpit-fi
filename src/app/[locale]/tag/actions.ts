@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { createTag, deleteTag, TagForm, updateTag } from "@/models/Tag";
+import {
+  createTag,
+  deleteTag,
+  getTagSlug,
+  TagForm,
+  updateTag,
+} from "@/models/Tag";
 import { suggestTagSlug } from "@/models/Tag.client";
 import { canModerate, getUserFromSession } from "@/models/User";
 
@@ -37,15 +43,25 @@ export async function saveTag(tagId: string | null, formData: FormData) {
     descriptionFi: field("descriptionFi"),
     descriptionEn: field("descriptionEn"),
   };
-  const backToForm = (error: string, values: Record<string, string>) => {
-    const params = new URLSearchParams({ error, ...values });
-    params.set(tagId ? "edit" : "new", tagId ? field("currentSlug") : "1");
+  // The form reopens by the tag's current slug, which another moderator may have changed since
+  // this form was loaded. A slug that may no longer change is shown as stored.
+  const backToForm = async (error: string, values: Record<string, string>) => {
+    const storedSlug = tagId ? await getTagSlug(tagId) : null;
+    const params = new URLSearchParams({
+      error,
+      ...values,
+      ...(error === "slugLocked" && storedSlug && { slug: storedSlug }),
+    });
+    params.set(
+      tagId ? "edit" : "new",
+      tagId ? (storedSlug ?? field("currentSlug")) : "1",
+    );
     redirect(`/tag?${params}`);
   };
 
   const parsed = TagForm.safeParse(submitted);
   if (!parsed.success) {
-    return backToForm("invalid", submitted);
+    return await backToForm("invalid", submitted);
   }
   const form = parsed.data;
   if (!form.slug) form.slug = suggestTagSlug(form.nameEn);
@@ -60,7 +76,7 @@ export async function saveTag(tagId: string | null, formData: FormData) {
   });
 
   if (!result.ok) {
-    return backToForm(result.error, form);
+    return await backToForm(result.error, form);
   }
 
   revalidateTagPaths();

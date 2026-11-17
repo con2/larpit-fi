@@ -132,6 +132,11 @@ export async function getTagIdsOfLarp(larpId: string): Promise<string[]> {
   return rows.map((row) => row.tagId);
 }
 
+export async function getTagSlug(id: string): Promise<string | null> {
+  const tag = await db.orm.public.Tag.select("slug").first({ id });
+  return tag?.slug ?? null;
+}
+
 async function isSlugTaken(slug: string): Promise<boolean> {
   return !!(await db.orm.public.Tag.select("id").first({ slug }));
 }
@@ -195,6 +200,14 @@ export async function updateTag(id: string, form: TagForm): Promise<TagResult> {
 /** Returns the number of larps that lost the tag, or null if there was no such tag. */
 export async function deleteTag(id: string): Promise<number | null> {
   return db.transaction(async (tx) => {
+    // The tag is locked before its larps, in the same order as updateTag, so the two cannot
+    // deadlock.
+    const tag = await tx.orm.public.Tag.select("id")
+      .where({ id })
+      .forUpdate()
+      .first();
+    if (!tag) return null;
+
     const tagged = await tx.orm.public.LarpTag.select("larpId")
       .where({ tagId: id })
       .all();
@@ -205,8 +218,8 @@ export async function deleteTag(id: string): Promise<number | null> {
         updatedAt: iso(new Date()),
       });
     }
-    const count = await tx.orm.public.Tag.where({ id }).deleteAndCount();
-    return count > 0 ? larpIds.length : null;
+    await tx.orm.public.Tag.where({ id }).deleteAndCount();
+    return larpIds.length;
   });
 }
 
