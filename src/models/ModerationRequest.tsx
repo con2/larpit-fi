@@ -12,8 +12,9 @@ import VerifyRequest, {
   verifyRequestSubject,
   verifyRequestText,
 } from "@/emails/VerifyRequest";
-import { formatDates, iso } from "@/prisma/dates";
+import { formatDates, iso, parseDates } from "@/prisma/dates";
 import { db, type Tx } from "@/prisma/db";
+import { toJson } from "@/prisma/json";
 import {
   EditAction,
   EditStatus,
@@ -25,7 +26,7 @@ import {
   SubmitterRole,
   UserRole,
 } from "@/prisma/enums";
-import type { Larp, ModerationRequest, User } from "@/prisma/models";
+import type { Larp, ModerationRequest, Row, User } from "@/prisma/models";
 import { toSupportedLanguage } from "@/translations";
 import { personNameSchema } from "./User";
 import {
@@ -101,6 +102,175 @@ export const ModerationRequestForm = ModerationRequestContent.extend({
 export type ModerationRequestContent = z.infer<typeof ModerationRequestContent>;
 export type ModerationRequestForm = z.infer<typeof ModerationRequestForm>;
 
+type RequestChangeColumns =
+  | "action"
+  | "newContent"
+  | "addLinks"
+  | "removeLinks"
+  | "addRelatedLarps"
+  | "removeRelatedLarps"
+  | "addTags"
+  | "removeTags"
+  | "submitterRole";
+
+/** The changes a request proposes, parsed from its JSON columns. */
+export interface RequestChanges {
+  newContent: Partial<ModerationRequestContent>;
+  addLinks: LarpLinkUpsertable[];
+  removeLinks: LarpLinkRemovable[];
+  addTags: string[];
+  removeTags: string[];
+  addRelatedLarps: RelatedLarpAddable[];
+  removeRelatedLarps: RelatedLarpRemovable[];
+  /** The role the submitter gains on the larp; NONE when the request grants none. */
+  role: SubmitterRole;
+}
+
+export type ChangeListKey = Exclude<
+  keyof RequestChanges,
+  "newContent" | "role"
+>;
+
+export const changeListKeys: ChangeListKey[] = [
+  "addLinks",
+  "removeLinks",
+  "addTags",
+  "removeTags",
+  "addRelatedLarps",
+  "removeRelatedLarps",
+];
+
+/**
+ * Which of a request's changes a moderator approves: the content field keys, the indexes into
+ * each add/remove list, and whether the submitter gets the role they stated.
+ */
+export interface ApprovalSelection extends Record<ChangeListKey, number[]> {
+  fields: (keyof ModerationRequestContent)[];
+  role: boolean;
+}
+
+/**
+ * Parse the changes stored on a request. With `lenient`, entries that no longer parse are
+ * dropped instead of failing; older rows have link removals without `type`, for example.
+ */
+export function parseRequestChanges(
+  request: Pick<ModerationRequest, RequestChangeColumns>,
+  { lenient = false }: { lenient?: boolean } = {},
+): RequestChanges {
+  function parse<T>(schema: z.ZodType<T[]>, value: unknown): T[] {
+    return lenient ? schema.catch([]).parse(value) : schema.parse(value);
+  }
+
+  return {
+    newContent:
+      request.action === EditAction.CREATE
+        ? ModerationRequestContent.parse(request.newContent)
+        : parsePartialContent(request.newContent),
+    addLinks: parse(z.array(LarpLinkUpsertable), request.addLinks),
+    removeLinks: parse(z.array(LarpLinkRemovable), request.removeLinks),
+    addTags: parse(TagIds, request.addTags),
+    removeTags: parse(TagIds, request.removeTags),
+    addRelatedLarps: parse(
+      z.array(RelatedLarpAddable),
+      request.addRelatedLarps,
+    ),
+    removeRelatedLarps: parse(
+      z.array(RelatedLarpRemovable),
+      request.removeRelatedLarps,
+    ),
+    role: request.submitterRole,
+  };
+}
+
+export function countChanges(changes: RequestChanges): number {
+  return (
+    Object.keys(changes.newContent).length +
+    changeListKeys.reduce((sum, key) => sum + changes[key].length, 0) +
+    (changes.role === SubmitterRole.NONE ? 0 : 1)
+  );
+}
+
+/**
+ * Split a request's changes into what the selection approves and what it leaves out.
+ * Without a selection everything is applied and `declined` is null, as it is whenever the
+ * selection covers every change.
+ */
+export function splitRequestChanges(
+  changes: RequestChanges,
+  selection?: ApprovalSelection,
+): { applied: RequestChanges; declined: RequestChanges | null } {
+  if (!selection) {
+    return { applied: changes, declined: null };
+  }
+
+  const fields = new Set<string>(selection.fields);
+  const contentEntries = Object.entries(changes.newContent);
+  const applied: RequestChanges = {
+    newContent: Object.fromEntries(
+      contentEntries.filter(([key]) => fields.has(key)),
+    ),
+    role: selection.role ? changes.role : SubmitterRole.NONE,
+  } as RequestChanges;
+  const declined: RequestChanges = {
+    newContent: Object.fromEntries(
+      contentEntries.filter(([key]) => !fields.has(key)),
+    ),
+    role: selection.role ? SubmitterRole.NONE : changes.role,
+  } as RequestChanges;
+
+  for (const key of changeListKeys) {
+    const selected = new Set(selection[key]);
+    const list = changes[key] as unknown[];
+    (applied[key] as unknown[]) = list.filter((_, index) =>
+      selected.has(index),
+    );
+    (declined[key] as unknown[]) = list.filter(
+      (_, index) => !selected.has(index),
+    );
+  }
+
+  return {
+    applied,
+    declined: countChanges(declined) > 0 ? declined : null,
+  };
+}
+
+/**
+ * Split the changes for approval. Refuses a selection that leaves nothing to apply from a
+ * request that has changes, so an approval never silently does nothing.
+ */
+function selectChanges(changes: RequestChanges, selection?: ApprovalSelection) {
+  const split = splitRequestChanges(changes, selection);
+  if (split.declined && countChanges(split.applied) === 0) {
+    throw new Error("Nothing was selected for approval");
+  }
+  return split;
+}
+
+/**
+ * The request's change columns narrowed to what was applied, with the rest under `declined`,
+ * so that every reader of the row sees what actually went live.
+ */
+function narrowedRequestColumns(
+  applied: RequestChanges,
+  declined: RequestChanges | null,
+) {
+  if (!declined) {
+    return {};
+  }
+  return {
+    newContent: toJson(applied.newContent),
+    addLinks: toJson(applied.addLinks),
+    removeLinks: toJson(applied.removeLinks),
+    addTags: toJson(applied.addTags),
+    removeTags: toJson(applied.removeTags),
+    addRelatedLarps: toJson(applied.addRelatedLarps),
+    removeRelatedLarps: toJson(applied.removeRelatedLarps),
+    submitterRole: applied.role,
+    declined: toJson(declined),
+  };
+}
+
 export async function approveRequest(
   request: Pick<
     ModerationRequest,
@@ -121,11 +291,24 @@ export async function approveRequest(
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
   newStatus: "APPROVED" | "AUTO_APPROVED",
+  selection?: ApprovalSelection,
 ) {
   if (request.action === EditAction.CREATE) {
-    return approveCreateLarpRequest(request, resolvedBy, reason, newStatus);
+    return approveCreateLarpRequest(
+      request,
+      resolvedBy,
+      reason,
+      newStatus,
+      selection,
+    );
   } else if (request.action === EditAction.UPDATE) {
-    return approveUpdateLarpRequest(request, resolvedBy, reason, newStatus);
+    return approveUpdateLarpRequest(
+      request,
+      resolvedBy,
+      reason,
+      newStatus,
+      selection,
+    );
   } else if (request.action === EditAction.DELETE) {
     return approveDeleteLarpRequest(request);
   } else {
@@ -314,13 +497,18 @@ export async function approveCreateLarpRequest(
     | "larpId"
     | "newContent"
     | "addLinks"
+    | "removeLinks"
+    | "addRelatedLarps"
+    | "removeRelatedLarps"
     | "addTags"
+    | "removeTags"
     | "submitterId"
     | "submitterRole"
   >,
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
   newStatus: "APPROVED" | "AUTO_APPROVED",
+  selection?: ApprovalSelection,
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.CREATE) {
     throw new Error(`Not a create larp request: ${request.id}`);
@@ -333,13 +521,22 @@ export async function approveCreateLarpRequest(
   assertApprovable(request);
 
   const content = ModerationRequestContent.parse(request.newContent);
-  const data = contentToLarp(content);
-  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
-  const addTags = TagIds.parse(request.addTags);
+  const changes = parseRequestChanges(request);
+  // The larp fields of a new larp are approved as a whole: the name is required and the
+  // fields are the page.
+  const { applied, declined } = selectChanges(
+    changes,
+    selection && {
+      ...selection,
+      fields: Object.keys(
+        changes.newContent,
+      ) as (keyof ModerationRequestContent)[],
+    },
+  );
 
   return db.transaction(async (tx) => {
     const larp = await tx.orm.public.Larp.select("id").create(
-      formatDates(data),
+      formatDates(contentToLarp(content)),
     );
 
     if (request.submitterId) {
@@ -348,12 +545,12 @@ export async function approveCreateLarpRequest(
         request.action,
         larp.id,
         request.submitterId,
-        request.submitterRole,
+        applied.role,
       );
     }
 
-    await handleLarpLinks(tx, larp.id, addLinks, []);
-    await handleLarpTags(tx, larp.id, addTags, []);
+    await handleLarpLinks(tx, larp.id, applied.addLinks, []);
+    await handleLarpTags(tx, larp.id, applied.addTags, []);
     await handleRequestStatusUpdate(
       tx,
       request.id,
@@ -361,6 +558,7 @@ export async function approveCreateLarpRequest(
       newStatus,
       resolvedBy,
       reason,
+      narrowedRequestColumns(applied, declined),
     );
 
     return larp;
@@ -374,6 +572,12 @@ async function handleRequestStatusUpdate(
   newStatus: "APPROVED" | "AUTO_APPROVED",
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
+  changeColumns: Partial<
+    Pick<
+      Row<"ModerationRequest">,
+      Exclude<RequestChangeColumns, "action"> | "oldContent" | "declined"
+    >
+  > = {},
 ) {
   // Auto-approved requests are not resolved; they will be post-moderated.
   let resolvedAt: string | null = null;
@@ -386,6 +590,7 @@ async function handleRequestStatusUpdate(
   }
 
   await tx.orm.public.ModerationRequest.where({ id: requestId }).update({
+    ...changeColumns,
     larpId,
     resolvedAt,
     resolvedById,
@@ -414,6 +619,7 @@ export async function approveUpdateLarpRequest(
   resolvedBy: Pick<User, "id" | "role">,
   reason: string | null,
   newStatus: "APPROVED" | "AUTO_APPROVED",
+  selection?: ApprovalSelection,
 ): Promise<Pick<Larp, "id">> {
   if (request.action !== EditAction.UPDATE) {
     throw new Error(`Not an update larp request: ${request.id}`);
@@ -425,28 +631,27 @@ export async function approveUpdateLarpRequest(
 
   assertApprovable(request);
 
-  const content = parsePartialContent(request.newContent);
-  const data = formatDates(partialContentToLarp(content));
-  const addLinks = z.array(LarpLinkUpsertable).parse(request.addLinks);
-  const removeLinks = z.array(LarpLinkRemovable).parse(request.removeLinks);
-  const addRelatedLarps = z
-    .array(RelatedLarpAddable)
-    .parse(request.addRelatedLarps);
-  const removeRelatedLarps = z
-    .array(RelatedLarpRemovable)
-    .parse(request.removeRelatedLarps);
-  const addTags = TagIds.parse(request.addTags);
-  const removeTags = TagIds.parse(request.removeTags);
+  const { applied, declined } = selectChanges(
+    parseRequestChanges(request),
+    selection,
+  );
+  const data = formatDates(partialContentToLarp(applied.newContent));
   const larpId = request.larpId;
 
   return db.transaction(async (tx) => {
-    const larp = await tx.orm.public.Larp.select("id", "updateCount").first({
-      id: larpId,
-    });
+    const larp = await tx.orm.public.Larp.first({ id: larpId });
 
     if (!larp) {
       throw new Error("Larp not found");
     }
+
+    const contentBefore = larpToContent(parseDates(larp));
+    const oldContent = Object.fromEntries(
+      Object.keys(applied.newContent).map((key) => [
+        key,
+        contentBefore[key as keyof ModerationRequestContent],
+      ]),
+    );
 
     await tx.orm.public.Larp.where({ id: larp.id }).update({
       ...data,
@@ -459,13 +664,17 @@ export async function approveUpdateLarpRequest(
         request.action,
         larp.id,
         request.submitterId,
-        request.submitterRole,
+        applied.role,
       );
     }
 
-    await handleLarpLinks(tx, larp.id, addLinks, removeLinks);
-    await handleLarpTags(tx, larp.id, addTags, removeTags);
-    await handleRelatedLarps(tx, addRelatedLarps, removeRelatedLarps);
+    await handleLarpLinks(tx, larp.id, applied.addLinks, applied.removeLinks);
+    await handleLarpTags(tx, larp.id, applied.addTags, applied.removeTags);
+    await handleRelatedLarps(
+      tx,
+      applied.addRelatedLarps,
+      applied.removeRelatedLarps,
+    );
 
     await handleRequestStatusUpdate(
       tx,
@@ -474,6 +683,10 @@ export async function approveUpdateLarpRequest(
       newStatus,
       resolvedBy,
       reason,
+      {
+        ...narrowedRequestColumns(applied, declined),
+        oldContent: toJson(oldContent),
+      },
     );
 
     return { id: larp.id };

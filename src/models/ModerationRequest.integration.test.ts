@@ -15,6 +15,7 @@ import {
 import { pool } from "@/prisma/pool";
 import { truncateAll } from "@/test/truncate";
 import {
+  type ApprovalSelection,
   approveCreateLarpRequest,
   approveDeleteLarpRequest,
   approveUpdateLarpRequest,
@@ -693,6 +694,205 @@ describe("ModerationRequest integration tests", () => {
       await approveUpdateLarpRequest(request, user, null, "APPROVED");
 
       expect(await tagIdsOf(larp.id)).toEqual([tag.id]);
+    });
+  });
+
+  describe("partial approval", () => {
+    const nothing: ApprovalSelection = {
+      fields: [],
+      addLinks: [],
+      removeLinks: [],
+      addTags: [],
+      removeTags: [],
+      addRelatedLarps: [],
+      removeRelatedLarps: [],
+      role: false,
+    };
+
+    async function createUpdateRequest() {
+      const user = await db.orm.public.User.create(testUser);
+      const larp = await db.orm.public.Larp.create({
+        name: "Original Name",
+        language: Language.fi,
+        tagline: "Original tagline",
+        startsAt: "2026-06-01",
+      });
+      const tag = await db.orm.public.Tag.create({
+        slug: "horror",
+        nameFi: "Kauhu",
+        nameEn: "Horror",
+      });
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.UPDATE,
+        larpId: larp.id,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterId: user.id,
+        submitterRole: SubmitterRole.GAME_MASTER,
+        newContent: {
+          name: "New Name",
+          tagline: "New tagline",
+          startsAt: "2026-07-01",
+        },
+        addLinks: [
+          { type: LarpLinkType.HOMEPAGE, href: "https://kept.example.com" },
+          { type: LarpLinkType.PHOTOS, href: "https://left.example.com" },
+        ],
+        addTags: [tag.id],
+      });
+      return { user, larp, tag, request };
+    }
+
+    it("stores the pre-edit values of the fields an update changed", async () => {
+      const { user, larp, request } = await createUpdateRequest();
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED");
+
+      const stored = await db.orm.public.ModerationRequest.first({
+        id: request.id,
+      });
+      expect(stored?.oldContent).toEqual({
+        name: "Original Name",
+        tagline: "Original tagline",
+        startsAt: "2026-06-01",
+      });
+      expect(stored?.declined).toBeNull();
+      const updated = await db.orm.public.Larp.first({ id: larp.id });
+      expect(updated?.startsAt).toBe("2026-07-01");
+    });
+
+    it("applies only the selected changes and records the rest as declined", async () => {
+      const { user, larp, tag, request } = await createUpdateRequest();
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED", {
+        ...nothing,
+        fields: ["name"],
+        addLinks: [0],
+        role: true,
+      });
+
+      const updated = await db.orm.public.Larp.include("links").first({
+        id: larp.id,
+      });
+      expect(updated?.name).toBe("New Name");
+      expect(updated?.tagline).toBe("Original tagline");
+      expect(updated?.startsAt).toBe("2026-06-01");
+      expect(updated?.links.map((link) => link.href)).toEqual([
+        "https://kept.example.com",
+      ]);
+      expect(
+        await db.orm.public.LarpTag.where({ larpId: larp.id }).all(),
+      ).toEqual([]);
+
+      const stored = await db.orm.public.ModerationRequest.first({
+        id: request.id,
+      });
+      // The request's own columns describe what went live, so readers need not know about
+      // partial approval.
+      expect(stored?.newContent).toEqual({ name: "New Name" });
+      expect(stored?.addLinks).toEqual([
+        { type: LarpLinkType.HOMEPAGE, href: "https://kept.example.com" },
+      ]);
+      expect(stored?.addTags).toEqual([]);
+      expect(stored?.submitterRole).toBe(SubmitterRole.GAME_MASTER);
+      expect(stored?.oldContent).toEqual({ name: "Original Name" });
+      expect(stored?.declined).toEqual({
+        newContent: { tagline: "New tagline", startsAt: "2026-07-01" },
+        addLinks: [
+          { type: LarpLinkType.PHOTOS, href: "https://left.example.com" },
+        ],
+        removeLinks: [],
+        addTags: [tag.id],
+        removeTags: [],
+        addRelatedLarps: [],
+        removeRelatedLarps: [],
+        role: SubmitterRole.NONE,
+      });
+    });
+
+    it("grants no role when the moderator declines it", async () => {
+      const { user, larp, request } = await createUpdateRequest();
+
+      await approveUpdateLarpRequest(request, user, null, "APPROVED", {
+        ...nothing,
+        fields: ["name"],
+      });
+
+      expect(
+        await db.orm.public.RelatedUser.where({ larpId: larp.id }).all(),
+      ).toEqual([]);
+      const stored = await db.orm.public.ModerationRequest.first({
+        id: request.id,
+      });
+      expect(stored?.submitterRole).toBe(SubmitterRole.NONE);
+      expect(stored?.declined).toMatchObject({
+        role: SubmitterRole.GAME_MASTER,
+      });
+    });
+
+    it("refuses an approval with nothing selected", async () => {
+      const { user, larp, request } = await createUpdateRequest();
+
+      await expect(
+        approveUpdateLarpRequest(request, user, null, "APPROVED", nothing),
+      ).rejects.toThrow();
+
+      const stored = await db.orm.public.ModerationRequest.first({
+        id: request.id,
+      });
+      expect(stored?.status).toBe(EditStatus.VERIFIED);
+      const unchanged = await db.orm.public.Larp.first({ id: larp.id });
+      expect(unchanged?.name).toBe("Original Name");
+    });
+
+    it("creates a larp without a declined link and keeps the creator", async () => {
+      const user = await db.orm.public.User.create(testUser);
+      const request = await db.orm.public.ModerationRequest.create({
+        action: EditAction.CREATE,
+        status: EditStatus.VERIFIED,
+        submitterName: user.name!,
+        submitterEmail: user.email,
+        submitterId: user.id,
+        submitterRole: SubmitterRole.GAME_MASTER,
+        newContent: { ...minimalNewContent, name: "New Larp" },
+        addLinks: [
+          { type: LarpLinkType.HOMEPAGE, href: "https://kept.example.com" },
+          { type: LarpLinkType.PHOTOS, href: "https://left.example.com" },
+        ],
+      });
+
+      // The field selection is ignored for a new larp: its fields are approved as a whole.
+      const larp = await approveCreateLarpRequest(
+        request,
+        user,
+        null,
+        "APPROVED",
+        { ...nothing, addLinks: [0] },
+      );
+
+      const created = await db.orm.public.Larp.include("links").first({
+        id: larp.id,
+      });
+      expect(created?.name).toBe("New Larp");
+      expect(created?.links.map((link) => link.href)).toEqual([
+        "https://kept.example.com",
+      ]);
+      const roles = await db.orm.public.RelatedUser.where({
+        larpId: larp.id,
+      }).all();
+      expect(roles.map((role) => role.role)).toEqual(["CREATED_BY"]);
+      const stored = await db.orm.public.ModerationRequest.first({
+        id: request.id,
+      });
+      expect(stored?.oldContent).toBeNull();
+      expect(stored?.declined).toMatchObject({
+        newContent: {},
+        addLinks: [
+          { type: LarpLinkType.PHOTOS, href: "https://left.example.com" },
+        ],
+        role: SubmitterRole.GAME_MASTER,
+      });
     });
   });
 });
