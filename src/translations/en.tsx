@@ -739,6 +739,13 @@ const translations = {
           sv: "Swedish",
           OTHER: "Other",
         },
+        // The pill on the larp page, which must say on its own that it is about language.
+        pill: {
+          fi: "In Finnish",
+          en: "In English",
+          sv: "In Swedish",
+          OTHER: "In another language",
+        },
       },
       openness: {
         title: "Openness",

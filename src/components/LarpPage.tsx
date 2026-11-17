@@ -268,8 +268,7 @@ function Hero({
               <TypeTag type={larp.type} messages={larpT} />
             </TagWithDescription>
             <span className="lf-tag">
-              {larpT.attributes.language.choices[larp.language] ??
-                larp.language}
+              {larpT.attributes.language.pill[larp.language] ?? larp.language}
             </span>
             {opennessChoice && (
               <TagWithDescription description={opennessChoice.description}>

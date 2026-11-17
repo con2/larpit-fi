@@ -756,6 +756,13 @@ const translations: Translations = {
           sv: "ruotsi",
           OTHER: "muu",
         },
+        // The pill on the larp page, which must say on its own that it is about language.
+        pill: {
+          fi: "Suomeksi",
+          en: "Englanniksi",
+          sv: "Ruotsiksi",
+          OTHER: "Muulla kielellä",
+        },
       },
       openness: {
         title: "Avoimuus",
