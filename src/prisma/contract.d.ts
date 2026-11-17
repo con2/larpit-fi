@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'da074fda7e862176f5e3b3554fda34e4d6a392d4a9d29777f61cc326ea83e6e1'>;
+  StorageHashBase<'c6252bbb2a58a3b1f0298a6aca60d5bba359c0086afdd8b5d07d483720e201b6'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -791,10 +791,12 @@ export namespace Models {
     addLinks: FieldOutputTypes['public']['ModerationRequest']['addLinks'];
     addRelatedLarps: FieldOutputTypes['public']['ModerationRequest']['addRelatedLarps'];
     addTags: FieldOutputTypes['public']['ModerationRequest']['addTags'];
+    declined: FieldOutputTypes['public']['ModerationRequest']['declined'];
     id: FieldOutputTypes['public']['ModerationRequest']['id'];
     larpId: FieldOutputTypes['public']['ModerationRequest']['larpId'];
     message: FieldOutputTypes['public']['ModerationRequest']['message'];
     newContent: FieldOutputTypes['public']['ModerationRequest']['newContent'];
+    oldContent: FieldOutputTypes['public']['ModerationRequest']['oldContent'];
     removeLinks: FieldOutputTypes['public']['ModerationRequest']['removeLinks'];
     removeRelatedLarps: FieldOutputTypes['public']['ModerationRequest']['removeRelatedLarps'];
     removeTags: FieldOutputTypes['public']['ModerationRequest']['removeTags'];
@@ -1833,6 +1835,12 @@ type ContractBase = Omit<
                   };
                   readonly many: false;
                 };
+                readonly declined: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly id: {
                   readonly dataType: 'pg/uuid';
                   readonly codecId: 'pg/uuid@1';
@@ -1860,6 +1868,12 @@ type ContractBase = Omit<
                     readonly kind: 'function';
                     readonly expression: "'{}'::jsonb";
                   };
+                  readonly many: false;
+                };
+                readonly old_content: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
                   readonly many: false;
                 };
                 readonly remove_links: {
@@ -3561,6 +3575,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
+              readonly declined: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
               readonly id: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
@@ -3575,6 +3593,10 @@ type ContractBase = Omit<
               };
               readonly newContent: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
+              readonly oldContent: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
               };
               readonly removeLinks: {
@@ -3681,10 +3703,12 @@ type ContractBase = Omit<
                 readonly addLinks: { readonly column: 'add_links' };
                 readonly addRelatedLarps: { readonly column: 'add_related_larps' };
                 readonly addTags: { readonly column: 'add_tags' };
+                readonly declined: { readonly column: 'declined' };
                 readonly id: { readonly column: 'id' };
                 readonly larpId: { readonly column: 'larp_id' };
                 readonly message: { readonly column: 'message' };
                 readonly newContent: { readonly column: 'new_content' };
+                readonly oldContent: { readonly column: 'old_content' };
                 readonly removeLinks: { readonly column: 'remove_links' };
                 readonly removeRelatedLarps: { readonly column: 'remove_related_larps' };
                 readonly removeTags: { readonly column: 'remove_tags' };

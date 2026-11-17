@@ -333,6 +333,15 @@ namespace public {
 
     message            String?
 
+    // Pre-edit values of the larp fields this request changed, in the shape of newContent.
+    // Written when an UPDATE is applied; null for CREATE and DELETE and for requests applied
+    // before it was introduced.
+    oldContent         Jsonb?                 @map("old_content")
+    // What a moderator left out when approving only part of the request:
+    // { newContent, addLinks, removeLinks, addTags, removeTags, addRelatedLarps,
+    // removeRelatedLarps, role }. Null when everything was applied.
+    declined           Jsonb?
+
     larp               Larp?                  @relation(fields:[larpId], references:[id], onDelete: Cascade, index: false)
     // Removing a user keeps their moderation history: submitterName/submitterEmail are
     // denormalized, only the FK is dropped.

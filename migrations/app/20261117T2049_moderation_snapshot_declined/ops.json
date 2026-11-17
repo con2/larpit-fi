@@ -1,0 +1,122 @@
+[
+  {
+    "id": "column.public.moderation_request.declined",
+    "label": "Add column \"declined\" to \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "declined",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"declined\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "declined"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"declined\" on \"moderation_request\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"declined\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ADD COLUMN \"declined\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"declined\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "declined"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"declined\" on \"moderation_request\""
+        }
+      },
+      {
+        "description": "verify column \"declined\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "declined",
+          "jsonb"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.moderation_request.old_content",
+    "label": "Add column \"old_content\" to \"moderation_request\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "old_content",
+        "table": "moderation_request"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"old_content\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "old_content"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"old_content\" on \"moderation_request\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"old_content\"",
+        "sql": "ALTER TABLE \"public\".\"moderation_request\" ADD COLUMN \"old_content\" jsonb"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"old_content\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "old_content"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"old_content\" on \"moderation_request\""
+        }
+      },
+      {
+        "description": "verify column \"old_content\" has type \"jsonb\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "moderation_request",
+          "old_content",
+          "jsonb"
+        ]
+      }
+    ]
+  }
+]

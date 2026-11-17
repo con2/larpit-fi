@@ -1371,6 +1371,13 @@
                   "kind": "scalar"
                 }
               },
+              "declined": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
               "id": {
                 "nullable": false,
                 "type": {
@@ -1394,6 +1401,13 @@
               },
               "newContent": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "oldContent": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/jsonb@1",
                   "kind": "scalar"
@@ -1561,6 +1575,9 @@
                 "addTags": {
                   "column": "add_tags"
                 },
+                "declined": {
+                  "column": "declined"
+                },
                 "id": {
                   "column": "id"
                 },
@@ -1572,6 +1589,9 @@
                 },
                 "newContent": {
                   "column": "new_content"
+                },
+                "oldContent": {
+                  "column": "old_content"
                 },
                 "removeLinks": {
                   "column": "remove_links"
@@ -3762,6 +3782,11 @@
                   },
                   "nullable": false
                 },
+                "declined": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
                 "id": {
                   "codecId": "pg/uuid@1",
                   "dataType": "pg/uuid",
@@ -3789,6 +3814,11 @@
                     "kind": "function"
                   },
                   "nullable": false
+                },
+                "old_content": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
                 },
                 "remove_links": {
                   "codecId": "pg/jsonb@1",
@@ -4850,7 +4880,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "da074fda7e862176f5e3b3554fda34e4d6a392d4a9d29777f61cc326ea83e6e1"
+    "storageHash": "c6252bbb2a58a3b1f0298a6aca60d5bba359c0086afdd8b5d07d483720e201b6"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",
