@@ -855,9 +855,6 @@ $lf-phone: 767.98px;
 }
 
 .lf-tag--topic {
-  text-transform: none;
-  letter-spacing: 0.02em;
-  color: var(--larpit-text);
   text-decoration: none;
 }
 
@@ -867,12 +864,9 @@ a.lf-tag--topic:focus-visible {
   color: var(--larpit-aurora);
 }
 
-.lf-tag--current,
-a.lf-tag--current:hover,
-a.lf-tag--current:focus-visible {
-  background: var(--larpit-aurora);
-  border-color: var(--larpit-aurora);
-  color: var(--larpit-on-accent);
+.lf-tag--current {
+  color: var(--larpit-text);
+  border-color: var(--larpit-muted);
 }
 
 .lf-tags {
