@@ -265,7 +265,11 @@ function Hero({
               </StatusPill>
             )}
             <TagWithDescription description={typeChoice?.description}>
-              <TypeTag type={larp.type} messages={larpT} />
+              <TypeTag
+                type={larp.type}
+                messages={larpT}
+                href={`/larp?type=${larp.type}`}
+              />
             </TagWithDescription>
             <Link
               href={`/larp?language=${larp.language}`}

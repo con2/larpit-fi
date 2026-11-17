@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { LarpType } from "@/prisma/enums";
 import type { Translations } from "@/translations/en";
 
@@ -14,14 +16,18 @@ interface Props {
   type: LarpType;
   messages: Translations["Larp"];
   small?: boolean;
+  /** Makes the tag a link; leave out inside another link. */
+  href?: string;
 }
 
-export default function TypeTag({ type, messages, small }: Props) {
-  return (
-    <span
-      className={`lf-tag lf-tag--${variantByType[type]}${small ? " lf-tag--small" : ""}`}
-    >
-      {messages.attributes.type.choices[type].title}
-    </span>
+export default function TypeTag({ type, messages, small, href }: Props) {
+  const className = `lf-tag lf-tag--${variantByType[type]}${small ? " lf-tag--small" : ""}`;
+  const title = messages.attributes.type.choices[type].title;
+  return href ? (
+    <Link href={href} className={`${className} lf-tag--link`}>
+      {title}
+    </Link>
+  ) : (
+    <span className={className}>{title}</span>
   );
 }
