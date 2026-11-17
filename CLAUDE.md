@@ -82,7 +82,7 @@ Set `TEST_DATABASE_URL` in your environment before running tests.
 
 ## Version control (Git)
 
-Commit only when instructed to.
+Commit at appropriate steps without waiting to be asked; the owner asks for an amend when one is needed, and pushes.
 
 Paths containing braces, such as `src/app/[locale]/page.tsx`, need to be quoted on command lines such as `git add "src/app/[locale]/page.tsx"`.
 
