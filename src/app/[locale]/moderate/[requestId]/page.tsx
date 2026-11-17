@@ -539,6 +539,79 @@ export default async function ModerationRequestPage({
               {listSections(declined, null, "declined-")}
             </section>
           )}
+
+          <Section id="submitter" title={detailT.submitter.title}>
+            <dl className="lf-mod-facts">
+              <dt>{t.attributes.submitterName.title}</dt>
+              <dd>{request.submitterName}</dd>
+              <dt>{t.attributes.submitterEmail.title}</dt>
+              <dd>
+                <a href={`mailto:${request.submitterEmail}`}>
+                  {request.submitterEmail}
+                </a>
+              </dd>
+              <dt>{t.attributes.submitterRole.title}</dt>
+              <dd>
+                {
+                  t.attributes.submitterRole.choices[request.submitterRole]
+                    .title
+                }
+              </dd>
+              <dt>{detailT.submitter.history}</dt>
+              <dd>
+                {Object.keys(submitterHistory).length === 0 ? (
+                  detailT.submitter.noHistory
+                ) : (
+                  <span className="lf-tags">
+                    {Object.values(EditStatus).flatMap((status) => {
+                      const count = submitterHistory[status];
+                      return count ? (
+                        <span key={status} className="lf-mod-history">
+                          <StatusPill status={status} messages={t} />
+                          <span className="lf-data">{count}</span>
+                        </span>
+                      ) : (
+                        []
+                      );
+                    })}
+                  </span>
+                )}
+              </dd>
+            </dl>
+            <p className="lf-help mb-0">
+              {request.submitterId
+                ? detailT.submitter.signedIn
+                : detailT.submitter.notSignedIn}
+            </p>
+          </Section>
+
+          {larpRequests.length > 1 && (
+            <Section id="larp-requests" title={detailT.larpRequests.title}>
+              <ul className="lf-mod-larp-requests">
+                {larpRequests.map((other) => (
+                  <li key={other.id}>
+                    <Link
+                      href={`/moderate/${other.id}`}
+                      aria-current={
+                        other.id === request.id ? "page" : undefined
+                      }
+                    >
+                      <StatusPill status={other.status} messages={t} />
+                      <span>
+                        {t.actionLabels[other.action]} · {other.submitterName}
+                        {other.id === request.id && (
+                          <span className="lf-dim">
+                            {" "}
+                            ({detailT.larpRequests.current})
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          )}
         </div>
 
         <aside>
@@ -699,86 +772,6 @@ export default async function ModerationRequestPage({
                   </>
                 )}
               </dl>
-            </section>
-          )}
-
-          <section className="lf-surface lf-surface--compact lf-mod-card">
-            <h2 className="lf-surface__title">{detailT.submitter.title}</h2>
-            <dl className="lf-mod-facts">
-              <dt>{t.attributes.submitterName.title}</dt>
-              <dd>{request.submitterName}</dd>
-              <dt>{t.attributes.submitterEmail.title}</dt>
-              <dd>
-                <a href={`mailto:${request.submitterEmail}`}>
-                  {request.submitterEmail}
-                </a>
-              </dd>
-              <dt>{t.attributes.submitterRole.title}</dt>
-              <dd>
-                {
-                  t.attributes.submitterRole.choices[request.submitterRole]
-                    .title
-                }
-              </dd>
-            </dl>
-            <p className="lf-help mb-0">
-              {request.submitterId
-                ? detailT.submitter.signedIn
-                : detailT.submitter.notSignedIn}
-            </p>
-            <div>
-              <h3 className="lf-label mb-2">{detailT.submitter.history}</h3>
-              {Object.keys(submitterHistory).length === 0 ? (
-                <p className="lf-help mb-0">{detailT.submitter.noHistory}</p>
-              ) : (
-                <div className="lf-tags">
-                  {Object.values(EditStatus).flatMap((status) => {
-                    const count = submitterHistory[status];
-                    return count ? (
-                      <span key={status} className="lf-mod-history">
-                        <StatusPill status={status} messages={t} />
-                        <span className="lf-data">{count}</span>
-                      </span>
-                    ) : (
-                      []
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </section>
-
-          {larpRequests.length > 1 && (
-            <section aria-labelledby="ModerationRequestPage-larpRequests">
-              <h2
-                id="ModerationRequestPage-larpRequests"
-                className="lf-label lf-sidebar-heading"
-              >
-                {detailT.larpRequests.title}
-              </h2>
-              <ul className="lf-mod-larp-requests">
-                {larpRequests.map((other) => (
-                  <li key={other.id}>
-                    <Link
-                      href={`/moderate/${other.id}`}
-                      aria-current={
-                        other.id === request.id ? "page" : undefined
-                      }
-                    >
-                      <StatusPill status={other.status} messages={t} />
-                      <span>
-                        {t.actionLabels[other.action]} · {other.submitterName}
-                        {other.id === request.id && (
-                          <span className="lf-dim">
-                            {" "}
-                            ({detailT.larpRequests.current})
-                          </span>
-                        )}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </section>
           )}
         </aside>
