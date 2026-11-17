@@ -267,12 +267,20 @@ function Hero({
             <TagWithDescription description={typeChoice?.description}>
               <TypeTag type={larp.type} messages={larpT} />
             </TagWithDescription>
-            <span className="lf-tag">
+            <Link
+              href={`/larp?language=${larp.language}`}
+              className="lf-tag lf-tag--link"
+            >
               {larpT.attributes.language.pill[larp.language] ?? larp.language}
-            </span>
-            {opennessChoice && (
+            </Link>
+            {larp.openness && opennessChoice && (
               <TagWithDescription description={opennessChoice.description}>
-                <span className="lf-tag">{opennessChoice.title}</span>
+                <Link
+                  href={`/larp?openness=${larp.openness}`}
+                  className="lf-tag lf-tag--link"
+                >
+                  {opennessChoice.title}
+                </Link>
               </TagWithDescription>
             )}
             <TagChips tags={larp.tags} locale={locale} />

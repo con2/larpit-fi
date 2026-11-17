@@ -854,12 +854,12 @@ $lf-phone: 767.98px;
   border-color: rgba(var(--larpit-aurora-rgb), 0.5);
 }
 
-.lf-tag--topic {
+.lf-tag--link {
   text-decoration: none;
 }
 
-a.lf-tag--topic:hover,
-a.lf-tag--topic:focus-visible {
+a.lf-tag--link:hover,
+a.lf-tag--link:focus-visible {
   border-color: var(--larpit-aurora);
   color: var(--larpit-aurora);
 }

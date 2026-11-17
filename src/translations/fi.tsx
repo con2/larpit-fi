@@ -1173,6 +1173,9 @@ const translations: Translations = {
         title: "Kieli",
         all: "Kaikki kielet",
       },
+      openness: {
+        title: "Avoimuus",
+      },
       cancelled: {
         title: "Perutut",
         hide: "Piilota perutut larpit",
@@ -1752,6 +1755,12 @@ const translations: Translations = {
       },
       language: {
         all: "Kaikki",
+      },
+      openness: {
+        all: "Kaikki",
+        OPEN: "Avoin",
+        TARGETED: "Kohdennettu",
+        INVITE_ONLY: "Kutsupeli",
       },
       cancelled: {
         hide: "Piilota",

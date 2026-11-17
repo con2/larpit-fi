@@ -1154,6 +1154,9 @@ const translations = {
         title: "Language",
         all: "All languages",
       },
+      openness: {
+        title: "Openness",
+      },
       cancelled: {
         title: "Cancelled",
         hide: "Hide cancelled larps",
@@ -1719,6 +1722,12 @@ const translations = {
       },
       language: {
         all: "All",
+      },
+      openness: {
+        all: "All",
+        OPEN: "Open",
+        TARGETED: "Targeted",
+        INVITE_ONLY: "Invite only",
       },
       cancelled: {
         hide: "Hide",

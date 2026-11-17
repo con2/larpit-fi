@@ -19,7 +19,7 @@ import TypeTag from "@/components/ui/TypeTag";
 import { compareDescNullsLast } from "@/helpers/sort";
 import { getTagsOfLarps } from "@/models/Tag";
 import { parseDates } from "@/prisma/dates";
-import { Language, LarpType } from "@/prisma/enums";
+import { Language, LarpType, Openness } from "@/prisma/enums";
 import { getReader } from "@/prisma/reader";
 import { sql } from "@/prisma/sql";
 import { getTranslations } from "@/translations";
@@ -30,6 +30,7 @@ type SearchParam = string | string[] | undefined;
 export interface LarpListQuery {
   type?: SearchParam;
   language?: SearchParam;
+  openness?: SearchParam;
   cancelled?: SearchParam;
   year?: SearchParam;
 }
@@ -39,6 +40,8 @@ type Cancelled = "hide" | "show" | "only";
 export interface LarpListFilters {
   types: LarpType[];
   languages: Language[];
+  /** Null lists larps of any openness, including those without one. */
+  openness: Openness[] | null;
   cancelled: Cancelled;
   selectedYear: string | undefined;
 }
@@ -95,25 +98,37 @@ export function parseLarpListFilters(query: LarpListQuery): LarpListFilters {
     allValues: Object.values(Language),
     isValid: createEnumValidator(Language),
   });
+  const openness = asList(query.openness).filter(createEnumValidator(Openness));
   const cancelledParam = first(query.cancelled);
   const cancelled: Cancelled =
     cancelledParam === "show" || cancelledParam === "only"
       ? cancelledParam
       : "hide";
-  return { types, languages, cancelled, selectedYear: first(query.year) };
+  return {
+    types,
+    languages,
+    openness: openness.length > 0 ? openness : null,
+    cancelled,
+    selectedYear: first(query.year),
+  };
 }
 
-/** The type, language and cancelled filters of the query, to carry over to another list. */
+/** The type, language, openness and cancelled filters of the query, to carry over to another list. */
 export function filterSearchParams(query: LarpListQuery): URLSearchParams {
   const search = new URLSearchParams();
-  for (const key of ["type", "language", "cancelled"] as const) {
+  for (const key of ["type", "language", "openness", "cancelled"] as const) {
     for (const value of asList(query[key])) search.append(key, value);
   }
   return search;
 }
 
 export async function getYearCounts(
-  { types, languages, cancelled }: Omit<LarpListFilters, "selectedYear">,
+  {
+    types,
+    languages,
+    openness,
+    cancelled,
+  }: Omit<LarpListFilters, "selectedYear">,
   today: string,
   tagId: string | null = null,
 ) {
@@ -132,6 +147,10 @@ export async function getYearCounts(
       type::text = any(${types}::text[])
       and language::text = any(${languages}::text[])
       and (
+        ${openness}::text[] is null
+        or openness::text = any(${openness}::text[])
+      )
+      and (
         ${cancelled}::text = 'show'
         or (cancelled_at is not null) = (${cancelled}::text = 'only')
       )
@@ -149,7 +168,7 @@ export async function getYearCounts(
 
 async function getLarpsOfYears(
   groups: YearGroup[],
-  { types, languages, cancelled }: LarpListFilters,
+  { types, languages, openness, cancelled }: LarpListFilters,
   tagId: string | null,
 ): Promise<LarpRowLarp[]> {
   if (groups.length === 0) return [];
@@ -191,6 +210,9 @@ async function getLarpsOfYears(
     const larpIds = tagged.map((row) => row.larpId);
     if (larpIds.length === 0) return [];
     larps = larps.where((l) => l.id.in(larpIds));
+  }
+  if (openness) {
+    larps = larps.where((l) => l.openness.in(openness));
   }
   if (cancelled === "hide") {
     larps = larps.where((l) => l.cancelledAt.isNull());
@@ -313,6 +335,7 @@ export default async function LarpYearList({
     const current: Record<string, string[]> = {
       type: asList(query.type),
       language: asList(query.language),
+      openness: asList(query.openness),
       cancelled: asList(query.cancelled),
       year: asList(query.year),
     };
@@ -402,6 +425,23 @@ export default async function LarpYearList({
       current: selectedLanguages.includes(language),
     })),
   ];
+  const selectedOpenness = filters.openness ?? [];
+  const opennessChips: FilterOption[] = [
+    {
+      title: t.chips.openness.all,
+      href: listHref({ openness: null, year: null }),
+      current: selectedOpenness.length === 0,
+    },
+    ...Object.values(Openness).map((value) => ({
+      title: t.chips.openness[value],
+      fullTitle: larpT.attributes.openness.choices[value].title,
+      href: listHref({
+        openness: toggled(selectedOpenness, value),
+        year: null,
+      }),
+      current: selectedOpenness.includes(value),
+    })),
+  ];
   const cancelledChips: FilterOption[] = (
     ["hide", "show", "only"] as const
   ).map((value) => ({
@@ -449,6 +489,10 @@ export default async function LarpYearList({
         <FilterGroup
           label={larpT.filters.language.title}
           options={languageChips}
+        />
+        <FilterGroup
+          label={larpT.filters.openness.title}
+          options={opennessChips}
         />
         <FilterGroup
           label={larpT.filters.cancelled.title}

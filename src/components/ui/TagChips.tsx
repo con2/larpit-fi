@@ -37,7 +37,7 @@ export default function TagChips({
   const className = (tag?: TagChip) =>
     [
       "lf-tag",
-      "lf-tag--topic",
+      "lf-tag--link",
       small && "lf-tag--small",
       tag && tag.id === currentTagId && "lf-tag--current",
     ]

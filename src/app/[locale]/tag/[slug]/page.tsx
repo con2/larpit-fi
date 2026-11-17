@@ -55,6 +55,7 @@ export default async function TagPage({ params, searchParams }: Props) {
       {
         types: Object.values(LarpType),
         languages: Object.values(Language),
+        openness: null,
         cancelled: "hide",
       },
       today,

@@ -660,9 +660,13 @@ export default async function StatsPage({ params, searchParams }: Props) {
   }));
   const opennessItems: ProportionItem[] = opennessRows.map((row) => ({
     key: row.openness ?? "null",
-    label: row.openness
-      ? larpT.attributes.openness.choices[row.openness].title
-      : t.openness.notRecorded,
+    label: row.openness ? (
+      <Link href={`/larp?openness=${row.openness}`}>
+        {larpT.attributes.openness.choices[row.openness].title}
+      </Link>
+    ) : (
+      t.openness.notRecorded
+    ),
     count: Number(row.count),
     tone: row.openness ? opennessTones[row.openness] : "raised",
   }));
