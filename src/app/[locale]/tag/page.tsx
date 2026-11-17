@@ -13,7 +13,6 @@ import TagChips from "@/components/ui/TagChips";
 import { getTagsWithCounts } from "@/models/Tag";
 import {
   compareTagNames,
-  otherTagName,
   tagDescription,
   tagDescriptionExcerpt,
   tagName,
@@ -249,8 +248,7 @@ export default async function TagIndexPage({ params, searchParams }: Props) {
                   <div className={styles.rowMain}>
                     <Link href={`/tag/${tag.slug}`} className={styles.rowName}>
                       {tagName(tag, locale)}
-                    </Link>{" "}
-                    <span className="lf-dim">{otherTagName(tag, locale)}</span>
+                    </Link>
                     {description && (
                       <p className={styles.rowDescription}>
                         {tagDescriptionExcerpt(description, 160)}
