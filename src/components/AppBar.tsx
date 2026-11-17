@@ -137,6 +137,11 @@ export default async function AppBar({ locale }: Props) {
       title: navigationMessages.actions.tags,
       icon: "tags",
     });
+    adminLinks.push({
+      href: "/moderate/tags",
+      title: navigationMessages.actions.tagLarps,
+      icon: "tags",
+    });
   }
   if (canEditPages(user)) {
     adminLinks.push({

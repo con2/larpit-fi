@@ -585,6 +585,37 @@ const translations: Translations = {
       next: "Seuraavat",
     },
   },
+  LarpTagsPage: {
+    title: "Tägää larppeja",
+    lede: (count: number, untaggedOnly: boolean) =>
+      untaggedOnly
+        ? `Tägit puuttuvat vielä ${count} larpilta. Tägäämäsi larpit poistuvat listalta, kun tallennat.`
+        : `${count} ${count === 1 ? "larppi" : "larppia"}. Tallennus muuttaa vain ne larpit, joiden tägejä muutit.`,
+    show: {
+      label: "Näytä",
+      untagged: "Ilman tägejä",
+      all: "Kaikki",
+    },
+    search: {
+      label: "Hae nimellä",
+      placeholder: "Larpin nimi…",
+      submit: "Hae",
+    },
+    noTags: "Tägejä ei ole vielä.",
+    createTag: "Luo ensimmäinen",
+    columns: {
+      name: "Larppi",
+      dates: "Ajankohta",
+      tags: "Tägit",
+    },
+    save: "Tallenna",
+    saved: "Tägejä muutettu {count} larpilla",
+    pagination: {
+      title: "Sivut",
+      previous: "Edelliset",
+      next: "Seuraavat",
+    },
+  },
   MergeLarpPage: {
     eyebrow: "Moderaattori",
     title: "Yhdistä kaksoiskappale tähän sivuun",
@@ -1808,6 +1839,7 @@ const translations: Translations = {
     },
     actions: {
       newTag: "Uusi tägi",
+      tagLarps: "Tägää larppeja",
       editTag: "Muokkaa tägiä",
       edit: (name: string) => `Muokkaa tägiä ${name}`,
       save: "Tallenna",
@@ -2119,6 +2151,7 @@ const translations: Translations = {
       manageUsers: "Käyttäjät",
       aliases: "Lyhyet osoitteet",
       tags: "Tägit",
+      tagLarps: "Tägää larppeja",
     },
   },
   UserMenu: {

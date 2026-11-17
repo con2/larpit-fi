@@ -2,13 +2,16 @@ import z from "zod";
 
 import { iso } from "@/prisma/dates";
 import { db, type Tx } from "@/prisma/db";
+import type { Larp, User } from "@/prisma/models";
 import type { getReader } from "@/prisma/reader";
-import { sql } from "@/prisma/sql";
+import { query, sql } from "@/prisma/sql";
 import {
+  diffLarpTags,
   type TagSummary,
   tagSlugMaxLength,
   tagSlugPattern,
 } from "./Tag.client";
+import { canModerate } from "./User";
 
 type Reader = Pick<Awaited<ReturnType<typeof getReader>>, "query">;
 
@@ -264,5 +267,109 @@ export async function handleLarpTags(
   // writes to the larp row itself.
   await tx.orm.public.Larp.where({ id: larpId }).update({
     updatedAt: iso(new Date()),
+  });
+}
+
+export interface LarpForTagging {
+  id: string;
+  name: string;
+  alias: string | null;
+  language: Larp["language"];
+  startsAt: string | null;
+  endsAt: string | null;
+  tagIds: string[];
+}
+
+export interface LarpsForTaggingFilters {
+  untaggedOnly: boolean;
+  /** Matched against the larp name as a substring, ignoring case. */
+  name: string;
+}
+
+function likePattern(text: string): string | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  return `%${trimmed.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+}
+
+/** Larps to tag in bulk, the latest first and undated ones last. */
+export async function getLarpsForTagging(
+  { untaggedOnly, name }: LarpsForTaggingFilters,
+  offset: number,
+  limit: number,
+): Promise<{ larps: LarpForTagging[]; count: number }> {
+  const pattern = likePattern(name);
+  const where = sql`
+    where (not ${untaggedOnly}::boolean
+        or not exists (select 1 from larp_tag lt where lt.larp_id = l.id))
+      and (${pattern}::text is null or l.name ilike ${pattern})
+  `;
+  const params = where.values;
+  const [larps, [{ count }]] = await Promise.all([
+    query<LarpForTagging>({
+      text: `
+        select
+          l.id,
+          l.name,
+          l.alias,
+          l.language,
+          l.starts_at::text as "startsAt",
+          l.ends_at::text as "endsAt",
+          coalesce(
+            (select array_agg(lt.tag_id) from larp_tag lt where lt.larp_id = l.id),
+            '{}'
+          ) as "tagIds"
+        from larp l
+        ${where.text}
+        order by l.starts_at desc nulls last, l.id desc
+        offset $${params.length + 1}
+        limit $${params.length + 2}
+      `,
+      values: [...params, offset, limit],
+    }),
+    query<{ count: string }>({
+      text: `select count(*) as count from larp l ${where.text}`,
+      values: params,
+    }),
+  ]);
+  return { larps, count: Number(count) };
+}
+
+export type SetLarpTagsResult =
+  | { ok: true; changed: boolean }
+  | { ok: false; error: "forbidden" | "notFound" };
+
+/**
+ * Applies the tags a moderator picked for a larp straight to the larp, without a moderation
+ * request. As on the edit form, a tag that someone else added or removed after `loaded` was read,
+ * and that the moderator did not touch, stays as it is now.
+ */
+export async function setLarpTags(
+  user: Pick<User, "role"> | null,
+  larpId: string,
+  loaded: string[],
+  desired: string[],
+): Promise<SetLarpTagsResult> {
+  if (!canModerate(user)) return { ok: false, error: "forbidden" };
+
+  return db.transaction(async (tx) => {
+    // No FOR UPDATE on the larp: deleteTag locks the tag before its larps, and adding the tag here
+    // takes a lock on the tag row, so locking the larp first could deadlock with it.
+    const larp = await tx.orm.public.Larp.select("id").first({ id: larpId });
+    if (!larp) return { ok: false, error: "notFound" } as const;
+
+    const current = await tx.orm.public.LarpTag.select("tagId")
+      .where({ larpId })
+      .all();
+    const { addTags, removeTags } = diffLarpTags(
+      loaded,
+      desired,
+      current.map((row) => row.tagId),
+    );
+    await handleLarpTags(tx, larpId, addTags, removeTags);
+    return {
+      ok: true,
+      changed: addTags.length > 0 || removeTags.length > 0,
+    } as const;
   });
 }

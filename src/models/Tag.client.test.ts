@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   diffLarpTags,
+  parseLarpTagsFromFormData,
   parseTagsFromFormData,
+  tagFieldNames,
   suggestTagSlug,
   tagDescriptionExcerpt,
   tagMatches,
@@ -51,6 +53,24 @@ describe("parseTagsFromFormData", () => {
     data.append(tagsFieldMarker, "1");
     data.append("tagLoaded", a);
     expect(parseTagsFromFormData(data)).toEqual({ loaded: [a], desired: [] });
+  });
+});
+
+describe("parseLarpTagsFromFormData", () => {
+  it("reads only the fields of the given larp when a form tags several", () => {
+    const [larpA, larpB] = [b, c];
+    const data = new FormData();
+    data.append(tagFieldNames(larpA).loaded, a);
+    data.append(tagFieldNames(larpA).desired, b);
+    data.append(tagFieldNames(larpB).desired, c);
+    expect(parseLarpTagsFromFormData(data, larpA)).toEqual({
+      loaded: [a],
+      desired: [b],
+    });
+    expect(parseLarpTagsFromFormData(data, larpB)).toEqual({
+      loaded: [],
+      desired: [c],
+    });
   });
 });
 

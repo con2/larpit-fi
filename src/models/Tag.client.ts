@@ -87,17 +87,33 @@ function tagIdsOf(data: FormData, name: string): string[] {
 }
 
 /**
- * Reads the tags field of a larp form: the tags the larp had when the form was loaded (`tagLoaded`)
- * and the ones picked (`tagId`). Null when the form has no tags field. The fields repeat, which
- * `normalizeFormData` does not support.
+ * The names of the repeating hidden fields that carry the tags the larp had when the form was
+ * loaded and the ones picked. A form that tags several larps at once names them per larp.
+ */
+export function tagFieldNames(larpId?: string) {
+  const suffix = larpId ? `:${larpId}` : "";
+  return { loaded: `tagLoaded${suffix}`, desired: `tagId${suffix}` };
+}
+
+/**
+ * Reads the tags field of a larp form. Null when the form has no tags field. The fields repeat,
+ * which `normalizeFormData` does not support.
  */
 export function parseTagsFromFormData(
   data: FormData,
 ): { loaded: string[]; desired: string[] } | null {
   if (!data.has(tagsFieldMarker)) return null;
+  return parseLarpTagsFromFormData(data);
+}
+
+export function parseLarpTagsFromFormData(
+  data: FormData,
+  larpId?: string,
+): { loaded: string[]; desired: string[] } {
+  const names = tagFieldNames(larpId);
   return {
-    loaded: tagIdsOf(data, "tagLoaded"),
-    desired: tagIdsOf(data, "tagId"),
+    loaded: tagIdsOf(data, names.loaded),
+    desired: tagIdsOf(data, names.desired),
   };
 }
 

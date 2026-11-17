@@ -228,9 +228,17 @@ export default async function TagIndexPage({ params, searchParams }: Props) {
               <FilterGroup label={t.sort.label} options={sortOptions} />
             </FilterBar>
             {isModerator && (
-              <Link href="/tag?new=1" className="btn btn-primary btn-sm">
-                <PlusIcon size={14} /> {t.actions.newTag}
-              </Link>
+              <div className="d-flex gap-2">
+                <Link
+                  href="/moderate/tags"
+                  className="btn btn-outline-primary btn-sm"
+                >
+                  {t.actions.tagLarps}
+                </Link>
+                <Link href="/tag?new=1" className="btn btn-primary btn-sm">
+                  <PlusIcon size={14} /> {t.actions.newTag}
+                </Link>
+              </div>
             )}
           </div>
 

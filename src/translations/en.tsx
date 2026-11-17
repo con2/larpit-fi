@@ -568,6 +568,37 @@ const translations = {
       next: "Next",
     },
   },
+  LarpTagsPage: {
+    title: "Tag larps",
+    lede: (count: number, untaggedOnly: boolean) =>
+      untaggedOnly
+        ? `${count} ${count === 1 ? "larp has" : "larps have"} no tags yet. Larps you tag disappear from the list when you save.`
+        : `${count} ${count === 1 ? "larp" : "larps"}. Saving changes only the larps whose tags you changed.`,
+    show: {
+      label: "Show",
+      untagged: "Without tags",
+      all: "All",
+    },
+    search: {
+      label: "Search by name",
+      placeholder: "Larp name…",
+      submit: "Search",
+    },
+    noTags: "There are no tags yet.",
+    createTag: "Create one",
+    columns: {
+      name: "Larp",
+      dates: "Date",
+      tags: "Tags",
+    },
+    save: "Save",
+    saved: "Tags changed on {count} larps",
+    pagination: {
+      title: "Pages",
+      previous: "Previous",
+      next: "Next",
+    },
+  },
   MergeLarpPage: {
     eyebrow: "Moderator",
     title: "Merge a duplicate into this page",
@@ -1775,6 +1806,7 @@ const translations = {
     },
     actions: {
       newTag: "New tag",
+      tagLarps: "Tag larps",
       editTag: "Edit tag",
       edit: (name: string) => `Edit tag ${name}`,
       save: "Save",
@@ -2085,6 +2117,7 @@ const translations = {
       manageUsers: "Users",
       aliases: "Short addresses",
       tags: "Tags",
+      tagLarps: "Tag larps",
     },
   },
   UserMenu: {

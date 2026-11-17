@@ -2,16 +2,19 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import { iso, parseDates } from "@/prisma/dates";
 import { db } from "@/prisma/db";
-import { Language } from "@/prisma/enums";
+import { Language, UserRole } from "@/prisma/enums";
 import { pool } from "@/prisma/pool";
 import { query } from "@/prisma/sql";
 import { truncateAll } from "@/test/truncate";
 import {
   createTag,
   deleteTag,
+  getLarpsForTagging,
   getTagBySlug,
+  getTagIdsOfLarp,
   getTagsOfLarps,
   getTagsWithCounts,
+  setLarpTags,
   updateTag,
 } from "./Tag";
 
@@ -134,5 +137,108 @@ describe("tags", () => {
       (await db.orm.public.Larp.first({ id: larp.id }))!,
     );
     expect(updated.updatedAt.getTime()).toBeGreaterThan(longAgo.getTime());
+  });
+});
+
+describe("bulk tagging", () => {
+  const moderator = { role: UserRole.MODERATOR };
+
+  async function createTags() {
+    const tags = await Promise.all(
+      ["horror", "scifi", "fantasy"].map(async (slug) => {
+        const result = await createTag({ ...form, slug, nameEn: slug });
+        if (!result.ok) throw new Error(result.error);
+        return result.tag.id;
+      }),
+    );
+    return tags as [string, string, string];
+  }
+
+  it("lists untagged larps or all of them, filtered by name", async () => {
+    const [horror] = await createTags();
+    const tagged = await db.orm.public.Larp.create({
+      name: "Tagged 100% larp",
+      language: Language.fi,
+    });
+    const untagged = await db.orm.public.Larp.create({
+      name: "Untagged larp",
+      language: Language.fi,
+    });
+    await db.orm.public.LarpTag.createAndCount([
+      { larpId: tagged.id, tagId: horror },
+    ]);
+
+    const onlyUntagged = await getLarpsForTagging(
+      { untaggedOnly: true, name: "" },
+      0,
+      10,
+    );
+    expect(onlyUntagged.count).toBe(1);
+    expect(onlyUntagged.larps.map((larp) => [larp.id, larp.tagIds])).toEqual([
+      [untagged.id, []],
+    ]);
+
+    const all = await getLarpsForTagging(
+      { untaggedOnly: false, name: "" },
+      0,
+      10,
+    );
+    expect(all.count).toBe(2);
+    expect(all.larps.find((larp) => larp.id === tagged.id)?.tagIds).toEqual([
+      horror,
+    ]);
+
+    // The percent sign is matched literally, not as a wildcard.
+    const byName = await getLarpsForTagging(
+      { untaggedOnly: false, name: "100%" },
+      0,
+      10,
+    );
+    expect(byName.larps.map((larp) => larp.id)).toEqual([tagged.id]);
+    const wildcard = await getLarpsForTagging(
+      { untaggedOnly: false, name: "d%l" },
+      0,
+      10,
+    );
+    expect(wildcard.count).toBe(0);
+  });
+
+  it("applies only the moderator's changes against the tags loaded", async () => {
+    const [horror, scifi, fantasy] = await createTags();
+    const larp = await createLarp();
+    await db.orm.public.LarpTag.createAndCount([
+      { larpId: larp.id, tagId: horror },
+    ]);
+    // Someone else added fantasy after the page was loaded with only horror.
+    await db.orm.public.LarpTag.createAndCount([
+      { larpId: larp.id, tagId: fantasy },
+    ]);
+
+    const result = await setLarpTags(moderator, larp.id, [horror], [scifi]);
+    expect(result).toEqual({ ok: true, changed: true });
+    expect((await getTagIdsOfLarp(larp.id)).sort()).toEqual(
+      [scifi, fantasy].sort(),
+    );
+  });
+
+  it("reports a larp whose tags were left as they were as unchanged", async () => {
+    const [horror] = await createTags();
+    const larp = await createLarp();
+    await db.orm.public.LarpTag.createAndCount([
+      { larpId: larp.id, tagId: horror },
+    ]);
+    expect(await setLarpTags(moderator, larp.id, [horror], [horror])).toEqual({
+      ok: true,
+      changed: false,
+    });
+  });
+
+  it("refuses anyone but a moderator", async () => {
+    const [horror] = await createTags();
+    const larp = await createLarp();
+    expect(
+      await setLarpTags({ role: UserRole.VERIFIED }, larp.id, [], [horror]),
+    ).toEqual({ ok: false, error: "forbidden" });
+    expect(await getTagIdsOfLarp(larp.id)).toEqual([]);
   });
 });
