@@ -1784,22 +1784,22 @@ const translations: Translations = {
     empty: "Yksikään larppi ei vastaa näitä suodattimia.",
   },
   Tag: {
-    title: "Tunniste",
-    listTitle: "Tunnisteet",
+    title: "Tägi",
+    listTitle: "Tägit",
     indexEyebrow: "Selaa teemoittain",
     indexIntro:
       "Moderaattorien ylläpitämiä teemoja, lajityyppejä ja miljöitä. Kullakin larpilla on niistä muutama.",
     summary: (tagCount: string, larpCount: string) =>
-      `${tagCount} ${tagCount === "1" ? "tunniste" : "tunnistetta"} ${larpCount} larpilla`,
+      `${tagCount} ${tagCount === "1" ? "tägi" : "tägiä"} ${larpCount} larpilla`,
     larpCount: (count: string) =>
       `${count} ${count === "1" ? "larppi" : "larppia"}`,
     upcomingCount: (count: string) => `${count} tulossa`,
     firstIn: (year: number) => `ensimmäinen vuonna ${year}`,
-    allTags: "Kaikki tunnisteet",
-    browseAll: "Selaa kaikkia tunnisteita",
+    allTags: "Kaikki tägit",
+    browseAll: "Selaa kaikkia tägejä",
     browseByTheme: "Selaa teemoittain",
-    pick: "Valitse tunniste",
-    empty: "Tunnisteita ei vielä ole.",
+    pick: "Valitse tägi",
+    empty: "Tägejä ei vielä ole.",
     sort: {
       label: "Järjestys",
       used: "Käytetyimmät",
@@ -1807,16 +1807,16 @@ const translations: Translations = {
       created: "Uusimmat",
     },
     actions: {
-      newTag: "Uusi tunniste",
-      editTag: "Muokkaa tunnistetta",
-      edit: (name: string) => `Muokkaa tunnistetta ${name}`,
+      newTag: "Uusi tägi",
+      editTag: "Muokkaa tägiä",
+      edit: (name: string) => `Muokkaa tägiä ${name}`,
       save: "Tallenna",
       cancel: "Peruuta",
-      delete: "Poista tunniste",
+      delete: "Poista tägi",
       deleteConfirm: (name: string, count: number) =>
         count === 0
-          ? `Poistetaanko tunniste ”${name}”? Sitä ei ole millään larpilla.`
-          : `Poistetaanko tunniste ”${name}”? Se poistuu ${count} larpilta. Odottavat muokkaukset, jotka lisäävät sen, ohittavat sen.`,
+          ? `Poistetaanko tägi ”${name}”? Sitä ei ole millään larpilla.`
+          : `Poistetaanko tägi ”${name}”? Se poistuu ${count} larpilta. Odottavat muokkaukset, jotka lisäävät sen, ohittavat sen.`,
     },
     attributes: {
       nameFi: { title: "Nimi suomeksi" },
@@ -1826,39 +1826,38 @@ const translations: Translations = {
         helpText:
           "Pieniä kirjaimia, numeroita ja väliviivoja. Jätä tyhjäksi, niin osoite muodostetaan englanninkielisestä nimestä.",
         lockedHelpText:
-          "Tunniste on larpeilla, joten sen osoite pysyy ennallaan. Nimeä tunniste uudelleen tarvittaessa.",
+          "Tägi on larpeilla, joten sen osoite pysyy ennallaan. Nimeä tägi tarvittaessa uudelleen.",
       },
       descriptionFi: { title: "Kuvaus suomeksi" },
       descriptionEn: { title: "Kuvaus englanniksi" },
       descriptionHelpText:
-        "Markdownia. Näytetään tunnisteen sivulla ja tunnisteiden valitsimessa.",
+        "Markdownia. Näytetään tägin sivulla ja tägien valitsimessa.",
     },
     errors: {
       invalid:
         "Tarkista kentät: molemmat nimet ovat pakollisia, ja nimien ja kuvausten pituus on rajattu.",
       invalidSlug:
         "Osoitteessa saa olla vain pieniä kirjaimia, numeroita ja yksittäisiä väliviivoja.",
-      slugTaken: "Toisella tunnisteella on jo tämä osoite.",
-      slugLocked:
-        "Tunniste on larpeilla, joten sen osoite ei voi enää muuttua.",
-      notFound: "Tunnistetta ei enää ole.",
+      slugTaken: "Toisella tägillä on jo tämä osoite.",
+      slugLocked: "Tägi on larpeilla, joten sen osoite ei voi enää muuttua.",
+      notFound: "Tägiä ei enää ole.",
     },
     field: {
-      label: "Tunnisteet",
+      label: "Tägit",
       helpText:
-        "Valitse 3–5 larppia parhaiten kuvaavaa tunnistetta: teemat, lajityyppi, miljöö.",
-      placeholder: "Hae tunnisteita…",
-      noOptions: "Tunnistetta ei löydy. Tunnisteita ylläpitävät moderaattorit;",
+        "Valitse 3–5 larppia parhaiten kuvaavaa tägiä: teemat, lajityyppi, miljöö.",
+      placeholder: "Hae tägejä…",
+      noOptions: "Tägiä ei löydy. Tägejä ylläpitävät moderaattorit;",
       suggest: "ehdota uutta",
       larpCount: "{count} larppia",
     },
     moderation: {
-      tagsAdded: "Lisätyt tunnisteet",
-      tagsRemoved: "Poistetut tunnisteet",
-      deletedTag: "Poistettu tunniste",
+      tagsAdded: "Lisätyt tägit",
+      tagsRemoved: "Poistetut tägit",
+      deletedTag: "Poistettu tägi",
     },
     stats: {
-      title: "Tunnisteittain",
+      title: "Tägeittäin",
     },
   },
   StatsPage: {
@@ -2119,7 +2118,7 @@ const translations: Translations = {
       moderate: "Moderoi",
       manageUsers: "Käyttäjät",
       aliases: "Lyhyet osoitteet",
-      tags: "Tunnisteet",
+      tags: "Tägit",
     },
   },
   UserMenu: {
@@ -2236,7 +2235,7 @@ const translations: Translations = {
     infoMenu: "Larppaaminen?",
   },
   Footer: {
-    tags: "Tunnisteet",
+    tags: "Tägit",
     privacyPolicy: "Tietosuojaseloste",
     source: "Lähdekoodi GitHubissa",
     api: "API",
@@ -2250,7 +2249,7 @@ const translations: Translations = {
     close: "Peruuta",
     larps: "Larpit",
     pages: "Sivut",
-    tags: "Tunnisteet",
+    tags: "Tägit",
     allResults: "Kaikki tulokset haulle ”{query}”",
     thisPage: "Tämä sivu",
     everywhere: "Kaikkialla",
@@ -2275,7 +2274,7 @@ const translations: Translations = {
       calendar: "Siirry kalenteriin",
       allLarps: "Selaa kaikkia larppeja",
       stats: "Tilastoja",
-      allTags: "Selaa kaikkia tunnisteita",
+      allTags: "Selaa kaikkia tägejä",
       themeToNight: "Vaihda tummaan teemaan",
       themeToDay: "Vaihda vaaleaan teemaan",
       switchLanguage: "Switch to English",
@@ -2291,7 +2290,13 @@ const translations: Translations = {
       copied: "Linkki kopioitu",
     },
     commandSynonyms: {
-      "global:allTags": ["Tunnisteet", "Teemat", "Lajityypit", "Aiheet"],
+      "global:allTags": [
+        "Tägit",
+        "Tunnisteet",
+        "Teemat",
+        "Lajityypit",
+        "Aiheet",
+      ],
       "global:addLarp": [
         "Uusi larppi",
         "Luo larppi",
