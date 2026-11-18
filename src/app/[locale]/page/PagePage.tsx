@@ -85,7 +85,7 @@ export default async function PagePage({
       {page.specialRole === PageSpecialRole.DISCORD && (
         <p className="m-0">
           {!user ? (
-            <SignInButton className="btn btn-primary">
+            <SignInButton className="btn btn-outline-secondary">
               {translations.LoginRequired.actions.login}
             </SignInButton>
           ) : (
