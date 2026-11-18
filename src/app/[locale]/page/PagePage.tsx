@@ -3,14 +3,16 @@ import HeaderImageBackdrop, {
   heroTextClassName,
   heroWithImageClassName,
 } from "@/components/header-image/HeaderImageBackdrop";
+import SignInButton from "@/components/SignInButton";
 import AuroraHero from "@/components/ui/AuroraHero";
-import { featureFlags, headerImagesEnabled } from "@/config";
+import { discordInviteUrl, featureFlags, headerImagesEnabled } from "@/config";
 import {
   type HeaderImageRow,
   headerImageViewOrNull,
 } from "@/models/HeaderImage";
 import { getInfoMenuPages } from "@/models/Page";
 import { pageAdminPath, pagePathInUiLanguage } from "@/models/Page.client";
+import { PageSpecialRole } from "@/prisma/enums";
 import type { Page } from "@/prisma/models";
 import { canEditPages, getUserFromSession } from "@/models/User";
 import { getReader } from "@/prisma/reader";
@@ -22,7 +24,10 @@ import type { ReactNode } from "react";
 
 interface Props {
   page:
-    | (Pick<Page, "title" | "ingress" | "content" | "slug" | "language"> & {
+    | (Pick<
+        Page,
+        "title" | "ingress" | "content" | "slug" | "language" | "specialRole"
+      > & {
         headerImage: HeaderImageRow | null;
       })
     | null;
@@ -77,6 +82,26 @@ export default async function PagePage({
           </div>
         )}
       </div>
+      {page.specialRole === PageSpecialRole.DISCORD && (
+        <p className="m-0">
+          {!user ? (
+            <SignInButton className="btn btn-primary">
+              {translations.LoginRequired.actions.login}
+            </SignInButton>
+          ) : (
+            discordInviteUrl && (
+              <a
+                className="btn btn-primary"
+                href={discordInviteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t.actions.joinDiscord.title}
+              </a>
+            )
+          )}
+        </p>
+      )}
       {canEditPages(user) && (
         <p className="m-0 d-flex gap-3">
           <Link

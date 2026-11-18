@@ -119,6 +119,12 @@ namespace public {
     LARPPIKUVAT = "LARPPIKUVAT"
   }
 
+  // A page with a special role gets behaviour of its own on top of its content.
+  native_enum PageSpecialRole {
+    // Hands the Discord invite link to signed-in visitors.
+    DISCORD = "DISCORD"
+  }
+
   model User {
     id                      Uuid                        @id @onCreate(uuid(4))
     name                    String?
@@ -413,6 +419,7 @@ namespace public {
     createdAt TimestamptzString          @default(now()) @map("created_at")
     updatedAt TimestamptzString  @onCreate(now()) @onUpdate(now()) @map("updated_at")
     headerImageId Uuid?                  @map("header_image_id")
+    specialRole pg.enum(PageSpecialRole)? @map("special_role")
 
     headerImage HeaderImage?             @relation(fields:[headerImageId], references:[id], onDelete: SetNull, index: false)
 

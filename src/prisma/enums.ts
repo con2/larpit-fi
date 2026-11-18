@@ -173,3 +173,12 @@ true satisfies Exhaustive<
   typeof HeaderImageSource,
   Row<"HeaderImage">["source"]
 >;
+
+export const PageSpecialRole = {
+  DISCORD: "DISCORD",
+} as const satisfies Record<string, NonNullable<Row<"Page">["specialRole"]>>;
+export type PageSpecialRole = ValuesOf<typeof PageSpecialRole>;
+true satisfies Exhaustive<
+  typeof PageSpecialRole,
+  NonNullable<Row<"Page">["specialRole"]>
+>;

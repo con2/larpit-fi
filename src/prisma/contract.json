@@ -1811,6 +1811,16 @@
                   "kind": "scalar"
                 }
               },
+              "specialRole": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "PageSpecialRole"
+                  }
+                }
+              },
               "title": {
                 "nullable": false,
                 "type": {
@@ -1866,6 +1876,9 @@
                 },
                 "slug": {
                   "column": "slug"
+                },
+                "specialRole": {
+                  "column": "special_role"
                 },
                 "title": {
                   "column": "title"
@@ -2633,6 +2646,13 @@
                 "INVITE_ONLY"
               ],
               "typeName": "Openness"
+            },
+            "PageSpecialRole": {
+              "kind": "postgres-enum",
+              "members": [
+                "DISCORD"
+              ],
+              "typeName": "PageSpecialRole"
             },
             "RelatedLarpType": {
               "kind": "postgres-enum",
@@ -4114,6 +4134,20 @@
                   },
                   "nullable": false
                 },
+                "special_role": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": true,
+                  "typeParams": {
+                    "typeName": "PageSpecialRole"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "PageSpecialRole",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
                 "title": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -4813,6 +4847,12 @@
                 "INVITE_ONLY"
               ]
             },
+            "PageSpecialRole": {
+              "kind": "valueSet",
+              "values": [
+                "DISCORD"
+              ]
+            },
             "RelatedLarpType": {
               "kind": "valueSet",
               "values": [
@@ -4880,7 +4920,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c6252bbb2a58a3b1f0298a6aca60d5bba359c0086afdd8b5d07d483720e201b6"
+    "storageHash": "35f37c211c5d5bfe922c09f015cfd449f8155e90130c014589c3bf40430f87f9"
   },
   "execution": {
     "executionHash": "050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d",

@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'c6252bbb2a58a3b1f0298a6aca60d5bba359c0086afdd8b5d07d483720e201b6'>;
+  StorageHashBase<'35f37c211c5d5bfe922c09f015cfd449f8155e90130c014589c3bf40430f87f9'>;
 export type ExecutionHash =
   ExecutionHashBase<'050d797e9fb0bccbcb0ee205a1438bc9ff0057ec0e78c375852444e30b21f14d'>;
 export type ProfileHash =
@@ -352,6 +352,9 @@ type FieldTypeOverrides = {
           readonly input: 'NONE' | 'GAME_MASTER' | 'VOLUNTEER' | 'PLAYER' | 'TEAM_MEMBER';
         };
       };
+      readonly Page: {
+        readonly specialRole: { readonly output: 'DISCORD'; readonly input: 'DISCORD' };
+      };
       readonly RelatedLarp: {
         readonly type: {
           readonly output:
@@ -542,6 +545,9 @@ type ColumnTypeOverrides = {
         readonly output: 'NONE' | 'GAME_MASTER' | 'VOLUNTEER' | 'PLAYER' | 'TEAM_MEMBER';
         readonly input: 'NONE' | 'GAME_MASTER' | 'VOLUNTEER' | 'PLAYER' | 'TEAM_MEMBER';
       };
+    };
+    readonly page: {
+      readonly special_role: { readonly output: 'DISCORD'; readonly input: 'DISCORD' };
     };
     readonly related_larp: {
       readonly type: {
@@ -836,6 +842,7 @@ export namespace Models {
     language: FieldOutputTypes['public']['Page']['language'];
     menuPosition: FieldOutputTypes['public']['Page']['menuPosition'];
     slug: FieldOutputTypes['public']['Page']['slug'];
+    specialRole: FieldOutputTypes['public']['Page']['specialRole'];
     title: FieldOutputTypes['public']['Page']['title'];
     updatedAt: FieldOutputTypes['public']['Page']['updatedAt'];
     headerImage: public_HeaderImage | null;
@@ -2145,6 +2152,13 @@ type ContractBase = Omit<
                   };
                   readonly many: false;
                 };
+                readonly special_role: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly typeName: 'PageSpecialRole' };
+                  readonly many: false;
+                };
                 readonly title: {
                   readonly dataType: 'pg/text';
                   readonly codecId: 'pg/text@1';
@@ -2663,6 +2677,10 @@ type ContractBase = Omit<
             readonly Openness: {
               readonly kind: 'valueSet';
               readonly values: readonly ['OPEN', 'TARGETED', 'INVITE_ONLY'];
+            };
+            readonly PageSpecialRole: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['DISCORD'];
             };
             readonly RelatedLarpType: {
               readonly kind: 'valueSet';
@@ -3830,6 +3848,14 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly specialRole: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'PageSpecialRole' };
+                };
+              };
               readonly title: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -3867,6 +3893,7 @@ type ContractBase = Omit<
                 readonly language: { readonly column: 'language' };
                 readonly menuPosition: { readonly column: 'menu_position' };
                 readonly slug: { readonly column: 'slug' };
+                readonly specialRole: { readonly column: 'special_role' };
                 readonly title: { readonly column: 'title' };
                 readonly updatedAt: { readonly column: 'updated_at' };
               };

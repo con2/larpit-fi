@@ -1791,6 +1791,14 @@ const translations: Translations = {
         helpText:
           "Sivut, joilla on järjestysnumero, näkyvät kielensä ”Larppaaminen?” -valikossa pienimmästä alkaen. Jätä tyhjäksi, jos sivua ei näytetä valikossa.",
       },
+      specialRole: {
+        title: "Erityisrooli",
+        helpText: "Antaa sivulle sisällön lisäksi omaa toiminnallisuutta.",
+        none: "Ei mitään",
+        choices: {
+          DISCORD: "Discord-kutsulinkki sisäänkirjautuneille",
+        },
+      },
     },
     errors: {
       invalid:
@@ -1831,6 +1839,9 @@ const translations: Translations = {
       },
       submit: {
         title: "Tallenna muutokset",
+      },
+      joinDiscord: {
+        title: "Liity Discordiin",
       },
     },
   },

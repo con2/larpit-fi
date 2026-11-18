@@ -50,8 +50,8 @@ databasePooled: false
 
 # THE PRODUCTION-RECOMMENDED PATH: point at a pre-existing Secret with keys
 # DATABASE_URL, AUTH_SECRET, KOMPASSI_OIDC_CLIENT_ID, KOMPASSI_OIDC_CLIENT_SECRET (and optionally
-# DATABASE_URL_POOLED and DATABASE_URL_REPLICA, and S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY when
-# `s3.bucket` is set) and the chart skips creating its own.
+# DATABASE_URL_POOLED and DATABASE_URL_REPLICA, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY when
+# `s3.bucket` is set, and DISCORD_INVITE_URL) and the chart skips creating its own.
 existingSecretName: ""
 secret:
   databaseUrl: postgresql://changeme:changeme@postgres:5432/changeme
@@ -64,3 +64,6 @@ secret:
   kompassiClientSecret: changeme
   s3AccessKeyId: ""
   s3SecretAccessKey: ""
+  # Discord invite for pages with the DISCORD special role. A Secret, not a value, because
+  # values files are public and spammers harvest invites from them.
+  discordInviteUrl: ""

@@ -9,6 +9,7 @@ import {
   Form,
   FormControl,
   FormLabel,
+  FormSelect,
   FormText,
 } from "react-bootstrap";
 
@@ -26,6 +27,7 @@ import {
   getUserFromSession,
 } from "@/models/User";
 import { db } from "@/prisma/db";
+import { PageSpecialRole } from "@/prisma/enums";
 import { getTranslations } from "@/translations";
 import { changePageSlug, putPage } from "./actions";
 
@@ -195,6 +197,25 @@ export default async function EditPagePage({ params, searchParams }: Props) {
                     style={{ maxWidth: "10rem" }}
                   />
                   <FormText>{t.attributes.menuPosition.helpText}</FormText>
+                </div>
+
+                <div className="form-group mb-3">
+                  <FormLabel htmlFor="PageEditorComponent-specialRole">
+                    {t.attributes.specialRole.title}
+                  </FormLabel>
+                  <FormSelect
+                    id="PageEditorComponent-specialRole"
+                    name="specialRole"
+                    defaultValue={page.specialRole ?? ""}
+                  >
+                    <option value="">{t.attributes.specialRole.none}</option>
+                    {Object.values(PageSpecialRole).map((role) => (
+                      <option key={role} value={role}>
+                        {t.attributes.specialRole.choices[role]}
+                      </option>
+                    ))}
+                  </FormSelect>
+                  <FormText>{t.attributes.specialRole.helpText}</FormText>
                 </div>
               </>
             )}

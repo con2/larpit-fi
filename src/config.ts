@@ -73,6 +73,13 @@ export const s3 = {
 };
 export const headerImagesEnabled = !!s3.bucket;
 
+/**
+ * Invite to the Larp.fi Discord server, handed to signed-in visitors on pages with the DISCORD
+ * special role. It comes from the environment because the repository is public and spammers
+ * harvest invites from it. Empty hides the button from signed-in visitors.
+ */
+export const discordInviteUrl = process.env.DISCORD_INVITE_URL || "";
+
 export const featureFlags = {
   localSignup: false,
   /**

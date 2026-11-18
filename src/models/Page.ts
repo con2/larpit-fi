@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { db } from "@/prisma/db";
+import { PageSpecialRole } from "@/prisma/enums";
 import { deleteHeaderImage } from "./HeaderImage";
 import {
   contactPageSlug,
@@ -18,6 +19,7 @@ export const PageForm = z.object({
   ingress: z.string().normalize().optional().default(""),
   content: z.string().normalize().optional().default(""),
   menuPosition: z.number().int().nullable(),
+  specialRole: z.enum(PageSpecialRole).nullable(),
 });
 
 export const NewPageForm = z.object({

@@ -1755,6 +1755,14 @@ const translations = {
         helpText:
           "Pages with a position appear in the “What is larp?” menu of their language, smallest first. Leave empty to keep the page out of the menu.",
       },
+      specialRole: {
+        title: "Special role",
+        helpText: "Gives the page behaviour of its own on top of its content.",
+        none: "None",
+        choices: {
+          DISCORD: "Discord invite link for signed-in users",
+        },
+      },
     },
     errors: {
       invalid:
@@ -1795,6 +1803,9 @@ const translations = {
       },
       submit: {
         title: "Save changes",
+      },
+      joinDiscord: {
+        title: "Join Discord",
       },
     },
   },

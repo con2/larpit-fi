@@ -1,0 +1,83 @@
+[
+  {
+    "id": "createNativeEnumType.PageSpecialRole",
+    "label": "Create enum type \"PageSpecialRole\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "PageSpecialRole"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"PageSpecialRole\"",
+        "sql": "CREATE TYPE \"public\".\"PageSpecialRole\" AS ENUM ('DISCORD')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "column.public.page.special_role",
+    "label": "Add column \"special_role\" to \"page\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "special_role",
+        "table": "page"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"special_role\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "special_role"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"special_role\" on \"page\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"special_role\"",
+        "sql": "ALTER TABLE \"public\".\"page\" ADD COLUMN \"special_role\" \"PageSpecialRole\""
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"special_role\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "page",
+          "special_role"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"special_role\" on \"page\""
+        }
+      },
+      {
+        "description": "verify column \"special_role\" has type \"PageSpecialRole\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" WHERE (\"a\".\"attrelid\" = to_regclass($1) AND \"a\".\"attname\" = $2 AND \"a\".\"atttypid\" = to_regtype($3) AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "\"public\".\"page\"",
+          "special_role",
+          "\"PageSpecialRole\""
+        ]
+      }
+    ]
+  }
+]

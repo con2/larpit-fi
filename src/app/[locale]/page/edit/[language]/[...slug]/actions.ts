@@ -33,9 +33,10 @@ export async function putPage(
     ingress: formData.get("ingress") ?? "",
     content: formData.get("content") ?? "",
     menuPosition: parseMenuPosition(formData.get("menuPosition")),
+    specialRole: formData.get("specialRole") || null,
   });
 
-  // The front page shows only its ingress, so its form has no content or menu position fields.
+  // The front page shows only its ingress, so its form has only the title and ingress fields.
   const update =
     slug === frontPageSlug
       ? { title: page.title, ingress: page.ingress }
